@@ -1,0 +1,137 @@
+/* ── hero ── */
+.hero {
+  padding: clamp(56px, 12vw, 120px) 0 clamp(40px, 8vw, 72px);
+  text-align: center;
+}
+
+.heroInner {
+  max-width: 720px;
+}
+
+.bismillah {
+  font-size: clamp(1.3rem, 4vw, 1.9rem);
+  color: var(--gold);
+  margin-bottom: 28px;
+}
+
+.h1 {
+  margin-top: 6px;
+}
+
+.gold { color: var(--gold); }
+
+.lede {
+  margin: 22px auto 0;
+}
+
+.scrollHint {
+  margin-top: 44px;
+  font-family: var(--font-display), Georgia, serif;
+  font-style: italic;
+  font-size: 1.1rem;
+  color: var(--muted);
+}
+
+/* ── doorways ── */
+.doors {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(16px, 2.4vw, 24px);
+  padding-bottom: clamp(48px, 10vw, 96px);
+}
+
+.door {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  background: var(--card);
+  border: 1px solid var(--line);
+  transition: transform 0.28s ease, box-shadow 0.28s ease;
+}
+
+.door:hover {
+  transform: translateY(-7px);
+  box-shadow: 0 32px 60px -30px rgba(46, 74, 58, 0.45);
+}
+
+.door:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+}
+
+.doorImgWrap {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  display: block;
+}
+
+.doorImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.door:hover .doorImg {
+  transform: scale(1.05);
+}
+
+.doorShade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(40, 38, 34, 0) 55%, rgba(40, 38, 34, 0.18));
+}
+
+.doorBody {
+  padding: 26px 26px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  flex: 1;
+}
+
+.doorEyebrow {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+}
+
+.doorTitle {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.5rem;
+  color: var(--forest);
+}
+
+.doorDesc {
+  font-size: 0.94rem;
+  color: var(--muted);
+  flex: 1;
+}
+
+.doorCta {
+  margin-top: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--forest);
+}
+
+.door:hover .doorCta { color: var(--gold-deep); }
+
+/* ── tablet ── */
+@media (max-width: 900px) {
+  .doors {
+    grid-template-columns: 1fr;
+    max-width: 520px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .doorImgWrap {
+    aspect-ratio: 16 / 9;
+  }
+}
