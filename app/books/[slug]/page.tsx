@@ -94,8 +94,8 @@ export default async function BookPage({
               <Image
                 src={p.src}
                 alt={p.caption}
-                width={350}
-                height={350}
+                width={900}
+                height={900}
                 className={styles.previewImg}
               />
               <figcaption className={styles.previewCap}>{p.caption}</figcaption>
