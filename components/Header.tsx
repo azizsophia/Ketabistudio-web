@@ -94,9 +94,6 @@ export default function Header() {
             )
           )}
           <Link href="/about" onClick={() => setOpen(false)}>About</Link>
-          <Link href="/books" className="btn btn-primary" onClick={() => setOpen(false)}>
-            Shop books
-          </Link>
         </nav>
       )}
     </header>
