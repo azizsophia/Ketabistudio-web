@@ -7,13 +7,13 @@ export default function Hero() {
     <section className={styles.hero}>
       <div className={`wrap ${styles.inner}`}>
         <h1 className={styles.h1}>
-          From the Quran&apos;s wonders
+          The wonder of the Quran,
           <br />
-          to bedtime stories<span className={styles.gold}>.</span>
+          for every age<span className={styles.gold}>.</span>
         </h1>
         <p className={`lede ${styles.lede}`}>
-          Films on the miracles of the Quran, hand-illustrated storybooks for
-          children, and a calm app for daily dhikr.
+          Films that explore its miracles. Storybooks for little hearts. A
+          calm app for your daily dhikr.
         </p>
 
         <div className={styles.bento}>
@@ -47,10 +47,10 @@ export default function Hero() {
 
           <Link href="#app" className={`${styles.tile} ${styles.tileApp}`}>
             <Image
-              src="/images/app-home.jpg"
+              src="/images/app-adhkar-ar.jpg"
               alt=""
-              width={631}
-              height={1200}
+              width={560}
+              height={1065}
               className={styles.tilePhone}
             />
             <span className={styles.tileNum}>III</span>

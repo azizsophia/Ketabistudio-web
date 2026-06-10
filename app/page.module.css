@@ -319,3 +319,37 @@
     margin-top: 36px;
   }
 }
+
+.appTop {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 56px;
+  align-items: center;
+  margin-bottom: 56px;
+}
+
+.appQuote {
+  text-align: center;
+}
+
+.appCtas {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.playSoon {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sage);
+}
+
+@media (max-width: 880px) {
+  .appTop {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+}

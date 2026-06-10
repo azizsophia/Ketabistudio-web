@@ -1,0 +1,34 @@
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: var(--cream);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: splash-out 0.5s ease 1.6s both;
+}
+
+.bismillah {
+  font-size: clamp(1.9rem, 6vw, 3.2rem);
+  color: var(--forest);
+  /* revealed right-to-left, like ink being written */
+  clip-path: inset(0 0 0 100%);
+  animation: write 1.4s cubic-bezier(0.6, 0, 0.3, 1) 0.15s both;
+}
+
+@keyframes write {
+  from {
+    clip-path: inset(0 0 0 100%);
+  }
+  to {
+    clip-path: inset(0 0 0 0%);
+  }
+}
+
+@keyframes splash-out {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}

@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Hero from "@/components/Hero";
 import Personalizer from "@/components/Personalizer";
+import AppGallery from "@/components/AppGallery";
 import styles from "./page.module.css";
 
 const books = [
@@ -126,32 +127,41 @@ export default function Home() {
 
       {/* ── CHAPTER 3: REFLECT DAILY ── */}
       <section id="app" className={styles.appSection}>
-        <div className={`wrap ${styles.appGrid}`}>
-          <div>
-            <span className={`${styles.chapterNum} ${styles.chapterNumLight}`}>
-              Chapter three
-            </span>
-            <h2 className={styles.appHeading}>Reflect daily</h2>
-            <p className={`lede ${styles.appLede}`}>
-              The Ketabi app — track your prayers, keep your morning and
-              evening adhkar, and journal your journey in a calm, ad-free
-              space.
-            </p>
-            <div className={styles.appCtas}>
-              <Link href="/about" className="btn btn-gold">
-                About the app
-              </Link>
+        <div className="wrap">
+          <div className={styles.appTop}>
+            <div>
+              <span className={`${styles.chapterNum} ${styles.chapterNumLight}`}>
+                Chapter three
+              </span>
+              <h2 className={styles.appHeading}>Reflect daily</h2>
+              <p className={`lede ${styles.appLede}`}>
+                The Ketabi app — track your prayers, keep your morning and
+                evening adhkar, and journal your journey in a calm, ad-free
+                space.
+              </p>
+              <div className={styles.appCtas}>
+                <a
+                  href="https://apps.apple.com/us/app/ketabi/id6768112231"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-gold"
+                >
+                  Download on the App Store
+                </a>
+                <span className={styles.playSoon}>Google Play — coming soon</span>
+              </div>
+            </div>
+            <div className={styles.appQuote}>
+              <p className={`arabic ${styles.appArabic}`}>
+                أَلَا بِذِكْرِ اللّٰهِ تَطْمَئِنُّ الْقُلُوبُ
+              </p>
+              <p className={styles.appVerse}>
+                “Truly, in the remembrance of Allah do hearts find rest.”
+              </p>
+              <p className={styles.appRef}>Quran 13:28</p>
             </div>
           </div>
-          <div className={styles.appPanel}>
-            <p className={`arabic ${styles.appArabic}`}>
-              أَلَا بِذِكْرِ اللّٰهِ تَطْمَئِنُّ الْقُلُوبُ
-            </p>
-            <p className={styles.appVerse}>
-              “Truly, in the remembrance of Allah do hearts find rest.”
-            </p>
-            <p className={styles.appRef}>Quran 13:28</p>
-          </div>
+          <AppGallery />
         </div>
       </section>
 

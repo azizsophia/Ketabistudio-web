@@ -3,6 +3,7 @@ import { Fraunces, Plus_Jakarta_Sans, Amiri } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import Splash from "@/components/Splash";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -47,6 +48,7 @@ export default function RootLayout({
       <body
         className={`${fraunces.variable} ${jakarta.variable} ${amiri.variable}`}
       >
+        <Splash />
         <Header />
         <main>{children}</main>
         <Footer />
