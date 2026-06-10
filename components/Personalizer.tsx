@@ -6,15 +6,23 @@ import styles from "./Personalizer.module.css";
 
 const MAX = 14;
 
-const LOOKS = [
-  { key: "light", label: "Light", swatch: "#f3d5bd" },
-  { key: "medium", label: "Medium", swatch: "#d9a877" },
-  { key: "dark", label: "Deep", swatch: "#9c6b44" },
+const SKINS = [
+  { key: "light", label: "Light skin", swatch: "#f3d5bd" },
+  { key: "medium", label: "Medium skin", swatch: "#d9a877" },
+  { key: "dark", label: "Deep skin", swatch: "#9c6b44" },
+] as const;
+
+const HAIRS = [
+  { key: "black", label: "Black hair", swatch: "#2b2326" },
+  { key: "brown", label: "Brown hair", swatch: "#6b4630" },
+  { key: "blonde", label: "Blonde hair", swatch: "#c79a4e" },
+  { key: "red", label: "Red hair", swatch: "#b85c34" },
 ] as const;
 
 export default function Personalizer() {
   const [name, setName] = useState("");
-  const [look, setLook] = useState<(typeof LOOKS)[number]["key"]>("medium");
+  const [skin, setSkin] = useState<(typeof SKINS)[number]["key"]>("medium");
+  const [hair, setHair] = useState<(typeof HAIRS)[number]["key"]>("black");
   const shown = (name.trim() || "Amira").slice(0, MAX);
 
   return (
@@ -22,7 +30,7 @@ export default function Personalizer() {
       <div className={styles.controls}>
         <p className={styles.title}>Make her the star</p>
         <p className={styles.sub}>
-          Type a name, choose her look — and watch the cover come to life.
+          Her name, her skin, her hair — watch the cover come to life.
         </p>
 
         <label className={styles.label} htmlFor="kid-name">
@@ -39,21 +47,40 @@ export default function Personalizer() {
           autoComplete="off"
         />
 
-        <p className={styles.label} id="look-label">
-          Her look
+        <p className={styles.label} id="skin-label">
+          Her skin
         </p>
-        <div className={styles.swatches} role="group" aria-labelledby="look-label">
-          {LOOKS.map((l) => (
+        <div className={styles.swatches} role="group" aria-labelledby="skin-label">
+          {SKINS.map((s) => (
             <button
-              key={l.key}
+              key={s.key}
               type="button"
               className={`${styles.swatch} ${
-                look === l.key ? styles.swatchActive : ""
+                skin === s.key ? styles.swatchActive : ""
               }`}
-              style={{ background: l.swatch }}
-              aria-label={l.label}
-              aria-pressed={look === l.key}
-              onClick={() => setLook(l.key)}
+              style={{ background: s.swatch }}
+              aria-label={s.label}
+              aria-pressed={skin === s.key}
+              onClick={() => setSkin(s.key)}
+            />
+          ))}
+        </div>
+
+        <p className={styles.label} id="hair-label">
+          Her hair
+        </p>
+        <div className={styles.swatches} role="group" aria-labelledby="hair-label">
+          {HAIRS.map((h) => (
+            <button
+              key={h.key}
+              type="button"
+              className={`${styles.swatch} ${
+                hair === h.key ? styles.swatchActive : ""
+              }`}
+              style={{ background: h.swatch }}
+              aria-label={h.label}
+              aria-pressed={hair === h.key}
+              onClick={() => setHair(h.key)}
             />
           ))}
         </div>
@@ -61,18 +88,26 @@ export default function Personalizer() {
 
       <div className={styles.bookWrap} aria-hidden="true">
         <div className={styles.book}>
-          {LOOKS.map((l) => (
-            <Image
-              key={l.key}
-              src={`/images/hero-${l.key}.jpg`}
-              alt=""
-              width={1100}
-              height={1100}
-              priority={l.key === "medium"}
-              className={styles.art}
-              style={{ display: look === l.key ? "block" : "none" }}
-            />
-          ))}
+          {SKINS.map((s) =>
+            HAIRS.map((h) => (
+              <Image
+                key={`${s.key}-${h.key}`}
+                src={`/images/hero-${s.key}-${h.key}.jpg`}
+                alt=""
+                width={1100}
+                height={1100}
+                priority={s.key === "medium" && h.key === "black"}
+                loading={
+                  s.key === "medium" && h.key === "black" ? undefined : "lazy"
+                }
+                className={styles.art}
+                style={{
+                  display:
+                    skin === s.key && hair === h.key ? "block" : "none",
+                }}
+              />
+            ))
+          )}
           <div className={styles.overlay}>
             <span
               className={styles.bookName}
