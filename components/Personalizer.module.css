@@ -1,0 +1,151 @@
+.box {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 48px;
+  align-items: center;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  padding: 48px;
+  margin-top: 56px;
+}
+
+.title {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.7rem;
+  color: var(--forest);
+}
+
+.sub {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 0.98rem;
+}
+
+.label {
+  display: block;
+  margin-top: 26px;
+  margin-bottom: 10px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+}
+
+.input {
+  width: 100%;
+  max-width: 280px;
+  padding: 14px 20px;
+  border-radius: 999px;
+  border: 2px solid var(--line);
+  background: var(--cream);
+  font-family: var(--font-body), sans-serif;
+  font-size: 1.02rem;
+  color: var(--ink);
+  transition: border-color 0.15s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--forest);
+}
+
+.input::placeholder {
+  color: #b9b2a3;
+}
+
+.swatches {
+  display: flex;
+  gap: 12px;
+}
+
+.swatch {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  box-shadow: 0 0 0 1px var(--line);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  padding: 0;
+}
+
+.swatch:hover {
+  transform: scale(1.08);
+}
+
+.swatch:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.swatchActive {
+  box-shadow: 0 0 0 2px var(--card), 0 0 0 4.5px var(--forest);
+}
+
+.bookWrap {
+  display: flex;
+  justify-content: center;
+  perspective: 1200px;
+}
+
+.book {
+  position: relative;
+  width: min(380px, 100%);
+  border-radius: 4px 14px 14px 4px;
+  overflow: hidden;
+  box-shadow:
+    0 36px 64px -28px rgba(46, 74, 58, 0.45),
+    0 0 0 1px var(--line);
+  transform: rotateY(-7deg) rotate(0.8deg);
+  transition: transform 0.35s ease;
+}
+
+.box:hover .book {
+  transform: rotateY(-2deg) rotate(0.3deg);
+}
+
+.art {
+  width: 100%;
+  height: auto;
+}
+
+.overlay {
+  position: absolute;
+  top: 4.5%;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-align: center;
+  pointer-events: none;
+}
+
+.bookName {
+  font-family: var(--font-display), Georgia, serif;
+  font-weight: 640;
+  color: #d88a2b;
+  line-height: 1.05;
+  white-space: nowrap;
+}
+
+.bookSub {
+  font-family: var(--font-display), Georgia, serif;
+  font-weight: 600;
+  font-size: clamp(0.85rem, 2vw, 1.15rem);
+  color: #d88a2b;
+}
+
+@media (max-width: 880px) {
+  .box {
+    grid-template-columns: 1fr;
+    padding: 32px 24px;
+    gap: 36px;
+  }
+  .book {
+    transform: none;
+  }
+}

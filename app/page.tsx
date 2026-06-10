@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import HeroPersonalizer from "@/components/HeroPersonalizer";
+import Hero from "@/components/Hero";
+import Personalizer from "@/components/Personalizer";
 import styles from "./page.module.css";
 
 const books = [
@@ -39,17 +40,7 @@ const videos = [
 export default function Home() {
   return (
     <>
-      <HeroPersonalizer />
-
-      {/* ── THE JOURNEY ── */}
-      <section className={styles.journeyIntro}>
-        <div className="wrap">
-          <div className="divider" role="presentation"><span /></div>
-          <p className={styles.journeyLine}>
-            Ketabi means <em>my book</em>. Here is ours — in three chapters.
-          </p>
-        </div>
-      </section>
+      <Hero />
 
       {/* ── CHAPTER 1: WATCH & LEARN ── */}
       <section id="learn" className="section">
@@ -105,11 +96,12 @@ export default function Home() {
             <span className={styles.chapterNum}>Chapter two</span>
             <h2>Read together</h2>
             <p className="lede">
-              Storybooks illustrated by hand and written with care — Islamic
-              values at the heart of every page. More for little ones coming
-              soon, inshaAllah.
+              You watch with little ones beside you — this chapter is for
+              them. Storybooks illustrated by hand and written with care,
+              Islamic values at the heart of every page.
             </p>
           </div>
+          <Personalizer />
           <div className={styles.shelf}>
             {books.map((b) => (
               <Link key={b.slug} href="#books" className={styles.bookItem}>
@@ -171,17 +163,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── KIDS CORNER — a small door, not a chapter yet ── */}
-      <section id="kids" className="section">
-        <div className={`wrap ${styles.kidsCard}`}>
-          <p className={styles.kidsEyebrow}>And one more door…</p>
-          <h2 className={styles.kidsHeading}>The Kids Corner</h2>
-          <p className={styles.kidsLede}>
-            Stories, activities, and little adventures — opening soon,
-            inshaAllah.
-          </p>
-        </div>
-      </section>
     </>
   );
 }

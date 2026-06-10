@@ -14,7 +14,6 @@ export default function Header() {
           <Link href="/#learn">Watch</Link>
           <Link href="/#books">Books</Link>
           <Link href="/#app">App</Link>
-          <Link href="/#kids">Kids Corner</Link>
           <Link href="/about">About</Link>
         </nav>
         <Link href="/#books" className={`btn btn-primary ${styles.cta}`}>

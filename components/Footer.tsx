@@ -12,7 +12,6 @@ export default function Footer() {
           <Link href="/#learn">Watch</Link>
           <Link href="/#books">Books</Link>
           <Link href="/#app">App</Link>
-          <Link href="/#kids">Kids Corner</Link>
           <Link href="/about">About</Link>
           <Link href="/privacy-policy">Privacy Policy</Link>
         </nav>
