@@ -132,7 +132,9 @@ export default function AppPage() {
       {/* keep ketabi free, intentional, quiet */}
       <section className={`wrap ${styles.coffee}`}>
         <div className={styles.coffeeInner}>
-          <p className={`arabic ${styles.coffeeArabic}`}>﷽</p>
+          <p className={`arabic ${styles.coffeeArabic}`}>
+            بِسْمِ اللّٰهِ
+          </p>
           <h2 className={styles.coffeeTitle}>Keep Ketabi free</h2>
           <p className={styles.coffeeBody}>
             Ketabi is free, ad-free, and built independently, your prayers

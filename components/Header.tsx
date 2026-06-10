@@ -26,8 +26,8 @@ export default function Header() {
         </Link>
 
         <nav className={styles.nav} aria-label="Main">
-          <Link href="/#learn">Watch</Link>
-          <Link href="/books">Books</Link>
+          <Link href="/#watch">Watch</Link>
+          <Link href="/books">Children's books</Link>
           <div
             className={styles.dropWrap}
             onMouseEnter={() => setAppOpen(true)}
@@ -77,8 +77,8 @@ export default function Header() {
 
       {open && (
         <nav className={styles.sheet} aria-label="Mobile">
-          <Link href="/#learn" onClick={() => setOpen(false)}>Watch</Link>
-          <Link href="/books" onClick={() => setOpen(false)}>Books</Link>
+          <Link href="/#watch" onClick={() => setOpen(false)}>Watch</Link>
+          <Link href="/books" onClick={() => setOpen(false)}>Children's books</Link>
           <p className={styles.sheetGroup}>The Ketabi app</p>
           {APP_LINKS.map((l) =>
             l.ext ? (

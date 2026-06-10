@@ -161,3 +161,11 @@
   .nav, .cta { display: none; }
   .burger { display: flex; }
 }
+
+
+/* ensure mobile drawer CTA text is always visible */
+.sheet a.btn,
+.sheet .btn {
+  color: var(--cream) !important;
+  background: var(--forest);
+}

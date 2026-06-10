@@ -9,8 +9,8 @@ export default function Footer() {
           بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ
         </p>
         <nav className={styles.links} aria-label="Footer">
-          <Link href="/#learn">Watch</Link>
-          <Link href="/books">Books</Link>
+          <Link href="/#watch">Watch</Link>
+          <Link href="/books">Children's books</Link>
           <Link href="/#app">App</Link>
           <Link href="/about">About</Link>
           <Link href="/privacy-policy">Privacy Policy</Link>

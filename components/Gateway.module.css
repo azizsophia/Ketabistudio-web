@@ -24,26 +24,25 @@
   margin: 22px auto 0;
 }
 
-.socials {
-  margin-top: 30px;
+.doorSocials {
   display: flex;
-  gap: 14px;
-  justify-content: center;
+  gap: 10px;
+  margin-top: 8px;
 }
 
-.socials a {
-  padding: 9px 22px;
+.doorSocials a {
+  padding: 9px 18px;
   border-radius: 999px;
   border: 1.5px solid var(--line);
-  font-size: 0.8rem;
+  font-size: 0.74rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
   color: var(--forest);
   transition: all 0.15s ease;
 }
 
-.socials a:hover {
+.doorSocials a:hover {
   background: var(--forest);
   border-color: var(--forest);
   color: var(--cream);
@@ -59,6 +58,7 @@
 
 /* ── doorways ── */
 .doors {
+  scroll-margin-top: 90px;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: clamp(16px, 2.4vw, 24px);
