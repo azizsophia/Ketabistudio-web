@@ -149,3 +149,38 @@
     transform: none;
   }
 }
+
+.stylePills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.pill {
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 2px solid var(--line);
+  background: var(--cream);
+  font-family: var(--font-body), sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.pill:hover {
+  border-color: var(--sage);
+  color: var(--forest);
+}
+
+.pill:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.pillActive {
+  background: var(--forest);
+  border-color: var(--forest);
+  color: var(--cream);
+}

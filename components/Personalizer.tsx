@@ -19,10 +19,18 @@ const HAIRS = [
   { key: "red", label: "Red hair", swatch: "#b85c34" },
 ] as const;
 
+const STYLES = [
+  { key: "long-straight", label: "Long & straight" },
+  { key: "long-curly", label: "Long & curly" },
+  { key: "short-straight", label: "Short & straight" },
+  { key: "short-curly", label: "Short & curly" },
+] as const;
+
 export default function Personalizer() {
   const [name, setName] = useState("");
   const [skin, setSkin] = useState<(typeof SKINS)[number]["key"]>("medium");
   const [hair, setHair] = useState<(typeof HAIRS)[number]["key"]>("black");
+  const [style, setStyle] = useState<(typeof STYLES)[number]["key"]>("long-straight");
   const shown = (name.trim() || "Amira").slice(0, MAX);
 
   return (
@@ -84,30 +92,37 @@ export default function Personalizer() {
             />
           ))}
         </div>
+
+        <p className={styles.label} id="style-label">
+          Her hairstyle
+        </p>
+        <div className={styles.stylePills} role="group" aria-labelledby="style-label">
+          {STYLES.map((s) => (
+            <button
+              key={s.key}
+              type="button"
+              className={`${styles.pill} ${
+                style === s.key ? styles.pillActive : ""
+              }`}
+              aria-pressed={style === s.key}
+              onClick={() => setStyle(s.key)}
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className={styles.bookWrap} aria-hidden="true">
         <div className={styles.book}>
-          {SKINS.map((s) =>
-            HAIRS.map((h) => (
-              <Image
-                key={`${s.key}-${h.key}`}
-                src={`/images/hero-${s.key}-${h.key}.jpg`}
-                alt=""
-                width={1100}
-                height={1100}
-                priority={s.key === "medium" && h.key === "black"}
-                loading={
-                  s.key === "medium" && h.key === "black" ? undefined : "lazy"
-                }
-                className={styles.art}
-                style={{
-                  display:
-                    skin === s.key && hair === h.key ? "block" : "none",
-                }}
-              />
-            ))
-          )}
+          <Image
+            src={`/images/hero-${skin}-${hair}-${style}.jpg`}
+            alt=""
+            width={1100}
+            height={1100}
+            priority
+            className={styles.art}
+          />
           <div className={styles.overlay}>
             <span
               className={styles.bookName}

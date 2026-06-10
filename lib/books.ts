@@ -26,8 +26,18 @@ export const HAIR_TO_PSD: Record<Hair, string> = {
   red: "Red",
 };
 
-/** Hair styles exist in the PSDs (Short/Long x Curly/Straight); v1 fixes this. */
-export const HAIR_STYLE_DEFAULT = "Long straight";
+export type HairStyle =
+  | "long-straight"
+  | "long-curly"
+  | "short-straight"
+  | "short-curly";
+
+export const STYLE_TO_PSD: Record<HairStyle, string> = {
+  "long-straight": "Long straight",
+  "long-curly": "Long curly",
+  "short-straight": "Short straight",
+  "short-curly": "Short curly",
+};
 
 /** Shared Lulu print spec — identical for all three titles (validated). */
 export const PRINT_SPEC = {
@@ -56,7 +66,12 @@ export type Book = {
     | {
         type: "personalized";
         pipeline: "modesty_pipeline";
-        fields: { name: { min: 1; max: 14 }; skin: Skin[]; hair: Hair[] };
+        fields: {
+          name: { min: 1; max: 14 };
+          skin: Skin[];
+          hair: Hair[];
+          hairStyle: HairStyle[];
+        };
         appearsOn: string[];
       }
     | {
@@ -91,6 +106,12 @@ export const BOOKS: Book[] = [
         name: { min: 1, max: 14 },
         skin: ["light", "medium", "dark"],
         hair: ["black", "brown", "blonde", "red"],
+        hairStyle: [
+          "long-straight",
+          "long-curly",
+          "short-straight",
+          "short-curly",
+        ],
       },
       appearsOn: ["Front cover", "Title page", "Dedication", "Bookplate"],
     },
