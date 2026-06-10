@@ -12,11 +12,11 @@ export default function Header() {
         </Link>
         <nav className={styles.nav} aria-label="Main">
           <Link href="/#learn">Watch</Link>
-          <Link href="/#books">Books</Link>
+          <Link href="/books">Books</Link>
           <Link href="/#app">App</Link>
           <Link href="/about">About</Link>
         </nav>
-        <Link href="/#books" className={`btn btn-primary ${styles.cta}`}>
+        <Link href="/books" className={`btn btn-primary ${styles.cta}`}>
           Shop books
         </Link>
       </div>

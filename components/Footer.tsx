@@ -10,7 +10,7 @@ export default function Footer() {
         </p>
         <nav className={styles.links} aria-label="Footer">
           <Link href="/#learn">Watch</Link>
-          <Link href="/#books">Books</Link>
+          <Link href="/books">Books</Link>
           <Link href="/#app">App</Link>
           <Link href="/about">About</Link>
           <Link href="/privacy-policy">Privacy Policy</Link>

@@ -97,7 +97,7 @@ export default function Home() {
           <p className={styles.alsoLabel}>Also on the shelf</p>
           <div className={styles.shelf}>
             {books.map((b) => (
-              <Link key={b.slug} href="#books" className={styles.bookItem}>
+              <Link key={b.slug} href="/books" className={styles.bookItem}>
                 <span className={styles.bookScene}>
                   <span className={styles.book3d}>
                     <span

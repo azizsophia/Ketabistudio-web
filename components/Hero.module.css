@@ -166,3 +166,29 @@
     grid-template-columns: 1fr;
   }
 }
+
+.playBadge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -58%);
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: rgba(246, 244, 239, 0.14);
+  border: 1.5px solid rgba(201, 168, 76, 0.55);
+  backdrop-filter: blur(4px);
+  color: var(--gold);
+  font-size: 1.05rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: 4px;
+  z-index: 2;
+  transition: transform 0.22s ease, background 0.22s ease;
+}
+
+.tileWatch:hover .playBadge {
+  transform: translate(-50%, -58%) scale(1.1);
+  background: rgba(201, 168, 76, 0.25);
+}

@@ -22,13 +22,14 @@ export default function Hero() {
             <span className={`arabic ${styles.tileArabic}`} aria-hidden="true">
               قُلْ هُوَ اللَّهُ أَحَدٌ
             </span>
+            <span className={styles.playBadge} aria-hidden="true">▶</span>
             <span className={styles.tileTitle}>Watch &amp; wonder</span>
             <span className={styles.tileDesc}>
               The Quran&apos;s miracles, in short films
             </span>
           </Link>
 
-          <Link href="#books" className={`${styles.tile} ${styles.tileRead}`}>
+          <Link href="/books" className={`${styles.tile} ${styles.tileRead}`}>
             <Image
               src="/images/hero-medium.jpg"
               alt=""

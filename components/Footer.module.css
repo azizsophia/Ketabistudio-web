@@ -1,7 +1,6 @@
 .footer {
   background: var(--forest);
   color: var(--cream);
-  margin-top: var(--space-section);
 }
 
 .inner {
