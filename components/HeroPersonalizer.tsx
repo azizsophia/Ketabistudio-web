@@ -29,14 +29,9 @@ export default function HeroPersonalizer() {
             little hearts grow.
           </h1>
           <p className={`lede ${styles.lede}`}>
-            Hand-illustrated books where your child is the star of the story —
+            Storybooks illustrated by hand, where your child is the star —
             printed, bound, and delivered to your door.
           </p>
-          <p className={styles.handmade}>
-            Hand-illustrated <span aria-hidden="true">◆</span> Human-written{" "}
-            <span aria-hidden="true">◆</span> No AI art
-          </p>
-
           <label className={styles.tryLabel} htmlFor="hero-name">
             Try it — type your daughter&apos;s name
           </label>

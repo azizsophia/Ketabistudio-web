@@ -9,6 +9,7 @@ export default function Footer() {
           بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ
         </p>
         <nav className={styles.links} aria-label="Footer">
+          <Link href="/#learn">Watch</Link>
           <Link href="/#books">Books</Link>
           <Link href="/#app">App</Link>
           <Link href="/#kids">Kids Corner</Link>
@@ -22,6 +23,13 @@ export default function Footer() {
             rel="noopener noreferrer"
           >
             TikTok
+          </a>
+          <a
+            href="https://www.youtube.com/@KetabiStudio"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            YouTube
           </a>
           <a href="mailto:ketabistudio@gmail.com">Contact</a>
         </div>

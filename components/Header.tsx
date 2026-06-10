@@ -11,6 +11,7 @@ export default function Header() {
           <span className={styles.name}>Ketabi Studio</span>
         </Link>
         <nav className={styles.nav} aria-label="Main">
+          <Link href="/#learn">Watch</Link>
           <Link href="/#books">Books</Link>
           <Link href="/#app">App</Link>
           <Link href="/#kids">Kids Corner</Link>

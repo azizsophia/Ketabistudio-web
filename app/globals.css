@@ -205,3 +205,14 @@ h3 {
     scroll-behavior: auto;
   }
 }
+
+/* gold button (on forest backgrounds) */
+.btn-gold {
+  background: var(--gold);
+  color: var(--forest-deep);
+}
+
+.btn-gold:hover {
+  background: #d8b95e;
+  transform: translateY(-1px);
+}
