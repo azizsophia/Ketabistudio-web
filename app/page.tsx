@@ -43,10 +43,11 @@ export default function Home() {
       <section id="books" className="section">
         <div className="wrap">
           <p className="eyebrow">The bookshelf</p>
-          <h2>Storybooks made with intention</h2>
+          <h2>Storybooks made by hand, with intention</h2>
           <p className={`lede ${styles.sectionLede}`}>
-            Premium hardback-quality printing, gentle prose, and Islamic
-            values at the heart of every story.
+            Every page hand-illustrated, every story human-written — no AI
+            art, ever. Premium printing, gentle prose, and Islamic values at
+            the heart of it all. More for little ones coming soon, inshaAllah.
           </p>
           <div className={styles.shelf}>
             {books.map((b) => (
@@ -67,6 +68,32 @@ export default function Home() {
                 </div>
               </article>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── COMMUNITY / SOCIALS ── */}
+      <section id="community" className={styles.community}>
+        <div className={`wrap ${styles.communityInner}`}>
+          <p className="eyebrow">The community</p>
+          <h2>Where it all began</h2>
+          <p className={`lede ${styles.sectionLede}`}>
+            Ketabi Studio grew from a community of families learning together
+            — daily Islamic stories, Arabic for little ones, and gentle
+            reminders, shared with tens of thousands of parents.
+          </p>
+          <div className={styles.communityCtas}>
+            <a
+              href="https://www.tiktok.com/@ketabi.studio"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-primary"
+            >
+              Follow on TikTok
+            </a>
+            <Link href="/#app" className="btn btn-outline">
+              Explore the app
+            </Link>
           </div>
         </div>
       </section>

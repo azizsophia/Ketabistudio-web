@@ -7,8 +7,15 @@ import styles from "./HeroPersonalizer.module.css";
 
 const MAX = 14;
 
+const LOOKS = [
+  { key: "light", label: "Light", swatch: "#f3d5bd" },
+  { key: "medium", label: "Medium", swatch: "#d9a877" },
+  { key: "dark", label: "Deep", swatch: "#9c6b44" },
+] as const;
+
 export default function HeroPersonalizer() {
   const [name, setName] = useState("");
+  const [look, setLook] = useState<(typeof LOOKS)[number]["key"]>("medium");
   const shown = (name.trim() || "Amira").slice(0, MAX);
 
   return (
@@ -22,8 +29,12 @@ export default function HeroPersonalizer() {
             little hearts grow.
           </h1>
           <p className={`lede ${styles.lede}`}>
-            Beautifully illustrated books where your child is part of the
-            story — printed, bound, and delivered to your door.
+            Hand-illustrated books where your child is the star of the story —
+            printed, bound, and delivered to your door.
+          </p>
+          <p className={styles.handmade}>
+            Hand-illustrated <span aria-hidden="true">◆</span> Human-written{" "}
+            <span aria-hidden="true">◆</span> No AI art
           </p>
 
           <label className={styles.tryLabel} htmlFor="hero-name">
@@ -40,6 +51,32 @@ export default function HeroPersonalizer() {
               onChange={(e) => setName(e.target.value)}
               autoComplete="off"
             />
+          </div>
+
+          <p className={styles.lookLabel} id="look-label">
+            Choose her look
+          </p>
+          <div
+            className={styles.swatches}
+            role="group"
+            aria-labelledby="look-label"
+          >
+            {LOOKS.map((l) => (
+              <button
+                key={l.key}
+                type="button"
+                className={`${styles.swatch} ${
+                  look === l.key ? styles.swatchActive : ""
+                }`}
+                style={{ background: l.swatch }}
+                aria-label={l.label}
+                aria-pressed={look === l.key}
+                onClick={() => setLook(l.key)}
+              />
+            ))}
+          </div>
+
+          <div className={styles.ctaRow}>
             <Link href="/#books" className="btn btn-primary">
               Shop books
             </Link>
@@ -48,28 +85,31 @@ export default function HeroPersonalizer() {
 
         <div className={styles.bookWrap} aria-hidden="true">
           <div className={styles.book}>
-            <Image
-              src="/images/hero-amira-blank.jpg"
-              alt=""
-              width={1100}
-              height={1100}
-              priority
-              className={styles.art}
-            />
+            {LOOKS.map((l) => (
+              <Image
+                key={l.key}
+                src={`/images/hero-${l.key}.jpg`}
+                alt=""
+                width={1100}
+                height={1100}
+                priority={l.key === "medium"}
+                className={styles.art}
+                style={{ display: look === l.key ? "block" : "none" }}
+              />
+            ))}
             <div className={styles.overlay}>
               <span
                 className={styles.bookName}
                 style={{
                   fontSize:
                     shown.length > 9
-                      ? "clamp(1.5rem, 4.6vw, 2.6rem)"
-                      : "clamp(2rem, 6vw, 3.6rem)",
+                      ? "clamp(1.4rem, 4.2vw, 2.4rem)"
+                      : "clamp(1.9rem, 5.6vw, 3.4rem)",
                 }}
               >
                 {shown}
               </span>
               <span className={styles.bookSub}>and Her Beautiful Hijab</span>
-              <span className={styles.bookBy}>by Ketabi Studio</span>
             </div>
           </div>
         </div>
