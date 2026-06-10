@@ -26,7 +26,7 @@ const STYLES = [
   { key: "short-curly", label: "Short & curly" },
 ] as const;
 
-export default function Personalizer() {
+export default function Personalizer({ showPeek = false }: { showPeek?: boolean }) {
   const [name, setName] = useState("");
   const [skin, setSkin] = useState<(typeof SKINS)[number]["key"]>("medium");
   const [hair, setHair] = useState<(typeof HAIRS)[number]["key"]>("black");
@@ -34,6 +34,7 @@ export default function Personalizer() {
   const shown = (name.trim() || "Amira").slice(0, MAX);
 
   return (
+    <>
     <div className={styles.box}>
       <div className={styles.controls}>
         <p className={styles.title}>Make her the star</p>
@@ -140,5 +141,44 @@ export default function Personalizer() {
         </div>
       </div>
     </div>
+
+    {showPeek && (
+      <div className={styles.peek}>
+        <p className={styles.peekLabel}>A peek inside — in her look</p>
+        <div className={styles.peekGrid}>
+          <figure className={styles.peekCard}>
+            <Image
+              src={`/images/peek-7-${skin}-${hair}-${style}.jpg`}
+              alt="Inside page preview"
+              width={800}
+              height={800}
+              className={styles.peekImg}
+            />
+            <figcaption className={styles.peekCap}>Her hair, her way</figcaption>
+          </figure>
+          <figure className={styles.peekCard}>
+            <Image
+              src={`/images/peek-11-${skin}-${hair}-${style}.jpg`}
+              alt="Inside page preview"
+              width={800}
+              height={800}
+              className={styles.peekImg}
+            />
+            <figcaption className={styles.peekCap}>A moment with Mama</figcaption>
+          </figure>
+          <figure className={styles.peekCard}>
+            <Image
+              src={`/images/peek-20-${skin}.jpg`}
+              alt="Inside page preview"
+              width={800}
+              height={800}
+              className={styles.peekImg}
+            />
+            <figcaption className={styles.peekCap}>Wearing it with joy</figcaption>
+          </figure>
+        </div>
+      </div>
+    )}
+    </>
   );
 }

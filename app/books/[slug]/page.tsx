@@ -82,10 +82,11 @@ export default async function BookPage({
 
       {personalized && (
         <div className="wrap">
-          <Personalizer />
+          <Personalizer showPeek />
         </div>
       )}
 
+      {!personalized && (
       <div className={`wrap ${styles.previewBlock}`}>
         <p className="eyebrow">A peek inside</p>
         <div className={styles.previews}>
@@ -103,6 +104,7 @@ export default async function BookPage({
           ))}
         </div>
       </div>
+      )}
 
       <div className={`wrap ${styles.backRow}`}>
         <Link href="/books" className="btn btn-outline">
