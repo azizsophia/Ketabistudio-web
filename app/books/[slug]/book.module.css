@@ -119,12 +119,31 @@
 
 .backRow {
   margin-top: 72px;
+  padding-bottom: 24px;
+  display: flex;
+  justify-content: center;
 }
 
 @media (max-width: 820px) {
   .top {
     grid-template-columns: 1fr;
     gap: 40px;
+  }
+  .ctaRow {
+    display: flex;
+    justify-content: center;
+  }
+  .info {
+    text-align: center;
+  }
+  .desc,
+  .specs {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .specs {
+    text-align: left;
+    max-width: 420px;
   }
   .previews {
     grid-template-columns: 1fr;
