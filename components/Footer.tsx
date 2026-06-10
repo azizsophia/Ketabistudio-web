@@ -6,7 +6,7 @@ export default function Footer() {
     <footer className={styles.footer}>
       <div className={`wrap ${styles.inner}`}>
         <p className={`arabic ${styles.bismillah}`}>
-          بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ
+          الْحَمْدُ لِلّٰهِ
         </p>
         <nav className={styles.links} aria-label="Footer">
           <Link href="/#watch">Watch</Link>
