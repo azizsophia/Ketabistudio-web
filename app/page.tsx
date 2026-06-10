@@ -6,14 +6,6 @@ import styles from "./page.module.css";
 
 const books = [
   {
-    slug: "amira",
-    img: "/images/book-amira.jpg",
-    title: "Your Daughter & Her Beautiful Hijab",
-    blurb: "A personalized keepsake — her name on the cover and through every page.",
-    tag: "Personalized",
-    spine: "#e8b4a6",
-  },
-  {
     slug: "juha",
     img: "/images/book-juha.jpg",
     title: "Juha and the Enormous Pumpkin",
@@ -94,14 +86,14 @@ export default function Home() {
         <div className={`wrap ${styles.chapter}`}>
           <div className={styles.chapterHead}>
             <span className={styles.chapterNum}>Chapter two</span>
-            <h2>Read together</h2>
+            <h2>For the little ones</h2>
             <p className="lede">
-              You watch with little ones beside you — this chapter is for
-              them. Storybooks illustrated by hand and written with care,
-              Islamic values at the heart of every page.
+              Hand-illustrated storybooks with Islamic values at heart — made
+              to be read together at bedtime. More coming soon, inshaAllah.
             </p>
           </div>
           <Personalizer />
+          <p className={styles.alsoLabel}>Also on the shelf</p>
           <div className={styles.shelf}>
             {books.map((b) => (
               <Link key={b.slug} href="#books" className={styles.bookItem}>

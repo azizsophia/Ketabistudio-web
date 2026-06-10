@@ -301,3 +301,21 @@
     gap: 40px;
   }
 }
+
+.alsoLabel {
+  margin-top: 64px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+}
+
+/* shelf becomes 2-up */
+@media (min-width: 881px) {
+  .shelf {
+    grid-template-columns: repeat(2, minmax(0, 380px));
+    justify-content: center;
+    margin-top: 36px;
+  }
+}
