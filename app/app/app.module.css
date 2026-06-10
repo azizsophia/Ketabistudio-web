@@ -1,0 +1,125 @@
+.page { padding-top: 56px; }
+
+.hero {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 56px;
+  align-items: center;
+}
+
+.h1 { margin-top: 2px; }
+.gold { color: var(--gold); }
+.lede { margin-top: 20px; }
+
+.stores {
+  margin-top: 32px;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.heroPhone { display: flex; justify-content: center; }
+
+.heroShot {
+  width: min(300px, 80%);
+  height: auto;
+  border-radius: 26px;
+  border: 1px solid var(--line);
+  box-shadow: 0 44px 80px -36px rgba(46, 74, 58, 0.5);
+  transform: rotate(1.6deg);
+}
+
+/* features */
+.features {
+  margin-top: 88px;
+  display: flex;
+  flex-direction: column;
+  gap: 88px;
+}
+
+.feature {
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr;
+  gap: 56px;
+  align-items: center;
+}
+
+.flip { direction: rtl; }
+.flip > * { direction: ltr; }
+
+.featurePhone { display: flex; justify-content: center; }
+
+.shot {
+  width: min(260px, 76%);
+  height: auto;
+  border-radius: 22px;
+  border: 1px solid var(--line);
+  box-shadow: 0 30px 56px -30px rgba(46, 74, 58, 0.45);
+}
+
+.h2 { margin-top: 4px; }
+
+.body {
+  margin-top: 16px;
+  color: var(--muted);
+  max-width: 46ch;
+}
+
+/* support */
+.supportRow {
+  margin-top: 96px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+}
+
+.supportCard {
+  padding: 30px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.supportTitle {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.3rem;
+  color: var(--forest);
+}
+
+.supportDesc { font-size: 0.92rem; color: var(--muted); }
+
+/* coffee */
+.coffee { margin-top: 72px; }
+
+.coffeeInner {
+  background: var(--forest);
+  border-radius: var(--radius-card);
+  padding: 64px 32px;
+  text-align: center;
+  color: var(--cream);
+}
+
+.coffeeArabic { font-size: 2rem; color: var(--gold); }
+
+.coffeeTitle {
+  margin-top: 14px;
+  color: var(--cream);
+}
+
+.coffeeBody {
+  margin: 14px auto 0;
+  max-width: 52ch;
+  color: var(--sage);
+}
+
+.coffeeBtn { margin-top: 28px; }
+
+@media (max-width: 840px) {
+  .hero, .feature {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+  .flip { direction: ltr; }
+  .supportRow { grid-template-columns: 1fr; }
+  .features { gap: 64px; }
+}

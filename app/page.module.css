@@ -92,6 +92,20 @@
   flex: 1;
 }
 
+.videoFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.videoViews {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--gold);
+}
+
 .videoWatch {
   font-size: 0.8rem;
   font-weight: 700;

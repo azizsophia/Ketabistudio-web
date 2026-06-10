@@ -12,8 +12,8 @@ export default function Hero() {
           for every age<span className={styles.gold}>.</span>
         </h1>
         <p className={`lede ${styles.lede}`}>
-          Films that explore its miracles. Storybooks for little hearts. A
-          calm app for your daily dhikr.
+          Short videos exploring its miracles. Storybooks for little hearts.
+          A calm app for your daily dhikr.
         </p>
 
         <div className={styles.bento}>
@@ -31,7 +31,7 @@ export default function Hero() {
 
           <Link href="/books" className={`${styles.tile} ${styles.tileRead}`}>
             <Image
-              src="/images/hero-medium.jpg"
+              src="/images/book-juha.jpg"
               alt=""
               width={1100}
               height={1100}

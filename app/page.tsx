@@ -25,9 +25,24 @@ const books = [
 ];
 
 const videos = [
-  { title: "The Hidden Symmetry in Surah Al-Ikhlas", topic: "Quran by design" },
-  { title: "The Quran and the Expanding Universe", topic: "Signs in creation" },
-  { title: "Zamzam: Four Thousand Years of Water", topic: "Living history" },
+  {
+    title: "Rare Flooding in the Sahara Desert",
+    topic: "Signs in the land",
+    views: "1.6M views",
+    href: "https://www.tiktok.com/t/ZP8sygn94/",
+  },
+  {
+    title: "Al-\u2018Ula: The Forbidden City",
+    topic: "Islamic history",
+    views: "983K views",
+    href: "https://www.tiktok.com/t/ZP8sygXjX/",
+  },
+  {
+    title: "Prophecy: The Euphrates Drying Up",
+    topic: "Signs of the hour",
+    views: "671K views",
+    href: "https://www.tiktok.com/t/ZP8syc8jQ/",
+  },
 ];
 
 export default function Home() {
@@ -42,7 +57,7 @@ export default function Home() {
             <span className={styles.chapterNum}>Chapter one</span>
             <h2>Watch &amp; wonder</h2>
             <p className="lede">
-              Quran deep-dives, miracles, and prophecies — short films watched
+              Quran deep-dives, miracles, and prophecies — short videos watched
               and shared by a community of 65,000+.
             </p>
           </div>
@@ -50,14 +65,17 @@ export default function Home() {
             {videos.map((v) => (
               <a
                 key={v.title}
-                href="https://www.tiktok.com/@ketabi.studio"
+                href={v.href}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={styles.videoCard}
               >
                 <span className={styles.videoTopic}>{v.topic}</span>
                 <span className={styles.videoTitle}>{v.title}</span>
-                <span className={styles.videoWatch}>Watch →</span>
+                <span className={styles.videoFoot}>
+                  <span className={styles.videoViews}>{v.views}</span>
+                  <span className={styles.videoWatch}>Watch →</span>
+                </span>
               </a>
             ))}
           </div>
@@ -148,7 +166,14 @@ export default function Home() {
                 >
                   Download on the App Store
                 </a>
-                <span className={styles.playSoon}>Google Play — coming soon</span>
+                <a
+                href="https://play.google.com/store/apps/details?id=com.ketabi.myapp"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-outline"
+              >
+                Google Play
+              </a>
               </div>
             </div>
             <div className={styles.appQuote}>
