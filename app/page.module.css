@@ -1,0 +1,152 @@
+.sectionLede {
+  margin-top: 16px;
+}
+
+/* ── bookshelf ── */
+.shelf {
+  margin-top: 48px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+}
+
+.bookCard {
+  display: flex;
+  flex-direction: column;
+}
+
+.bookArt {
+  background: var(--sand);
+  padding: 26px 26px 0;
+}
+
+.bookArt img {
+  border-radius: 4px 12px 12px 4px;
+  box-shadow: 0 18px 32px -20px rgba(46, 74, 58, 0.5);
+}
+
+.bookBody {
+  padding: 24px 26px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.bookTag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+}
+
+.bookBlurb {
+  font-size: 0.95rem;
+  color: var(--muted);
+  flex: 1;
+}
+
+.bookCta {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--forest);
+}
+
+/* ── app section ── */
+.appSection {
+  background: var(--forest);
+  color: var(--cream);
+  padding: var(--space-section) 0;
+}
+
+.appGrid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 64px;
+  align-items: center;
+}
+
+.appHeading {
+  color: var(--cream);
+}
+
+.appLede {
+  color: var(--sage);
+  margin-top: 18px;
+}
+
+.appCtas {
+  margin-top: 32px;
+}
+
+.appPanel {
+  background: var(--forest-deep);
+  border: 1px solid rgba(201, 168, 76, 0.25);
+  border-radius: var(--radius-card);
+  padding: 48px 40px;
+  text-align: center;
+}
+
+.appArabic {
+  font-size: 1.9rem;
+  color: var(--gold);
+  line-height: 1.9;
+}
+
+.appVerse {
+  margin-top: 18px;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.15rem;
+}
+
+.appRef {
+  margin-top: 10px;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sage);
+}
+
+/* ── kids corner ── */
+.kidsCard {
+  background: linear-gradient(135deg, #eaf6f4, #f3faf8);
+  border: 1px solid #cfe9e5;
+  border-radius: var(--radius-card);
+  padding: 72px 32px;
+  text-align: center;
+}
+
+.kidsEyebrow {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 14px;
+}
+
+.kidsHeading {
+  color: var(--teal);
+}
+
+.kidsLede {
+  margin-top: 14px;
+  color: var(--muted);
+  font-size: 1.05rem;
+}
+
+@media (max-width: 880px) {
+  .shelf {
+    grid-template-columns: 1fr;
+    max-width: 440px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .appGrid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+}

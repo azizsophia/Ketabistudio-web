@@ -1,0 +1,207 @@
+/* ───────────────────────────────────────────────
+   KETABI STUDIO — design tokens (Brand v1)
+   ─────────────────────────────────────────────── */
+:root {
+  --forest: #2e4a3a;
+  --forest-deep: #233a2d;
+  --cream: #f6f4ef;
+  --card: #fcfbf8;
+  --sage: #8fa68e;
+  --teal: #58b4ad;
+  --gold: #c9a84c;
+  --gold-deep: #a87426;
+  --sand: #eee2cd;
+  --ink: #282622;
+  --muted: #6f6a5f;
+  --line: #e4ded2;
+
+  --radius-card: 24px;
+  --radius-img: 16px;
+
+  --space-section: 96px;
+  --width-max: 1120px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: 17px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::selection {
+  background: var(--sand);
+}
+
+/* ── layout ── */
+.wrap {
+  max-width: var(--width-max);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.section {
+  padding: var(--space-section) 0;
+}
+
+/* ── typography ── */
+h1,
+h2,
+h3 {
+  font-family: var(--font-display), Georgia, serif;
+  font-weight: 540;
+  color: var(--forest);
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+}
+
+h1 {
+  font-size: clamp(2.6rem, 6vw, 4.4rem);
+}
+
+h2 {
+  font-size: clamp(2rem, 4vw, 2.9rem);
+}
+
+h3 {
+  font-size: 1.35rem;
+}
+
+.eyebrow {
+  font-family: var(--font-body), sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+  margin-bottom: 16px;
+}
+
+.lede {
+  font-size: 1.15rem;
+  color: var(--muted);
+  max-width: 38em;
+}
+
+.arabic {
+  font-family: var(--font-arabic), serif;
+  direction: rtl;
+}
+
+/* ── buttons ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 32px;
+  border-radius: 999px;
+  font-family: var(--font-body), sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease;
+  cursor: pointer;
+  border: none;
+}
+
+.btn:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+}
+
+.btn-primary {
+  background: var(--forest);
+  color: var(--cream);
+}
+
+.btn-primary:hover {
+  background: var(--forest-deep);
+  transform: translateY(-1px);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--forest);
+  box-shadow: inset 0 0 0 2px var(--forest);
+}
+
+.btn-outline:hover {
+  background: var(--forest);
+  color: var(--cream);
+}
+
+/* ── gold divider with center diamond (from the books) ── */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  width: 220px;
+  margin: 0 auto;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  height: 1.5px;
+  background: var(--gold);
+}
+
+.divider span {
+  width: 9px;
+  height: 9px;
+  background: var(--gold);
+  transform: rotate(45deg);
+  margin: 0 12px;
+  flex: none;
+}
+
+/* ── cards ── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 40px -24px rgba(46, 74, 58, 0.35);
+}
+
+/* ── reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}

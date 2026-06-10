@@ -1,0 +1,31 @@
+.page {
+  padding: 72px 24px 48px;
+  max-width: 760px;
+}
+
+.h1 {
+  margin-bottom: 8px;
+}
+
+.updated {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-bottom: 40px;
+}
+
+.h2 {
+  margin: 40px 0 14px;
+  font-size: 1.4rem;
+}
+
+.page p {
+  margin-bottom: 16px;
+  color: #4a463e;
+}
+
+.link {
+  color: var(--forest);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

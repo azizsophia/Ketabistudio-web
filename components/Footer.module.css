@@ -1,0 +1,59 @@
+.footer {
+  background: var(--forest);
+  color: var(--cream);
+  margin-top: var(--space-section);
+}
+
+.inner {
+  padding: 72px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  text-align: center;
+}
+
+.bismillah {
+  font-size: 1.7rem;
+  color: var(--gold);
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 24px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.links a {
+  opacity: 0.85;
+}
+
+.links a:hover {
+  opacity: 1;
+  color: var(--gold);
+}
+
+.social {
+  display: flex;
+  gap: 20px;
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.social a {
+  color: var(--sage);
+}
+
+.social a:hover {
+  color: var(--cream);
+}
+
+.legal {
+  font-size: 0.8rem;
+  opacity: 0.55;
+}
