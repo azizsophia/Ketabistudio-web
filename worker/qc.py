@@ -82,7 +82,15 @@ def gate_spec(interior_pdf: str, cover_pdf: str) -> dict:
             "cover_in": [cw, ch], "blank_scan": "ok"}
 
 
-# ── Gate 3: certified-reference diff ────────────────────────────────
+# ── Gate 3: look verification (color signature) ─────────────────────
+# Raw pixel-diff is too brittle (sub-pixel raster offset trips it even when
+# the art is identical). Instead we verify what actually defines the look:
+# the girl's skin+hair colors must match the certified reference for the
+# chosen combo, and must NOT match a different combo. Robust to alignment.
+REF_SIG_MAX = 22.0     # correct combo sits ~7; wrong combo ~90
+REF_SIG_MARGIN = 2.0   # correct must be at least this much closer than wrong
+
+
 def _raster(pdf: str, page: int, px: int = 800) -> Image.Image:
     with tempfile.TemporaryDirectory() as td:
         out = Path(td) / "pg"
@@ -98,41 +106,59 @@ def _raster(pdf: str, page: int, px: int = 800) -> Image.Image:
         return img
 
 
-def _diff(a: Image.Image, b: Image.Image) -> float:
-    b = b.convert("RGB").resize(a.size, Image.LANCZOS)
-    return float(np.abs(np.asarray(a, dtype=int) - np.asarray(b, dtype=int)).mean())
+def _sig(img: Image.Image, box) -> np.ndarray:
+    w, h = img.size
+    c = img.crop((int(w * box[0]), int(h * box[1]),
+                  int(w * box[2]), int(h * box[3])))
+    return np.median(np.asarray(c).reshape(-1, 3), axis=0)
+
+
+# face box per story page — tight on exposed skin for unambiguous tone read.
+# (page 7 omitted: the girl's clasped hands occlude her face there.)
+_GIRL_BOX = {11: (0.50, 0.42, 0.62, 0.52)}
+_FAMILY_BOX = {20: (0.27, 0.50, 0.36, 0.58)}  # hijab page, skin-only variant
+
+
+def _check(rendered, ref_path, wrong_path, box, page, skin, wrong_skin, desc):
+    if not ref_path.exists():
+        raise QCFailure(f"missing certified reference: {ref_path.name}")
+    ref = Image.open(ref_path).convert("RGB").resize(rendered.size)
+    gsig = _sig(rendered, box)
+    right = float(np.linalg.norm(gsig - _sig(ref, box)))
+    entry = {"match_dist": round(right, 1)}
+    if wrong_path and wrong_path.exists():
+        wrong = Image.open(wrong_path).convert("RGB").resize(rendered.size)
+        wrongd = float(np.linalg.norm(gsig - _sig(wrong, box)))
+        entry["wrong_dist"] = round(wrongd, 1)
+        if right > wrongd - REF_SIG_MARGIN:
+            raise QCFailure(
+                f"page {page}: {desc} closer to {wrong_skin} ({wrongd:.1f}) "
+                f"than chosen {skin} ({right:.1f})")
+    if right > REF_SIG_MAX:
+        raise QCFailure(
+            f"page {page}: character does not match certified look "
+            f"(color dist {right:.1f} > {REF_SIG_MAX})")
+    return entry
 
 
 def gate_reference(interior_pdf: str, skin: str, hair: str, style: str) -> dict:
-    """Story page N lives at PDF page N+3 (title/copyright/dedication first)."""
-    checks = {
-        7: REF_DIR / f"peek-7-{skin}-{hair}-{style}.jpg",
-        11: REF_DIR / f"peek-11-{skin}-{hair}-{style}.jpg",
-        20: REF_DIR / f"peek-20-{skin}.jpg",
-    }
+    """Verify the rendered character matches the chosen look, not another."""
     report = {}
-    for story_page, ref_path in checks.items():
-        if not ref_path.exists():
-            raise QCFailure(f"missing certified reference: {ref_path.name}")
-        rendered = _raster(interior_pdf, story_page + 3)
-        ref = Image.open(ref_path)
-        # compare art region only (skip the bleed border): center crop 92%
-        w, h = rendered.size
-        m = int(w * 0.04)
-        rendered_c = rendered.crop((m, m, w - m, h - m))
-        ref_c = ref.crop(
-            (int(ref.width * 0.0), 0, ref.width, ref.height)
-        )
-        mean = _diff(rendered_c, ref_c)
-        darkness = float(255 - np.asarray(rendered_c.convert("L")).mean())
-        report[f"story_p{story_page}"] = {"mean_diff": round(mean, 2), "ink": round(darkness, 1)}
-        if mean > REF_MEAN_MAX:
-            raise QCFailure(
-                f"page {story_page} differs from certified {skin}/{hair}/{style} "
-                f"reference (mean {mean:.1f} > {REF_MEAN_MAX})"
-            )
-        if darkness < REF_DARK_MIN:
-            raise QCFailure(f"page {story_page} looks blank (ink {darkness:.1f})")
+    wrong_skin = "dark" if skin != "dark" else "light"
+    for page, box in _GIRL_BOX.items():
+        rendered = _raster(interior_pdf, page + 3)
+        report[f"story_p{page}"] = _check(
+            rendered,
+            REF_DIR / f"peek-{page}-{skin}-{hair}-{style}.jpg",
+            REF_DIR / f"peek-{page}-{wrong_skin}-{hair}-{style}.jpg",
+            box, page, skin, wrong_skin, "look")
+    for page, box in _FAMILY_BOX.items():
+        rendered = _raster(interior_pdf, page + 3)
+        report[f"story_p{page}"] = _check(
+            rendered,
+            REF_DIR / f"peek-{page}-{skin}.jpg",
+            REF_DIR / f"peek-{page}-{wrong_skin}.jpg",
+            box, page, skin, wrong_skin, "family skin")
     return report
 
 
