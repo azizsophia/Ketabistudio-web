@@ -8,7 +8,7 @@ const doors = [
     eyebrow: "I · Watch",
     title: "Short videos",
     desc: "Quran miracles, history, and the signs of our time.",
-    img: "/images/scene-night.jpg",
+    img: "/images/door-watch.jpg",
     external: "https://www.tiktok.com/@ketabi.studio",
     cta: "Watch on TikTok",
   },
@@ -17,7 +17,7 @@ const doors = [
     eyebrow: "II · Read",
     title: "The library",
     desc: "Hand-illustrated storybooks, personalized for your child.",
-    img: "/images/book-juha.jpg",
+    img: "/images/door-read.jpg",
     cta: "Open the library",
   },
   {
@@ -25,7 +25,7 @@ const doors = [
     eyebrow: "III · Reflect",
     title: "The app",
     desc: "Daily adhkar, a Quran journal, and your Garden in Jannah.",
-    img: "/images/app-adhkar-ar.jpg",
+    img: "/images/door-reflect.jpg",
     cta: "Explore the app",
   },
 ];
@@ -45,9 +45,17 @@ export default function Gateway() {
             family to grow<span className={styles.gold}>.</span>
           </h1>
           <p className={`lede ${styles.lede}`}>
-            An Islamic studio of short films, children&apos;s storybooks, and a
-            mindful companion app — each made with intention.
+            An Islamic studio of short videos, children&apos;s storybooks, and a
+            mindful companion app. Each one made with intention.
           </p>
+          <div className={styles.socials}>
+            <a href="https://www.tiktok.com/@ketabi.studio" target="_blank" rel="noopener noreferrer">
+              TikTok
+            </a>
+            <a href="https://www.youtube.com/@KetabiStudio" target="_blank" rel="noopener noreferrer">
+              YouTube
+            </a>
+          </div>
           <div className={styles.scrollHint} aria-hidden="true">
             Where would you like to go?
           </div>

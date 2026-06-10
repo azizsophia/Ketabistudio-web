@@ -39,7 +39,7 @@ export default function Personalizer({ showPeek = false }: { showPeek?: boolean 
       <div className={styles.controls}>
         <p className={styles.title}>Make her the star</p>
         <p className={styles.sub}>
-          Her name, her skin, her hair — watch the cover come to life.
+          Her name, her skin, her hair, watch the cover come to life.
         </p>
 
         <label className={styles.label} htmlFor="kid-name">
@@ -144,7 +144,7 @@ export default function Personalizer({ showPeek = false }: { showPeek?: boolean 
 
     {showPeek && (
       <div className={styles.peek}>
-        <p className={styles.peekLabel}>A peek inside — in her look</p>
+        <p className={styles.peekLabel}>A peek inside, in her look</p>
         <div className={styles.peekGrid}>
           <figure className={styles.peekCard}>
             <Image

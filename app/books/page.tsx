@@ -7,7 +7,7 @@ import styles from "./books.module.css";
 export const metadata: Metadata = {
   title: "The Library",
   description:
-    "Hand-illustrated Islamic storybooks for children — personalized keepsakes, folktales, and stories of values.",
+    "Hand-illustrated Islamic storybooks for children, personalized keepsakes, folktales, and stories of values.",
 };
 
 export default function BooksPage() {
@@ -17,7 +17,7 @@ export default function BooksPage() {
         <p className="eyebrow">The Ketabi Library</p>
         <h1>Shelves made for little hands</h1>
         <p className="lede">
-          Hand-illustrated, human-written, printed to order. Scroll — the
+          Hand-illustrated, human-written, printed to order. Scroll, the
           shelf is opening.
         </p>
       </header>

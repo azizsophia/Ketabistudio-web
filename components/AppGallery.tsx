@@ -10,7 +10,7 @@ const screens = [
 
 export default function AppGallery() {
   return (
-    <div className={styles.gallery} role="group" aria-label="App screenshots — swipe to browse">
+    <div className={styles.gallery} role="group" aria-label="App screenshots, swipe to browse">
       {screens.map((s) => (
         <figure key={s.src} className={styles.frame}>
           <Image

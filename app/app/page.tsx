@@ -5,7 +5,7 @@ import styles from "./app.module.css";
 export const metadata: Metadata = {
   title: "The Ketabi App",
   description:
-    "Your daily companion for dhikr, reflection, and peace — adhkar tracking, a Quran journal, and your Garden in Jannah. Free and ad-free.",
+    "Your daily companion for dhikr, reflection, and peace, adhkar tracking, a Quran journal, and your Garden in Jannah. Free and ad-free.",
 };
 
 const features = [
@@ -13,25 +13,25 @@ const features = [
     img: "/images/app-checkin.jpg",
     eyebrow: "Your spiritual rhythm",
     title: "Begin with intention",
-    body: "A gentle greeting, an inspirational ayah, and your rhythm for the day — a nudge toward your adhkar or a quiet moment to journal.",
+    body: "A gentle greeting, an inspirational ayah, and your rhythm for the day. A nudge toward your adhkar, or a quiet moment to journal.",
   },
   {
     img: "/images/app-adhkar.jpg",
     eyebrow: "Adhkar tracking",
     title: "Morning, evening, and every salah",
-    body: "Track your daily remembrance: morning and evening adhkar, after-salah dhikr, and before-sleep duas — with audio recitation to follow along.",
+    body: "Track your daily remembrance: morning and evening adhkar, after-salah dhikr, and before-sleep duas, all with audio recitation to follow along.",
   },
   {
     img: "/images/app-garden.jpg",
     eyebrow: "Your Garden in Jannah",
     title: "Watch your rewards grow",
-    body: "Every adhkar plants a date palm. Stay consistent and palaces rise — a living picture of the Prophet's ﷺ promise, growing with your dhikr.",
+    body: "Every adhkar plants a date palm. Stay consistent and palaces rise. A living picture of the Prophet's ﷺ promise, growing with your dhikr.",
   },
   {
     img: "/images/app-journal.jpg",
     eyebrow: "Quran journal",
     title: "Read, reflect, and speak your heart",
-    body: "Every surah of the Quran, ready to read and reflect on — write your own tafsir, record a voice note, or follow guided prompts tuned to how your heart feels today.",
+    body: "Every surah of the Quran, ready to read and reflect on. Write your own tafsir, record a voice note, or follow guided prompts tuned to how your heart feels today.",
   },
 ];
 
@@ -48,7 +48,7 @@ export default function AppPage() {
             your daily dhikr<span className={styles.gold}>.</span>
           </h1>
           <p className={`lede ${styles.lede}`}>
-            Free, ad-free, and designed with intention — track your adhkar,
+            Free, ad-free, and designed with intention. Track your adhkar,
             journal the Quran, and watch your Garden in Jannah grow.
           </p>
           <div className={styles.stores}>
@@ -73,7 +73,7 @@ export default function AppPage() {
         <div className={styles.heroPhone}>
           <Image
             src="/images/app-adhkar-ar.jpg"
-            alt="Ketabi app — Quran recitation screen"
+            alt="Ketabi app, Quran recitation screen"
             width={560}
             height={1065}
             priority
@@ -82,7 +82,7 @@ export default function AppPage() {
         </div>
       </section>
 
-      {/* features — alternating */}
+      {/* features, alternating */}
       <section className={styles.features}>
         {features.map((f, i) => (
           <div
@@ -92,7 +92,7 @@ export default function AppPage() {
             <div className={styles.featurePhone}>
               <Image
                 src={f.img}
-                alt={`${f.title} — app screen`}
+                alt={`${f.title}, app screen`}
                 width={560}
                 height={1065}
                 className={styles.shot}
@@ -111,7 +111,7 @@ export default function AppPage() {
       <section className={`wrap ${styles.supportRow}`}>
         <a
           className={`card ${styles.supportCard}`}
-          href="mailto:ketabistudio@gmail.com?subject=Feature request — Ketabi app"
+          href="mailto:ketabistudio@gmail.com?subject=Feature request, Ketabi app"
         >
           <span className={styles.supportTitle}>Request a feature</span>
           <span className={styles.supportDesc}>
@@ -129,13 +129,13 @@ export default function AppPage() {
         </a>
       </section>
 
-      {/* keep ketabi free — intentional, quiet */}
+      {/* keep ketabi free, intentional, quiet */}
       <section className={`wrap ${styles.coffee}`}>
         <div className={styles.coffeeInner}>
           <p className={`arabic ${styles.coffeeArabic}`}>﷽</p>
           <h2 className={styles.coffeeTitle}>Keep Ketabi free</h2>
           <p className={styles.coffeeBody}>
-            Ketabi is free, ad-free, and built independently — your prayers
+            Ketabi is free, ad-free, and built independently, your prayers
             and reflections will never be sold or monetized. If it brings you
             peace, you can help it grow.
           </p>

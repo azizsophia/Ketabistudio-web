@@ -86,7 +86,13 @@
   color: var(--forest);
 }
 
-.cta { padding: 11px 22px; font-size: 0.74rem; }
+.cta {
+  padding: 0 22px;
+  height: 42px;
+  min-height: 42px;
+  font-size: 0.74rem;
+  flex: none;
+}
 
 /* mobile */
 .burger {
@@ -122,7 +128,7 @@
   background: var(--cream);
 }
 
-.sheet > a {
+.sheet > a:not(.btn) {
   padding: 13px 4px;
   font-size: 1.06rem;
   font-weight: 600;
@@ -145,7 +151,11 @@
   color: var(--ink);
 }
 
-.sheet .btn { margin-top: 18px; justify-content: center; }
+.sheet .btn {
+  margin-top: 18px;
+  justify-content: center;
+  color: var(--cream);
+}
 
 @media (max-width: 840px) {
   .nav, .cta { display: none; }

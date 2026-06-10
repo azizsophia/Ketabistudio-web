@@ -4,7 +4,7 @@ import styles from "../legal.module.css";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "Ketabi Studio — personalized Islamic storybooks and the Ketabi app, made with intention.",
+    "Ketabi Studio, personalized Islamic storybooks and the Ketabi app, made with intention.",
 };
 
 export default function About() {
@@ -20,9 +20,9 @@ export default function About() {
       <p>
         We believe spiritual growth should be beautiful, seamless, and deeply
         woven into daily life. Ketabi (meaning &ldquo;My Book&rdquo; in Arabic)
-        began as a daily companion app — a private space to track your
+        began as a daily companion app: a private space to track your
         prayers, maintain your daily Adhkar, and reflect on your spiritual
-        journey — and has grown into a studio crafting personalized Islamic
+        journey, and has grown into a studio crafting personalized Islamic
         storybooks for children.
       </p>
 

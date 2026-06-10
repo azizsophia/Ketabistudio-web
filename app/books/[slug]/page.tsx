@@ -72,9 +72,9 @@ export default async function BookPage({
           <div className={styles.ctaRow}>
             <a
               className="btn btn-primary"
-              href={`mailto:ketabistudio@gmail.com?subject=Notify me — ${book.title}`}
+              href={`mailto:ketabistudio@gmail.com?subject=Notify me, ${book.title}`}
             >
-              Ordering opens soon — notify me
+              Ordering opens soon, notify me
             </a>
           </div>
         </div>
