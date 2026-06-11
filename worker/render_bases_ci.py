@@ -34,8 +34,9 @@ import warnings  # noqa: E402
 warnings.filterwarnings("ignore")
 import modesty_pipeline as m  # noqa: E402
 
-SB = os.environ["SUPABASE_URL"].rstrip("/")
-KEY = os.environ["SUPABASE_SERVICE_KEY"]
+# join+split scrubs any whitespace/newlines picked up during mobile paste
+SB = "".join(os.environ["SUPABASE_URL"].split()).rstrip("/")
+KEY = "".join(os.environ["SUPABASE_SERVICE_KEY"].split())
 PSD_DIR = os.environ["MODESTY_DIR"].rstrip("/")
 
 SKINS = [("Blonde light", "light"), ("Blonde dark", "medium"), ("Dark", "dark")]
