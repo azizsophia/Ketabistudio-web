@@ -168,19 +168,16 @@ def gate_lulu(client, interior_url: str, cover_url: str, pod_package_id: str,
     import time
     import requests
 
-    B = client.base_url
-    ri = requests.post(f"{B}/validate-interior/", headers=client._headers(),
-                       json={"source_url": interior_url,
-                             "pod_package_id": pod_package_id}, timeout=60).json()
-    rc = requests.post(f"{B}/validate-cover/", headers=client._headers(),
-                       json={"source_url": cover_url,
-                             "pod_package_id": pod_package_id,
-                             "interior_page_count": page_count}, timeout=60).json()
+    ri, sc1 = client.validate_interior(interior_url, pod_package_id)
+    rc, sc2 = client.validate_cover(cover_url, page_count, pod_package_id)
     vid, cid = ri.get("id"), rc.get("id")
+    if not vid or not cid:
+        raise QCFailure(f"lulu submission failed: {sc1}/{sc2} {ri}{rc}")
+    B = client.base
     deadline = time.time() + timeout_s
     istat = cstat = None
     while time.time() < deadline and not (istat and cstat):
-        time.sleep(8)
+        time.sleep(10)
         if not istat:
             s = requests.get(f"{B}/validate-interior/{vid}/",
                              headers=client._headers(), timeout=30).json()
@@ -197,8 +194,7 @@ def gate_lulu(client, interior_url: str, cover_url: str, pod_package_id: str,
         raise QCFailure(f"lulu interior errors: {istat.get('errors')}")
     if cstat.get("status") == "ERROR" or cstat.get("errors"):
         raise QCFailure(f"lulu cover errors: {cstat.get('errors')}")
-    return {"interior": istat.get("status"), "cover": cstat.get("status"),
-            "interior_id": vid, "cover_id": cid}
+    return {"interior": istat.get("status"), "cover": cstat.get("status")}
 
 
 # ── digest for the human gate ───────────────────────────────────────
