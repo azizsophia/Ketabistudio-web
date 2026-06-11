@@ -66,9 +66,9 @@ def _discover_psds() -> dict:
                 print(f"found nested zip, extracting: {p}", flush=True)
                 try:
                     _extract(p, root)
+                    os.remove(p)
                 except Exception as e:
-                    print(f"  (skipping unreadable zip: {e})", flush=True)
-                os.remove(p)
+                    print(f"  (skipping zip: {e})", flush=True)
     psds = {}
     for root, dirs, files in os.walk(SEARCH_ROOT):
         if "__MACOSX" in root:
