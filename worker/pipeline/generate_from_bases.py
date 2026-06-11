@@ -179,14 +179,72 @@ def generate_cover_from_base(child_name, skin, hair, style):
 
 
 def build_from_bases(child_name, skin, hair, style, out_dir):
-    """Full book from bases: 25 pages + cover -> assemble_pdf (32pp)."""
+    """Full book from bases, memory-lean: each page streamed to disk,
+    PDF assembled from files. Identical output to the certified build."""
+    import gc
+    import title_page as tp
+    import matter_pages as mp
+    from reportlab.lib.units import inch
+    from reportlab.pdfgen import canvas as rl_canvas
+
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
     name = m.clean_child_name(child_name)
-    pages = []
+
     for pg in range(1, 26):
-        pages.append(generate_page_from_base(pg, name, skin, hair, style))
-        print(f"  page {pg:02d} from base ok", flush=True)
+        img = generate_page_from_base(pg, name, skin, hair, style)
+        img.save(out / f"page_{pg:02d}.jpg", "JPEG", quality=95, dpi=(300, 300))
+        del img
+        gc.collect()
+        print(f"  page {pg:02d} ok", flush=True)
+
+    tp.build_title_page(name, save_img_path=str(out / "m01.jpg"))
+    mp.copyright_page(name).save(out / "m02.jpg", "JPEG", quality=95)
+    mp.dedication_page(name).save(out / "m03.jpg", "JPEG", quality=95)
+    mp.the_end_page().save(out / "m29.jpg", "JPEG", quality=95)
+    mp.blessing_page().save(out / "m30.jpg", "JPEG", quality=95)
+    mp.bookplate_page(name).save(out / "m31.jpg", "JPEG", quality=95)
+    mp.studio_page().save(out / "m32.jpg", "JPEG", quality=95)
+    gc.collect()
+
+    def bleed(path, target=2625):
+        img = Image.open(path).convert("RGB")
+        if img.size == (target, target):
+            return str(path)
+        w, h = img.size
+        o = Image.new("RGB", (target, target))
+        off = (target - w) // 2
+        o.paste(img, (off, off))
+        o.paste(img.crop((0, 0, w, 1)).resize((w, off)), (off, 0))
+        o.paste(img.crop((0, h - 1, w, h)).resize((w, off)), (off, off + h))
+        o.paste(o.crop((off, 0, off + 1, target)).resize((off, target)), (0, 0))
+        o.paste(o.crop((off + w - 1, 0, off + w, target)).resize((off, target)), (off + w, 0))
+        p = str(path).replace(".jpg", "_b.jpg")
+        o.save(p, "JPEG", quality=95, dpi=(300, 300))
+        return p
+
+    order = (["m01", "m02", "m03"]
+             + [f"page_{n:02d}" for n in range(1, 26)]
+             + ["m29", "m30", "m31", "m32"])
+    files = [bleed(out / f"{k}.jpg") for k in order]
+
+    pg_in = 8.75 * inch
+    interior_pdf = out / "interior.pdf"
+    cv = rl_canvas.Canvas(str(interior_pdf), pagesize=(pg_in, pg_in))
+    for f in files:
+        cv.drawImage(f, 0, 0, width=pg_in, height=pg_in)
+        cv.showPage()
+    cv.save()
+
     cover = generate_cover_from_base(name, skin, hair, style)
-    interior_pdf, cover_pdf = m.assemble_pdf(pages, cover, out, name)
+    cover_jpg = out / "cover_raw.jpg"
+    cover.save(cover_jpg, "JPEG", quality=95, dpi=(300, 300))
+    cw, ch = cover.size[0] / 300, cover.size[1] / 300
+    del cover
+    gc.collect()
+    cover_pdf = out / "cover.pdf"
+    cc = rl_canvas.Canvas(str(cover_pdf), pagesize=(cw * inch, ch * inch))
+    cc.drawImage(str(cover_jpg), 0, 0, width=cw * inch, height=ch * inch)
+    cc.showPage()
+    cc.save()
     return str(interior_pdf), str(cover_pdf)
