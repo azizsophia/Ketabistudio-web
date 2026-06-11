@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
   }
 
   const r = await fetch(
-    `${SB}/rest/v1/orders?select=id,status,book_slug,child_name,skin,hair,hair_style,customer_email,shipping,interior_path,cover_path,qc_report,lulu_print_job_id,created_at,updated_at,notes&order=created_at.desc`,
+    `${SB}/rest/v1/orders?select=id,status,book_slug,child_name,skin,hair,hair_style,customer_email,shipping,interior_path,cover_path,qc_report,lulu_print_job_id,created_at,notes&order=created_at.desc`,
     {
       headers: {
         Authorization: `Bearer ${KEY}`,

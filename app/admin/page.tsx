@@ -19,7 +19,6 @@ type Order = {
   qc_report: Record<string, unknown> | null;
   lulu_print_job_id: string | null;
   created_at: string;
-  updated_at: string;
   notes: string | null;
 };
 
