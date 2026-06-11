@@ -37,7 +37,49 @@ import modesty_pipeline as m  # noqa: E402
 # join+split scrubs any whitespace/newlines picked up during mobile paste
 SB = "".join(os.environ["SUPABASE_URL"].split()).rstrip("/")
 KEY = "".join(os.environ["SUPABASE_SERVICE_KEY"].split())
-PSD_DIR = os.environ["MODESTY_DIR"].rstrip("/")
+
+SEARCH_ROOT = "/tmp/modesty"
+
+
+def _discover_psds() -> dict:
+    """Walk the extraction root, extract nested zips, map lowercase
+    filename -> full path for every .psd found. Prints structure to log."""
+    import zipfile
+    # extract any nested zips first
+    for root, _dirs, files in os.walk(SEARCH_ROOT):
+        for f in files:
+            if f.lower().endswith(".zip"):
+                p = os.path.join(root, f)
+                print(f"found nested zip, extracting: {p}", flush=True)
+                with zipfile.ZipFile(p) as z:
+                    z.extractall(root)
+                os.remove(p)
+    psds = {}
+    for root, dirs, files in os.walk(SEARCH_ROOT):
+        if "__MACOSX" in root:
+            continue
+        for f in files:
+            if f.lower().endswith(".psd"):
+                psds[f.lower().strip()] = os.path.join(root, f)
+    print(f"discovered {len(psds)} PSDs:", flush=True)
+    for k in sorted(psds)[:30]:
+        print("  ", psds[k], flush=True)
+    return psds
+
+
+_PSDS = _discover_psds()
+
+
+def psd_path(name: str) -> str:
+    """Case/space-insensitive lookup, with substring fallback."""
+    key = name.lower().strip()
+    if key in _PSDS:
+        return _PSDS[key]
+    stem = key.replace(".psd", "")
+    for k, v in _PSDS.items():
+        if stem in k:
+            return v
+    raise FileNotFoundError(f"no PSD matching {name!r}; have: {sorted(_PSDS)[:8]}")
 
 SKINS = [("Blonde light", "light"), ("Blonde dark", "medium"), ("Dark", "dark")]
 HAIRS = [("Black", "black"), ("Brown", "brown"),
@@ -94,7 +136,7 @@ def render_combo(psd_path: str, out: str, sp=None, hp=None, stp=None):
 def do_page(pg: int):
     tag = f"page{pg:02d}"
     have = existing(tag)
-    path = f"{PSD_DIR}/Modesty_{pg:02d}_colored.psd"
+    path = psd_path(f"Modesty_{pg:02d}_colored.psd")
     todo = []
     if pg == 17:
         todo = [(None, None, None, f"{tag}.jpg")]
@@ -123,7 +165,7 @@ def do_page(pg: int):
 
 def do_cover():
     have = existing("cover")
-    path = f"{PSD_DIR}/Cover.psd"
+    path = psd_path("Cover.psd")
     done = skipped = 0
     for sp, sk in SKINS:
         for hp, hk in HAIRS:
