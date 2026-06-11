@@ -107,23 +107,48 @@ SKIN_PAGES = set(range(12, 26)) - {17}
 
 
 def existing(prefix: str) -> set:
-    r = requests.post(f"{SB}/storage/v1/object/list/book-assets",
-                      headers={"Authorization": f"Bearer {KEY}",
-                               "Content-Type": "application/json"},
-                      json={"prefix": f"bases/{prefix}", "limit": 1000},
-                      timeout=30)
-    r.raise_for_status()
-    return {i["name"] for i in r.json()}
+    have, offset = set(), 0
+    while True:
+        r = _retry(lambda: requests.post(
+            f"{SB}/storage/v1/object/list/book-assets",
+            headers={"Authorization": f"Bearer {KEY}",
+                     "Content-Type": "application/json"},
+            json={"prefix": "bases", "limit": 1000, "offset": offset},
+            timeout=60))
+        batch = r.json()
+        have |= {i["name"] for i in batch}
+        if len(batch) < 1000:
+            break
+        offset += 1000
+    return {n for n in have if n.startswith(prefix)}
+
+
+def _retry(fn, tries=4):
+    import time
+    last = None
+    for i in range(tries):
+        try:
+            r = fn()
+            if getattr(r, "status_code", 200) >= 500:
+                raise RuntimeError(f"HTTP {r.status_code}")
+            return r
+        except Exception as e:
+            last = e
+            wait = 5 * (i + 1)
+            print(f"  retry {i+1} in {wait}s ({type(e).__name__})", flush=True)
+            time.sleep(wait)
+    raise last
 
 
 def upload(path: str) -> bool:
     name = os.path.basename(path)
-    with open(path, "rb") as fh:
-        r = requests.post(f"{SB}/storage/v1/object/book-assets/bases/{name}",
-                          headers={"Authorization": f"Bearer {KEY}",
-                                   "Content-Type": "image/jpeg",
-                                   "x-upsert": "true"},
-                          data=fh.read(), timeout=120)
+    data = open(path, "rb").read()
+    r = _retry(lambda: requests.post(
+        f"{SB}/storage/v1/object/book-assets/bases/{name}",
+        headers={"Authorization": f"Bearer {KEY}",
+                 "Content-Type": "image/jpeg",
+                 "x-upsert": "true"},
+        data=data, timeout=180))
     return r.status_code in (200, 201)
 
 
