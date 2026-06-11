@@ -209,11 +209,15 @@ layer-name matching (case/whitespace/hyphen-insensitive), (b) a
 `VariantError` raised loudly when any skin/hair/style fails to match,
 (c) cover character-presence guard in the worker, (d) the 144 broken
 bases were deleted from the bucket. **Long-straight is disabled in the
-UI and rejected by the API until the bases are re-rendered** (run the
-CI for `cover`, `1-3`, `4-6`, `7-9`, `10-11`, then verify a long-straight
-test order end-to-end, then flip `available: true` in
-`components/OrderSection.tsx` and remove it from `BLOCKED_STYLES` in
-`app/api/orders/route.ts`).
+UI and rejected by the API until the bases are re-rendered** — restore
+checklist: (1) run the CI for `cover`, `1-3`, `4-6`, `7-9`, `10-11`
+(note: ALL 48 cover bases were deleted so covers re-render clean,
+text-free), (2) regenerate the 48 web heroes in `public/images/` from
+the new clean bases (no blanking needed) plus the 12 missing
+`preview-p02-*-long-straight.jpg` files, (3) run a long-straight test
+order end-to-end and approve-check it in /admin, (4) flip
+`available: true` in `components/OrderSection.tsx` and remove
+long-straight from `BLOCKED_STYLES` in `app/api/orders/route.ts`.
 
 **Cover bases contain baked-in PSD text** (title "(Child's Name)",
 "Embracing Modesty", author/illustrator credits): the original base

@@ -67,15 +67,24 @@
   margin-top: 1.5%;
 }
 
-.placeholder {
-  opacity: 0.55;
-}
-
-.lineWithPlaceholder {
-  opacity: 0.75;
-}
-
 /* ── Story page text blocks (print bbox -> percentages of 2550) ── */
+/* p2 bbox [1227,114,2274,464]: left 48.1%, top 4.5%, width 41% */
+.textP02 {
+  position: absolute;
+  left: 47%;
+  top: 4%;
+  width: 43%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  font-family: "Crocodile Feet", var(--font-body), cursive;
+  font-size: clamp(0.5rem, 2.1vw, 0.8rem);
+  line-height: 1.45;
+  color: #4a3f3a;
+  pointer-events: none;
+}
+
 /* p12 bbox [1324,155,2436,491]: left 51.9%, top 6.1%, width 43.6% */
 .textP12 {
   position: absolute;
