@@ -22,7 +22,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-                run: pip install -r worker/requirements.txt gdown
+      run: pip install -r worker/requirements.txt gdown
 
 
       - name: Download Modesty PSD pack
