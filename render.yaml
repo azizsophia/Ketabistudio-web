@@ -1,0 +1,20 @@
+services:
+  - type: worker
+    name: ketabi-order-worker
+    runtime: docker
+    dockerfilePath: ./worker/Dockerfile
+    dockerContext: .
+    plan: starter
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+      - key: LULU_CLIENT_KEY
+        sync: false
+      - key: LULU_CLIENT_SECRET
+        sync: false
+      - key: LULU_ENV
+        value: sandbox
+      - key: POLL_SECONDS
+        value: "30"

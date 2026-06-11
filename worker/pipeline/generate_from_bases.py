@@ -95,6 +95,7 @@ def generate_cover_from_base(child_name, skin, hair, style):
     img = fetch_base(f"cover__{skin}-{hair}-{style}.jpg")
     w, h = img.size  # 5100 x 2550
 
+    COVER_GOLD = (216, 138, 43, 255)
     bjola_byline = ImageFont.truetype(m.FONT_BJOLA, 64)
 
     def centered_text(base_img, y, text, font, fill, x_left, x_right):
@@ -123,11 +124,11 @@ def generate_cover_from_base(child_name, skin, hair, style):
     name_font = fit_font(child_name, 215, panel_max_w, min_size=120)
     desc_font = fit_font("and Her Beautiful Hijab", 108, panel_max_w, min_size=80)
     centered_text(img, 70, child_name, name_font,
-                  m.COVER_GOLD, front_left, front_right)
+                  COVER_GOLD, front_left, front_right)
     centered_text(img, 312, "and Her Beautiful Hijab", desc_font,
-                  m.COVER_GOLD, front_left, front_right)
+                  COVER_GOLD, front_left, front_right)
     centered_text(img, 452, "by Ketabi Studio", bjola_byline,
-                  m.COVER_GOLD, front_left, front_right)
+                  COVER_GOLD, front_left, front_right)
 
     draw = ImageDraw.Draw(img)
     blurb_text = (
