@@ -96,6 +96,25 @@ def generate_cover_from_base(child_name, skin, hair, style):
     img = fetch_base(f"cover__{skin}-{hair}-{style}.jpg")
     w, h = img.size  # 5100 x 2550
 
+    # ── Character presence guard ─────────────────────────────────────
+    # The girl holds a forest-green book on every cover variant. If the
+    # green-book pixels are missing, the base was rendered without the
+    # character (e.g. a failed hairstyle layer toggle) — abort loudly
+    # rather than ship a cover without the girl.
+    guard = np.array(img)[1390:2435, 3590:4750, :].astype(np.int16)
+    book_green = (
+        (guard[:, :, 1] > guard[:, :, 0] + 20) &
+        (guard[:, :, 1] > guard[:, :, 2] + 10) &
+        (guard[:, :, 1] > 80) & (guard[:, :, 1] < 180)
+    ).sum()
+    if book_green < 20000:
+        raise RuntimeError(
+            f"cover base cover__{skin}-{hair}-{style}.jpg appears to be "
+            f"missing the character (book pixels={book_green}); base must "
+            f"be re-rendered before this look can be ordered"
+        )
+    # ── End guard ────────────────────────────────────────────────────
+
     # ── Blank baked-in PSD text ──────────────────────────────────────
     # Cover bases were rendered with text layers visible (render_bases_ci
     # iterated top-level layers only, missing nested type layers).

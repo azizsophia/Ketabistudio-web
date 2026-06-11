@@ -256,9 +256,22 @@ def _normalize_skin_name(name):
     return stripped
 
 
+def _norm_layer(s):
+    """Normalize a PSD layer name for matching: casefold, collapse all
+    whitespace, treat hyphens/underscores as spaces. 'Long Straight',
+    'long  straight', and 'Long-straight' all become 'long straight'."""
+    return " ".join(s.replace("-", " ").replace("_", " ").split()).casefold()
+
+
+class VariantError(RuntimeError):
+    """Raised when a requested character variant cannot be matched to a
+    PSD layer. MUST abort the render: a silent miss hides the character."""
+
+
 def _set_skin_variant(group, skin_tone, hair_color, hair_style):
     """Toggle skin/hair layers inside a character group (Girl, Mother, Father)."""
     group.visible = True
+    skin_matched = False
     for skin_group in group:
         if skin_group.kind != "group":
             continue
@@ -267,26 +280,55 @@ def _set_skin_variant(group, skin_tone, hair_color, hair_style):
         skin_group.visible = is_target_skin
         if not is_target_skin:
             continue
+        skin_matched = True
         # Check if this group has hair sub-groups (pages 1-11 Girl only)
         has_hair_groups = any(
-            c.kind == "group" and c.name.strip() in HAIR_COLORS
+            c.kind == "group" and _norm_layer(c.name) in
+            {_norm_layer(h) for h in HAIR_COLORS}
             for c in skin_group
         )
         if has_hair_groups:
+            hair_matched = False
             for hair_group in skin_group:
                 if hair_group.kind != "group":
                     continue
-                is_target_hair = hair_group.name.strip() == hair_color
+                is_target_hair = (
+                    _norm_layer(hair_group.name) == _norm_layer(hair_color)
+                )
                 hair_group.visible = is_target_hair
                 if is_target_hair:
+                    hair_matched = True
+                    style_matched = False
                     for style_layer in hair_group:
-                        style_layer.visible = (
-                            style_layer.name.strip() == hair_style
+                        hit = (
+                            _norm_layer(style_layer.name)
+                            == _norm_layer(hair_style)
                         )
+                        style_layer.visible = hit
+                        style_matched = style_matched or hit
+                    if not style_matched:
+                        have = [s.name for s in hair_group]
+                        raise VariantError(
+                            f"No style layer matching {hair_style!r} in "
+                            f"{group.name!r}>{skin_group.name!r}>"
+                            f"{hair_group.name!r}; have: {have}"
+                        )
+            if not hair_matched:
+                have = [h.name for h in skin_group if h.kind == "group"]
+                raise VariantError(
+                    f"No hair group matching {hair_color!r} in "
+                    f"{group.name!r}>{skin_group.name!r}; have: {have}"
+                )
         else:
             # Skin-only: show whatever child is inside
             for child in skin_group:
                 child.visible = True
+    if not skin_matched:
+        have = [s.name for s in group if s.kind == "group"]
+        raise VariantError(
+            f"No skin group matching {skin_tone!r} in {group.name!r}; "
+            f"have: {have}"
+        )
 
 
 def set_variant(psd, skin_tone, hair_color, hair_style):

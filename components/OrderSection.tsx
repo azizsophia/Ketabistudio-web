@@ -19,11 +19,14 @@ const HAIRS = [
   { key: "red", label: "Red hair", swatch: "#b85c34" },
 ] as const;
 
+/* long-straight temporarily unavailable: cover/page art bases for that
+   hairstyle are being re-rendered. Set available: true after the
+   render-bases CI has regenerated them and a test order passes QC. */
 const HAIR_STYLES = [
-  { key: "long-straight", label: "Long & straight" },
-  { key: "long-curly", label: "Long & curly" },
-  { key: "short-straight", label: "Short & straight" },
-  { key: "short-curly", label: "Short & curly" },
+  { key: "long-straight", label: "Long & straight", available: false },
+  { key: "long-curly", label: "Long & curly", available: true },
+  { key: "short-straight", label: "Short & straight", available: true },
+  { key: "short-curly", label: "Short & curly", available: true },
 ] as const;
 
 /* Countries the Lulu print network ships to (common subset). US first. */
@@ -74,7 +77,7 @@ export default function OrderSection({ slug, personalized }: Props) {
   const [name, setName] = useState("");
   const [skin, setSkin] = useState<string>("medium");
   const [hair, setHair] = useState<string>("black");
-  const [hairStyle, setHairStyle] = useState<string>("long-straight");
+  const [hairStyle, setHairStyle] = useState<string>("long-curly");
   const [nameError, setNameError] = useState("");
 
   /* shipping */
@@ -226,11 +229,12 @@ export default function OrderSection({ slug, personalized }: Props) {
                 {HAIR_STYLES.map((s) => (
                   <button
                     key={s.key} type="button"
-                    className={`${styles.pill} ${hairStyle === s.key ? styles.pillActive : ""}`}
+                    className={`${styles.pill} ${hairStyle === s.key ? styles.pillActive : ""} ${!s.available ? styles.pillDisabled : ""}`}
                     aria-pressed={hairStyle === s.key}
-                    onClick={() => setHairStyle(s.key)}
+                    disabled={!s.available}
+                    onClick={() => s.available && setHairStyle(s.key)}
                   >
-                    {s.label}
+                    {s.label}{!s.available ? " · soon" : ""}
                   </button>
                 ))}
               </div>

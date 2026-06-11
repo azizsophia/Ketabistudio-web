@@ -267,3 +267,9 @@
   margin-top: 16px;
   font-family: monospace;
 }
+
+.pillDisabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}

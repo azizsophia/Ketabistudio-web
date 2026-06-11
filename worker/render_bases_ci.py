@@ -164,7 +164,10 @@ def render_combo(psd_path: str, out: str, sp=None, hp=None, stp=None):
     psd = PSDImage.open(psd_path)
     if sp is not None:
         m.set_variant(psd, m._normalize_skin_name(sp), hp, stp)
-    for layer in psd:
+    # Hide ALL type layers, including those nested inside groups.
+    # (Top-level iteration missed Cover.psd's nested title/credit text,
+    # which baked '(Child's Name)' and author credits into every base.)
+    for layer in psd.descendants():
         if layer.kind == "type":
             layer.visible = False
     img = flatten(psd.composite(force=True))

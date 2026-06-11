@@ -13,6 +13,9 @@ const PERSONALIZED_SLUGS = ["her-beautiful-hijab"];
 const VALID_SKIN = ["light", "medium", "dark"];
 const VALID_HAIR = ["black", "brown", "blonde", "red"];
 const VALID_STYLE = ["long-straight", "long-curly", "short-straight", "short-curly"];
+/* Temporarily blocked: art bases broken, being re-rendered. Remove the
+   block after render-bases CI completes and a test order passes QC. */
+const BLOCKED_STYLES = new Set(["long-straight"]);
 
 export async function POST(req: NextRequest) {
   if (!SB || !KEY) {
@@ -56,6 +59,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "invalid hair" }, { status: 400 });
     if (!VALID_STYLE.includes(hairStyle))
       return NextResponse.json({ error: "invalid hair style" }, { status: 400 });
+    if (BLOCKED_STYLES.has(hairStyle))
+      return NextResponse.json(
+        { error: "That hairstyle is temporarily unavailable. Please choose another." },
+        { status: 400 }
+      );
   }
 
   /* validate email */
