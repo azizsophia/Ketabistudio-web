@@ -1,0 +1,172 @@
+/* ── BookPreview — live page-turn with print-accurate text ── */
+
+.previewShell {
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.page {
+  position: relative;
+  border-radius: var(--radius-img, 16px);
+  overflow: hidden;
+  box-shadow: 0 14px 44px -18px rgba(46, 74, 58, 0.4);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  background: var(--card);
+}
+
+.turning {
+  opacity: 0;
+  transform: translateX(-12px) scale(0.985);
+}
+
+.spread {
+  position: relative;
+  aspect-ratio: 1 / 1;
+}
+
+.art {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+/* ── Cover title (mirrors print: name 2.7%, sub 12.2%, byline 17.7%) ── */
+.coverTitle {
+  position: absolute;
+  top: 2%;
+  left: 8%;
+  right: 8%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  pointer-events: none;
+}
+
+.coverName {
+  font-family: "Bjola", var(--font-display), Georgia, serif;
+  color: #d88a2b;
+  line-height: 1.05;
+  white-space: nowrap;
+}
+
+.coverSub {
+  font-family: "Bjola", var(--font-display), Georgia, serif;
+  font-size: clamp(0.85rem, 4.1vw, 1.5rem);
+  color: #d88a2b;
+  margin-top: 1%;
+  white-space: nowrap;
+}
+
+.coverByline {
+  font-family: "Bjola", var(--font-display), Georgia, serif;
+  font-size: clamp(0.6rem, 2.4vw, 0.95rem);
+  color: #d88a2b;
+  margin-top: 1.5%;
+}
+
+.placeholder {
+  opacity: 0.55;
+}
+
+.lineWithPlaceholder {
+  opacity: 0.75;
+}
+
+/* ── Story page text blocks (print bbox -> percentages of 2550) ── */
+/* p12 bbox [1324,155,2436,491]: left 51.9%, top 6.1%, width 43.6% */
+.textP12 {
+  position: absolute;
+  left: 50.5%;
+  top: 5.5%;
+  width: 45.5%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  font-family: "Crocodile Feet", var(--font-body), cursive;
+  font-size: clamp(0.52rem, 2.25vw, 0.85rem);
+  line-height: 1.45;
+  color: #4a3f3a;
+  pointer-events: none;
+}
+
+/* p23 bbox [677,151,1874,386]: left 26.5%, top 5.9%, width 47% */
+.textP23 {
+  position: absolute;
+  left: 25%;
+  top: 5.5%;
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  font-family: "Crocodile Feet", var(--font-body), cursive;
+  font-size: clamp(0.52rem, 2.25vw, 0.85rem);
+  line-height: 1.45;
+  color: #4a3f3a;
+  pointer-events: none;
+}
+
+/* ── Controls ── */
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 14px;
+}
+
+.turnBtn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid var(--line);
+  background: var(--card);
+  color: var(--forest);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  padding-bottom: 4px;
+}
+
+.turnBtn:active:not(:disabled) {
+  background: var(--forest);
+  color: var(--cream);
+}
+
+.turnBtn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.dots {
+  display: flex;
+  gap: 8px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--line);
+  transition: background 0.2s;
+}
+
+.dotActive {
+  background: var(--forest);
+}
+
+.hint {
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-top: 10px;
+  font-style: italic;
+}

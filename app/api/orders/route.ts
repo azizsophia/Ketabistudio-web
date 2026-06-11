@@ -65,14 +65,24 @@ export async function POST(req: NextRequest) {
   }
 
   /* validate shipping */
+  const VALID_COUNTRIES = new Set([
+    "US","AU","AT","BH","BE","CA","DK","EG","FI","FR","DE","IE","IT","JO",
+    "KW","MY","NL","NZ","NO","OM","QA","SA","SG","ZA","ES","SE","CH","TR",
+    "AE","GB",
+  ]);
   const ship = body.shipping as Record<string, string> | undefined;
+  const country = (ship?.country_code || "US").toUpperCase();
+  if (!VALID_COUNTRIES.has(country)) {
+    return NextResponse.json({ error: "country not supported" }, { status: 400 });
+  }
+  const stateRequired = ["US", "CA", "AU"].includes(country);
   if (
     !ship ||
     !ship.name?.trim() ||
     !ship.street1?.trim() ||
     !ship.city?.trim() ||
-    !ship.state_code?.trim() ||
-    !ship.postcode?.trim()
+    !ship.postcode?.trim() ||
+    (stateRequired && !ship.state_code?.trim())
   ) {
     return NextResponse.json(
       { error: "complete shipping address required" },
@@ -85,10 +95,10 @@ export async function POST(req: NextRequest) {
     street1: ship.street1.trim(),
     street2: (ship.street2 || "").trim() || undefined,
     city: ship.city.trim(),
-    state_code: ship.state_code.trim().toUpperCase(),
+    state_code: (ship.state_code || "").trim().toUpperCase() || undefined,
     postcode: ship.postcode.trim(),
-    country_code: "US",
-    phone_number: (ship.phone || "").replace(/\D/g, "") || undefined,
+    country_code: country,
+    phone_number: (ship.phone || "").replace(/[^\d+]/g, "") || undefined,
   };
 
   const approvalToken = randomUUID();

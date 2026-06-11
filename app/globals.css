@@ -252,3 +252,16 @@ h3 {
 @media (max-width: 520px) {
   .lede { font-size: 1.05rem; }
 }
+
+/* ── Book preview fonts (match print) ── */
+@font-face {
+  font-family: "Bjola";
+  src: url("/fonts/bjola.otf") format("opentype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Crocodile Feet";
+  src: url("/fonts/crocodile-feet.otf") format("opentype");
+  font-display: swap;
+}

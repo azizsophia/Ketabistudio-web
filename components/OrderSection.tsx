@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import BookPreview from "./BookPreview";
 import styles from "./OrderSection.module.css";
 
 const MAX_NAME = 14;
@@ -26,12 +26,48 @@ const HAIR_STYLES = [
   { key: "short-curly", label: "Short & curly" },
 ] as const;
 
+/* Countries the Lulu print network ships to (common subset). US first. */
+const COUNTRIES = [
+  { code: "US", name: "United States" },
+  { code: "AU", name: "Australia" },
+  { code: "AT", name: "Austria" },
+  { code: "BH", name: "Bahrain" },
+  { code: "BE", name: "Belgium" },
+  { code: "CA", name: "Canada" },
+  { code: "DK", name: "Denmark" },
+  { code: "EG", name: "Egypt" },
+  { code: "FI", name: "Finland" },
+  { code: "FR", name: "France" },
+  { code: "DE", name: "Germany" },
+  { code: "IE", name: "Ireland" },
+  { code: "IT", name: "Italy" },
+  { code: "JO", name: "Jordan" },
+  { code: "KW", name: "Kuwait" },
+  { code: "MY", name: "Malaysia" },
+  { code: "NL", name: "Netherlands" },
+  { code: "NZ", name: "New Zealand" },
+  { code: "NO", name: "Norway" },
+  { code: "OM", name: "Oman" },
+  { code: "QA", name: "Qatar" },
+  { code: "SA", name: "Saudi Arabia" },
+  { code: "SG", name: "Singapore" },
+  { code: "ZA", name: "South Africa" },
+  { code: "ES", name: "Spain" },
+  { code: "SE", name: "Sweden" },
+  { code: "CH", name: "Switzerland" },
+  { code: "TR", name: "Turkey" },
+  { code: "AE", name: "United Arab Emirates" },
+  { code: "GB", name: "United Kingdom" },
+] as const;
+
+const STATE_REQUIRED = new Set(["US", "CA", "AU"]);
+
 type Props = {
   slug: string;
   personalized: boolean;
 };
 
-type Step = "customize" | "shipping" | "confirm" | "done";
+type Step = "customize" | "shipping" | "done";
 
 export default function OrderSection({ slug, personalized }: Props) {
   /* personalization */
@@ -39,6 +75,7 @@ export default function OrderSection({ slug, personalized }: Props) {
   const [skin, setSkin] = useState<string>("medium");
   const [hair, setHair] = useState<string>("black");
   const [hairStyle, setHairStyle] = useState<string>("long-straight");
+  const [nameError, setNameError] = useState("");
 
   /* shipping */
   const [email, setEmail] = useState("");
@@ -49,6 +86,7 @@ export default function OrderSection({ slug, personalized }: Props) {
   const [state, setState] = useState("");
   const [zip, setZip] = useState("");
   const [phone, setPhone] = useState("");
+  const [country, setCountry] = useState("US");
 
   /* flow */
   const [step, setStep] = useState<Step>(personalized ? "customize" : "shipping");
@@ -56,16 +94,34 @@ export default function OrderSection({ slug, personalized }: Props) {
   const [error, setError] = useState("");
   const [orderId, setOrderId] = useState("");
 
-  const shown = (name.trim() || "Amira").slice(0, MAX_NAME);
+  const stateRequired = STATE_REQUIRED.has(country);
+  const isInternational = country !== "US";
+
+  function continueToShipping() {
+    if (!name.trim()) {
+      setNameError("Please type her name first, so we can make her the star.");
+      return;
+    }
+    setNameError("");
+    setStep("shipping");
+  }
 
   async function placeOrder() {
     setError("");
+    if (personalized && !name.trim()) {
+      setError("Her name is required.");
+      return;
+    }
     if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
       setError("Please enter a valid email address.");
       return;
     }
-    if (!shipName.trim() || !street1.trim() || !city.trim() || !state.trim() || !zip.trim()) {
+    if (!shipName.trim() || !street1.trim() || !city.trim() || !zip.trim()) {
       setError("Please complete all shipping fields.");
+      return;
+    }
+    if (stateRequired && !state.trim()) {
+      setError("Please enter your state or province.");
       return;
     }
 
@@ -76,7 +132,7 @@ export default function OrderSection({ slug, personalized }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           book_slug: slug,
-          child_name: personalized ? name.trim() || "Amira" : null,
+          child_name: personalized ? name.trim() : null,
           skin: personalized ? skin : null,
           hair: personalized ? hair : null,
           hair_style: personalized ? hairStyle : null,
@@ -88,6 +144,7 @@ export default function OrderSection({ slug, personalized }: Props) {
             city: city.trim(),
             state_code: state.trim(),
             postcode: zip.trim(),
+            country_code: country,
             phone: phone.trim(),
           },
         }),
@@ -114,7 +171,8 @@ export default function OrderSection({ slug, personalized }: Props) {
           <p className={styles.stepLabel}>Step 1 of 2</p>
           <h2 className={styles.heading}>Make her the star</h2>
           <p className={styles.sub}>
-            Her name, her skin, her hair: watch the cover come to life.
+            Type her name and watch it appear on the cover, then turn the
+            page to see it woven into the story itself.
           </p>
 
           <div className={styles.personalizerGrid}>
@@ -124,12 +182,16 @@ export default function OrderSection({ slug, personalized }: Props) {
                 id="kid-name"
                 className={styles.input}
                 type="text"
-                placeholder="Amira"
+                placeholder="Type her name"
                 maxLength={MAX_NAME}
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  if (e.target.value.trim()) setNameError("");
+                }}
                 autoComplete="off"
               />
+              {nameError && <p className={styles.error}>{nameError}</p>}
 
               <p className={styles.label} id="skin-label">Her skin</p>
               <div className={styles.swatches} role="group" aria-labelledby="skin-label">
@@ -175,29 +237,18 @@ export default function OrderSection({ slug, personalized }: Props) {
             </div>
 
             <div className={styles.previewCol}>
-              <div className={styles.bookMock}>
-                <Image
-                  src={`/images/hero-${skin}-${hair}-${hairStyle}.jpg`}
-                  alt="" width={800} height={800}
-                  className={styles.bookImg}
-                />
-                <div className={styles.overlay}>
-                  <span className={styles.bookName} style={{
-                    fontSize: shown.length > 9
-                      ? "clamp(1.1rem, 3.2vw, 1.8rem)"
-                      : "clamp(1.4rem, 4.2vw, 2.4rem)",
-                  }}>
-                    {shown}
-                  </span>
-                  <span className={styles.bookSub}>and Her Beautiful Hijab</span>
-                </div>
-              </div>
+              <BookPreview
+                name={name}
+                skin={skin}
+                hair={hair}
+                hairStyle={hairStyle}
+              />
             </div>
           </div>
 
           <button
             className={`btn btn-primary ${styles.nextBtn}`}
-            onClick={() => setStep("shipping")}
+            onClick={continueToShipping}
           >
             Continue to shipping
           </button>
@@ -216,7 +267,8 @@ export default function OrderSection({ slug, personalized }: Props) {
           </p>
           <h2 className={styles.heading}>Where should we send it?</h2>
           <p className={styles.sub}>
-            US shipping only at launch. Your book will be printed and shipped directly to you.
+            We ship worldwide. Your book is printed and shipped directly to
+            you{isInternational ? ". International shipping rates apply" : ""}.
           </p>
 
           <div className={styles.formGrid}>
@@ -228,9 +280,23 @@ export default function OrderSection({ slug, personalized }: Props) {
             </div>
 
             <div className={styles.fieldFull}>
+              <label className={styles.label} htmlFor="country">Country</label>
+              <select
+                id="country"
+                className={styles.input}
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
+              >
+                {COUNTRIES.map((c) => (
+                  <option key={c.code} value={c.code}>{c.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className={styles.fieldFull}>
               <label className={styles.label} htmlFor="ship-name">Full name</label>
               <input id="ship-name" className={styles.input} type="text"
-                placeholder="Amira's family"
+                placeholder="Recipient's full name"
                 value={shipName} onChange={(e) => setShipName(e.target.value)} />
             </div>
 
@@ -251,28 +317,41 @@ export default function OrderSection({ slug, personalized }: Props) {
             <div className={styles.fieldHalf}>
               <label className={styles.label} htmlFor="city">City</label>
               <input id="city" className={styles.input} type="text"
-                placeholder="Starkville"
+                placeholder="City"
                 value={city} onChange={(e) => setCity(e.target.value)} />
             </div>
 
             <div className={styles.fieldQuarter}>
-              <label className={styles.label} htmlFor="state">State</label>
+              <label className={styles.label} htmlFor="state">
+                {country === "US" ? "State" : country === "CA" ? "Province" : "State/Region"}
+                {!stateRequired && " (optional)"}
+              </label>
               <input id="state" className={styles.input} type="text"
-                placeholder="MS" maxLength={2}
-                value={state} onChange={(e) => setState(e.target.value.toUpperCase())} />
+                placeholder={country === "US" ? "MS" : ""}
+                maxLength={country === "US" || country === "CA" ? 2 : 30}
+                value={state}
+                onChange={(e) => setState(
+                  country === "US" || country === "CA"
+                    ? e.target.value.toUpperCase()
+                    : e.target.value
+                )} />
             </div>
 
             <div className={styles.fieldQuarter}>
-              <label className={styles.label} htmlFor="zip">ZIP</label>
+              <label className={styles.label} htmlFor="zip">
+                {country === "US" ? "ZIP" : "Postcode"}
+              </label>
               <input id="zip" className={styles.input} type="text"
-                placeholder="39759"
+                placeholder={country === "US" ? "39759" : ""}
                 value={zip} onChange={(e) => setZip(e.target.value)} />
             </div>
 
             <div className={styles.fieldFull}>
-              <label className={styles.label} htmlFor="phone">Phone (optional)</label>
+              <label className={styles.label} htmlFor="phone">
+                Phone {isInternational ? "(required for customs)" : "(optional)"}
+              </label>
               <input id="phone" className={styles.input} type="tel"
-                placeholder="(601) 555-0100"
+                placeholder=""
                 value={phone} onChange={(e) => setPhone(e.target.value)} />
             </div>
           </div>
@@ -309,9 +388,14 @@ export default function OrderSection({ slug, personalized }: Props) {
           <div className={styles.checkmark}>✓</div>
           <h2 className={styles.heading}>Order received</h2>
           <p className={styles.sub}>
-            Your book is being generated now. We will review it personally before it goes to print, to make sure every page looks perfect. You will receive an email at <strong>{email}</strong> when it ships.
+            {personalized && name.trim()
+              ? `${name.trim()}'s book is being made now. `
+              : "Your book is being prepared now. "}
+            We review every single book personally before it goes to print,
+            so each page is exactly right. You will receive an email at{" "}
+            <strong>{email}</strong> when it ships.
           </p>
-          <p className={styles.orderId}>Order {orderId.slice(0, 8)}...</p>
+          <p className={styles.orderId}>Order {orderId.slice(0, 8)}</p>
         </div>
       </section>
     );
