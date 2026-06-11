@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BOOKS, PRINT_SPEC, getBook } from "@/lib/books";
-import Personalizer from "@/components/Personalizer";
+import OrderSection from "@/components/OrderSection";
 import styles from "./book.module.css";
 
 export function generateStaticParams() {
@@ -72,19 +72,13 @@ export default async function BookPage({
           <div className={styles.ctaRow}>
             <a
               className="btn btn-primary"
-              href={`mailto:ketabistudio@gmail.com?subject=Notify me, ${book.title}`}
+              href="#order"
             >
-              Ordering opens soon, notify me
+              Order now
             </a>
           </div>
         </div>
       </div>
-
-      {personalized && (
-        <div className="wrap">
-          <Personalizer showPeek />
-        </div>
-      )}
 
       {!personalized && (
       <div className={`wrap ${styles.previewBlock}`}>
@@ -105,6 +99,10 @@ export default async function BookPage({
         </div>
       </div>
       )}
+
+      <div id="order">
+        <OrderSection slug={book.slug} personalized={personalized} />
+      </div>
 
       <div className={`wrap ${styles.backRow}`}>
         <Link href="/books" className="btn btn-outline">
