@@ -64,7 +64,10 @@ def _discover_psds() -> dict:
             if f.lower().endswith(".zip"):
                 p = os.path.join(root, f)
                 print(f"found nested zip, extracting: {p}", flush=True)
-                _extract(p, root)
+                try:
+                    _extract(p, root)
+                except Exception as e:
+                    print(f"  (skipping unreadable zip: {e})", flush=True)
                 os.remove(p)
     psds = {}
     for root, dirs, files in os.walk(SEARCH_ROOT):
