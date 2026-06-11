@@ -1,0 +1,277 @@
+{
+ "1": {
+  "bbox": [
+   596,
+   161,
+   1867,
+   580
+  ],
+  "font_name": "'CrocodileFeetDEMO-Regular'",
+  "font_size": 58.33333,
+  "justification": "2"
+ },
+ "2": {
+  "bbox": [
+   1227,
+   114,
+   2274,
+   464
+  ],
+  "font_name": "'CrocodileFeetDEMO-Regular'",
+  "font_size": 53.57682,
+  "justification": "2"
+ },
+ "3": {
+  "bbox": [
+   798,
+   2178,
+   2193,
+   2443
+  ],
+  "font_name": "'CrocodileFeetDEMO-Regular'",
+  "font_size": 53.57682,
+  "justification": "2"
+ },
+ "4": {
+  "bbox": [
+   833,
+   131,
+   1666,
+   480
+  ],
+  "font_name": "'CrocodileFeetDEMO-Regular'",
+  "font_size": 53.57682,
+  "justification": "2"
+ },
+ "5": {
+  "bbox": [
+   147,
+   173,
+   1110,
+   407
+  ],
+  "font_name": "'CrocodileFeetDEMO-Regular'",
+  "font_size": 58.33332,
+  "justification": "2"
+ },
+ "6": {
+  "bbox": [
+   906,
+   232,
+   2350,
+   559
+  ],
+  "font_name": "'CrocodileFeetDEMO-Regular'",
+  "font_size": 58.33332,
+  "justification": "2"
+ },
+ "7": {
+  "bbox": [
+   125,
+   194,
+   1056,
+   716
+  ],
+  "font_name": "'CrocodileFeetDEMO-Regular'",
+  "font_size": 58.33332,
+  "justification": "2"
+ },
+ "8": {
+  "bbox": [
+   1137,
+   2206,
+   2323,
+   2443
+  ],
+  "font_name": "'CrocodileFeetDEMO-Regular'",
+  "font_size": 58.33332,
+  "justification": "2"
+ },
+ "9": {
+  "bbox": [
+   1331,
+   204,
+   2239,
+   629
+  ],
+  "font_name": "'CrocodileFeetDEMO-Regular'",
+  "font_size": 58.33332,
+  "justification": "2"
+ },
+ "10": {
+  "bbox": [
+   913,
+   169,
+   1957,
+   321
+  ],
+  "font_name": "'CrocodileFeetDEMO-Regular'",
+  "font_size": 58.33332,
+  "justification": "2"
+ },
+ "11": {
+  "bbox": [
+   126,
+   225,
+   1225,
+   551
+  ],
+  "font_name": "'CrocodileFeetDEMO-Regular'",
+  "font_size": 58.33332,
+  "justification": "2"
+ },
+ "12": {
+  "bbox": [
+   1324,
+   155,
+   2436,
+   491
+  ],
+  "font_name": "'CrocodileFeetDEMO-Regular'",
+  "font_size": 58.33332,
+  "justification": "2"
+ },
+ "13": {
+  "bbox": [
+   1198,
+   172,
+   2350,
+   496
+  ],
+  "font_name": "'CrocodileFeetDEMO-Regular'",
+  "font_size": 58.33332,
+  "justification": "2"
+ },
+ "14": {
+  "bbox": [
+   662,
+   160,
+   1649,
+   578
+  ],
+  "font_name": "'CrocodileFeetDEMO-Regular'",
+  "font_size": 58.33332,
+  "justification": "2"
+ },
+ "15": {
+  "bbox": [
+   520,
+   161,
+   2122,
+   393
+  ],
+  "font_name": "'CrocodileFeetDEMO-Regular'",
+  "font_size": 58.33332,
+  "justification": "2"
+ },
+ "16": {
+  "bbox": [
+   541,
+   175,
+   1864,
+   503
+  ],
+  "font_name": "'CrocodileFeetDEMO-Regular'",
+  "font_size": 58.33332,
+  "justification": "2"
+ },
+ "17": {
+  "bbox": [
+   743,
+   149,
+   1937,
+   385
+  ],
+  "font_name": "'CrocodileFeetDEMO-Regular'",
+  "font_size": 58.33332,
+  "justification": "2"
+ },
+ "18": {
+  "bbox": [
+   590,
+   152,
+   1897,
+   483
+  ],
+  "font_name": "'CrocodileFeetDEMO-Regular'",
+  "font_size": 58.33332,
+  "justification": "2"
+ },
+ "19": {
+  "bbox": [
+   1272,
+   93,
+   2352,
+   424
+  ],
+  "font_name": "'CrocodileFeetDEMO-Regular'",
+  "font_size": 58.33332,
+  "justification": "2"
+ },
+ "20": {
+  "bbox": [
+   565,
+   207,
+   1761,
+   524
+  ],
+  "font_name": "'CrocodileFeetDEMO-Regular'",
+  "font_size": 58.33332,
+  "justification": "2"
+ },
+ "21": {
+  "bbox": [
+   797,
+   120,
+   1876,
+   547
+  ],
+  "font_name": "'CrocodileFeetDEMO-Regular'",
+  "font_size": 58.33332,
+  "justification": "2"
+ },
+ "22": {
+  "bbox": [
+   188,
+   250,
+   1276,
+   575
+  ],
+  "font_name": "'CrocodileFeetDEMO-Regular'",
+  "font_size": 58.33332,
+  "justification": "2"
+ },
+ "23": {
+  "bbox": [
+   677,
+   151,
+   1874,
+   386
+  ],
+  "font_name": "'CrocodileFeetDEMO-Regular'",
+  "font_size": 58.33332,
+  "justification": "2"
+ },
+ "24": {
+  "bbox": [
+   86,
+   674,
+   1220,
+   998
+  ],
+  "font_name": "'CrocodileFeetDEMO-Regular'",
+  "font_size": 58.33332,
+  "justification": "2"
+ },
+ "25": {
+  "bbox": [
+   746,
+   2124,
+   1954,
+   2356
+  ],
+  "font_name": "'CrocodileFeetDEMO-Regular'",
+  "font_size": 58.33332,
+  "justification": "2"
+ }
+}

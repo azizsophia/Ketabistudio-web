@@ -83,19 +83,13 @@ def storage_download(bucket, path) -> bytes:
 # ── generation (personalized book) ──────────────────────────────────
 def generate_amira(order, workdir: Path):
     """Runs the exact validated pipeline. Returns (interior_pdf, cover_pdf)."""
-    os.chdir(os.environ["ASSETS_DIR"])
-    from build_book import build_strict
+    from generate_from_bases import build_from_bases
 
     name = order["child_name"].strip()
     qc.gate_name(name)
 
-    return build_strict(
-        name,
-        SKIN_TO_PSD[order["skin"]],
-        HAIR_TO_PSD[order["hair"]],
-        STYLE_TO_PSD[order["hair_style"]],
-        workdir,
-    )
+    return build_from_bases(
+        name, order["skin"], order["hair"], order["hair_style"], workdir)
 
 
 # ── per-order processing ────────────────────────────────────────────
