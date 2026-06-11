@@ -4,4 +4,5 @@ WORKDIR /app
 COPY worker/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY worker/ /app/
+COPY public/images /public/images
 CMD ["python", "worker.py"]

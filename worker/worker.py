@@ -23,8 +23,8 @@ sys.path.insert(0, str(Path(__file__).parent / "pipeline"))
 
 import qc  # noqa: E402
 
-SB = os.environ["SUPABASE_URL"].rstrip("/")
-KEY = os.environ["SUPABASE_SERVICE_KEY"]
+SB = "".join(os.environ["SUPABASE_URL"].split()).rstrip("/")
+KEY = "".join(os.environ["SUPABASE_SERVICE_KEY"].split())
 HDRS = {"Authorization": f"Bearer {KEY}", "apikey": KEY,
         "Content-Type": "application/json"}
 POD = "0850X0850.FC.PRE.PB.080CW444.MXX"
@@ -128,9 +128,9 @@ def process(order):
 
     # Lulu validation on signed URLs
     client = lulu_client.LuluClient(
-        client_key=os.environ["LULU_CLIENT_KEY"],
-        client_secret=os.environ["LULU_CLIENT_SECRET"],
-        env=os.environ.get("LULU_ENV", "sandbox"))
+        client_key="".join(os.environ["LULU_CLIENT_KEY"].split()),
+        client_secret="".join(os.environ["LULU_CLIENT_SECRET"].split()),
+        env=os.environ.get("LULU_ENV", "sandbox").strip())
     lulu_report = qc.gate_lulu(client, signed_url("orders", ikey),
                                signed_url("orders", ckey), POD)
     set_status(oid, "validated",
@@ -146,9 +146,9 @@ def submit_approved(order):
     import lulu_client
     oid = order["id"]
     client = lulu_client.LuluClient(
-        client_key=os.environ["LULU_CLIENT_KEY"],
-        client_secret=os.environ["LULU_CLIENT_SECRET"],
-        env=os.environ.get("LULU_ENV", "sandbox"))
+        client_key="".join(os.environ["LULU_CLIENT_KEY"].split()),
+        client_secret="".join(os.environ["LULU_CLIENT_SECRET"].split()),
+        env=os.environ.get("LULU_ENV", "sandbox").strip())
     ship = order["shipping"]
     job = client.create_print_job(
         title=f"Ketabi {order['book_slug']} {order.get('child_name') or ''}".strip(),
