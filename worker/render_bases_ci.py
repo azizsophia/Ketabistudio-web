@@ -44,15 +44,27 @@ SEARCH_ROOT = "/tmp/modesty"
 def _discover_psds() -> dict:
     """Walk the extraction root, extract nested zips, map lowercase
     filename -> full path for every .psd found. Prints structure to log."""
-    import zipfile
+    import subprocess, shutil
+    def _extract(p, dest):
+        """unzip -> 7z -> apt install p7zip cascade (handles Deflate64 etc)."""
+        r = subprocess.run(["unzip", "-q", "-o", p, "-d", dest],
+                           capture_output=True)
+        if r.returncode == 0:
+            return
+        exe = shutil.which("7z") or shutil.which("7zz") or shutil.which("7za")
+        if not exe:
+            subprocess.run(["sudo", "apt-get", "install", "-y", "-qq",
+                            "p7zip-full"], capture_output=True)
+            exe = shutil.which("7z") or shutil.which("7za")
+        subprocess.run([exe, "x", "-y", f"-o{dest}", p],
+                       check=True, capture_output=True)
     # extract any nested zips first
     for root, _dirs, files in os.walk(SEARCH_ROOT):
         for f in files:
             if f.lower().endswith(".zip"):
                 p = os.path.join(root, f)
                 print(f"found nested zip, extracting: {p}", flush=True)
-                with zipfile.ZipFile(p) as z:
-                    z.extractall(root)
+                _extract(p, root)
                 os.remove(p)
     psds = {}
     for root, dirs, files in os.walk(SEARCH_ROOT):
