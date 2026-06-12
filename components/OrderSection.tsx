@@ -318,14 +318,14 @@ export default function OrderSection({ slug, personalized }: Props) {
             <div className={styles.fieldFull}>
               <label className={styles.label} htmlFor="street1">Address line 1</label>
               <input id="street1" className={styles.input} type="text"
-                placeholder="123 Maple St"
+                placeholder="Street address"
                 value={street1} onChange={(e) => setStreet1(e.target.value)} />
             </div>
 
             <div className={styles.fieldFull}>
               <label className={styles.label} htmlFor="street2">Address line 2 (optional)</label>
               <input id="street2" className={styles.input} type="text"
-                placeholder="Apt 4B"
+                placeholder="Apartment, suite, etc."
                 value={street2} onChange={(e) => setStreet2(e.target.value)} />
             </div>
 
@@ -342,7 +342,7 @@ export default function OrderSection({ slug, personalized }: Props) {
                 {!stateRequired && " (optional)"}
               </label>
               <input id="state" className={styles.input} type="text"
-                placeholder={country === "US" ? "MS" : ""}
+                placeholder={country === "US" ? "State" : ""}
                 maxLength={country === "US" || country === "CA" ? 2 : 30}
                 value={state}
                 onChange={(e) => setState(
@@ -357,7 +357,7 @@ export default function OrderSection({ slug, personalized }: Props) {
                 {country === "US" ? "ZIP" : "Postcode"}
               </label>
               <input id="zip" className={styles.input} type="text"
-                placeholder={country === "US" ? "39759" : ""}
+                placeholder={country === "US" ? "ZIP code" : ""}
                 value={zip} onChange={(e) => setZip(e.target.value)} />
             </div>
 
