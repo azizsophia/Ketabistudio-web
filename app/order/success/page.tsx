@@ -38,7 +38,7 @@ export default async function SuccessPage({
         get an email when it ships.
       </p>
       <p style={{ color: "var(--sage)", fontWeight: 600, fontSize: "0.9rem", marginBottom: 28 }}>
-        Free reprint if anything is wrong with your book.
+        Checked by hand before it ships — guaranteed right.
       </p>
       {shortId && (
         <p style={{ fontFamily: "monospace", color: "var(--muted)", fontSize: "0.85rem", marginBottom: 28 }}>

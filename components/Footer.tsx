@@ -14,6 +14,8 @@ export default function Footer() {
           <Link href="/#app">App</Link>
           <Link href="/about">About</Link>
           <Link href="/privacy-policy">Privacy Policy</Link>
+          <Link href="/terms">Terms</Link>
+          <Link href="/refund-policy">Shipping &amp; Returns</Link>
         </nav>
         <div className={styles.social}>
           <a

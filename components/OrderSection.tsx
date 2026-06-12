@@ -385,7 +385,7 @@ export default function OrderSection({ slug, personalized }: Props) {
               <span>{isInternational ? "$42.98" : "$32.98"}</span>
             </div>
             <p className={styles.priceNote}>
-              Free reprint if anything is wrong with your book.
+              Checked by hand before it ships — guaranteed right.
             </p>
           </div>
 
