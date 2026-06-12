@@ -115,37 +115,49 @@ def generate_cover_from_base(child_name, skin, hair, style):
         )
     # ── End guard ────────────────────────────────────────────────────
 
-    # ── Blank baked-in PSD text ──────────────────────────────────────
-    # Cover bases were rendered with text layers visible (render_bases_ci
-    # iterated top-level layers only, missing nested type layers).
-    # Three regions on the front panel (x=2550..5100) have baked text:
-    #   Title: gold text y≈220-590 "The Beautiful Journey of (Child's Name)"
-    #   Credits: pink text y≈2260-2490 "written by…" / "illustrated by…"
+    # ── Blank baked-in PSD text (ADAPTIVE) ───────────────────────────
+    # Older cover bases were rendered with text layers visible (a bug in
+    # render_bases_ci that missed nested type layers), baking the template
+    # title "(Child's Name)", "Embracing Modesty", and author credits into
+    # the art. Newer bases (rendered after the fix) are clean.
+    #
+    # Blank ONLY if baked text is actually detected, so this never paints
+    # flat rectangles over clean art on a correct base.
     arr = np.array(img)
 
-    # Title area: smooth gradient background — fill row-by-row from edge samples
-    # Covers both white "Embracing Modesty" (y≈110-190) and gold title (y≈220-590)
-    title_y1, title_y2 = 100, 620
-    title_x1, title_x2 = 2550 + 350, 2550 + 2200  # full-image coords
-    for y in range(title_y1, title_y2):
-        left_bg = arr[y, title_x1 - 50:title_x1 - 10, :].mean(axis=0)
-        right_bg = arr[y, title_x2 + 10:title_x2 + 50, :].mean(axis=0)
-        t = np.linspace(0, 1, title_x2 - title_x1).reshape(-1, 1)
-        gradient = ((1 - t) * left_bg + t * right_bg).astype(np.uint8)
-        arr[y, title_x1:title_x2, :] = gradient
+    def _detect_baked_text(a):
+        # Gold title text in the title band
+        t = a[100:620, 2550 + 350:2550 + 2200, :].astype(np.int16)
+        gold = (
+            (np.abs(t[:, :, 0] - 216) < 40) &
+            (np.abs(t[:, :, 1] - 138) < 40) &
+            (np.abs(t[:, :, 2] - 43) < 40)
+        ).sum()
+        white = (
+            (t[:, :, 0] > 245) & (t[:, :, 1] > 240) & (t[:, :, 2] > 240)
+        ).sum()
+        return gold > 1500 or white > 2500
 
-    # Credits area: two text blocks at bottom of front panel, left and right
-    # of the dress (dress spans x≈870-2010 fp). Fill each rect per-row with
-    # the color sampled at its OUTER edge (away from the dress) — the
-    # background there is horizontally uniform, and inner-edge samples
-    # risk catching dress pixels.
-    lx1, lx2 = 2550 + 180, 2550 + 860   # left block; outer edge = left
-    rx1, rx2 = 2550 + 2020, 2550 + 2535  # right block; outer edge = right
-    for y in range(2250, 2515):
-        arr[y, lx1:lx2, :] = arr[y, lx1 - 35:lx1 - 5, :].mean(axis=0).astype(np.uint8)
-        arr[y, rx1:rx2, :] = arr[y, rx2 + 5:min(rx2 + 35, w), :].mean(axis=0).astype(np.uint8)
+    if _detect_baked_text(arr):
+        # Title band: smooth gradient fill (white "Embracing Modesty"
+        # y≈110-190 plus gold title y≈220-590)
+        title_y1, title_y2 = 100, 620
+        title_x1, title_x2 = 2550 + 350, 2550 + 2200
+        for y in range(title_y1, title_y2):
+            left_bg = arr[y, title_x1 - 50:title_x1 - 10, :].mean(axis=0)
+            right_bg = arr[y, title_x2 + 10:title_x2 + 50, :].mean(axis=0)
+            t = np.linspace(0, 1, title_x2 - title_x1).reshape(-1, 1)
+            gradient = ((1 - t) * left_bg + t * right_bg).astype(np.uint8)
+            arr[y, title_x1:title_x2, :] = gradient
 
-    img = Image.fromarray(arr)
+        # Credits: two text blocks flanking the dress at bottom of front panel
+        lx1, lx2 = 2550 + 180, 2550 + 860
+        rx1, rx2 = 2550 + 2020, 2550 + 2535
+        for y in range(2250, 2515):
+            arr[y, lx1:lx2, :] = arr[y, lx1 - 35:lx1 - 5, :].mean(axis=0).astype(np.uint8)
+            arr[y, rx1:rx2, :] = arr[y, rx2 + 5:min(rx2 + 35, w), :].mean(axis=0).astype(np.uint8)
+
+        img = Image.fromarray(arr)
     # ── End text blanking ────────────────────────────────────────────
 
     COVER_GOLD = (216, 138, 43, 255)

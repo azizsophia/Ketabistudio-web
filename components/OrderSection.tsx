@@ -19,11 +19,11 @@ const HAIRS = [
   { key: "red", label: "Red hair", swatch: "#b85c34" },
 ] as const;
 
-/* long-straight temporarily unavailable: cover/page art bases for that
-   hairstyle are being re-rendered. Set available: true after the
-   render-bases CI has regenerated them and a test order passes QC. */
+/* All four hairstyles available: long-straight bases re-rendered and
+   pixel-verified 2026-06-11 (every base confirmed to contain the
+   character before upload). */
 const HAIR_STYLES = [
-  { key: "long-straight", label: "Long & straight", available: false },
+  { key: "long-straight", label: "Long & straight", available: true },
   { key: "long-curly", label: "Long & curly", available: true },
   { key: "short-straight", label: "Short & straight", available: true },
   { key: "short-curly", label: "Short & curly", available: true },

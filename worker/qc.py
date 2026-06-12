@@ -56,10 +56,10 @@ def gate_placeholders(texts: list[str]) -> None:
 
 
 # ── Gate 2: spec ────────────────────────────────────────────────────
-def gate_spec(interior_pdf: str, cover_pdf: str) -> dict:
+def gate_spec(interior_pdf: str, cover_pdf: str, expected_pages: int = INTERIOR_PAGES) -> dict:
     r = PdfReader(interior_pdf)
-    if len(r.pages) != INTERIOR_PAGES:
-        raise QCFailure(f"interior has {len(r.pages)} pages, expected {INTERIOR_PAGES}")
+    if len(r.pages) != expected_pages:
+        raise QCFailure(f"interior has {len(r.pages)} pages, expected {expected_pages}")
     w = float(r.pages[0].mediabox.width) / 72
     h = float(r.pages[0].mediabox.height) / 72
     if abs(w - INTERIOR_IN) > TOL_IN or abs(h - INTERIOR_IN) > TOL_IN:

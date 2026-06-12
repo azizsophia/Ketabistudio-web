@@ -39,6 +39,21 @@ FIXED_ASSETS = {
     "maryam-is-kind-to-her-parents": ("maryam/Maryam_interior.pdf", "maryam/Maryam_cover.pdf"),
 }
 
+# Per-book print spec. All three current books are 32-page 8.75" square
+# softcover (POD 0850X0850...PB), verified against the production PDFs on
+# 2026-06-11. page_count and pod must match what is sent to Lulu; a new
+# book with a different length needs its own entry here.
+DEFAULT_SPEC = {"page_count": 32, "pod": POD}
+BOOK_SPECS = {
+    "her-beautiful-hijab": {"page_count": 32, "pod": POD},
+    "juha-and-the-enormous-pumpkin": {"page_count": 32, "pod": POD},
+    "maryam-is-kind-to-her-parents": {"page_count": 32, "pod": POD},
+}
+
+
+def spec_for(slug):
+    return BOOK_SPECS.get(slug, DEFAULT_SPEC)
+
 
 # ── supabase helpers ────────────────────────────────────────────────
 def db(method, path, **kw):
@@ -114,7 +129,8 @@ def process(order):
         ref_report = qc.gate_reference(
             interior, order["skin"], order["hair"], order["hair_style"])
 
-    spec_report = qc.gate_spec(interior, cover)
+    spec = spec_for(slug)
+    spec_report = qc.gate_spec(interior, cover, expected_pages=spec["page_count"])
     set_status(oid, "qc_passed",
                qc_report={"spec": spec_report, "reference": ref_report})
 
@@ -132,7 +148,7 @@ def process(order):
         client_secret="".join(os.environ["LULU_CLIENT_SECRET"].split()),
         env=os.environ.get("LULU_ENV", "sandbox").strip())
     lulu_report = qc.gate_lulu(client, signed_url("orders", ikey),
-                               signed_url("orders", ckey), POD)
+                               signed_url("orders", ckey), spec["pod"])
     set_status(oid, "validated",
                interior_path=ikey, cover_path=ckey,
                qc_report={"spec": spec_report, "reference": ref_report,
@@ -150,11 +166,12 @@ def submit_approved(order):
         client_secret="".join(os.environ["LULU_CLIENT_SECRET"].split()),
         env=os.environ.get("LULU_ENV", "sandbox").strip())
     ship = order["shipping"]
+    spec = spec_for(order["book_slug"])
     job = client.create_print_job(
         title=f"Ketabi {order['book_slug']} {order.get('child_name') or ''}".strip(),
         interior_url=signed_url("orders", order["interior_path"]),
         cover_url=signed_url("orders", order["cover_path"]),
-        pod_package_id=POD, page_count=32,
+        pod_package_id=spec["pod"], page_count=spec["page_count"],
         shipping_address=ship, shipping_level="MAIL",
         contact_email=order["customer_email"])
     set_status(oid, "submitted", lulu_print_job_id=str(job.get("id")))
