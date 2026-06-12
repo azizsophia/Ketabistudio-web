@@ -22,6 +22,7 @@ import requests
 sys.path.insert(0, str(Path(__file__).parent / "pipeline"))
 
 import qc  # noqa: E402
+import emailer  # noqa: E402
 
 SB = "".join(os.environ["SUPABASE_URL"].split()).rstrip("/")
 KEY = "".join(os.environ["SUPABASE_SERVICE_KEY"].split())
@@ -116,6 +117,13 @@ def process(order):
     workdir.mkdir(exist_ok=True)
     set_status(oid, "generating")
 
+    # Payment is confirmed by the time an order reaches 'pending' (the
+    # Stripe webhook sets it). Send the confirmation as production begins.
+    try:
+        emailer.send_order_confirmation(order)
+    except Exception as e:  # noqa: BLE001
+        print(f"[{oid}] confirmation email error (non-fatal): {e}")
+
     if slug in FIXED_ASSETS:
         ipath, cpath = FIXED_ASSETS[slug]
         interior = workdir / "interior.pdf"
@@ -178,6 +186,45 @@ def submit_approved(order):
     print(f"[{oid}] submitted to Lulu as job {job.get('id')}")
 
 
+def poll_shipping(order):
+    """Check a submitted print job's status with Lulu. When it reports
+    shipped, advance the order and email the customer with tracking."""
+    import lulu_client
+    oid = order["id"]
+    job_id = order.get("lulu_print_job_id")
+    if not job_id:
+        return
+    client = lulu_client.LuluClient(
+        client_key="".join(os.environ["LULU_CLIENT_KEY"].split()),
+        client_secret="".join(os.environ["LULU_CLIENT_SECRET"].split()),
+        env=os.environ.get("LULU_ENV", "sandbox").strip())
+    info = client.get_print_job_status(job_id)
+    # Lulu returns {"name": "<STATUS>", ...}; statuses include
+    # CREATED, ACCEPTED, IN_PRODUCTION, SHIPPED, REJECTED, CANCELED.
+    name = (info or {}).get("name", "")
+    if name == "IN_PRODUCTION" and order["status"] != "printing":
+        set_status(oid, "printing")
+        print(f"[{oid}] in production")
+    elif name == "SHIPPED":
+        # Pull tracking if Lulu exposes it on the status payload
+        tracking_url = ""
+        carrier = ""
+        msg = (info or {}).get("messages") or {}
+        if isinstance(msg, dict):
+            tracking_url = msg.get("tracking_url") or msg.get("tracking_id") or ""
+            carrier = msg.get("carrier_name", "") or ""
+        set_status(oid, "shipped")
+        try:
+            emailer.send_shipped(order, tracking_url=tracking_url, carrier=carrier)
+        except Exception as e:  # noqa: BLE001
+            print(f"[{oid}] shipped email error (non-fatal): {e}")
+        print(f"[{oid}] shipped")
+    elif name in ("REJECTED", "CANCELED"):
+        set_status(oid, "failed",
+                   qc_report={"failure": f"Lulu job {name}"})
+        print(f"[{oid}] Lulu job {name}")
+
+
 def main():
     poll = int(os.environ.get("POLL_SECONDS", "30"))
     print("ketabi worker up;", os.environ.get("LULU_ENV", "sandbox"))
@@ -200,6 +247,15 @@ def main():
                 except Exception:
                     set_status(order["id"], "failed",
                                qc_report={"failure": traceback.format_exc()[-800:]})
+                    traceback.print_exc()
+            # Advance submitted/printing jobs toward shipped (+ email)
+            for order in db(
+                "GET",
+                "orders?status=in.(submitted,printing)&order=created_at",
+            ):
+                try:
+                    poll_shipping(order)
+                except Exception:
                     traceback.print_exc()
         except Exception:
             traceback.print_exc()

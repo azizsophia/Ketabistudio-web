@@ -165,23 +165,11 @@ class LuluClient:
 
 
 if __name__ == "__main__":
-    # Quick smoke test against sandbox
+    # Smoke test: provide creds via env vars, never hardcode.
+    import json
     client = LuluClient(
-        client_key="c3924fcf-1ede-4167-b026-787e43fedb47",
-        client_secret="q1yZnwnPos9iCgDwBblNQ1yB64prnilJ",
-        env="sandbox",
+        client_key="".join(os.environ.get("LULU_CLIENT_KEY", "").split()),
+        client_secret="".join(os.environ.get("LULU_CLIENT_SECRET", "").split()),
+        env=os.environ.get("LULU_ENV", "sandbox").strip(),
     )
     print("Token acquired:", bool(client._get_token()))
-
-    us_address = {
-        "name": "Ketabi Studio",
-        "street1": "123 Main St",
-        "city": "Jackson",
-        "state_code": "MS",
-        "postcode": "39201",
-        "country_code": "US",
-        "phone_number": "601-555-0100",
-    }
-    cost = client.calculate_cost(page_count=26, shipping_address=us_address)
-    import json
-    print(json.dumps(cost, indent=2))
