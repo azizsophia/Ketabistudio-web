@@ -152,3 +152,12 @@
     margin-right: auto;
   }
 }
+
+.priceTag {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 14px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--muted);
+}

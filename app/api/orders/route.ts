@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
     hair_style: hairStyle,
     customer_email: email,
     shipping,
-    status: "pending",
+    status: "awaiting_payment",
     approval_token: approvalToken,
   };
 
@@ -144,13 +144,13 @@ export async function POST(req: NextRequest) {
     },
     body: JSON.stringify({
       order_id: created.id,
-      event: "placed",
+      event: "awaiting_payment",
     }),
   });
 
   return NextResponse.json({
     ok: true,
     orderId: created.id,
-    message: "Order received! We will generate your book and review it before printing.",
+    message: "Order created. Continue to payment.",
   });
 }

@@ -38,6 +38,8 @@ const STATUS_ORDER = [
   "submitted",
   "printing",
   "shipped",
+  "awaiting_payment",
+  "payment_failed",
   "rejected",
   "failed",
 ];
@@ -47,7 +49,9 @@ function badgeClass(status: string) {
   if (status === "pending" || status === "generating") return s.badgePending;
   if (status === "approved" || status === "submitted" || status === "shipped")
     return s.badgeApproved;
-  if (status === "rejected" || status === "failed") return s.badgeFailed;
+  if (status === "rejected" || status === "failed" || status === "payment_failed")
+    return s.badgeFailed;
+  if (status === "awaiting_payment") return s.badgeDefault;
   return s.badgeDefault;
 }
 

@@ -273,3 +273,38 @@
   cursor: not-allowed;
   text-decoration: line-through;
 }
+
+/* ── Price summary (checkout step) ── */
+.priceSummary {
+  background: var(--cream);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px 20px;
+  margin-bottom: 20px;
+}
+
+.priceRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.95rem;
+  color: var(--ink);
+  padding: 5px 0;
+}
+
+.priceTotal {
+  border-top: 1px solid var(--line);
+  margin-top: 6px;
+  padding-top: 12px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--forest);
+}
+
+.priceNote {
+  margin-top: 12px;
+  font-size: 0.8rem;
+  color: var(--sage);
+  font-weight: 600;
+  text-align: center;
+}

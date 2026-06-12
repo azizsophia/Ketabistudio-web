@@ -154,8 +154,19 @@ export default function OrderSection({ slug, personalized }: Props) {
       });
       const data = await r.json();
       if (r.ok && data.ok) {
-        setOrderId(data.orderId);
-        setStep("done");
+        /* Order created (awaiting_payment). Start Stripe checkout and
+           hand off to the hosted payment page. */
+        const c = await fetch("/api/checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ orderId: data.orderId }),
+        });
+        const cd = await c.json();
+        if (c.ok && cd.url) {
+          window.location.href = cd.url;
+          return;
+        }
+        setError(cd.error || "Could not start checkout. Please try again.");
       } else {
         setError(data.error || "Something went wrong. Please try again.");
       }
@@ -360,6 +371,24 @@ export default function OrderSection({ slug, personalized }: Props) {
             </div>
           </div>
 
+          <div className={styles.priceSummary}>
+            <div className={styles.priceRow}>
+              <span>Book</span>
+              <span>$27.99</span>
+            </div>
+            <div className={styles.priceRow}>
+              <span>{isInternational ? "International shipping" : "Shipping"}</span>
+              <span>{isInternational ? "$14.99" : "$4.99"}</span>
+            </div>
+            <div className={`${styles.priceRow} ${styles.priceTotal}`}>
+              <span>Total</span>
+              <span>{isInternational ? "$42.98" : "$32.98"}</span>
+            </div>
+            <p className={styles.priceNote}>
+              Free reprint if anything is wrong with your book.
+            </p>
+          </div>
+
           {error && <p className={styles.error}>{error}</p>}
 
           <div className={styles.btnRow}>
@@ -376,7 +405,7 @@ export default function OrderSection({ slug, personalized }: Props) {
               onClick={placeOrder}
               disabled={submitting}
             >
-              {submitting ? "Placing order..." : "Place order"}
+              {submitting ? "Starting checkout..." : "Continue to payment"}
             </button>
           </div>
         </div>

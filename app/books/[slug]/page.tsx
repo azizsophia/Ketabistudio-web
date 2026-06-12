@@ -76,6 +76,9 @@ export default async function BookPage({
             >
               Order now
             </a>
+            <span className={styles.priceTag}>
+              $27.99 + shipping
+            </span>
           </div>
         </div>
       </div>
