@@ -199,30 +199,50 @@ def gate_lulu(client, interior_url: str, cover_url: str, pod_package_id: str,
 
 # ── digest for the human gate ───────────────────────────────────────
 def build_digest(interior_pdf: str, cover_pdf: str, order: dict) -> bytes:
-    """One review image: cover + name crop + the three QC pages."""
-    cov = _raster(cover_pdf, 1, px=1100)
-    # front panel = right half
+    """One review image: the full front cover, an interior contact strip,
+    and the order details. Laid out so the cover reads as the cover."""
+    from PIL import ImageDraw
+
+    cov = _raster(cover_pdf, 1, px=1400)
+    # front panel = right half of the wrap
     front = cov.crop((cov.width // 2, 0, cov.width, cov.height))
-    name_crop = front.crop((0, 0, front.width, int(front.height * 0.3)))
+
+    # Three representative interior pages (story pages 7, 11, 20 -> +3 for matter)
     pages = [_raster(interior_pdf, p + 3, px=520) for p in (7, 11, 20)]
 
     W = 1160
-    H = 360 + 80 + 540 + 60
+    pad = 24
+    cover_box = 540          # full cover shown large on the left
+    info_x = pad + cover_box + pad
+    strip_y = pad + cover_box + pad
+    strip_h = 360
+    H = strip_y + strip_h + pad
+
     canvas = Image.new("RGB", (W, H), (246, 244, 239))
-    front.thumbnail((420, 420), Image.LANCZOS)
-    canvas.paste(front, (20, 20))
-    name_crop.thumbnail((680, 200), Image.LANCZOS)
-    canvas.paste(name_crop, (460, 20))
-    from PIL import ImageDraw
     d = ImageDraw.Draw(canvas)
-    d.text((460, 240),
-           f"{order.get('book_slug')} | name={order.get('child_name')!r} | "
-           f"{order.get('skin')}/{order.get('hair')}/{order.get('hair_style')}",
-           fill=(40, 38, 34))
-    x = 20
+
+    # Full front cover, large, top-left — this is the whole cover, not a crop
+    cover_disp = front.copy()
+    cover_disp.thumbnail((cover_box, cover_box), Image.LANCZOS)
+    canvas.paste(cover_disp, (pad, pad))
+
+    # Order details to the right of the cover
+    d.text((info_x, pad + 8), "FULL COVER  →  shown at left", fill=(120, 116, 108))
+    d.text((info_x, pad + 48),
+           f"Book:  {order.get('book_slug')}", fill=(40, 38, 34))
+    d.text((info_x, pad + 78),
+           f"Name:  {order.get('child_name')!r}", fill=(40, 38, 34))
+    d.text((info_x, pad + 108),
+           f"Look:  {order.get('skin')} / {order.get('hair')} / "
+           f"{order.get('hair_style')}", fill=(40, 38, 34))
+    d.text((info_x, pad + 156), "Interior sample below ↓", fill=(120, 116, 108))
+
+    # Interior contact strip along the bottom
+    x = pad
     for img in pages:
-        canvas.paste(img, (x, 440))
+        canvas.paste(img, (x, strip_y))
         x += img.width + 20
+
     buf = io.BytesIO()
     canvas.save(buf, "JPEG", quality=88)
     return buf.getvalue()
