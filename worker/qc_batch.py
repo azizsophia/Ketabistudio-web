@@ -38,6 +38,8 @@ import generate_from_bases as g  # noqa: E402
 
 SB = "".join(os.environ["SUPABASE_URL"].split()).rstrip("/")
 KEY = "".join(os.environ["SUPABASE_SERVICE_KEY"].split())
+# QC_FULL=1 builds the full interior for all 48 looks (slow, exhaustive).
+FULL = os.environ.get("QC_FULL", "").strip() in ("1", "true", "yes")
 
 SKINS = ["light", "medium", "dark"]
 HAIRS = ["black", "brown", "blonde", "red"]
@@ -146,20 +148,29 @@ def run():
                     ImageDraw.Draw(bad).text((10, 140), "RENDER FAIL", font=LABEL_FONT)
                     cover_cells[skin].append((bad, combo))
 
-    # one full interior per skin: spec + look-color gates + sample page
-    for skin in SKINS:
-        combo = f"{skin}-black-short-curly"
+    # Full interiors: spec + look-color gates + sample page.
+    # Default (fast) = one representative interior per skin. QC_FULL=1 builds the
+    # full 32-page interior for ALL 48 looks (exhaustive pre-launch check).
+    if FULL:
+        interior_combos = [(s, h, st) for s in SKINS for h in HAIRS for st in STYLES]
+    else:
+        interior_combos = [(s, "black", "short-curly") for s in SKINS]
+
+    for skin, hair, style in interior_combos:
+        combo = f"{skin}-{hair}-{style}"
         try:
-            wd = work / f"int-{skin}"
-            interior_pdf, cover_pdf = g.build_from_bases(SHORT_NAME, skin, "black", "short-curly", wd)
+            wd = work / f"int-{combo}"
+            interior_pdf, cover_pdf = g.build_from_bases(SHORT_NAME, skin, hair, style, wd)
             spec = qc.gate_spec(interior_pdf, cover_pdf)
-            ref = qc.gate_reference(interior_pdf, skin, "black", "short-curly")
-            record(f"interior-spec:{skin}", True, spec)
-            record(f"interior-look:{skin}", True, ref)
-            pg = qc._raster(interior_pdf, 11, px=300)  # story page (girl)
-            interior_cells.append((pg, f"{skin} p11"))
+            ref = qc.gate_reference(interior_pdf, skin, hair, style)
+            record(f"interior-spec:{combo}", True, spec)
+            record(f"interior-look:{combo}", True, ref)
+            # one interior thumb per skin keeps the contact sheet readable
+            if (hair, style) == ("black", "short-curly"):
+                pg = qc._raster(interior_pdf, 11, px=300)  # story page (girl)
+                interior_cells.append((pg, f"{skin} p11"))
         except Exception as e:  # noqa: BLE001
-            record(f"interior:{skin}", False, e)
+            record(f"interior:{combo}", False, e)
             traceback.print_exc()
 
     # long-name cover samples (one per skin) — eyeball title fit
