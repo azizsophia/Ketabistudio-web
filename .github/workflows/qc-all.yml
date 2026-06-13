@@ -4,7 +4,12 @@ name: QC All Books
 # Results (PASS/FAIL report + phone-swipeable contact sheets) are written to
 # Supabase book-assets/qc/ and viewable at /admin/qc.
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      full:
+        description: "Render the FULL interior for all 48 looks (slower, exhaustive). Off = fast per-skin sample."
+        type: boolean
+        default: false
 
 jobs:
   qc:
@@ -29,4 +34,5 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          QC_FULL: ${{ inputs.full && '1' || '' }}
         run: python worker/qc_batch.py
