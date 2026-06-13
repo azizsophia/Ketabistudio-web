@@ -85,7 +85,7 @@ ACCENTS = {
     21: ["how they treated each other"],
     22: ["so proud of you", "warmest"],
     23: ["Thank you, Allah", "beautiful hijab"],
-    24: ["who she was"],
+    24: ["She knew exactly who she was"],
     25: ["modesty", "carrying a piece of heaven"],
 }
 
