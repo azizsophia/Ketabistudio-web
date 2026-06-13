@@ -70,18 +70,17 @@ def generate_page_from_base(pg, child_name, skin, hair, style):
     lay = LAYOUTS.get(str(pg))
     if lay and pg in m.STORY:
         fname = lay["font_name"].strip("'\"")
-        # First substitute the child's name into the raw text, THEN build
-        # accent runs, so accent matching works on the final string and
-        # name length never breaks a span.
-        raw = m.STORY[pg]
         name = m.clean_child_name(child_name)
-        text = raw.replace("(Child's Name)", name)
-        runs = m.build_accent_runs(
-            text, m.ACCENTS.get(pg, []), fname, lay["font_size"])
+        text = m.STORY[pg].replace("(Child's Name)", name)
         new_info = {
             "bbox": tuple(lay["bbox"]),
             "text": text,
-            "runs": runs,
+            "runs": [{
+                "text": text,
+                "font_name": fname,
+                "font_size": lay["font_size"],
+                "color": m.BODY_TEXT,
+            }],
             "justification": lay["justification"],
         }
         m.validate_no_placeholders(new_info["text"], page_label=f"page {pg}")

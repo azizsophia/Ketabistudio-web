@@ -636,124 +636,99 @@ def substitute_names(text_info, child_name):
 
 
 def render_text_on_image(img, text_info, page_num=None, override_color=None):
-    """Render styled text with per-character color, word-wrapped to the
-    bbox, with a thin sharp outline (no blur/box). Character-stream model
-    so accent colors and punctuation never produce spacing artifacts.
+    """Render crystal-clear story text.
+
+    Design: one body color, no accents. The text block sits on a clean,
+    soft caption panel (a gently darkened, feather-edged rounded region)
+    so cream text is always sharp and legible without per-letter outlines
+    or blur. Text is centered in the panel and word-wrapped to the bbox.
     """
+    from PIL import ImageFilter
+
     bbox = text_info["bbox"]
-    just = text_info["justification"]
+    just = text_info.get("justification", 2)
     runs = text_info["runs"]
     if not runs:
         return
 
     fname = runs[0]["font_name"]
-    fsize = runs[0]["font_size"]
+    fsize = int(runs[0]["font_size"])
+    color = override_color if override_color else runs[0]["color"]
+    color = tuple(color[:3])
 
-    font_cache = {}
-
-    def get_font(size):
-        key = int(size)
-        if key not in font_cache:
-            path = FONT_MAP.get(fname, FONT_CROC)
-            font_cache[key] = ImageFont.truetype(path, key)
-        return font_cache[key]
-
-    font = get_font(fsize)
-
-    # Build a flat list of (char, color), splitting hard lines on \r.
-    # Each element of `hard_lines` is a list of (char,color).
-    hard_lines = [[]]
-    for run in runs:
-        color = override_color if override_color else run["color"]
-        for ch in sanitize_text(run["text"]):
-            if ch == "\r":
-                hard_lines.append([])
-            else:
-                hard_lines[-1].append((ch, color))
+    path = FONT_MAP.get(fname, FONT_CROC)
+    font = ImageFont.truetype(path, fsize)
 
     x_left, x_right = bbox[0], bbox[2]
     box_width = x_right - x_left
 
-    def text_w(s):
-        bt = font.getbbox(s)
-        return bt[2] - bt[0]
+    def tw(s):
+        b = font.getbbox(s)
+        return b[2] - b[0]
 
-    # Word-wrap each hard line into display lines (lists of (char,color)).
-    display = []
-    for hl in hard_lines:
-        if not hl:
-            display.append([])
+    # Flatten to plain text (no \r kept as breaks) then re-wrap cleanly.
+    raw = sanitize_text("".join(r["text"] for r in runs))
+    paragraphs = raw.split("\r")
+    lines = []
+    for para in paragraphs:
+        words = para.split()
+        if not words:
             continue
-        # group into words by spaces, keeping spaces as separators
-        words = []           # each: list[(char,color)]
-        cur = []
-        for ch, col in hl:
-            if ch == " ":
-                if cur:
-                    words.append(cur)
-                    cur = []
-                words.append([(" ", col)])  # space token
+        cur = ""
+        for w in words:
+            trial = w if not cur else cur + " " + w
+            if cur and tw(trial) > box_width:
+                lines.append(cur)
+                cur = w
             else:
-                cur.append((ch, col))
+                cur = trial
         if cur:
-            words.append(cur)
+            lines.append(cur)
+    if not lines:
+        return
 
-        line = []
-        line_str = ""
-        for word in words:
-            wstr = "".join(c for c, _ in word)
-            if line and text_w(line_str + wstr) > box_width and wstr != " ":
-                # wrap; drop a trailing space already on the line
-                if line and line[-1][0] == " ":
-                    line = line[:-1]
-                display.append(line)
-                line = []
-                line_str = ""
-                if wstr == " ":
-                    continue
-            line.extend(word)
-            line_str += wstr
-        if line:
-            # strip trailing space
-            if line and line[-1][0] == " ":
-                line = line[:-1]
-            display.append(line)
+    # Line metrics
+    asc_b = font.getbbox("Ay")
+    ascent = -asc_b[1]
+    line_h = (asc_b[3] - asc_b[1]) + int((asc_b[3] - asc_b[1]) * 0.40)
 
-    # Draw, with alignment + thin sharp outline.
-    outline_rgb = TEXT_OUTLINE[:3]
+    block_h = line_h * len(lines)
+    block_w = max(tw(l) for l in lines)
+
+    # ── Caption panel ────────────────────────────────────────────────
+    # A soft, rounded, semi-opaque dark panel behind the text. Feathered
+    # edges (gaussian blur on the mask) so it melts into the art rather
+    # than looking like a hard box. Sized to the text block + padding.
+    pad_x, pad_y = int(fsize * 1.1), int(fsize * 0.75)
+    cx0 = max(x_left - pad_x, 8)
+    cy0 = max(bbox[1] - pad_y, 8)
+    cx1 = min(x_left + block_w + pad_x, img.width - 8)
+    cy1 = min(bbox[1] + block_h + pad_y, img.height - 8)
+    # center panel horizontally on the wrapped block if centered just.
+    if just == 2:
+        cx0 = max(x_left + (box_width - block_w) // 2 - pad_x, 8)
+        cx1 = min(x_left + (box_width + block_w) // 2 + pad_x, img.width - 8)
+
+    panel = Image.new("RGBA", img.size, (0, 0, 0, 0))
+    pdraw = ImageDraw.Draw(panel)
+    radius = int(fsize * 0.9)
+    pdraw.rounded_rectangle([cx0, cy0, cx1, cy1], radius=radius,
+                            fill=(38, 28, 22, 150))
+    panel = panel.filter(ImageFilter.GaussianBlur(int(fsize * 0.35)))
+    img.paste(panel, (0, 0), panel)
+
+    # ── Crisp text on top ────────────────────────────────────────────
     draw = ImageDraw.Draw(img)
-    stroke = max(2, int(fsize) // 22)
-    bt = font.getbbox("Ay")
-    line_h = (bt[3] - bt[1]) + int((bt[3] - bt[1]) * 0.42)
-    ascent = -font.getbbox("Ay")[1]
-
     y = bbox[1]
-    for line in display:
-        if not line:
-            y += line_h
-            continue
-        lstr = "".join(c for c, _ in line)
-        lw = text_w(lstr)
+    for line in lines:
+        lw = tw(line)
         if just == 2:
             x = x_left + (box_width - lw) // 2
         elif just == 1:
             x = x_right - lw
         else:
             x = x_left
-        # draw in maximal same-color runs to preserve kerning; advance by
-        # exact prefix-width difference so position never drifts.
-        i = 0
-        n = len(line)
-        while i < n:
-            col = line[i][1]
-            j = i
-            while j < n and line[j][1] == col:
-                j += 1
-            seg = "".join(c for c, _ in line[i:j])
-            draw.text((x, y), seg, fill=col, font=font,
-                      stroke_width=stroke, stroke_fill=outline_rgb)
-            x += text_w(lstr[:j]) - text_w(lstr[:i])
-            i = j
+        draw.text((x, y + ascent), line, fill=color, font=font, anchor="ls")
         y += line_h
 
 
