@@ -832,8 +832,24 @@ def render_text_on_image(img, text_info, page_num=None, override_color=None):
     glyph_h = ab[3] - ab[1]
     line_h = int(glyph_h * 1.72)
 
+    # Vertical placement. Default ("top") anchors the block at the bbox top,
+    # as the legacy PSD path expects. The bases path passes valign="center" so
+    # the (rewritten) story copy sits centered on the SAME region the original
+    # text occupied — text_layout.json stores each page's tight original text
+    # bbox, so centering reproduces the original placement even when the new
+    # copy's line count differs slightly from the original's.
+    block_h = len(display) * line_h
+    if text_info.get("valign", "top") == "center":
+        y = int((bbox[1] + bbox[3]) / 2 - block_h / 2)
+    else:
+        y = bbox[1]
+    # Overflow guard: keep the block ~3% inside the top/bottom trim edge. This
+    # still allows the original's snug bottom-of-page placements (~4% margin)
+    # but prevents a taller-than-original block from spilling into the trim.
+    guard = int(img.height * 0.03)
+    y = max(guard, min(y, img.height - guard - block_h))
+
     draw = ImageDraw.Draw(img)
-    y = bbox[1]
     for line in display:
         if not line:
             y += line_h

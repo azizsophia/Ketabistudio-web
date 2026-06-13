@@ -81,37 +81,16 @@ def generate_page_from_base(pg, child_name, skin, hair, style):
                       else m.BODY_TEXT)
         fsize = lay["font_size"]
 
-        # Place text using the precise per-page position measured from the
-        # reference PDF (top_y fraction + horizontal anchor). Centered.
-        W = 2550  # base canvas (pre-bleed)
-        cfg = m.TEXT_POS.get(pg, (0.08, 0.50))
-        top_y, h = cfg[0], cfg[1]
-        width_frac = cfg[2] if len(cfg) > 2 else 0.74
-        # Safe text zone: keep text away from every trimmed edge. The inner
-        # (binding) edge needs the most room; we don't know which side binds
-        # per page, so we keep a generous margin on BOTH left and right.
-        SAFE = 0.065          # min margin from top/bottom/outer edges
-        SAFE_SIDE = 0.075     # min margin from left/right edges
-        bw = int(W * width_frac)
-        if h == "left":
-            bx0 = int(W * SAFE_SIDE)
-        elif h == "right":
-            bx0 = int(W * (1 - SAFE_SIDE)) - bw
-        elif h == "center":
-            bx0 = (W - bw) // 2
-        else:
-            xc = float(h)
-            bx0 = int(W * xc - bw / 2)
-        # clamp horizontally into the safe band
-        bx0 = max(int(W * SAFE_SIDE), min(bx0, int(W * (1 - SAFE_SIDE)) - bw))
-        bx1 = bx0 + bw
-        # clamp vertically: top not above SAFE; estimate block height so the
-        # bottom also stays inside the safe band.
-        est_h = int(W * 0.17)
-        by0 = int(W * top_y)
-        by0 = max(int(W * SAFE), min(by0, int(W * (1 - SAFE)) - est_h))
-        by1 = by0 + int(W * 0.20)
-        bbox = (bx0, by0, bx1, by1)
+        # Place text using the EXACT box measured from the original PSD
+        # (text_layout.json: [left, top, right, bottom] in the 2550px pre-bleed
+        # canvas, the same space as the base image). This reproduces the
+        # original book's per-page text placement instead of approximating it.
+        # The copy is centered within the box horizontally (justification 2)
+        # and centered vertically on the box (valign="center") so the rewritten
+        # story sits on the same calm area the original text used even when its
+        # line count differs slightly. render_text_on_image applies an overflow
+        # guard to keep the block inside the trim.
+        bbox = tuple(lay["bbox"])
 
         runs = m.build_accent_runs(
             text, m.ACCENTS.get(pg, []), fname, fsize,
@@ -119,7 +98,8 @@ def generate_page_from_base(pg, child_name, skin, hair, style):
             accent_font=m.ACCENT_FONT)
         new_info = {
             "bbox": bbox, "text": text, "runs": runs,
-            "justification": 2,  # centered, like the reference
+            "justification": 2,    # centered, like the original
+            "valign": "center",    # center the block on the original text box
         }
         m.validate_no_placeholders(new_info["text"], page_label=f"page {pg}")
         m.render_text_on_image(img, new_info, page_num=pg)
