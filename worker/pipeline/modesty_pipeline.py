@@ -129,7 +129,7 @@ ACCENT_COLORS = {
 # h = horizontal anchor (left|center|right). v kept for back-compat.
 # Most pages start near the top (~0.07-0.12); a few sit lower/bottom.
 TEXT_POS = {
-    1:  (0.085, "center"),       2:  (0.065, "center", 0.70),  3:  (0.565, "center", 0.58),
+    1:  (0.085, "center"),       2:  (0.065, 0.58, 0.70),  3:  (0.565, "center", 0.58),
     4:  (0.075, 0.44),           5:  (0.065, "center"),        6:  (0.090, "right"),
     7:  (0.065, "left", 0.52),   8:  (0.640, "left", 0.58),    9:  (0.065, "right"),
     10: (0.080, 0.56),           11: (0.065, "left", 0.52),    12: (0.215, "right", 0.46),
