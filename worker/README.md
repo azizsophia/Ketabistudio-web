@@ -61,14 +61,16 @@ into the art. Two files own this:
     directly on the art. NO glow, NO panel, NO outline — none. (Earlier
     versions had a contrast glow/panel; removed per design direction. Do
     not re-add: the original places text on calm areas instead.)
-  - `TEXT_POS` (dict): per-page precise text placement, measured from the
-    reference PDF — `(top_y_fraction, horizontal_anchor)`. The bases
-    pipeline computes the bbox from this so text lands exactly where the
-    original placed it. To move a page's text, edit its `top_y`/anchor.
-    Positions are also tuned per page to avoid collisions with art
-    elements (hair, dresses, domes, the moon) — when editing copy, eyeball
-    each page and nudge `top_y`/anchor so text never overlaps a character
-    or busy element.
+  - `TEXT_POS` (dict): per-page placement `(top_y_fraction, horizontal)`
+    where horizontal is "left"/"center"/"right" OR a 0..1 center-x
+    fraction for fine nudges. The bases pipeline computes the bbox from
+    this AND clamps it into a safe margin: text is kept ≥6.5% from the
+    top/bottom edges and ≥7.5% from the left/right edges, so nothing sits
+    in the trim/binding area. Positions were chosen by scanning each
+    base image for the clearest (least-dark) band so text doesn't collide
+    with hair/dresses/domes; when editing copy, re-check each page (render
+    + eyeball) and move text to a clear zone. Prefer relocating to a calm
+    area over shrinking margins.
   - `DARK_BG_PAGES` (set): pages whose background is too dark for navy
     text (e.g. the night scene, page 24). These render the body in
     `BODY_LIGHT_CREAM` instead so the text stays legible; accents keep

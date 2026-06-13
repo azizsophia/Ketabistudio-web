@@ -85,23 +85,29 @@ def generate_page_from_base(pg, child_name, skin, hair, style):
         # reference PDF (top_y fraction + horizontal anchor). Centered.
         W = 2550  # base canvas (pre-bleed)
         top_y, h = m.TEXT_POS.get(pg, (0.08, 0.50))
+        # Safe text zone: keep text away from every trimmed edge. The inner
+        # (binding) edge needs the most room; we don't know which side binds
+        # per page, so we keep a generous margin on BOTH left and right.
+        SAFE = 0.065          # min margin from top/bottom/outer edges
+        SAFE_SIDE = 0.075     # min margin from left/right edges
         bw = int(W * 0.74)
-        # h is either a named anchor (back-compat) or a center-x fraction.
         if h == "left":
-            xc = 0.05 + 0.37
-            bx0 = int(W * 0.05)
+            bx0 = int(W * SAFE_SIDE)
         elif h == "right":
-            xc = 0.95 - 0.37
-            bx0 = int(W * 0.95 - bw)
+            bx0 = int(W * (1 - SAFE_SIDE)) - bw
         elif h == "center":
             bx0 = (W - bw) // 2
         else:
-            # numeric center fraction: center the box on it, clamped on-canvas
             xc = float(h)
             bx0 = int(W * xc - bw / 2)
-            bx0 = max(int(W * 0.02), min(bx0, int(W * 0.98) - bw))
+        # clamp horizontally into the safe band
+        bx0 = max(int(W * SAFE_SIDE), min(bx0, int(W * (1 - SAFE_SIDE)) - bw))
         bx1 = bx0 + bw
+        # clamp vertically: top not above SAFE; estimate block height so the
+        # bottom also stays inside the safe band.
+        est_h = int(W * 0.17)
         by0 = int(W * top_y)
+        by0 = max(int(W * SAFE), min(by0, int(W * (1 - SAFE)) - est_h))
         by1 = by0 + int(W * 0.20)
         bbox = (bx0, by0, bx1, by1)
 
