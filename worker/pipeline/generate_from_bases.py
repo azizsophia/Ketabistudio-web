@@ -72,15 +72,16 @@ def generate_page_from_base(pg, child_name, skin, hair, style):
         fname = lay["font_name"].strip("'\"")
         name = m.clean_child_name(child_name)
         text = m.STORY[pg].replace("(Child's Name)", name)
+        # Accent color sampled from THIS page's art so it complements it.
+        accent_color = m.sample_accent_color(img)
+        runs = m.build_accent_runs(
+            text, m.ACCENTS.get(pg, []), fname, lay["font_size"],
+            body_color=m.BODY_TEXT, accent_color=accent_color,
+            accent_font=m.ACCENT_FONT)
         new_info = {
             "bbox": tuple(lay["bbox"]),
             "text": text,
-            "runs": [{
-                "text": text,
-                "font_name": fname,
-                "font_size": lay["font_size"],
-                "color": m.BODY_TEXT,
-            }],
+            "runs": runs,
             "justification": lay["justification"],
         }
         m.validate_no_placeholders(new_info["text"], page_label=f"page {pg}")
