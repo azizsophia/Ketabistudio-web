@@ -55,6 +55,31 @@ def gate_placeholders(texts: list[str]) -> None:
                 raise QCFailure(f"placeholder survived: {p!r} in {t[:60]!r}")
 
 
+# ── Gate 1b: cover name fit ─────────────────────────────────────────
+# The cover title shrinks to fit (generate_cover_from_base: fit_font 215->120
+# over the front panel). If the name overflows even at the minimum size it
+# would be clipped on the printed cover. This mirrors that geometry exactly.
+_FONT_BJOLA = REPO_ROOT / "worker" / "fonts" / "bjola.otf"
+COVER_NAME_BASE, COVER_NAME_MIN = 215, 120
+COVER_PANEL_MAX_W = (5100 - 2550) - 220  # front panel width minus side margins
+
+
+def gate_cover_name_fit(child_name: str) -> dict:
+    from PIL import ImageFont
+    name = (child_name or "").strip()
+    width_at = lambda pt: ImageFont.truetype(str(_FONT_BJOLA), pt).getbbox(name)[2]
+    if width_at(COVER_NAME_MIN) > COVER_PANEL_MAX_W:
+        raise QCFailure(
+            f"cover name {name!r} overflows the title panel even at the "
+            f"minimum {COVER_NAME_MIN}pt size "
+            f"({width_at(COVER_NAME_MIN)}px > {COVER_PANEL_MAX_W}px)")
+    size = COVER_NAME_BASE
+    while size > COVER_NAME_MIN and width_at(size) > COVER_PANEL_MAX_W:
+        size -= 4
+    return {"name": name, "render_pt": size, "fits": True}
+
+
+
 # ── Gate 2: spec ────────────────────────────────────────────────────
 def gate_spec(interior_pdf: str, cover_pdf: str, expected_pages: int = INTERIOR_PAGES) -> dict:
     r = PdfReader(interior_pdf)

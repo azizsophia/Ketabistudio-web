@@ -281,9 +281,14 @@ export default function AdminDashboard() {
     <div className={`wrap ${s.dash}`}>
       <div className={s.topBar}>
         <h1>Orders</h1>
-        <button className={s.refresh} onClick={load} disabled={loading}>
-          {loading ? "Loading..." : "Refresh"}
-        </button>
+        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+          <a href="/admin/qc" className={s.refresh} style={{ textDecoration: "none" }}>
+            QC Review
+          </a>
+          <button className={s.refresh} onClick={load} disabled={loading}>
+            {loading ? "Loading..." : "Refresh"}
+          </button>
+        </div>
       </div>
 
       {loading && orders.length === 0 && (
