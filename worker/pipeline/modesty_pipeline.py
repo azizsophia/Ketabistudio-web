@@ -48,7 +48,24 @@ FONT_MAP = {
 # ─── Text colors ─────────────────────────────────────────────────────
 BODY_DARK   = (60, 42, 33, 255)       # warm brown — pages 1-22, 25
 BODY_LIGHT  = (252, 245, 230, 255)    # warm cream — pages 23-24
-LIGHT_TEXT_PAGES = {23, 24}
+ACCENT_PINK = (193, 115, 165, 255)    # accent words (sampled from design)
+LIGHT_TEXT_PAGES = {23, 24, 25}       # page 25 ending is light text on art
+
+# Pages whose text is multi-colored (accent words). Maps page -> list of
+# (text, color) runs; \r marks hard line breaks (wrapping still applies).
+# Page 25 is the book's closing lines; "(Child's Name)" is substituted and
+# the accent phrases stay pink. The two typos baked into the old art
+# ("ofher", "shewent") are corrected here.
+RICH_TEXT = {
+    25: [
+        ("From that day on,\r(Child's Name) embraced ", BODY_LIGHT),
+        ("modesty", ACCENT_PINK),
+        (" with joy,\rknowing it was a special part of her identity and faith.\r"
+         "She felt like she was ", BODY_LIGHT),
+        ("carrying a piece of heaven", ACCENT_PINK),
+        ("\rwith her everywhere she went.", BODY_LIGHT),
+    ],
+}
 
 # ─── Mom/dad recolor pages ───────────────────────────────────────────
 MOM_PAGES = {3, 4, 6, 8, 9, 10, 11, 13, 14, 19, 20, 22}
@@ -553,15 +570,22 @@ def substitute_names(text_info, child_name):
 
 
 def render_text_on_image(img, text_info, page_num=None, override_color=None):
-    """Render styled text runs onto a PIL image."""
-    draw = ImageDraw.Draw(img)
+    """Render styled text runs onto a PIL image.
+
+    - Word-wraps lines to the bbox width (long lines can never overrun).
+    - Draws a soft contrasting halo behind text so it stays legible over
+      busy illustration (cream halo for dark text, deep brown for light).
+    - Preserves per-run colors (accent words keep their color).
+    """
+    from PIL import ImageFilter
+
     bbox = text_info["bbox"]
     just = text_info["justification"]
     runs = text_info["runs"]
     if not runs:
         return
 
-    # Split runs into lines on \r
+    # Split runs into hard lines on \r, carrying per-run style
     lines, current_line = [], []
     for run in runs:
         parts = sanitize_text(run["text"]).split("\r")
@@ -580,6 +604,7 @@ def render_text_on_image(img, text_info, page_num=None, override_color=None):
         lines.append(current_line)
 
     font_cache = {}
+
     def get_font(name, size):
         key = (name, int(size))
         if key not in font_cache:
@@ -587,29 +612,83 @@ def render_text_on_image(img, text_info, page_num=None, override_color=None):
             font_cache[key] = ImageFont.truetype(path, int(size))
         return font_cache[key]
 
+    def seg_width(seg):
+        font = get_font(seg["font_name"], seg["font_size"])
+        bt = font.getbbox(seg["text"])
+        return bt[2] - bt[0]
+
     x_left, x_right = bbox[0], bbox[2]
     box_width = x_right - x_left
-    y_cursor = bbox[1]
 
+    # Word-wrap each hard line to the box width
+    wrapped = []
     for line_segs in lines:
+        if not line_segs:
+            wrapped.append([])
+            continue
+        tokens = []
+        for seg in line_segs:
+            for w in seg["text"].split(" "):
+                if w:
+                    tokens.append({**seg, "text": w})
+        if not tokens:
+            wrapped.append([])
+            continue
+        space_w = (seg_width({**tokens[0], "text": "x x"})
+                   - 2 * seg_width({**tokens[0], "text": "x"}))
+        space_w = max(space_w, 6)
+        cur, cur_w = [], 0
+        for tok in tokens:
+            w = seg_width(tok)
+            add = w if not cur else w + space_w
+            if cur and cur_w + add > box_width:
+                wrapped.append(cur)
+                cur, cur_w = [tok], w
+            else:
+                cur.append(tok)
+                cur_w += add
+        if cur:
+            wrapped.append(cur)
+
+    # Merge adjacent same-style tokens back into spaced segments
+    merged_lines = []
+    for toks in wrapped:
+        segs = []
+        for tok in toks:
+            if (segs and segs[-1]["color"] == tok["color"]
+                    and segs[-1]["font_name"] == tok["font_name"]
+                    and segs[-1]["font_size"] == tok["font_size"]):
+                segs[-1]["text"] += " " + tok["text"]
+            else:
+                if segs:
+                    segs[-1]["text"] += " "
+                segs.append(dict(tok))
+        merged_lines.append(segs)
+
+    # Halo contrasts with the body color
+    body_color = override_color if override_color else runs[0]["color"]
+    is_light_text = sum(body_color[:3]) > 380
+    halo_rgb = (52, 38, 30) if is_light_text else (252, 247, 238)
+
+    halo_layer = Image.new("RGBA", img.size, (0, 0, 0, 0))
+    halo_draw = ImageDraw.Draw(halo_layer)
+    placements = []
+
+    y_cursor = bbox[1]
+    for line_segs in merged_lines:
         if not line_segs:
             y_cursor += 70
             continue
-        total_w, max_h = 0, 0
-        metrics = []
+        total_w, max_h, metrics = 0, 0, []
         for seg in line_segs:
             font = get_font(seg["font_name"], seg["font_size"])
             bt = font.getbbox(seg["text"])
-            w = bt[2] - bt[0]
-            h = bt[3] - bt[1]
-            asc = -bt[1]
-            metrics.append({
-                "width": w, "height": h, "ascent": asc, "font": font
-            })
+            w, h, asc = bt[2] - bt[0], bt[3] - bt[1], -bt[1]
+            metrics.append({"width": w, "height": h, "ascent": asc,
+                            "font": font})
             total_w += w
             max_h = max(max_h, h)
 
-        # Alignment
         if just == 2:
             x_start = x_left + (box_width - total_w) // 2
         elif just == 1:
@@ -619,15 +698,25 @@ def render_text_on_image(img, text_info, page_num=None, override_color=None):
 
         max_asc = max(m["ascent"] for m in metrics)
         x_pos = x_start
-        for seg, m in zip(line_segs, metrics):
-            draw.text(
-                (x_pos, y_cursor + max_asc - m["ascent"]),
-                seg["text"],
-                fill=seg["color"],
-                font=m["font"],
-            )
-            x_pos += m["width"]
+        for seg, mt in zip(line_segs, metrics):
+            x = x_pos
+            y = y_cursor + max_asc - mt["ascent"]
+            stroke = max(2, int(seg["font_size"]) // 18)
+            halo_draw.text((x, y), seg["text"], fill=(*halo_rgb, 175),
+                           font=mt["font"], stroke_width=stroke + 3,
+                           stroke_fill=(*halo_rgb, 175))
+            placements.append((x, y, seg["text"], seg["color"],
+                               mt["font"], stroke))
+            x_pos += mt["width"]
         y_cursor += max_h + int(max_h * 0.25)
+
+    halo_layer = halo_layer.filter(ImageFilter.GaussianBlur(7))
+    img.paste(halo_layer, (0, 0), halo_layer)
+    draw = ImageDraw.Draw(img)
+    for x, y, text, color, font, stroke in placements:
+        draw.text((x, y), text, fill=color, font=font,
+                  stroke_width=max(1, stroke - 1),
+                  stroke_fill=(*halo_rgb, 255))
 
 
 # ═════════════════════════════════════════════════════════════════════
