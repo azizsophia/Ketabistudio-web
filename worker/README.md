@@ -72,7 +72,10 @@ into the art. Two files own this:
   - `DARK_BG_PAGES` (set): pages whose background is too dark for navy
     text (e.g. the night scene, page 24). These render the body in
     `BODY_LIGHT_CREAM` instead so the text stays legible; accents keep
-    their per-page color.
+    their per-page color. NOTE: page 24 is intentionally the one cream
+    page — the night sky has no light zone where navy would read, and the
+    design uses NO glow/box, so cream is the only legible option. It reads
+    as a deliberate "nighttime" page. Do not add a glow/box to force navy.
 - `pipeline/generate_from_bases.py` `generate_page_from_base()`:
   substitutes the name, computes the anchored bbox, looks up the per-page
   accent color, builds accent runs (accents recolored, same font),
