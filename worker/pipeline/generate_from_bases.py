@@ -68,39 +68,22 @@ def generate_page_from_base(pg, child_name, skin, hair, style):
         img = m.recolor_mom(img, skin)
 
     lay = LAYOUTS.get(str(pg))
-    if lay and pg in m.RICH_TEXT:
-        # Multi-color page (accent words). Build one run per (text,color).
+    if lay and pg in m.STORY:
         fname = lay["font_name"].strip("'\"")
-        runs = [{
-            "text": seg_text,
-            "font_name": fname,
-            "font_size": lay["font_size"],
-            "color": seg_color,
-        } for (seg_text, seg_color) in m.RICH_TEXT[pg]]
+        # First substitute the child's name into the raw text, THEN build
+        # accent runs, so accent matching works on the final string and
+        # name length never breaks a span.
+        raw = m.STORY[pg]
+        name = m.clean_child_name(child_name)
+        text = raw.replace("(Child's Name)", name)
+        runs = m.build_accent_runs(
+            text, m.ACCENTS.get(pg, []), fname, lay["font_size"])
         new_info = {
             "bbox": tuple(lay["bbox"]),
-            "text": "".join(r["text"] for r in runs),
+            "text": text,
             "runs": runs,
             "justification": lay["justification"],
         }
-        m.substitute_names(new_info, child_name)
-        m.validate_no_placeholders(new_info["text"], page_label=f"page {pg}")
-        m.render_text_on_image(img, new_info, page_num=pg)
-    elif lay and pg in m.STORY:
-        new_text = m.STORY[pg]
-        text_color = (m.BODY_LIGHT if pg in m.LIGHT_TEXT_PAGES else m.BODY_DARK)
-        new_info = {
-            "bbox": tuple(lay["bbox"]),
-            "text": new_text,
-            "runs": [{
-                "text": new_text,
-                "font_name": lay["font_name"].strip("'\""),
-                "font_size": lay["font_size"],
-                "color": text_color,
-            }],
-            "justification": lay["justification"],
-        }
-        m.substitute_names(new_info, child_name)
         m.validate_no_placeholders(new_info["text"], page_label=f"page {pg}")
         m.render_text_on_image(img, new_info, page_num=pg)
 

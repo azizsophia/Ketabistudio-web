@@ -46,32 +46,99 @@ FONT_MAP = {
 }
 
 # ─── Text colors ─────────────────────────────────────────────────────
-BODY_DARK   = (60, 42, 33, 255)       # warm brown — pages 1-22, 25
-BODY_LIGHT  = (252, 245, 230, 255)    # warm cream — pages 23-24
-ACCENT_PINK = (193, 115, 165, 255)    # accent words (sampled from design)
-LIGHT_TEXT_PAGES = {23, 24, 25}       # page 25 ending is light text on art
+BODY_TEXT   = (252, 247, 238, 255)    # warm cream-white — ALL pages
+ACCENT_PINK = (199, 107, 160, 255)    # accent words — ALL pages
+TEXT_OUTLINE = (74, 52, 38, 255)      # thin sharp outline for legibility
 
-# Pages whose text is multi-colored (accent words). Maps page -> list of
-# (text, color) runs; \r marks hard line breaks (wrapping still applies).
-# Page 25 is the book's closing lines; "(Child's Name)" is substituted and
-# the accent phrases stay pink. The two typos baked into the old art
-# ("ofher", "shewent") are corrected here.
-RICH_TEXT = {
-    25: [
-        ("From that day on,\r(Child's Name) embraced ", BODY_LIGHT),
-        ("modesty", ACCENT_PINK),
-        (" with joy,\rknowing it was a special part of her identity and faith.\r"
-         "She felt like she was ", BODY_LIGHT),
-        ("carrying a piece of heaven", ACCENT_PINK),
-        ("\rwith her everywhere she went.", BODY_LIGHT),
-    ],
+# Back-compat aliases (older refs may import these names)
+BODY_DARK = BODY_TEXT
+BODY_LIGHT = BODY_TEXT
+LIGHT_TEXT_PAGES = set(range(1, 26))  # every page uses light body text now
+
+# Accent words/phrases per page (case-sensitive, matched in order).
+# One consistent pink accent across the whole book, highlighting the
+# emotionally meaningful words — same design language as the source
+# files, applied to the UPDATED story text. Phrases are matched as
+# whole substrings within that page's text.
+ACCENTS = {
+    1:  ["beautiful world"],
+    2:  ["new adventure"],
+    3:  ["special"],
+    4:  ["special"],
+    5:  [],
+    6:  ["hijab", "kind", "gentle"],
+    7:  ["hijab", "love for Allah", "proud"],
+    8:  ["most beautiful scarf"],
+    9:  ["crown", "brave", "kind", "loved", "princess"],
+    10: ["cape"],
+    11: ["Allah loves us", "goodness"],
+    12: ["proud"],
+    13: ["special", "shine"],
+    14: ["part of her"],
+    15: ["beautiful", "rainbow after the rain"],
+    16: ["hijab", "kind and good"],
+    17: ["even more you"],
+    18: ["kind", "grateful", "best feeling"],
+    19: ["mosque", "luckiest girl"],
+    20: ["Prophet Muhammad", "kindness", "greatest treasure"],
+    21: ["how they treated each other"],
+    22: ["so proud of you", "warmest"],
+    23: ["Thank you, Allah", "beautiful hijab"],
+    24: ["who she was"],
+    25: ["modesty", "carrying a piece of heaven"],
 }
+
+# Page 25 is the book's closing lines (was baked into the art; now
+# rendered by the pipeline). Corrected copy, name substituted.
+PAGE25_TEXT = (
+    "From that day on,\r(Child's Name) embraced modesty with joy,\r"
+    "knowing it was a special part of her identity and faith.\r"
+    "She felt like she was carrying a piece of heaven\r"
+    "with her everywhere she went."
+)
 
 # ─── Mom/dad recolor pages ───────────────────────────────────────────
 MOM_PAGES = {3, 4, 6, 8, 9, 10, 11, 13, 14, 19, 20, 22}
 SKIN_MAP  = {"Blonde light": "light", "Blonde dark": "medium", "Dark": "dark"}
 
 # ─── Story text (all 25 pages) ───────────────────────────────────────
+def build_accent_runs(text, accent_phrases, font_name, font_size,
+                      body_color=None, accent_color=None):
+    """Split `text` into colored runs: accent phrases get the accent color,
+    everything else the body color. \\r line breaks are preserved inside
+    runs. Phrases matched left-to-right at first occurrence."""
+    body_color = body_color or BODY_TEXT
+    accent_color = accent_color or ACCENT_PINK
+    spans = []
+    search_from = 0
+    for phrase in accent_phrases:
+        idx = text.find(phrase, search_from)
+        if idx == -1:
+            idx = text.find(phrase)
+        if idx != -1:
+            spans.append((idx, idx + len(phrase)))
+            search_from = idx + len(phrase)
+    spans.sort()
+    clean = []
+    for s, e in spans:
+        if clean and s < clean[-1][1]:
+            continue
+        clean.append((s, e))
+    runs = []
+    pos = 0
+    for s, e in clean:
+        if s > pos:
+            runs.append({"text": text[pos:s], "font_name": font_name,
+                         "font_size": font_size, "color": body_color})
+        runs.append({"text": text[s:e], "font_name": font_name,
+                     "font_size": font_size, "color": accent_color})
+        pos = e
+    if pos < len(text):
+        runs.append({"text": text[pos:], "font_name": font_name,
+                     "font_size": font_size, "color": body_color})
+    return runs
+
+
 STORY = {
     1: (
         "In a town full of sunshine and flowers,\r"
@@ -234,12 +301,11 @@ STORY = {
         "She knew exactly who she was."
     ),
     25: (
-        "And every morning after that,\r"
-        "(Child's Name) put on her hijab and ran\r"
-        "into the bright, beautiful world --\r"
-        "proud, kind, and free.\r"
-        "Because she loved her hijab,\r"
-        "and her hijab loved her right back."
+        "From that day on,\r"
+        "(Child's Name) embraced modesty with joy,\r"
+        "knowing it was a special part of her identity and faith.\r"
+        "She felt like she was carrying a piece of heaven\r"
+        "with her everywhere she went."
     ),
 }
 
@@ -570,153 +636,125 @@ def substitute_names(text_info, child_name):
 
 
 def render_text_on_image(img, text_info, page_num=None, override_color=None):
-    """Render styled text runs onto a PIL image.
-
-    - Word-wraps lines to the bbox width (long lines can never overrun).
-    - Draws a soft contrasting halo behind text so it stays legible over
-      busy illustration (cream halo for dark text, deep brown for light).
-    - Preserves per-run colors (accent words keep their color).
+    """Render styled text with per-character color, word-wrapped to the
+    bbox, with a thin sharp outline (no blur/box). Character-stream model
+    so accent colors and punctuation never produce spacing artifacts.
     """
-    from PIL import ImageFilter
-
     bbox = text_info["bbox"]
     just = text_info["justification"]
     runs = text_info["runs"]
     if not runs:
         return
 
-    # Split runs into hard lines on \r, carrying per-run style
-    lines, current_line = [], []
-    for run in runs:
-        parts = sanitize_text(run["text"]).split("\r")
-        for i, part in enumerate(parts):
-            if part:
-                current_line.append({
-                    "text": part,
-                    "font_name": run["font_name"],
-                    "font_size": run["font_size"],
-                    "color": override_color if override_color else run["color"],
-                })
-            if i < len(parts) - 1:
-                lines.append(current_line)
-                current_line = []
-    if current_line:
-        lines.append(current_line)
+    fname = runs[0]["font_name"]
+    fsize = runs[0]["font_size"]
 
     font_cache = {}
 
-    def get_font(name, size):
-        key = (name, int(size))
+    def get_font(size):
+        key = int(size)
         if key not in font_cache:
-            path = FONT_MAP.get(name, FONT_CROC)
-            font_cache[key] = ImageFont.truetype(path, int(size))
+            path = FONT_MAP.get(fname, FONT_CROC)
+            font_cache[key] = ImageFont.truetype(path, key)
         return font_cache[key]
 
-    def seg_width(seg):
-        font = get_font(seg["font_name"], seg["font_size"])
-        bt = font.getbbox(seg["text"])
-        return bt[2] - bt[0]
+    font = get_font(fsize)
+
+    # Build a flat list of (char, color), splitting hard lines on \r.
+    # Each element of `hard_lines` is a list of (char,color).
+    hard_lines = [[]]
+    for run in runs:
+        color = override_color if override_color else run["color"]
+        for ch in sanitize_text(run["text"]):
+            if ch == "\r":
+                hard_lines.append([])
+            else:
+                hard_lines[-1].append((ch, color))
 
     x_left, x_right = bbox[0], bbox[2]
     box_width = x_right - x_left
 
-    # Word-wrap each hard line to the box width
-    wrapped = []
-    for line_segs in lines:
-        if not line_segs:
-            wrapped.append([])
+    def text_w(s):
+        bt = font.getbbox(s)
+        return bt[2] - bt[0]
+
+    # Word-wrap each hard line into display lines (lists of (char,color)).
+    display = []
+    for hl in hard_lines:
+        if not hl:
+            display.append([])
             continue
-        tokens = []
-        for seg in line_segs:
-            for w in seg["text"].split(" "):
-                if w:
-                    tokens.append({**seg, "text": w})
-        if not tokens:
-            wrapped.append([])
-            continue
-        space_w = (seg_width({**tokens[0], "text": "x x"})
-                   - 2 * seg_width({**tokens[0], "text": "x"}))
-        space_w = max(space_w, 6)
-        cur, cur_w = [], 0
-        for tok in tokens:
-            w = seg_width(tok)
-            add = w if not cur else w + space_w
-            if cur and cur_w + add > box_width:
-                wrapped.append(cur)
-                cur, cur_w = [tok], w
+        # group into words by spaces, keeping spaces as separators
+        words = []           # each: list[(char,color)]
+        cur = []
+        for ch, col in hl:
+            if ch == " ":
+                if cur:
+                    words.append(cur)
+                    cur = []
+                words.append([(" ", col)])  # space token
             else:
-                cur.append(tok)
-                cur_w += add
+                cur.append((ch, col))
         if cur:
-            wrapped.append(cur)
+            words.append(cur)
 
-    # Merge adjacent same-style tokens back into spaced segments
-    merged_lines = []
-    for toks in wrapped:
-        segs = []
-        for tok in toks:
-            if (segs and segs[-1]["color"] == tok["color"]
-                    and segs[-1]["font_name"] == tok["font_name"]
-                    and segs[-1]["font_size"] == tok["font_size"]):
-                segs[-1]["text"] += " " + tok["text"]
-            else:
-                if segs:
-                    segs[-1]["text"] += " "
-                segs.append(dict(tok))
-        merged_lines.append(segs)
+        line = []
+        line_str = ""
+        for word in words:
+            wstr = "".join(c for c, _ in word)
+            if line and text_w(line_str + wstr) > box_width and wstr != " ":
+                # wrap; drop a trailing space already on the line
+                if line and line[-1][0] == " ":
+                    line = line[:-1]
+                display.append(line)
+                line = []
+                line_str = ""
+                if wstr == " ":
+                    continue
+            line.extend(word)
+            line_str += wstr
+        if line:
+            # strip trailing space
+            if line and line[-1][0] == " ":
+                line = line[:-1]
+            display.append(line)
 
-    # Halo contrasts with the body color
-    body_color = override_color if override_color else runs[0]["color"]
-    is_light_text = sum(body_color[:3]) > 380
-    halo_rgb = (52, 38, 30) if is_light_text else (252, 247, 238)
-
-    halo_layer = Image.new("RGBA", img.size, (0, 0, 0, 0))
-    halo_draw = ImageDraw.Draw(halo_layer)
-    placements = []
-
-    y_cursor = bbox[1]
-    for line_segs in merged_lines:
-        if not line_segs:
-            y_cursor += 70
-            continue
-        total_w, max_h, metrics = 0, 0, []
-        for seg in line_segs:
-            font = get_font(seg["font_name"], seg["font_size"])
-            bt = font.getbbox(seg["text"])
-            w, h, asc = bt[2] - bt[0], bt[3] - bt[1], -bt[1]
-            metrics.append({"width": w, "height": h, "ascent": asc,
-                            "font": font})
-            total_w += w
-            max_h = max(max_h, h)
-
-        if just == 2:
-            x_start = x_left + (box_width - total_w) // 2
-        elif just == 1:
-            x_start = x_right - total_w
-        else:
-            x_start = x_left
-
-        max_asc = max(m["ascent"] for m in metrics)
-        x_pos = x_start
-        for seg, mt in zip(line_segs, metrics):
-            x = x_pos
-            y = y_cursor + max_asc - mt["ascent"]
-            stroke = max(2, int(seg["font_size"]) // 18)
-            halo_draw.text((x, y), seg["text"], fill=(*halo_rgb, 175),
-                           font=mt["font"], stroke_width=stroke + 3,
-                           stroke_fill=(*halo_rgb, 175))
-            placements.append((x, y, seg["text"], seg["color"],
-                               mt["font"], stroke))
-            x_pos += mt["width"]
-        y_cursor += max_h + int(max_h * 0.25)
-
-    halo_layer = halo_layer.filter(ImageFilter.GaussianBlur(7))
-    img.paste(halo_layer, (0, 0), halo_layer)
+    # Draw, with alignment + thin sharp outline.
+    outline_rgb = TEXT_OUTLINE[:3]
     draw = ImageDraw.Draw(img)
-    for x, y, text, color, font, stroke in placements:
-        draw.text((x, y), text, fill=color, font=font,
-                  stroke_width=max(1, stroke - 1),
-                  stroke_fill=(*halo_rgb, 255))
+    stroke = max(2, int(fsize) // 22)
+    bt = font.getbbox("Ay")
+    line_h = (bt[3] - bt[1]) + int((bt[3] - bt[1]) * 0.42)
+    ascent = -font.getbbox("Ay")[1]
+
+    y = bbox[1]
+    for line in display:
+        if not line:
+            y += line_h
+            continue
+        lstr = "".join(c for c, _ in line)
+        lw = text_w(lstr)
+        if just == 2:
+            x = x_left + (box_width - lw) // 2
+        elif just == 1:
+            x = x_right - lw
+        else:
+            x = x_left
+        # draw in maximal same-color runs to preserve kerning; advance by
+        # exact prefix-width difference so position never drifts.
+        i = 0
+        n = len(line)
+        while i < n:
+            col = line[i][1]
+            j = i
+            while j < n and line[j][1] == col:
+                j += 1
+            seg = "".join(c for c, _ in line[i:j])
+            draw.text((x, y), seg, fill=col, font=font,
+                      stroke_width=stroke, stroke_fill=outline_rgb)
+            x += text_w(lstr[:j]) - text_w(lstr[:i])
+            i = j
+        y += line_h
 
 
 # ═════════════════════════════════════════════════════════════════════
