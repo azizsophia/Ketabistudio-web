@@ -59,30 +59,54 @@ def base_name(pg: int, skin: str, hair: str, style: str) -> str:
 
 
 def generate_page_from_base(pg, child_name, skin, hair, style):
-    """Mirror of m.generate_page, with the composite step replaced by the
-    pre-rendered base. Same recolor -> text -> bleed chain, same functions."""
+    """Render text onto the pre-rendered, per-variant base.
+
+    NOTE: the bases are rendered per skin/hair/style by the CI workflow,
+    so BOTH the girl AND the mom already have the correct skin tone baked
+    in. We must NOT call recolor_mom here — doing so double-applied the
+    shift and, because the color-based skin mask also matches warm beige
+    walls/floors/sky, it bled brown across whole backgrounds (the "brown
+    floor"/"brown blob" bug). Text-only from here.
+    """
     child_name = m.clean_child_name(child_name)
     img = fetch_base(base_name(pg, skin, hair, style))
-
-    if pg in m.MOM_PAGES and skin != "light":
-        img = m.recolor_mom(img, skin)
 
     lay = LAYOUTS.get(str(pg))
     if lay and pg in m.STORY:
         fname = lay["font_name"].strip("'\"")
         name = m.clean_child_name(child_name)
         text = m.STORY[pg].replace("(Child's Name)", name)
-        # Distinct accent color per page (varied palette across the book).
         accent_color = m.ACCENT_COLORS.get(pg, (199, 107, 160))
+        fsize = lay["font_size"]
+
+        # Position the text box from the per-page anchor (read from the
+        # reference PDF): top/bottom band, left/center/right. Text is
+        # centered within the box. Box is sized generously; the renderer
+        # wraps + vertically lays out from the box top.
+        W = 2550  # base canvas width (pre-bleed)
+        v, h = m.TEXT_ANCHORS.get(pg, ("top", "center"))
+        bw = int(W * 0.72)
+        if h == "left":
+            bx0 = int(W * 0.06)
+        elif h == "right":
+            bx0 = int(W * 0.94 - bw)
+        else:
+            bx0 = (W - bw) // 2
+        bx1 = bx0 + bw
+        if v == "bottom":
+            by0 = int(W * 0.80)
+        else:
+            by0 = int(W * 0.045)
+        by1 = by0 + int(W * 0.16)
+        bbox = (bx0, by0, bx1, by1)
+
         runs = m.build_accent_runs(
-            text, m.ACCENTS.get(pg, []), fname, lay["font_size"],
+            text, m.ACCENTS.get(pg, []), fname, fsize,
             body_color=m.BODY_TEXT, accent_color=accent_color,
             accent_font=m.ACCENT_FONT)
         new_info = {
-            "bbox": tuple(lay["bbox"]),
-            "text": text,
-            "runs": runs,
-            "justification": lay["justification"],
+            "bbox": bbox, "text": text, "runs": runs,
+            "justification": 2,  # centered, like the reference
         }
         m.validate_no_placeholders(new_info["text"], page_label=f"page {pg}")
         m.render_text_on_image(img, new_info, page_num=pg)

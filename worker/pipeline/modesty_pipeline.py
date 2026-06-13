@@ -87,37 +87,51 @@ ACCENTS = {
     25: ["modesty", "carrying a piece of heaven"],
 }
 
-ACCENT_FONT = "Bjola"  # bold round font for accent words
+ACCENT_FONT = "CrocodileFeetDEMO-Regular"  # same font as body, just recolored (matches original)
 
-# Deliberate, distinct accent color per page so every page is different
-# and complements its art (purple/blue/red/green/teal/coral/gold...).
-# Hand-tuned to read clearly as text (mid-deep, saturated).
+# Per-page accent colors sampled/read from the reference PDF
+# (Modesty_01_colored). Body is navy; accent words are the SAME font,
+# simply recolored. Each page has its own warm/cool accent hue.
 ACCENT_COLORS = {
-    1:  (216, 122, 38),    # warm orange — sunny town
-    2:  (52, 120, 158),    # blue — outdoor play
-    3:  (150, 72, 158),    # purple — cozy doorway
-    4:  (196, 78, 96),     # rose red — bedroom
-    5:  (60, 140, 132),    # teal — curiosity
-    6:  (210, 150, 30),    # gold — hijab hug
-    7:  (44, 132, 120),    # deep teal — love for Allah
-    8:  (198, 96, 138),    # pink-magenta — the scarf
-    9:  (170, 84, 40),     # terracotta — crown/princess
-    10: (74, 116, 170),    # cornflower — cape/twirl
-    11: (88, 150, 70),     # green — Allah loves us
-    12: (200, 96, 70),     # coral — proud in the mirror
-    13: (150, 88, 168),    # violet — special/shine
-    14: (54, 130, 150),    # teal-blue — part of her
-    15: (188, 80, 120),    # rose — rainbow
-    16: (210, 140, 30),    # amber — who I want to be
-    17: (70, 150, 140),    # teal — even more you
-    18: (96, 150, 64),     # leaf green — kind/grateful
-    19: (120, 96, 178),    # indigo — mosque
-    20: (200, 140, 36),    # gold — greatest treasure
-    21: (210, 110, 50),    # orange — playing together
-    22: (146, 86, 164),    # purple — starry hug
-    23: (208, 120, 44),    # sunset orange — gratitude
-    24: (78, 110, 175),    # moonlit blue — night du'a
-    25: (170, 80, 130),    # rose-magenta — modesty ending
+    1:  (230, 138, 28),    # orange
+    2:  (60, 140, 150),    # teal
+    3:  (176, 96, 56),     # terracotta
+    4:  (208, 96, 48),     # red-orange
+    5:  (150, 80, 158),    # purple
+    6:  (214, 158, 18),    # gold
+    7:  (0, 130, 130),     # teal
+    8:  (52, 150, 168),    # blue-teal
+    9:  (150, 84, 44),     # warm brown-orange
+    10: (210, 130, 36),    # orange
+    11: (0, 132, 128),     # teal
+    12: (206, 100, 64),    # coral
+    13: (18, 132, 146),    # teal
+    14: (196, 158, 32),    # gold
+    15: (200, 110, 70),    # coral
+    16: (214, 150, 24),    # amber
+    17: (60, 150, 140),    # teal
+    18: (120, 140, 30),    # olive-green
+    19: (210, 170, 30),    # gold
+    20: (206, 150, 24),    # gold
+    21: (120, 140, 30),    # green
+    22: (150, 86, 162),    # purple
+    23: (160, 80, 124),    # magenta
+    24: (210, 168, 24),    # gold
+    25: (170, 80, 130),    # rose-magenta (closing page)
+}
+
+# Text vertical/horizontal anchor per page, read from the reference PDF.
+# v: "top" | "bottom"; h: "left" | "center" | "right". Most are top-center.
+TEXT_ANCHORS = {
+    1: ("top","center"),  2: ("top","center"),  3: ("bottom","center"),
+    4: ("top","right"),   5: ("top","left"),    6: ("top","right"),
+    7: ("top","center"),  8: ("bottom","center"),9: ("top","center"),
+    10:("top","center"),  11:("top","center"),  12:("top","right"),
+    13:("top","center"),  14:("top","center"),  15:("top","right"),
+    16:("top","center"),  17:("top","center"),  18:("top","center"),
+    19:("top","center"),  20:("top","right"),   21:("top","center"),
+    22:("top","center"),  23:("top","center"),  24:("top","center"),
+    25:("bottom","center"),
 }
 
 # Page 25 is the book's closing lines (was baked into the art; now

@@ -55,18 +55,30 @@ into the art. Two files own this:
   - `ACCENT_FONT` = "Bjola" (bold round). Body font = Crocodile Feet.
   - `render_text_on_image()`: per-run fonts+colors, char-stream word-wrap
     to the bbox, punctuation hugs its word. Design = the original book's
-    look: navy body + bold colored accents sitting directly on the art,
-    NO panel/box. A faint feathered WHITE glow follows the letters (low
-    opacity, gaussian-blurred) purely so navy text stays legible where it
-    crosses a darker part of an illustration — it is invisible on light
-    areas. Tune via the `glow` block (stroke width / opacity / blur).
-- `pipeline/text_layout.json`: per-page text bbox + font size +
-  justification. Move a page's text by editing its `bbox`. If a page's
-  text overlaps a busy/dark zone, prefer nudging the bbox to a calm area
-  over increasing the glow.
-- `pipeline/generate_from_bases.py` `generate_page_from_base()`: ties it
-  together — substitutes the name, looks up the per-page accent color,
-  builds accent runs (`build_accent_runs`, bold font for accents), renders.
+    look: navy body + recolored accent words (SAME font, just colored),
+    sitting directly on the art, NO panel/box. A faint feathered WHITE
+    glow follows the letters (low opacity, gaussian-blurred) so navy text
+    stays legible where it crosses a darker part of an illustration —
+    invisible on light areas. Tune via the `glow` block.
+  - `TEXT_ANCHORS` (dict): per-page text position (top/bottom,
+    left/center/right), read from the reference PDF. The bases pipeline
+    computes the text bbox from this anchor, so text lands where the
+    original placed it regardless of the updated copy's length.
+- `pipeline/generate_from_bases.py` `generate_page_from_base()`:
+  substitutes the name, computes the anchored bbox, looks up the per-page
+  accent color, builds accent runs (accents recolored, same font),
+  renders. **Does NOT call recolor_mom** — see the recolor note below.
+
+### Mom skin recolor — IMPORTANT
+The per-variant art bases (rendered by the CI workflow per skin/hair/
+style) already have BOTH the girl AND the mom at the correct skin tone
+baked in. The live `generate_page_from_base` must therefore NOT call
+`recolor_mom`. It previously did, which double-applied the shift; worse,
+`recolor_mom`'s color-based skin mask also matches warm beige walls,
+floors and sky, so on dark/medium orders it bled brown across whole
+backgrounds (the "brown floor"/"brown blob" bug). `recolor_mom` and
+`MOM_PAGES` remain only for the legacy PSD path (`generate_page`), not
+the bases path.
 
 Page mapping: physical 32pp = 3 front matter + page_01..page_25 (story,
 physical pages 4–28) + 4 back matter. Story page 25 = physical page 28.
