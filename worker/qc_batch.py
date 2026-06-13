@@ -29,6 +29,9 @@ from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT / "pipeline"))
+# The pipeline loads its fonts by relative path ("fonts/..."), so it must run
+# with the worker dir as CWD (same as the Docker worker's WORKDIR).
+os.chdir(ROOT)
 
 import qc  # noqa: E402
 import generate_from_bases as g  # noqa: E402
