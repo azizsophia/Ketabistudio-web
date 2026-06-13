@@ -53,17 +53,18 @@ into the art. Two files own this:
     that the sampler kept collapsing to orange.)
   - `BODY_TEXT` = dark navy (#403d4f), body color for every page.
   - `ACCENT_FONT` = "Bjola" (bold round). Body font = Crocodile Feet.
-  - `render_text_on_image()`: per-run fonts+colors, char-stream word-wrap
-    to the bbox, punctuation hugs its word. Design = the original book's
-    look: navy body + recolored accent words (SAME font, just colored),
-    sitting directly on the art, NO panel/box. A faint feathered WHITE
-    glow follows the letters (low opacity, gaussian-blurred) so navy text
-    stays legible where it crosses a darker part of an illustration —
-    invisible on light areas. Tune via the `glow` block.
-  - `TEXT_ANCHORS` (dict): per-page text position (top/bottom,
-    left/center/right), read from the reference PDF. The bases pipeline
-    computes the text bbox from this anchor, so text lands where the
-    original placed it regardless of the updated copy's length.
+  - `render_text_on_image()`: per-run fonts+colors, honors the story's
+    own `\r` line breaks (only wraps a line that genuinely exceeds the
+    box width), centered, with GENEROUS line spacing (~1.72x glyph height)
+    to match the original's airy feel. Design = the original book exactly:
+    navy body + recolored accent words (SAME font, just colored), sitting
+    directly on the art. NO glow, NO panel, NO outline — none. (Earlier
+    versions had a contrast glow/panel; removed per design direction. Do
+    not re-add: the original places text on calm areas instead.)
+  - `TEXT_POS` (dict): per-page precise text placement, measured from the
+    reference PDF — `(top_y_fraction, horizontal_anchor)`. The bases
+    pipeline computes the bbox from this so text lands exactly where the
+    original placed it. To move a page's text, edit its `top_y`/anchor.
 - `pipeline/generate_from_bases.py` `generate_page_from_base()`:
   substitutes the name, computes the anchored bbox, looks up the per-page
   accent color, builds accent runs (accents recolored, same font),

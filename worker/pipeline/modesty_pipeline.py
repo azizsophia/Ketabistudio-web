@@ -122,6 +122,23 @@ ACCENT_COLORS = {
 
 # Text vertical/horizontal anchor per page, read from the reference PDF.
 # v: "top" | "bottom"; h: "left" | "center" | "right". Most are top-center.
+# Precise text placement per page, measured from the reference PDF.
+# top_y = fraction of page height where the text block STARTS.
+# h = horizontal anchor (left|center|right). v kept for back-compat.
+# Most pages start near the top (~0.07-0.12); a few sit lower/bottom.
+TEXT_POS = {
+    1:  (0.085, "center"),  2:  (0.060, "center"),  3:  (0.800, "center"),
+    4:  (0.075, "right"),   5:  (0.090, "left"),    6:  (0.090, "right"),
+    7:  (0.090, "center"),  8:  (0.800, "center"),  9:  (0.075, "center"),
+    10: (0.080, "center"),  11: (0.090, "center"),  12: (0.080, "right"),
+    13: (0.080, "center"),  14: (0.080, "center"),  15: (0.075, "right"),
+    16: (0.080, "center"),  17: (0.075, "center"),  18: (0.080, "center"),
+    19: (0.065, "center"),  20: (0.090, "right"),   21: (0.065, "center"),
+    22: (0.075, "center"),  23: (0.060, "center"),  24: (0.075, "center"),
+    25: (0.800, "center"),
+}
+
+# (legacy) coarse anchor table — kept for back-compat
 TEXT_ANCHORS = {
     1: ("top","center"),  2: ("top","center"),  3: ("bottom","center"),
     4: ("top","right"),   5: ("top","left"),    6: ("top","right"),
@@ -714,10 +731,11 @@ def substitute_names(text_info, child_name):
 
 
 def render_text_on_image(img, text_info, page_num=None, override_color=None):
-    """Render story text the way the original was designed: dark navy body
-    text with bold, colored accent words, sitting directly on the clean
-    area of the illustration. No panel, no halo, no outline. Per-run fonts
-    and colors. Word-wrapped to the bbox.
+    """Render story text exactly like the original book: dark navy body
+    text with recolored accent words (same font), centered, with generous
+    line spacing, sitting directly on the illustration. NO glow, NO panel,
+    NO outline. Honors the story's own line breaks (\\r); only wraps a
+    line if it genuinely exceeds the text-box width.
     """
     bbox = text_info["bbox"]
     just = text_info.get("justification", 2)
@@ -734,9 +752,9 @@ def render_text_on_image(img, text_info, page_num=None, override_color=None):
             font_cache[key] = ImageFont.truetype(path, int(size))
         return font_cache[key]
 
-    # Flatten runs into a character stream carrying (char, color, font_name,
-    # size). Hard line breaks on \r.
     fsize = int(runs[0]["font_size"])
+
+    # Character stream with (char, color, font_name, size); hard breaks on \r
     hard_lines = [[]]
     for run in runs:
         col = tuple((override_color if override_color else run["color"])[:3])
@@ -751,7 +769,6 @@ def render_text_on_image(img, text_info, page_num=None, override_color=None):
     box_width = x_right - x_left
 
     def chunk_w(chars):
-        # width of a homogeneous-font run of chars
         if not chars:
             return 0
         s = "".join(c[0] for c in chars)
@@ -760,9 +777,7 @@ def render_text_on_image(img, text_info, page_num=None, override_color=None):
         return b[2] - b[0]
 
     def line_width(line):
-        # sum widths grouped by font runs to keep kerning sane
-        w = 0
-        i = 0
+        w, i = 0, 0
         while i < len(line):
             fn, sz = line[i][2], line[i][3]
             j = i
@@ -772,13 +787,17 @@ def render_text_on_image(img, text_info, page_num=None, override_color=None):
             i = j
         return w
 
-    # Word-wrap each hard line on spaces.
+    # Honor the story's own line breaks; only wrap a hard line if it is
+    # genuinely wider than the box.
     display = []
     for hl in hard_lines:
         if not hl:
             display.append([])
             continue
-        # split into words (lists of char tuples), keeping single spaces
+        if line_width(hl) <= box_width:
+            display.append(hl)
+            continue
+        # wrap this overflowing line on spaces
         words, cur = [], []
         for tup in hl:
             if tup[0] == " ":
@@ -792,8 +811,7 @@ def render_text_on_image(img, text_info, page_num=None, override_color=None):
         line = []
         for word in words:
             is_space = (len(word) == 1 and word[0][0] == " ")
-            trial = line + word
-            if line and not is_space and line_width(trial) > box_width:
+            if line and not is_space and line_width(line + word) > box_width:
                 while line and line[-1][0] == " ":
                     line.pop()
                 display.append(line)
@@ -805,55 +823,12 @@ def render_text_on_image(img, text_info, page_num=None, override_color=None):
         if line:
             display.append(line)
 
-    # Line height from the body font
+    # Generous line spacing to match the original's airy feel (~1.55x).
     body_font = get_font(runs[0]["font_name"], fsize)
     ab = body_font.getbbox("Ayg")
     ascent = -ab[1]
-    line_h = (ab[3] - ab[1]) + int((ab[3] - ab[1]) * 0.42)
-
-    # Soft legibility glow: a faint, feathered light halo that follows the
-    # letters (NOT a box). Keeps dark navy text readable when it crosses a
-    # darker part of the illustration, while staying invisible on light
-    # areas. Rendered as white glyphs with a wide soft stroke, blurred, at
-    # low opacity, composited UNDER the crisp text.
-    from PIL import ImageFilter
-    glow = Image.new("RGBA", img.size, (0, 0, 0, 0))
-    gdraw = ImageDraw.Draw(glow)
-
-    def _layout_lines():
-        yy = bbox[1]
-        for line in display:
-            if not line:
-                yy += line_h
-                continue
-            lw = line_width(line)
-            if just == 2:
-                xx = x_left + (box_width - lw) // 2
-            elif just == 1:
-                xx = x_right - lw
-            else:
-                xx = x_left
-            yield line, xx, yy
-            yy += line_h
-
-    gstroke = max(3, fsize // 8)
-    for line, xx, yy in _layout_lines():
-        x = xx
-        i = 0
-        while i < len(line):
-            fn, sz = line[i][2], line[i][3]
-            j = i
-            while j < len(line) and line[j][2] == fn and line[j][3] == sz:
-                j += 1
-            seg = "".join(c[0] for c in line[i:j])
-            f = get_font(fn, sz)
-            gdraw.text((x, yy + ascent), seg, fill=(255, 252, 246, 235),
-                       font=f, anchor="ls", stroke_width=gstroke,
-                       stroke_fill=(255, 252, 246, 235))
-            x += chunk_w(line[i:j])
-            i = j
-    glow = glow.filter(ImageFilter.GaussianBlur(max(4, fsize // 7)))
-    img.paste(glow, (0, 0), glow)
+    glyph_h = ab[3] - ab[1]
+    line_h = int(glyph_h * 1.72)
 
     draw = ImageDraw.Draw(img)
     y = bbox[1]
@@ -868,7 +843,6 @@ def render_text_on_image(img, text_info, page_num=None, override_color=None):
             x = x_right - lw
         else:
             x = x_left
-        # draw grouped by (font,size,color)
         i = 0
         while i < len(line):
             fn, sz, col = line[i][2], line[i][3], line[i][1]

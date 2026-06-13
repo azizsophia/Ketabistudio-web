@@ -79,25 +79,20 @@ def generate_page_from_base(pg, child_name, skin, hair, style):
         accent_color = m.ACCENT_COLORS.get(pg, (199, 107, 160))
         fsize = lay["font_size"]
 
-        # Position the text box from the per-page anchor (read from the
-        # reference PDF): top/bottom band, left/center/right. Text is
-        # centered within the box. Box is sized generously; the renderer
-        # wraps + vertically lays out from the box top.
-        W = 2550  # base canvas width (pre-bleed)
-        v, h = m.TEXT_ANCHORS.get(pg, ("top", "center"))
-        bw = int(W * 0.72)
+        # Place text using the precise per-page position measured from the
+        # reference PDF (top_y fraction + horizontal anchor). Centered.
+        W = 2550  # base canvas (pre-bleed)
+        top_y, h = m.TEXT_POS.get(pg, (0.08, "center"))
+        bw = int(W * 0.74)
         if h == "left":
-            bx0 = int(W * 0.06)
+            bx0 = int(W * 0.05)
         elif h == "right":
-            bx0 = int(W * 0.94 - bw)
+            bx0 = int(W * 0.95 - bw)
         else:
             bx0 = (W - bw) // 2
         bx1 = bx0 + bw
-        if v == "bottom":
-            by0 = int(W * 0.80)
-        else:
-            by0 = int(W * 0.045)
-        by1 = by0 + int(W * 0.16)
+        by0 = int(W * top_y)
+        by1 = by0 + int(W * 0.20)
         bbox = (bx0, by0, bx1, by1)
 
         runs = m.build_accent_runs(
