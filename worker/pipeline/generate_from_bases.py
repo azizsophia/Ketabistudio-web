@@ -84,14 +84,22 @@ def generate_page_from_base(pg, child_name, skin, hair, style):
         # Place text using the precise per-page position measured from the
         # reference PDF (top_y fraction + horizontal anchor). Centered.
         W = 2550  # base canvas (pre-bleed)
-        top_y, h = m.TEXT_POS.get(pg, (0.08, "center"))
+        top_y, h = m.TEXT_POS.get(pg, (0.08, 0.50))
         bw = int(W * 0.74)
+        # h is either a named anchor (back-compat) or a center-x fraction.
         if h == "left":
+            xc = 0.05 + 0.37
             bx0 = int(W * 0.05)
         elif h == "right":
+            xc = 0.95 - 0.37
             bx0 = int(W * 0.95 - bw)
-        else:
+        elif h == "center":
             bx0 = (W - bw) // 2
+        else:
+            # numeric center fraction: center the box on it, clamped on-canvas
+            xc = float(h)
+            bx0 = int(W * xc - bw / 2)
+            bx0 = max(int(W * 0.02), min(bx0, int(W * 0.98) - bw))
         bx1 = bx0 + bw
         by0 = int(W * top_y)
         by1 = by0 + int(W * 0.20)
