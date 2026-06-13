@@ -84,13 +84,15 @@ def generate_page_from_base(pg, child_name, skin, hair, style):
         # Place text using the precise per-page position measured from the
         # reference PDF (top_y fraction + horizontal anchor). Centered.
         W = 2550  # base canvas (pre-bleed)
-        top_y, h = m.TEXT_POS.get(pg, (0.08, 0.50))
+        cfg = m.TEXT_POS.get(pg, (0.08, 0.50))
+        top_y, h = cfg[0], cfg[1]
+        width_frac = cfg[2] if len(cfg) > 2 else 0.74
         # Safe text zone: keep text away from every trimmed edge. The inner
         # (binding) edge needs the most room; we don't know which side binds
         # per page, so we keep a generous margin on BOTH left and right.
         SAFE = 0.065          # min margin from top/bottom/outer edges
         SAFE_SIDE = 0.075     # min margin from left/right edges
-        bw = int(W * 0.74)
+        bw = int(W * width_frac)
         if h == "left":
             bx0 = int(W * SAFE_SIDE)
         elif h == "right":
