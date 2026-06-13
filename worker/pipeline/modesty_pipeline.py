@@ -89,6 +89,37 @@ ACCENTS = {
 
 ACCENT_FONT = "Bjola"  # bold round font for accent words
 
+# Deliberate, distinct accent color per page so every page is different
+# and complements its art (purple/blue/red/green/teal/coral/gold...).
+# Hand-tuned to read clearly as text (mid-deep, saturated).
+ACCENT_COLORS = {
+    1:  (216, 122, 38),    # warm orange — sunny town
+    2:  (52, 120, 158),    # blue — outdoor play
+    3:  (150, 72, 158),    # purple — cozy doorway
+    4:  (196, 78, 96),     # rose red — bedroom
+    5:  (60, 140, 132),    # teal — curiosity
+    6:  (210, 150, 30),    # gold — hijab hug
+    7:  (44, 132, 120),    # deep teal — love for Allah
+    8:  (198, 96, 138),    # pink-magenta — the scarf
+    9:  (170, 84, 40),     # terracotta — crown/princess
+    10: (74, 116, 170),    # cornflower — cape/twirl
+    11: (88, 150, 70),     # green — Allah loves us
+    12: (200, 96, 70),     # coral — proud in the mirror
+    13: (150, 88, 168),    # violet — special/shine
+    14: (54, 130, 150),    # teal-blue — part of her
+    15: (188, 80, 120),    # rose — rainbow
+    16: (210, 140, 30),    # amber — who I want to be
+    17: (70, 150, 140),    # teal — even more you
+    18: (96, 150, 64),     # leaf green — kind/grateful
+    19: (120, 96, 178),    # indigo — mosque
+    20: (200, 140, 36),    # gold — greatest treasure
+    21: (210, 110, 50),    # orange — playing together
+    22: (146, 86, 164),    # purple — starry hug
+    23: (208, 120, 44),    # sunset orange — gratitude
+    24: (78, 110, 175),    # moonlit blue — night du'a
+    25: (170, 80, 130),    # rose-magenta — modesty ending
+}
+
 # Page 25 is the book's closing lines (was baked into the art; now
 # rendered by the pipeline). Corrected copy, name substituted.
 PAGE25_TEXT = (
@@ -765,6 +796,50 @@ def render_text_on_image(img, text_info, page_num=None, override_color=None):
     ab = body_font.getbbox("Ayg")
     ascent = -ab[1]
     line_h = (ab[3] - ab[1]) + int((ab[3] - ab[1]) * 0.42)
+
+    # Soft legibility glow: a faint, feathered light halo that follows the
+    # letters (NOT a box). Keeps dark navy text readable when it crosses a
+    # darker part of the illustration, while staying invisible on light
+    # areas. Rendered as white glyphs with a wide soft stroke, blurred, at
+    # low opacity, composited UNDER the crisp text.
+    from PIL import ImageFilter
+    glow = Image.new("RGBA", img.size, (0, 0, 0, 0))
+    gdraw = ImageDraw.Draw(glow)
+
+    def _layout_lines():
+        yy = bbox[1]
+        for line in display:
+            if not line:
+                yy += line_h
+                continue
+            lw = line_width(line)
+            if just == 2:
+                xx = x_left + (box_width - lw) // 2
+            elif just == 1:
+                xx = x_right - lw
+            else:
+                xx = x_left
+            yield line, xx, yy
+            yy += line_h
+
+    gstroke = max(3, fsize // 8)
+    for line, xx, yy in _layout_lines():
+        x = xx
+        i = 0
+        while i < len(line):
+            fn, sz = line[i][2], line[i][3]
+            j = i
+            while j < len(line) and line[j][2] == fn and line[j][3] == sz:
+                j += 1
+            seg = "".join(c[0] for c in line[i:j])
+            f = get_font(fn, sz)
+            gdraw.text((x, yy + ascent), seg, fill=(255, 252, 246, 235),
+                       font=f, anchor="ls", stroke_width=gstroke,
+                       stroke_fill=(255, 252, 246, 235))
+            x += chunk_w(line[i:j])
+            i = j
+    glow = glow.filter(ImageFilter.GaussianBlur(max(4, fsize // 7)))
+    img.paste(glow, (0, 0), glow)
 
     draw = ImageDraw.Draw(img)
     y = bbox[1]
