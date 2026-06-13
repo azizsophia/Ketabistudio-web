@@ -23,6 +23,9 @@
 .spread {
   position: relative;
   aspect-ratio: 1 / 1;
+  /* Establish a query container so text can be sized as a fraction of the
+     rendered page width (cqw), exactly mirroring print: font_size / 2550. */
+  container-type: inline-size;
 }
 
 .art {
@@ -32,89 +35,106 @@
   object-fit: cover;
 }
 
-/* ── Cover title (mirrors print: name 2.7%, sub 12.2%, byline 17.7%) ── */
+/* ── Cover title — exact print front-cover anchors (fractions of the 2550px
+   face): name top y=70 -> 2.75%, subtitle y=312 -> 12.24%, byline y=452 ->
+   17.73%. Font sizes mirror print (215 / 108 / 64 px over 2550 -> cqw). ── */
 .coverTitle {
   position: absolute;
-  top: 2%;
-  left: 8%;
-  right: 8%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
+  inset: 0;
   pointer-events: none;
 }
 
 .coverName {
+  position: absolute;
+  top: 2.75%;
+  left: 50%;
+  transform: translateX(-50%);
   font-family: "Bjola", var(--font-display), Georgia, serif;
   color: #d88a2b;
-  line-height: 1.05;
+  line-height: 1;
   white-space: nowrap;
 }
 
 .coverSub {
+  position: absolute;
+  top: 12.24%;
+  left: 50%;
+  transform: translateX(-50%);
   font-family: "Bjola", var(--font-display), Georgia, serif;
-  font-size: clamp(0.85rem, 4.1vw, 1.5rem);
+  font-size: 4.24cqw;
   color: #d88a2b;
-  margin-top: 1%;
+  line-height: 1;
   white-space: nowrap;
 }
 
 .coverByline {
+  position: absolute;
+  top: 17.73%;
+  left: 50%;
+  transform: translateX(-50%);
   font-family: "Bjola", var(--font-display), Georgia, serif;
-  font-size: clamp(0.6rem, 2.4vw, 0.95rem);
+  font-size: 2.51cqw;
   color: #d88a2b;
-  margin-top: 1.5%;
+  line-height: 1;
 }
 
-/* ── Story page text blocks (print bbox -> percentages of 2550) ── */
-/* p2 bbox [1227,114,2274,464]: left 48.1%, top 4.5%, width 41% */
+/* ── Story page text blocks — placed EXACTLY where the print pipeline puts
+   them. Each block is centered (both axes) within that page's original text
+   bbox from worker/text_layout.json, with the page-proportional font size
+   (font_size / 2550 -> cqw) and the print line-height (1.72x glyph height
+   -> ~1.49). Anchoring at the bbox center + translate(-50%,-50%) reproduces
+   the pipeline's valign="center" so text never drifts onto the art. ── */
+
+/* p2  bbox [1227,114,2274,464] center (68.65%, 11.33%) w 41.06% fs 53.58 */
 .textP02 {
   position: absolute;
-  left: 47%;
-  top: 4%;
-  width: 43%;
+  left: 68.65%;
+  top: 11.33%;
+  width: 41.06%;
+  transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   font-family: "Crocodile Feet", var(--font-body), cursive;
-  font-size: clamp(0.5rem, 2.1vw, 0.8rem);
-  line-height: 1.45;
+  font-size: 2.10cqw;
+  line-height: 1.49;
   color: #4a3f3a;
   pointer-events: none;
 }
 
-/* p12 bbox [1324,155,2436,491]: left 51.9%, top 6.1%, width 43.6% */
+/* p12 bbox [1324,155,2436,491] center (73.73%, 12.67%) w 43.61% fs 58.33 */
 .textP12 {
   position: absolute;
-  left: 50.5%;
-  top: 5.5%;
-  width: 45.5%;
+  left: 73.73%;
+  top: 12.67%;
+  width: 43.61%;
+  transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   font-family: "Crocodile Feet", var(--font-body), cursive;
-  font-size: clamp(0.52rem, 2.25vw, 0.85rem);
-  line-height: 1.45;
+  font-size: 2.29cqw;
+  line-height: 1.49;
   color: #4a3f3a;
   pointer-events: none;
 }
 
-/* p23 bbox [677,151,1874,386]: left 26.5%, top 5.9%, width 47% */
+/* p23 bbox [677,151,1874,386] center (50.02%, 10.53%) w 46.94% fs 58.33 */
 .textP23 {
   position: absolute;
-  left: 25%;
-  top: 5.5%;
-  width: 50%;
+  left: 50.02%;
+  top: 10.53%;
+  width: 46.94%;
+  transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   font-family: "Crocodile Feet", var(--font-body), cursive;
-  font-size: clamp(0.52rem, 2.25vw, 0.85rem);
-  line-height: 1.45;
+  font-size: 2.29cqw;
+  line-height: 1.49;
   color: #4a3f3a;
   pointer-events: none;
 }

@@ -79,10 +79,9 @@ export default function BookPreview({ name, skin, hair, hairStyle }: Props) {
               <span
                 className={styles.coverName}
                 style={{
-                  fontSize:
-                    shown.length > 11
-                      ? "clamp(1.05rem, 5.2vw, 1.9rem)"
-                      : "clamp(1.5rem, 7.6vw, 2.8rem)",
+                  // Print fits the name up to 215px on the 2550px face
+                  // (8.4cqw), shrinking for longer names like fit_font does.
+                  fontSize: shown.length > 11 ? "5.4cqw" : "8.4cqw",
                 }}
               >
                 {shown}
