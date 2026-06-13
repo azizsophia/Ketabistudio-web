@@ -847,7 +847,11 @@ def render_text_on_image(img, text_info, page_num=None, override_color=None):
     # still allows the original's snug bottom-of-page placements (~4% margin)
     # but prevents a taller-than-original block from spilling into the trim.
     guard = int(img.height * 0.03)
-    y = max(guard, min(y, img.height - guard - block_h))
+    # Bottom guard can be shrunk per page (text_info["guard_frac"]) for pages
+    # that intentionally sit on the open floor at the very bottom; the top
+    # guard always keeps the full 3% safe margin.
+    bottom_guard = int(img.height * text_info.get("guard_frac", 0.03))
+    y = max(guard, min(y, img.height - bottom_guard - block_h))
 
     draw = ImageDraw.Draw(img)
     for line in display:

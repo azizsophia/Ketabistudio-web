@@ -26,6 +26,10 @@ LAYOUTS = json.load(open(Path(__file__).parent.parent / "text_layout.json"))
 
 FULL_PAGES = set(range(1, 12))
 
+# Pages whose story text sits on the open floor at the very bottom of the
+# page (text_layout bbox pushed to the page foot + a small bottom guard).
+FLOOR_BOTTOM_PAGES = {3, 8}
+
 
 def _retry(fn, tries=4):
     last = None
@@ -101,6 +105,13 @@ def generate_page_from_base(pg, child_name, skin, hair, style):
             "justification": 2,    # centered, like the original
             "valign": "center",    # center the block on the original text box
         }
+        # Pages 3 & 8 place the story copy on the clear floor at the very
+        # bottom of the page. Their bbox is pushed to the page foot so the
+        # block clamps low; a small bottom guard lets the ink land ~96.5%
+        # down (still ~0.3in inside the trim) instead of floating high with
+        # empty floor beneath it.
+        if pg in FLOOR_BOTTOM_PAGES:
+            new_info["guard_frac"] = 0.003
         m.validate_no_placeholders(new_info["text"], page_label=f"page {pg}")
         m.render_text_on_image(img, new_info, page_num=pg)
 
