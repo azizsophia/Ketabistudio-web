@@ -1,0 +1,32 @@
+name: QC All Books
+
+# Proactively render and quality-check every book/look (no order needed).
+# Results (PASS/FAIL report + phone-swipeable contact sheets) are written to
+# Supabase book-assets/qc/ and viewable at /admin/qc.
+on:
+  workflow_dispatch: {}
+
+jobs:
+  qc:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: System deps (PDF rasterizer)
+        run: sudo apt-get update && sudo apt-get install -y poppler-utils
+
+      - name: Python deps
+        run: pip install -r worker/requirements.txt
+
+      - name: Run QC batch
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: python worker/qc_batch.py
