@@ -77,6 +77,8 @@ def generate_page_from_base(pg, child_name, skin, hair, style):
         name = m.clean_child_name(child_name)
         text = m.STORY[pg].replace("(Child's Name)", name)
         accent_color = m.ACCENT_COLORS.get(pg, (199, 107, 160))
+        body_color = (m.BODY_LIGHT_CREAM if pg in m.DARK_BG_PAGES
+                      else m.BODY_TEXT)
         fsize = lay["font_size"]
 
         # Place text using the precise per-page position measured from the
@@ -97,7 +99,7 @@ def generate_page_from_base(pg, child_name, skin, hair, style):
 
         runs = m.build_accent_runs(
             text, m.ACCENTS.get(pg, []), fname, fsize,
-            body_color=m.BODY_TEXT, accent_color=accent_color,
+            body_color=body_color, accent_color=accent_color,
             accent_font=m.ACCENT_FONT)
         new_info = {
             "bbox": bbox, "text": text, "runs": runs,

@@ -46,7 +46,9 @@ FONT_MAP = {
 }
 
 # ─── Text colors ─────────────────────────────────────────────────────
-BODY_TEXT   = (64, 61, 79, 255)       # dark navy — body text, all pages
+BODY_TEXT   = (64, 61, 79, 255)       # dark navy — body text, most pages
+BODY_LIGHT_CREAM = (250, 246, 238, 255)  # cream — for dark-background pages
+DARK_BG_PAGES = {24}                  # night scene etc. — use cream text
 TEXT_OUTLINE = (255, 255, 255, 90)    # (unused now; kept for back-compat)
 ACCENT_PINK = (199, 107, 160, 255)    # back-compat only
 
@@ -127,15 +129,15 @@ ACCENT_COLORS = {
 # h = horizontal anchor (left|center|right). v kept for back-compat.
 # Most pages start near the top (~0.07-0.12); a few sit lower/bottom.
 TEXT_POS = {
-    1:  (0.085, "center"),  2:  (0.060, "center"),  3:  (0.800, "center"),
-    4:  (0.075, "right"),   5:  (0.090, "left"),    6:  (0.090, "right"),
-    7:  (0.090, "center"),  8:  (0.800, "center"),  9:  (0.075, "center"),
-    10: (0.080, "center"),  11: (0.090, "center"),  12: (0.080, "right"),
-    13: (0.080, "center"),  14: (0.080, "center"),  15: (0.075, "right"),
-    16: (0.080, "center"),  17: (0.075, "center"),  18: (0.080, "center"),
-    19: (0.065, "center"),  20: (0.090, "right"),   21: (0.065, "center"),
-    22: (0.075, "center"),  23: (0.060, "center"),  24: (0.075, "center"),
-    25: (0.800, "center"),
+    1:  (0.085, "center"),  2:  (0.050, "center"),  3:  (0.820, "right"),
+    4:  (0.075, "right"),   5:  (0.045, "center"),  6:  (0.090, "right"),
+    7:  (0.055, "center"),  8:  (0.800, "center"),  9:  (0.060, "center"),
+    10: (0.080, "center"),  11: (0.050, "center"),  12: (0.080, "right"),
+    13: (0.080, "center"),  14: (0.055, "center"),  15: (0.060, "center"),
+    16: (0.080, "center"),  17: (0.075, "center"),  18: (0.060, "center"),
+    19: (0.035, "left"),    20: (0.070, "center"),  21: (0.060, "center"),
+    22: (0.038, "left"),    23: (0.055, "left"),    24: (0.055, "right"),
+    25: (0.810, "center"),
 }
 
 # (legacy) coarse anchor table — kept for back-compat

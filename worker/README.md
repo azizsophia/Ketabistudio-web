@@ -65,6 +65,14 @@ into the art. Two files own this:
     reference PDF — `(top_y_fraction, horizontal_anchor)`. The bases
     pipeline computes the bbox from this so text lands exactly where the
     original placed it. To move a page's text, edit its `top_y`/anchor.
+    Positions are also tuned per page to avoid collisions with art
+    elements (hair, dresses, domes, the moon) — when editing copy, eyeball
+    each page and nudge `top_y`/anchor so text never overlaps a character
+    or busy element.
+  - `DARK_BG_PAGES` (set): pages whose background is too dark for navy
+    text (e.g. the night scene, page 24). These render the body in
+    `BODY_LIGHT_CREAM` instead so the text stays legible; accents keep
+    their per-page color.
 - `pipeline/generate_from_bases.py` `generate_page_from_base()`:
   substitutes the name, computes the anchored bbox, looks up the per-page
   accent color, builds accent runs (accents recolored, same font),
