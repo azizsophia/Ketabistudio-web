@@ -195,7 +195,11 @@ def hero_in_arch(img, d, ctx, cx, top, aw, ah):
 def title_block(d, cx, y, name):
     star_n(d, cx, y, 30, 8)
     d.ellipse([cx - 84, y - 6, cx - 74, y + 4], fill=GOLD); d.ellipse([cx + 74, y - 6, cx + 84, y + 4], fill=GOLD)
-    ctext(d, name + "'s", CG(250, 700, it=True), cx, y + 55, GOLD)
+    nm = name + "’s"
+    nsz, maxw = 250, TRIM - 460
+    while nsz > 120 and d.textlength(nm, font=CG(nsz, 700, it=True)) > maxw:
+        nsz -= 6
+    ctext(d, nm, CG(nsz, 700, it=True), cx, y + 55 + (250 - nsz) // 2, GOLD)
     ls(d, "BEAUTIFUL DUAS", CG(120, 600), cx, y + 350, DARK, 10)
     ctext(d, "a keepsake of daily duas", CG(60, 500, it=True), cx, y + 510, GRAY)
 
