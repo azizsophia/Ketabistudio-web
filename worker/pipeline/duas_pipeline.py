@@ -187,21 +187,12 @@ def chest(d, cx, top, w):
     d.ellipse([cx - 12, bt + int(h * 0.16) + 22, cx + 12, bt + int(h * 0.16) + 46], fill=(92, 56, 28))
 
 
-def khatam(d, cx, cy, R, fill=GOLD, w=5):
-    """An 8-pointed Islamic star (two overlaid squares) — a premium geometric
-    motif used in place of the treasure chest on the framed pages."""
-    for off in (0.0, math.pi / 4):
-        sq = [(cx + R * math.cos(off + i * math.pi / 2 + math.pi / 4),
-               cy - R * math.sin(off + i * math.pi / 2 + math.pi / 4)) for i in range(4)]
-        d.polygon(sq, outline=fill, width=w)
-    r2 = R * 0.6
-    for off in (0.0, math.pi / 4):
-        sq = [(cx + r2 * math.cos(off + i * math.pi / 2 + math.pi / 4),
-               cy - r2 * math.sin(off + i * math.pi / 2 + math.pi / 4)) for i in range(4)]
-        d.polygon(sq, outline=fill, width=max(2, w - 2))
-    d.ellipse([cx - R * 0.12, cy - R * 0.12, cx + R * 0.12, cy + R * 0.12], fill=fill)
-    for sgn in (-1, 1):  # flanking dots
-        d.ellipse([cx + sgn * R * 1.5 - 7, cy - 7, cx + sgn * R * 1.5 + 7, cy + 7], fill=fill)
+def star_crest(d, cx, cy, R, fill=GOLD):
+    """A central 8-pointed star flanked by two small stars — a premium,
+    unambiguous motif used in place of the treasure chest on framed pages."""
+    star_n(d, cx, cy, R, 8, fill=fill)
+    for sgn in (-1, 1):
+        star_n(d, cx + sgn * int(R * 1.9), cy, int(R * 0.34), 8, fill=fill)
 
 
 def flourish(d, cx, y, half_w, fill=GOLD):
@@ -297,7 +288,7 @@ def story_page(entry, ctx):
 def title_page(ctx):
     img, d = blank(frame=True)
     title_block(d, TRIM // 2, 360, ctx["name"])
-    khatam(d, TRIM // 2, 1480, 230)
+    star_crest(d, TRIM // 2, 1480, 150)
     byline(d, TRIM // 2, 2240)
     return img
 
@@ -315,7 +306,7 @@ def belongs_page(ctx):
 
 def end_page():
     img, d = blank(frame=True)
-    khatam(d, TRIM // 2, 560, 210)
+    star_crest(d, TRIM // 2, 560, 140)
     ctext(d, "The End", CG(150, 700), TRIM // 2, 1080, GOLD)
     ctext(d, "Say a dua today, and Allah is always", LO(40, 500), TRIM // 2, 1480, GRAY)
     ctext(d, "near to listen and to love you.", LO(40, 500), TRIM // 2, 1545, GRAY)
@@ -351,7 +342,7 @@ def chest_page(duas):
         afo = AR(s)
         enl = wrap(d, en, enf, iw)
         # measured heights for an evenly-spaced, vertically-centred block (1.5 spacing)
-        g1, g2, g3, elh = 40, 38, 44, 42
+        g1, g2, g3, elh = 36, 54, 50, 46
         block = 34 + g1 + afo.size + g2 + 26 + g3 + len(enl) * elh
         avail_t, avail_b = y + 40, y + chh - 86            # reserve bottom for source line
         sy = avail_t + max(0, (avail_b - avail_t - block) // 2)
@@ -566,14 +557,14 @@ def text_page(sp, ctx):
             s -= 2
         trf = CG(52, 500, it=True); trlines = wrap(d, sp["translit"], trf, TRIM - 560)
         mnf = LO(44, 500); mnlines = wrap(d, sp["meaning"], mnf, TRIM - 620)
-        H += 90 + s + 46 + len(trlines) * 64 + 28 + len(mnlines) * 58
+        H += 100 + s + 70 + len(trlines) * 78 + 50 + len(mnlines) * 66
     if has_verse:
         vrsh = reshape(sp["verse_arabic"]); vs = 78
         while vs > 40 and d.textlength(vrsh, font=AR(vs)) > TRIM - 560:
             vs -= 2
         vtf = CG(46, 500, it=True); vtlines = wrap(d, sp["verse_translit"], vtf, TRIM - 600)
         vef = LO(42, 500); velines = wrap(d, sp["verse_english"], vef, TRIM - 620)
-        H += 150 + vs + 40 + len(vtlines) * 56 + 22 + len(velines) * 56 + 50
+        H += 150 + vs + 64 + len(vtlines) * 69 + 44 + len(velines) * 63 + 56
     y = max(280, (TRIM - H) // 2)
     if occ:
         ls(d, occ.upper(), CG(44, 600), cx, y, ACCENT, 4); y += 56
@@ -581,23 +572,23 @@ def text_page(sp, ctx):
     for ln in narlines:
         ctext(d, ln, narf, cx, y, DARK); y += narlh
     if has_dua:
-        y += 90
-        ctext(d, rsh, AR(s), cx, y, DARK); y += s + 46
+        y += 100
+        ctext(d, rsh, AR(s), cx, y, DARK); y += s + 70
         for ln in trlines:
-            ctext(d, ln, trf, cx, y, GRAY); y += 64
-        y += 28
+            ctext(d, ln, trf, cx, y, GRAY); y += 78
+        y += 50
         for ln in mnlines:
-            ctext(d, ln, mnf, cx, y, ACCENT); y += 58
+            ctext(d, ln, mnf, cx, y, ACCENT); y += 66
     if has_verse:
         y += 110
-        flourish(d, cx, y, 220); y += 40
-        ctext(d, vrsh, AR(vs), cx, y, DARK); y += vs + 40
+        flourish(d, cx, y, 220); y += 64
+        ctext(d, vrsh, AR(vs), cx, y, DARK); y += vs + 64
         for ln in vtlines:
-            ctext(d, ln, vtf, cx, y, GRAY); y += 56
-        y += 22
+            ctext(d, ln, vtf, cx, y, GRAY); y += 69
+        y += 44
         for ln in velines:
-            ctext(d, ln, vef, cx, y, ACCENT); y += 56
-        ctext(d, sp["verse_ref"], CG(34, 600), cx, y + 6, BYL)
+            ctext(d, ln, vef, cx, y, ACCENT); y += 63
+        ctext(d, sp["verse_ref"], CG(34, 600), cx, y + 12, BYL)
     return img
 
 
