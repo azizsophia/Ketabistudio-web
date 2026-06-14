@@ -19,7 +19,7 @@ from urllib.parse import quote
 import requests
 import arabic_reshaper
 from bidi.algorithm import get_display
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 ROOT = Path(__file__).resolve().parent
 BOOK = json.loads((ROOT / "duas_book.json").read_text(encoding="utf-8"))
@@ -362,7 +362,7 @@ def cover_bg():
     img = Image.new("RGB", (FULLBLEED, FULLBLEED))
     d = ImageDraw.Draw(img)
     for y in range(FULLBLEED):
-        d.line([0, y, FULLBLEED, y], fill=lerp((253, 248, 240), (242, 229, 201), y / FULLBLEED))
+        d.line([0, y, FULLBLEED, y], fill=lerp((252, 246, 235), (233, 210, 165), y / FULLBLEED))
     return img, d
 
 
@@ -409,7 +409,13 @@ def front_cover(ctx):
     maxh = (FULLBLEED - 250) - 900            # room between title and byline
     if hero.height > maxh:
         hero = hero.resize((int(hero.width * maxh / hero.height), maxh), Image.LANCZOS)
-    img.paste(hero, (cx - hero.width // 2, (FULLBLEED - 250) - hero.height), hero)
+    hx, hy = cx - hero.width // 2, (FULLBLEED - 250) - hero.height
+    # soft drop shadow so the pale shirt separates from the background
+    shadow = Image.new("RGBA", hero.size, (0, 0, 0, 0))
+    tint = Image.new("RGBA", hero.size, (92, 64, 30, 115))
+    shadow = Image.composite(tint, shadow, hero.split()[3]).filter(ImageFilter.GaussianBlur(28))
+    img.paste(shadow, (hx + 14, hy + 22), shadow)
+    img.paste(hero, (hx, hy), hero)
     byline(d, cx, FULLBLEED - 170)
     return img
 
