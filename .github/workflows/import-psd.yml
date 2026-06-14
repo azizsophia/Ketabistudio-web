@@ -1,0 +1,45 @@
+name: Import PSD
+
+# Download a zip of PSDs from a URL (CI has open internet), render previews +
+# a layer report, back the raw PSDs up to Supabase, and push the results to the
+# 'psd-import-results' branch for review.
+on:
+  workflow_dispatch:
+    inputs:
+      zip_url:
+        description: "Direct URL to the PSD zip (e.g. a Dropbox share link)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Python deps
+        run: pip install psd-tools pillow requests
+
+      - name: Import PSDs
+        env:
+          ZIP_URL: ${{ inputs.zip_url }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: python worker/import_psd.py
+
+      - name: Push results
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add psd_import
+          git commit -m "PSD import: previews + layer report" || { echo "nothing to commit"; exit 0; }
+          git push origin HEAD:psd-import-results --force
