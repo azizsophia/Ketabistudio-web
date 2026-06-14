@@ -186,8 +186,12 @@ def hero_in_arch(img, d, ctx, cx, top, aw, ah):
     w, h = art.size
     fx0, fy0, fx1, fy1 = COVER_CROP
     hero = art.crop((int(fx0 * w), int(fy0 * h), int(fx1 * w), int(fy1 * h)))
+    # cover-fit into the arch box (preserve aspect, no stretch)
+    sc = max(aw / hero.width, ah / hero.height)
+    hr = hero.resize((int(hero.width * sc), int(hero.height * sc)), Image.LANCZOS)
+    hr = hr.crop(((hr.width - aw) // 2, 0, (hr.width - aw) // 2 + aw, ah))
     x0 = cx - aw // 2; r = aw // 2
-    img.paste(hero.resize((aw, ah), Image.LANCZOS), (x0, top), arch_mask(aw, ah))
+    img.paste(hr, (x0, top), arch_mask(aw, ah))
     d.arc([x0, top, x0 + aw, top + 2 * r], 180, 360, fill=GOLD, width=5)
     d.line([x0, top + r, x0, top + ah], fill=GOLD, width=5)
     d.line([x0 + aw, top + r, x0 + aw, top + ah], fill=GOLD, width=5)
@@ -374,9 +378,9 @@ def front_cover(ctx):
     cx = FULLBLEED // 2
     for sx, sy in [(150, 150), (FULLBLEED - 150, 150)]:
         star_n(d, sx, sy, 20, 8)
-    title_block(d, cx, 250, ctx["name"])
-    hero_in_arch(img, d, ctx, cx, 1040, 760, 860)
-    byline(d, cx, 1040 + 860 + 95)
+    title_block(d, cx, 150, ctx["name"])
+    hero_in_arch(img, d, ctx, cx, 770, 1600, 1700)   # large, dominant portrait
+    byline(d, cx, 2520)
     return img
 
 
