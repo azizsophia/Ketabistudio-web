@@ -226,12 +226,15 @@ def story_page(entry, ctx):
     fpage = BOOK.get("page_aliases", {}).get(char, {}).get(page, page)
     art = fetch_art(pack, fpage, ctx["look"])
     single = page in BOOK.get("single_pages", [])
+    # Drop the sliver of the neighbouring scene that bleeds across the spread
+    # centre, so no stray marks land at the inner edge of split pages.
+    GUT = 180
     if single:
         crop, off = art, 0
     elif half == "L":
-        crop, off = art.crop((0, 0, HALF, SPREAD_H)), 0
+        crop, off = art.crop((0, 0, HALF - GUT, SPREAD_H)), 0
     else:
-        crop, off = art.crop((HALF, 0, art.width, SPREAD_H)), HALF
+        crop, off = art.crop((HALF + GUT, 0, art.width, SPREAD_H)), HALF + GUT
     scale = max(FULLBLEED / crop.width, FULLBLEED / crop.height)
     nw, nh = int(crop.width * scale), int(crop.height * scale)
     resized = crop.resize((nw, nh), Image.LANCZOS)
@@ -390,6 +393,12 @@ def hero_cutout(ctx, target_w):
     bb = rgba.getbbox()
     if bb:
         rgba = rgba.crop(bb)
+    # Normalise framing: the source art shows some characters as a bust and
+    # others as a full seated figure. Trim very tall cut-outs to a head-and-
+    # hands bust so every cover matches (head fills the frame, not small/low).
+    BUST_AR = 1.4  # max height : width
+    if rgba.height > rgba.width * BUST_AR:
+        rgba = rgba.crop((0, 0, rgba.width, int(rgba.width * BUST_AR)))
     sc = target_w / rgba.width
     return rgba.resize((target_w, int(rgba.height * sc)), Image.LANCZOS)
 
