@@ -57,8 +57,17 @@
 
 .previewCol {
   display: flex;
-  align-items: flex-start;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.previewHint {
+  margin-top: 10px;
+  font-size: 0.82rem;
+  color: var(--muted, #7e7465);
+  text-align: center;
+  max-width: 320px;
 }
 
 /* ── form fields ── */

@@ -10,7 +10,6 @@ const MAX_NAME = 14;
 const DUAS_CHARACTERS = [
   { key: "girl", label: "Girl" },
   { key: "boy", label: "Boy" },
-  { key: "hijab", label: "Girl with hijab" },
 ] as const;
 const DUAS_LOOKS = [
   { key: "afro", label: "Deep skin, curly hair" },
@@ -94,6 +93,7 @@ export default function OrderSection({ slug, personalized }: Props) {
   const [hair, setHair] = useState<string>("black");
   const [hairStyle, setHairStyle] = useState<string>("long-curly");
   const [character, setCharacter] = useState<string>("girl");
+  const [wearsHijab, setWearsHijab] = useState<boolean>(true);
   const [look, setLook] = useState<string>("indian");
   const [eyeColor, setEyeColor] = useState<string>("brown");
   const [nameError, setNameError] = useState("");
@@ -117,6 +117,8 @@ export default function OrderSection({ slug, personalized }: Props) {
 
   const stateRequired = STATE_REQUIRED.has(country);
   const isInternational = country !== "US";
+  /* hijab is a sub-option of girl; the art pack key is boy | girl | hijab */
+  const effectiveChar = character === "boy" ? "boy" : wearsHijab ? "hijab" : "girl";
 
   function continueToShipping() {
     if (!name.trim()) {
@@ -157,7 +159,7 @@ export default function OrderSection({ slug, personalized }: Props) {
           skin: personalized && !isDuas ? skin : null,
           hair: personalized && !isDuas ? hair : null,
           hair_style: personalized && !isDuas ? hairStyle : null,
-          character: isDuas ? character : null,
+          character: isDuas ? effectiveChar : null,
           look: isDuas ? look : null,
           eye_color: isDuas ? eyeColor : null,
           email: email.trim(),
@@ -242,6 +244,30 @@ export default function OrderSection({ slug, personalized }: Props) {
                 ))}
               </div>
 
+              {character === "girl" && (
+                <>
+                  <p className={styles.label} id="hijab-label">Hijab</p>
+                  <div className={styles.stylePills} role="group" aria-labelledby="hijab-label">
+                    <button
+                      type="button"
+                      className={`${styles.pill} ${wearsHijab ? styles.pillActive : ""}`}
+                      aria-pressed={wearsHijab}
+                      onClick={() => setWearsHijab(true)}
+                    >
+                      With hijab
+                    </button>
+                    <button
+                      type="button"
+                      className={`${styles.pill} ${!wearsHijab ? styles.pillActive : ""}`}
+                      aria-pressed={!wearsHijab}
+                      onClick={() => setWearsHijab(false)}
+                    >
+                      Without hijab
+                    </button>
+                  </div>
+                </>
+              )}
+
               <p className={styles.label} id="look-label">Their look</p>
               <div className={styles.lookGrid} role="group" aria-labelledby="look-label">
                 {DUAS_LOOKS.map((lk) => (
@@ -253,7 +279,7 @@ export default function OrderSection({ slug, personalized }: Props) {
                     onClick={() => setLook(lk.key)}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={`/images/duas/${character}-${lk.key}.jpg`} alt={lk.label} />
+                    <img src={`/images/duas/${effectiveChar}-${lk.key}.jpg`} alt={lk.label} />
                   </button>
                 ))}
               </div>
@@ -274,7 +300,9 @@ export default function OrderSection({ slug, personalized }: Props) {
             </div>
 
             <div className={styles.previewCol}>
-              <DuasPreview name={name} character={character} look={look} />
+              <p className={styles.label}>Your cover</p>
+              <DuasPreview name={name} character={effectiveChar} look={look} />
+              <p className={styles.previewHint}>This is the cover we print — it updates as you choose.</p>
             </div>
           </div>
 
