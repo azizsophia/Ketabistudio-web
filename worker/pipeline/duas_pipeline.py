@@ -19,7 +19,7 @@ from urllib.parse import quote
 import requests
 import arabic_reshaper
 from bidi.algorithm import get_display
-from PIL import Image, ImageDraw, ImageFont, ImageFilter
+from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageChops, features
 
 ROOT = Path(__file__).resolve().parent
 BOOK = json.loads((ROOT / "duas_book.json").read_text(encoding="utf-8"))
@@ -58,12 +58,19 @@ def LO(sz, w=500):
     return f
 
 
+_RAQM = features.check("raqm")
+
+
 def AR(sz):
-    return ImageFont.truetype(AMIRI, sz)
+    # When libraqm is present PIL uses it by default and shapes Arabic itself,
+    # so we must NOT pre-shape. Without raqm we fall back to the basic engine
+    # and pre-shape with arabic_reshaper + bidi.
+    eng = ImageFont.Layout.RAQM if _RAQM else ImageFont.Layout.BASIC
+    return ImageFont.truetype(AMIRI, sz, layout_engine=eng)
 
 
 def reshape(t):
-    return get_display(arabic_reshaper.reshape(t))
+    return t if _RAQM else get_display(arabic_reshaper.reshape(t))
 
 
 _art = {}
@@ -180,6 +187,34 @@ def chest(d, cx, top, w):
     d.ellipse([cx - 12, bt + int(h * 0.16) + 22, cx + 12, bt + int(h * 0.16) + 46], fill=(92, 56, 28))
 
 
+def khatam(d, cx, cy, R, fill=GOLD, w=5):
+    """An 8-pointed Islamic star (two overlaid squares) — a premium geometric
+    motif used in place of the treasure chest on the framed pages."""
+    for off in (0.0, math.pi / 4):
+        sq = [(cx + R * math.cos(off + i * math.pi / 2 + math.pi / 4),
+               cy - R * math.sin(off + i * math.pi / 2 + math.pi / 4)) for i in range(4)]
+        d.polygon(sq, outline=fill, width=w)
+    r2 = R * 0.6
+    for off in (0.0, math.pi / 4):
+        sq = [(cx + r2 * math.cos(off + i * math.pi / 2 + math.pi / 4),
+               cy - r2 * math.sin(off + i * math.pi / 2 + math.pi / 4)) for i in range(4)]
+        d.polygon(sq, outline=fill, width=max(2, w - 2))
+    d.ellipse([cx - R * 0.12, cy - R * 0.12, cx + R * 0.12, cy + R * 0.12], fill=fill)
+    for sgn in (-1, 1):  # flanking dots
+        d.ellipse([cx + sgn * R * 1.5 - 7, cy - 7, cx + sgn * R * 1.5 + 7, cy + 7], fill=fill)
+
+
+def flourish(d, cx, y, half_w, fill=GOLD):
+    """A small centred ornament: a star with two tapering rules — an elegant
+    divider in place of a repeated chest motif."""
+    star_n(d, cx, y, 20, 8, fill=fill)
+    for sgn in (-1, 1):
+        x0 = cx + sgn * 44
+        d.line([x0, y, x0 + sgn * half_w, y], fill=fill, width=3)
+        d.ellipse([cx + sgn * half_w + sgn * 44 - 6, y - 6,
+                   cx + sgn * half_w + sgn * 44 + 6, y + 6], fill=fill)
+
+
 def hero_in_arch(img, d, ctx, cx, top, aw, ah):
     art = fetch_art(BOOK["asset_packs"][ctx["char"]],
                     BOOK.get("page_aliases", {}).get(ctx["char"], {}).get(COVER_HERO, COVER_HERO), ctx["look"])
@@ -262,7 +297,7 @@ def story_page(entry, ctx):
 def title_page(ctx):
     img, d = blank(frame=True)
     title_block(d, TRIM // 2, 360, ctx["name"])
-    chest(d, TRIM // 2, 1240, 460)
+    khatam(d, TRIM // 2, 1480, 230)
     byline(d, TRIM // 2, 2240)
     return img
 
@@ -280,7 +315,7 @@ def belongs_page(ctx):
 
 def end_page():
     img, d = blank(frame=True)
-    chest(d, TRIM // 2, 420, 360)
+    khatam(d, TRIM // 2, 560, 210)
     ctext(d, "The End", CG(150, 700), TRIM // 2, 1080, GOLD)
     ctext(d, "Say a dua today, and Allah is always", LO(40, 500), TRIM // 2, 1480, GRAY)
     ctext(d, "near to listen and to love you.", LO(40, 500), TRIM // 2, 1545, GRAY)
@@ -478,7 +513,7 @@ def intro_page(ctx):
     y = 770
     for ln in wrap(d, txt, CG(66, 500, it=True), TRIM - 620):
         ctext(d, ln, CG(66, 500, it=True), cx, y, DARK); y += 100
-    chest(d, cx, y + 150, 360)
+    flourish(d, cx, y + 150, 300)
     return img
 
 
@@ -500,7 +535,14 @@ def picture_page(illus, ctx):
     nw, nh = int(crop.width * scale), int(crop.height * scale)
     resized = crop.resize((nw, nh), Image.LANCZOS)
     cx0, cy0 = (nw - FULLBLEED) // 2, (nh - FULLBLEED) // 2
-    return resized.crop((cx0, cy0, cx0 + FULLBLEED, cy0 + FULLBLEED))
+    img = resized.crop((cx0, cy0, cx0 + FULLBLEED, cy0 + FULLBLEED))
+    # warm the plain-white art background to cream so illustration pages match
+    # the cream text/title pages (one consistent luxury tone). Pure-PIL mask:
+    # cream only where all three channels are near-white.
+    r, g, b = img.split()
+    thr = lambda v: 255 if v > 244 else 0
+    mask = ImageChops.multiply(ImageChops.multiply(r.point(thr), g.point(thr)), b.point(thr))
+    return Image.composite(Image.new("RGB", img.size, CREAM), img, mask.convert("L"))
 
 
 def text_page(sp, ctx):
@@ -512,6 +554,7 @@ def text_page(sp, ctx):
     nar = subst(sp["narrative"], ctx["char"], ctx["name"], ctx["eye"])
     narlines = wrap(d, nar, narf, TRIM - 560)
     has_dua = ("arabic" in sp) or ("arabic_ref" in sp)
+    has_verse = "verse_arabic" in sp
     occ = sp.get("occasion", "")
     # measure the whole block so it sits vertically centred on the page
     H = (56 + 70) if occ else 0
@@ -524,7 +567,14 @@ def text_page(sp, ctx):
         trf = CG(52, 500, it=True); trlines = wrap(d, sp["translit"], trf, TRIM - 560)
         mnf = LO(44, 500); mnlines = wrap(d, sp["meaning"], mnf, TRIM - 620)
         H += 90 + s + 46 + len(trlines) * 64 + 28 + len(mnlines) * 58
-    y = max(300, (TRIM - H) // 2)
+    if has_verse:
+        vrsh = reshape(sp["verse_arabic"]); vs = 78
+        while vs > 40 and d.textlength(vrsh, font=AR(vs)) > TRIM - 560:
+            vs -= 2
+        vtf = CG(46, 500, it=True); vtlines = wrap(d, sp["verse_translit"], vtf, TRIM - 600)
+        vef = LO(42, 500); velines = wrap(d, sp["verse_english"], vef, TRIM - 620)
+        H += 150 + vs + 40 + len(vtlines) * 56 + 22 + len(velines) * 56 + 50
+    y = max(280, (TRIM - H) // 2)
     if occ:
         ls(d, occ.upper(), CG(44, 600), cx, y, ACCENT, 4); y += 56
         star_n(d, cx, y + 28, 15, 8); y += 70
@@ -538,6 +588,16 @@ def text_page(sp, ctx):
         y += 28
         for ln in mnlines:
             ctext(d, ln, mnf, cx, y, ACCENT); y += 58
+    if has_verse:
+        y += 110
+        flourish(d, cx, y, 220); y += 40
+        ctext(d, vrsh, AR(vs), cx, y, DARK); y += vs + 40
+        for ln in vtlines:
+            ctext(d, ln, vtf, cx, y, GRAY); y += 56
+        y += 22
+        for ln in velines:
+            ctext(d, ln, vef, cx, y, ACCENT); y += 56
+        ctext(d, sp["verse_ref"], CG(34, 600), cx, y + 6, BYL)
     return img
 
 

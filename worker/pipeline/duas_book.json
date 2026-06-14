@@ -646,7 +646,11 @@
         ""
       ],
       "narrative": "From morning until night, [Child’s Name]’s days were full of beautiful duas. And Allah was always near.",
-      "closing": true
+      "closing": true,
+      "verse_arabic": "وَإِذَا سَأَلَكَ عِبَادِي عَنِّي فَإِنِّي قَرِيبٌ",
+      "verse_translit": "Wa idha sa’alaka ‘ibadi ‘anni fa-inni qarib.",
+      "verse_english": "“And when My servants ask about Me, indeed I am near.”",
+      "verse_ref": "Quran 2:186"
     }
   ]
 }
