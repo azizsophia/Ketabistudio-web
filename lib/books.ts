@@ -152,7 +152,7 @@ export const BOOKS: Book[] = [
     blurb:
       "A premium personalized keepsake — your child saying a beautiful dua for every part of their day.",
     description:
-      "Choose your child — a boy, a girl, or a girl with hijab — and their look, type their name, and we print a one-of-a-kind book where they are the star. A gentle day of authentic daily duas (Arabic, easy pronunciation, and English), with scan-to-hear audio and a keepsake star chart.",
+      "Choose your child — a boy, a girl, or a girl with hijab — and their look, type their name, and we print a one-of-a-kind book where they are the star. A gentle day of authentic daily duas (Arabic, easy pronunciation, and English), with a Dua Treasure Chest reference and a keepsake star chart.",
     cover: "/images/book-duas.jpg",
     spine: "#c48e34",
     previews: [

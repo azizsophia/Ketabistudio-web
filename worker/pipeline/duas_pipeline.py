@@ -19,7 +19,7 @@ from urllib.parse import quote
 import requests
 import arabic_reshaper
 from bidi.algorithm import get_display
-from PIL import Image, ImageDraw, ImageFont, ImageFilter
+from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageChops, features
 
 ROOT = Path(__file__).resolve().parent
 BOOK = json.loads((ROOT / "duas_book.json").read_text(encoding="utf-8"))
@@ -58,12 +58,19 @@ def LO(sz, w=500):
     return f
 
 
+_RAQM = features.check("raqm")
+
+
 def AR(sz):
-    return ImageFont.truetype(AMIRI, sz)
+    # When libraqm is present PIL uses it by default and shapes Arabic itself,
+    # so we must NOT pre-shape. Without raqm we fall back to the basic engine
+    # and pre-shape with arabic_reshaper + bidi.
+    eng = ImageFont.Layout.RAQM if _RAQM else ImageFont.Layout.BASIC
+    return ImageFont.truetype(AMIRI, sz, layout_engine=eng)
 
 
 def reshape(t):
-    return get_display(arabic_reshaper.reshape(t))
+    return t if _RAQM else get_display(arabic_reshaper.reshape(t))
 
 
 _art = {}
@@ -180,6 +187,25 @@ def chest(d, cx, top, w):
     d.ellipse([cx - 12, bt + int(h * 0.16) + 22, cx + 12, bt + int(h * 0.16) + 46], fill=(92, 56, 28))
 
 
+def star_crest(d, cx, cy, R, fill=GOLD):
+    """A central 8-pointed star flanked by two small stars — a premium,
+    unambiguous motif used in place of the treasure chest on framed pages."""
+    star_n(d, cx, cy, R, 8, fill=fill)
+    for sgn in (-1, 1):
+        star_n(d, cx + sgn * int(R * 1.9), cy, int(R * 0.34), 8, fill=fill)
+
+
+def flourish(d, cx, y, half_w, fill=GOLD):
+    """A small centred ornament: a star with two tapering rules — an elegant
+    divider in place of a repeated chest motif."""
+    star_n(d, cx, y, 20, 8, fill=fill)
+    for sgn in (-1, 1):
+        x0 = cx + sgn * 44
+        d.line([x0, y, x0 + sgn * half_w, y], fill=fill, width=3)
+        d.ellipse([cx + sgn * half_w + sgn * 44 - 6, y - 6,
+                   cx + sgn * half_w + sgn * 44 + 6, y + 6], fill=fill)
+
+
 def hero_in_arch(img, d, ctx, cx, top, aw, ah):
     art = fetch_art(BOOK["asset_packs"][ctx["char"]],
                     BOOK.get("page_aliases", {}).get(ctx["char"], {}).get(COVER_HERO, COVER_HERO), ctx["look"])
@@ -226,12 +252,15 @@ def story_page(entry, ctx):
     fpage = BOOK.get("page_aliases", {}).get(char, {}).get(page, page)
     art = fetch_art(pack, fpage, ctx["look"])
     single = page in BOOK.get("single_pages", [])
+    # Drop the sliver of the neighbouring scene that bleeds across the spread
+    # centre, so no stray marks land at the inner edge of split pages.
+    GUT = 180
     if single:
         crop, off = art, 0
     elif half == "L":
-        crop, off = art.crop((0, 0, HALF, SPREAD_H)), 0
+        crop, off = art.crop((0, 0, HALF - GUT, SPREAD_H)), 0
     else:
-        crop, off = art.crop((HALF, 0, art.width, SPREAD_H)), HALF
+        crop, off = art.crop((HALF + GUT, 0, art.width, SPREAD_H)), HALF + GUT
     scale = max(FULLBLEED / crop.width, FULLBLEED / crop.height)
     nw, nh = int(crop.width * scale), int(crop.height * scale)
     resized = crop.resize((nw, nh), Image.LANCZOS)
@@ -259,7 +288,7 @@ def story_page(entry, ctx):
 def title_page(ctx):
     img, d = blank(frame=True)
     title_block(d, TRIM // 2, 360, ctx["name"])
-    chest(d, TRIM // 2, 1240, 460)
+    star_crest(d, TRIM // 2, 1480, 150)
     byline(d, TRIM // 2, 2240)
     return img
 
@@ -277,10 +306,10 @@ def belongs_page(ctx):
 
 def end_page():
     img, d = blank(frame=True)
-    chest(d, TRIM // 2, 420, 360)
+    star_crest(d, TRIM // 2, 560, 140)
     ctext(d, "The End", CG(150, 700), TRIM // 2, 1080, GOLD)
-    ctext(d, "Grown-ups: scan the codes in the", LO(40, 500), TRIM // 2, 1480, GRAY)
-    ctext(d, "Treasure Chest to hear each dua aloud.", LO(40, 500), TRIM // 2, 1545, GRAY)
+    ctext(d, "Say a dua today, and Allah is always", LO(40, 500), TRIM // 2, 1480, GRAY)
+    ctext(d, "near to listen and to love you.", LO(40, 500), TRIM // 2, 1545, GRAY)
     return img
 
 
@@ -291,49 +320,40 @@ def chest_opener():
     chest(d, TRIM // 2, 880, 560)
     ctext(d, "Every dua is a treasure.", CG(64, 600, it=True), TRIM // 2, 1660, DARK)
     ctext(d, "Collect a star each time you say one!", LO(48, 500), TRIM // 2, 1770, DARK)
-    ctext(d, "Tip: scan a code to hear the dua read aloud.", LO(38, 500), TRIM // 2, 1980, GRAY)
     return img
 
 
-def _qr(data, size):
-    import qrcode
-    q = qrcode.QRCode(box_size=10, border=1); q.add_data(data); q.make()
-    return q.make_image(fill_color=(80, 66, 46), back_color=CARD).convert("RGB").resize((size, size))
-
-
-def chest_page(duas, base_idx):
+def chest_page(duas):
     img, d = blank()
     ctext(d, "My Daily Duas", CG(80, 700), TRIM // 2, 70, GOLD)
     star_n(d, TRIM // 2, 215, 12, 8)
     M, gx, gy, top = 70, 40, 36, 270
     cw = (TRIM - 2 * M - gx) // 2
     chh = (TRIM - top - M - 2 * gy) // 3
-    labf, trf, enf = CG(34, 600), LO(26, 500), LO(27, 500)
+    labf, trf, enf = CG(32, 600), CG(25, 500, it=True), LO(26, 500)
     for i, (lab, ar, tr, en, src) in enumerate(duas):
         r, c = divmod(i, 2); x = M + c * (cw + gx); y = top + r * (chh + gy)
         d.rounded_rectangle([x, y, x + cw, y + chh], radius=22, fill=CARD, outline=BORD, width=3)
-        cx = x + cw // 2; iw = cw - 230
+        cx = x + cw // 2; iw = cw - 110
         star_n(d, x + 46, y + 46, 15, 8)
-        s = 60; rsh = reshape(ar)
-        while s > 30 and d.textlength(rsh, font=AR(s)) > iw:
+        s = 56; rsh = reshape(ar)
+        while s > 26 and d.textlength(rsh, font=AR(s)) > iw:
             s -= 2
         afo = AR(s)
+        trl = wrap(d, tr, trf, iw)          # transliteration wraps (some duas are long)
         enl = wrap(d, en, enf, iw)
-        # measured heights for an evenly-spaced, vertically-centred block (1.5 spacing)
-        g1, g2, g3, elh = 40, 38, 44, 42
-        block = 34 + g1 + afo.size + g2 + 26 + g3 + len(enl) * elh
-        avail_t, avail_b = y + 40, y + chh - 130           # reserve bottom for source + QR
+        g1, g2, g3, tlh, elh = 20, 26, 22, 34, 38   # compact reference layout
+        block = 32 + g1 + afo.size + g2 + len(trl) * tlh + g3 + len(enl) * elh
+        avail_t, avail_b = y + 34, y + chh - 74            # reserve bottom for source line
         sy = avail_t + max(0, (avail_b - avail_t - block) // 2)
-        ls(d, lab.upper(), labf, cx, sy, ACCENT, 3); sy += 34 + g1
+        ls(d, lab.upper(), labf, cx, sy, ACCENT, 3); sy += 32 + g1
         ctext(d, rsh, afo, cx, sy, DARK); sy += afo.size + g2
-        ctext(d, tr, trf, cx, sy, GRAY); sy += 26 + g3
+        for ln in trl:
+            ctext(d, ln, trf, cx, sy, GRAY); sy += tlh
+        sy += g3
         for ln in enl:
             ctext(d, ln, enf, cx, sy, DARK); sy += elh
-        ctext(d, f"({src})", LO(20, 500), cx, y + chh - 44, (188, 178, 162))
-        try:
-            img.paste(_qr(f"https://ketabi.studio/duas/audio/{base_idx + i}", 88), (x + cw - 114, y + chh - 114))
-        except Exception:
-            pass
+        ctext(d, f"({src})", LO(24, 500), cx, y + chh - 46, (170, 158, 140))
     return img
 
 
@@ -401,11 +421,17 @@ def hero_cutout(ctx, target_w):
     bb = rgba.getbbox()
     if bb:
         rgba = rgba.crop(bb)
+    # Normalise framing: the source art shows some characters as a bust and
+    # others as a full seated figure. Trim very tall cut-outs to a head-and-
+    # hands bust so every cover matches (head fills the frame, not small/low).
+    BUST_AR = 1.4  # max height : width
+    if rgba.height > rgba.width * BUST_AR:
+        rgba = rgba.crop((0, 0, rgba.width, int(rgba.width * BUST_AR)))
     sc = target_w / rgba.width
     return rgba.resize((target_w, int(rgba.height * sc)), Image.LANCZOS)
 
 
-def front_cover(ctx):
+def front_cover(ctx, show_name=True):
     img, d = cover_bg()
     cx = FULLBLEED // 2
     # scattered gold stars across the upper sky (clear of the title)
@@ -413,12 +439,15 @@ def front_cover(ctx):
                       (2300, 170, 19), (2150, 430, 11), (2380, 760, 12), (2060, 600, 8),
                       (980, 130, 9), (1660, 120, 11), (1300, 80, 7)]:
         star5(d, sx, sy, r, (250, 240, 208))
-    # title — gold name, cream subtitle (reads on the dark sky)
-    nm = ctx["name"] + "’s"
-    nsz, maxw = 250, FULLBLEED - 720
-    while nsz > 120 and d.textlength(nm, font=CG(nsz, 700, it=True)) > maxw:
-        nsz -= 6
-    ctext(d, nm, CG(nsz, 700, it=True), cx, 250 + (250 - nsz) // 2, (224, 178, 92))
+    # title — gold name, cream subtitle (reads on the dark sky). The name can be
+    # omitted (show_name=False) to produce a nameless cover the storefront
+    # overlays the customer's typed name onto.
+    if show_name:
+        nm = ctx["name"] + "’s"
+        nsz, maxw = 250, FULLBLEED - 720
+        while nsz > 120 and d.textlength(nm, font=CG(nsz, 700, it=True)) > maxw:
+            nsz -= 6
+        ctext(d, nm, CG(nsz, 700, it=True), cx, 250 + (250 - nsz) // 2, (224, 178, 92))
     ls(d, "BEAUTIFUL DUAS", CG(120, 600), cx, 600, (248, 241, 226), 10)
     ctext(d, "a keepsake of daily duas", CG(60, 500, it=True), cx, 760, (232, 220, 202))
     # child, lifted on a soft warm glow
@@ -448,8 +477,8 @@ def back_cover(ctx):
     star_n(d, cx, 380, 34, 8, fill=(224, 178, 92))
     blurb = ("From the moment " + ctx["name"] + " wakes until bedtime, every "
              "moment has a beautiful dua. Join " + ctx["name"] + " through a gentle "
-             "day of remembrance — with the Arabic, an easy pronunciation guide, "
-             "audio you can scan and hear, and a star chart to treasure.")
+             "day of remembrance, with the Arabic, an easy pronunciation guide, "
+             "and a keepsake star chart to treasure.")
     fo = LO(56, 500)
     y = 740
     for ln in wrap(d, blurb, fo, FULLBLEED - 760):
@@ -472,13 +501,121 @@ def cover_wrap(ctx):
     return wrap, fc
 
 
+def intro_page(ctx):
+    """Left page of the opening spread: a keepsake bookplate + the cozy intro,
+    facing a reused illustration on the right."""
+    img, d = blank(frame=True)
+    cx = TRIM // 2
+    # keepsake bookplate
+    ctext(d, "This book belongs to", CG(56, 500, it=True), cx, 360, GRAY)
+    ctext(d, ctx["name"], CG(150, 700, it=True), cx, 470, GOLD)
+    d.line([cx - 300, 775, cx + 300, 775], fill=BORD, width=2)
+    star_n(d, cx, 775, 13, 8)
+    # cozy intro
+    txt = subst(BOOK["intro_text"], ctx["char"], ctx["name"], ctx["eye"])
+    y = 1060
+    for ln in wrap(d, txt, CG(62, 500, it=True), TRIM - 620):
+        ctext(d, ln, CG(62, 500, it=True), cx, y, DARK); y += 96
+    flourish(d, cx, y + 160, 280)
+    return img
+
+
+def picture_page(illus, ctx):
+    """Full-bleed illustration for the right (recto) page of a spread, using the
+    subject half of the source art (with the centre-gutter sliver trimmed)."""
+    page, half = illus
+    char = ctx["char"]; pack = BOOK["asset_packs"][char]
+    fpage = BOOK.get("page_aliases", {}).get(char, {}).get(page, page)
+    art = fetch_art(pack, fpage, ctx["look"])
+    GUT = 180
+    if page in BOOK.get("single_pages", []):
+        crop = art
+    elif half == "L":
+        crop = art.crop((0, 0, HALF - GUT, SPREAD_H))
+    else:
+        crop = art.crop((HALF + GUT, 0, art.width, SPREAD_H))
+    scale = max(FULLBLEED / crop.width, FULLBLEED / crop.height)
+    nw, nh = int(crop.width * scale), int(crop.height * scale)
+    resized = crop.resize((nw, nh), Image.LANCZOS)
+    cx0, cy0 = (nw - FULLBLEED) // 2, (nh - FULLBLEED) // 2
+    img = resized.crop((cx0, cy0, cx0 + FULLBLEED, cy0 + FULLBLEED))
+    # warm the plain-white art background to cream so illustration pages match
+    # the cream text/title pages (one consistent luxury tone). Pure-PIL mask:
+    # cream only where all three channels are near-white.
+    r, g, b = img.split()
+    thr = lambda v: 255 if v > 244 else 0
+    mask = ImageChops.multiply(ImageChops.multiply(r.point(thr), g.point(thr)), b.point(thr))
+    return Image.composite(Image.new("RGB", img.size, CREAM), img, mask.convert("L"))
+
+
+def text_page(sp, ctx):
+    """Clean left (verso) page of a spread: occasion, warm narrative, the dua in
+    Arabic, transliteration, and a child-friendly meaning, vertically centred."""
+    img, d = blank(frame=True)
+    cx = TRIM // 2
+    narf, narlh = LO(52, 500), 80
+    nar = subst(sp["narrative"], ctx["char"], ctx["name"], ctx["eye"])
+    narlines = wrap(d, nar, narf, TRIM - 560)
+    has_dua = ("arabic" in sp) or ("arabic_ref" in sp)
+    has_verse = "verse_arabic" in sp
+    occ = sp.get("occasion", "")
+    # measure the whole block so it sits vertically centred on the page
+    H = (56 + 70) if occ else 0
+    H += len(narlines) * narlh
+    if has_dua:
+        ar = sp.get("arabic") or BOOK["treasure_chest"][sp["arabic_ref"]][1]
+        rsh = reshape(ar); s = 100
+        while s > 46 and d.textlength(rsh, font=AR(s)) > TRIM - 520:
+            s -= 2
+        trf = CG(52, 500, it=True); trlines = wrap(d, sp["translit"], trf, TRIM - 560)
+        mnf = LO(44, 500); mnlines = wrap(d, sp["meaning"], mnf, TRIM - 620)
+        H += 100 + s + 70 + len(trlines) * 78 + 50 + len(mnlines) * 66
+    if has_verse:
+        vrsh = reshape(sp["verse_arabic"]); vs = 78
+        while vs > 40 and d.textlength(vrsh, font=AR(vs)) > TRIM - 560:
+            vs -= 2
+        vtf = CG(46, 500, it=True); vtlines = wrap(d, sp["verse_translit"], vtf, TRIM - 600)
+        vef = LO(42, 500); velines = wrap(d, sp["verse_english"], vef, TRIM - 620)
+        H += 150 + vs + 64 + len(vtlines) * 69 + 44 + len(velines) * 63 + 56
+    y = max(280, (TRIM - H) // 2)
+    if occ:
+        ls(d, occ.upper(), CG(44, 600), cx, y, ACCENT, 4); y += 56
+        star_n(d, cx, y + 28, 15, 8); y += 70
+    for ln in narlines:
+        ctext(d, ln, narf, cx, y, DARK); y += narlh
+    if has_dua:
+        y += 100
+        ctext(d, rsh, AR(s), cx, y, DARK); y += s + 70
+        for ln in trlines:
+            ctext(d, ln, trf, cx, y, GRAY); y += 78
+        y += 50
+        for ln in mnlines:
+            ctext(d, ln, mnf, cx, y, ACCENT); y += 66
+    if has_verse:
+        y += 110
+        flourish(d, cx, y, 220); y += 64
+        ctext(d, vrsh, AR(vs), cx, y, DARK); y += vs + 64
+        for ln in vtlines:
+            ctext(d, ln, vtf, cx, y, GRAY); y += 69
+        y += 44
+        for ln in velines:
+            ctext(d, ln, vef, cx, y, ACCENT); y += 63
+        ctext(d, sp["verse_ref"], CG(34, 600), cx, y + 12, BYL)
+    return img
+
+
 def build(name, char, look, eye, out_dir):
     out = Path(out_dir); out.mkdir(parents=True, exist_ok=True)
     ctx = {"name": name, "char": char, "look": look, "eye": eye}
     tc = BOOK["treasure_chest"]
-    pages = [title_page(ctx), belongs_page(ctx)]
-    pages += [story_page(e, ctx) for e in BOOK["reading_order"]]
-    pages += [chest_opener(), chest_page(tc[:6], 0), chest_page(tc[6:], 6), star_chart(), end_page()]
+    # 3 front-matter pages (title, then the opening spread = intro/bookplate +
+    # a reused illustration), then 12 facing spreads (text verso + illustration
+    # recto), then 5 back-matter pages = 32 pages.
+    pages = [title_page(ctx), intro_page(ctx), picture_page(["page0004", "R"], ctx)]
+    for sp in BOOK["story_spreads"]:
+        pages.append(text_page(sp, ctx))             # verso (left): words + dua
+        pages.append(picture_page(sp["illus"], ctx))  # recto (right): illustration
+    pages += [chest_opener(), chest_page(tc[:6]), chest_page(tc[6:]), star_chart(), end_page()]
     pages = [to_fb(p) for p in pages]   # every page full-bleed (8.75in)
     for i, p in enumerate(pages):
         p.save(out / f"page{i+1:02d}.jpg", "JPEG", quality=88)

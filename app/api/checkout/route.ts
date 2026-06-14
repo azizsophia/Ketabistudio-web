@@ -4,8 +4,12 @@ import {
   BOOK_PRICE_CENTS,
   shippingCents,
   shippingLabel,
+  shipChargeFromLulu,
+  BOOK_SHIP_SPEC,
+  DEFAULT_SHIP_SPEC,
   CURRENCY,
 } from "@/lib/pricing";
+import { luluShippingCents } from "@/lib/lulu";
 
 const SB = process.env.SUPABASE_URL?.replace(/\s/g, "").replace(/\/$/, "");
 const KEY = process.env.SUPABASE_SERVICE_KEY?.replace(/\s/g, "");
@@ -55,7 +59,38 @@ export async function POST(req: NextRequest) {
   }
 
   const country = (order.shipping?.country_code || "US").toUpperCase();
-  const ship = shippingCents(country);
+
+  /* Real-time Lulu shipping (Option B): quote the live cost for this address,
+     fall back to flat zone rates if Lulu is unavailable so checkout never
+     breaks. */
+  let ship = shippingCents(country);
+  let shipName = shippingLabel(country);
+  const addr = order.shipping;
+  if (addr?.street1 && addr?.city && addr?.postcode) {
+    const spec = BOOK_SHIP_SPEC[order.book_slug] || DEFAULT_SHIP_SPEC;
+    const quote = await luluShippingCents(
+      {
+        name: addr.name,
+        street1: addr.street1,
+        street2: addr.street2,
+        city: addr.city,
+        state_code: addr.state_code,
+        postcode: addr.postcode,
+        country_code: country,
+        phone_number: addr.phone_number,
+      },
+      { pageCount: spec.pageCount, pod: spec.pod }
+    );
+    if (quote != null) {
+      ship = shipChargeFromLulu(quote);
+      shipName = "Shipping";
+    }
+    console.log(
+      `[checkout] order=${order.id} country=${country} ship=${
+        quote != null ? "lulu" : "flat"
+      } luluQuote=${quote ?? "null"} charge=${ship}`
+    );
+  }
 
   /* Product name shown on the Stripe page and the receipt */
   const childName = order.child_name?.trim();
@@ -94,7 +129,7 @@ export async function POST(req: NextRequest) {
           price_data: {
             currency: CURRENCY,
             unit_amount: ship,
-            product_data: { name: shippingLabel(country) },
+            product_data: { name: shipName },
           },
         },
       ],
