@@ -59,41 +59,69 @@ def walk(layer, depth, lines):
             walk(c, depth + 1, lines)
 
 
-def upload_raw(path: Path):
+def upload_raw(path: Path, folder: str, ctype: str):
     if not (SB and KEY):
         return "no-supabase"
     with open(path, "rb") as fh:
         r = requests.post(
-            f"{SB}/storage/v1/object/book-assets/duas-psd/{path.name}",
+            f"{SB}/storage/v1/object/book-assets/{folder}/{path.name}",
             headers={"Authorization": f"Bearer {KEY}",
-                     "Content-Type": "image/vnd.adobe.photoshop",
-                     "x-upsert": "true"},
+                     "Content-Type": ctype, "x-upsert": "true"},
             data=fh.read(), timeout=600)
     return f"uploaded({r.status_code})"
+
+
+def extract_all(zpath: Path, dest: Path):
+    """Extract a zip, then recursively extract any nested zips it contains."""
+    with zipfile.ZipFile(zpath) as z:
+        z.extractall(dest)
+    seen = {str(zpath)}
+    while True:
+        nested = [p for p in glob.glob(str(dest / "**" / "*.zip"), recursive=True)
+                  if p not in seen and not Path(p).name.startswith("._")]
+        if not nested:
+            break
+        for n in nested:
+            seen.add(n)
+            try:
+                with zipfile.ZipFile(n) as z:
+                    z.extractall(Path(n).with_suffix(""))
+                print(f"  unpacked nested zip: {Path(n).name}", flush=True)
+            except Exception as e:  # noqa: BLE001
+                print(f"  could not unpack {n}: {e}", flush=True)
+
+
+def find(dest: Path, *exts):
+    out = []
+    for ext in exts:
+        out += [p for p in glob.glob(str(dest / "**" / f"*{ext}"), recursive=True)
+                if not Path(p).name.startswith("._")]
+    return sorted(set(out))
 
 
 def main():
     url = normalize(ZIP_URL)
     print("downloading:", url, flush=True)
-    r = requests.get(url, timeout=900)
+    r = requests.get(url, timeout=1800)
     r.raise_for_status()
     zpath = Path("/tmp/in.zip")
     zpath.write_bytes(r.content)
-    print(f"zip downloaded: {len(r.content)/1e6:.1f} MB", flush=True)
+    print(f"download: {len(r.content)/1e6:.1f} MB", flush=True)
 
     zd = Path("/tmp/psd_in")
-    with zipfile.ZipFile(zpath) as z:
-        z.extractall(zd)
+    extract_all(zpath, zd)
 
-    psds = sorted(p for p in glob.glob(str(zd / "**" / "*.psd"), recursive=True)
-                  if not Path(p).name.startswith("._"))
-    print(f"found {len(psds)} PSD files", flush=True)
+    psds = find(zd, ".psd")
+    images = [p for p in find(zd, ".png", ".jpg", ".jpeg")
+              if "__MACOSX" not in p]
+    print(f"found {len(psds)} PSD + {len(images)} image files", flush=True)
 
-    report = [f"# PSD import report\n\n{len(psds)} PSD files found.\n"]
+    report = [f"# Import report\n\n{len(psds)} PSDs, {len(images)} images found.\n"]
+
+    report.append("## PSDs\n")
     for p in psds:
         path = Path(p)
-        name = path.name
-        lines = [f"## {name}"]
+        lines = [f"### {path.name}"]
         try:
             psd = PSDImage.open(p)
             lines.append(f"- size: {psd.size}  mode: {psd.color_mode}")
@@ -105,13 +133,30 @@ def main():
             lines.append("```")
             img = psd.composite().convert("RGB")
             img.thumbnail((1500, 1500))
-            img.save(PREV / name.replace(".psd", ".jpg"), "JPEG", quality=82)
-            lines.append(f"- backup: {upload_raw(path)}")
-            print(f"  ok {name} {psd.size}", flush=True)
+            img.save(PREV / (path.stem + ".jpg"), "JPEG", quality=82)
+            lines.append(f"- backup: {upload_raw(path, 'duas-psd', 'image/vnd.adobe.photoshop')}")
+            print(f"  ok PSD {path.name} {psd.size}", flush=True)
         except Exception as e:  # noqa: BLE001
             lines.append(f"- ERROR: {e}")
-            print(f"  ERROR {name}: {e}", flush=True)
+            print(f"  ERROR {path.name}: {e}", flush=True)
         report.append("\n".join(lines))
+
+    report.append("\n## Image assets\n")
+    for p in images:
+        path = Path(p)
+        try:
+            from PIL import Image
+            im = Image.open(p)
+            size = im.size
+            prev = im.convert("RGB")
+            prev.thumbnail((1100, 1100))
+            prev.save(PREV / ("asset_" + path.stem + ".jpg"), "JPEG", quality=80)
+            ct = "image/png" if path.suffix.lower() == ".png" else "image/jpeg"
+            up = upload_raw(path, "duas-assets", ct)
+            report.append(f"- {path.name}  {size}  {up}")
+            print(f"  ok IMG {path.name} {size}", flush=True)
+        except Exception as e:  # noqa: BLE001
+            report.append(f"- {path.name}  ERROR: {e}")
 
     (OUT / "report.md").write_text("\n\n".join(report))
     print("wrote psd_import/report.md and previews/", flush=True)
