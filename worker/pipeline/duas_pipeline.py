@@ -30,6 +30,8 @@ SB = "".join(os.environ.get("SUPABASE_URL", "").split()).rstrip("/")
 KEY = "".join(os.environ.get("SUPABASE_SERVICE_KEY", "").split())
 
 TRIM = BOOK["trim_px"]
+FULLBLEED = 2625            # 8.75in = 8.5in trim + 0.125in bleed each side
+FBM = (FULLBLEED - TRIM) // 2
 SPREAD_W, SPREAD_H = BOOK["spread_px"]
 HALF = BOOK["half_split_x"]
 CREAM = (250, 245, 236); CARD = (255, 252, 245); GOLD = (184, 134, 52)
@@ -224,17 +226,21 @@ def story_page(entry, ctx):
         crop, off = art.crop((0, 0, HALF, SPREAD_H)), 0
     else:
         crop, off = art.crop((HALF, 0, art.width, SPREAD_H)), HALF
-    scale = TRIM / crop.width
-    newh = int(crop.height * scale)
-    img, d = blank()
-    ytop = (TRIM - newh) // 2
-    img.paste(crop.resize((TRIM, newh), Image.LANCZOS), (0, ytop))
+    scale = max(FULLBLEED / crop.width, FULLBLEED / crop.height)
+    nw, nh = int(crop.width * scale), int(crop.height * scale)
+    resized = crop.resize((nw, nh), Image.LANCZOS)
+    cx0, cy0 = (nw - FULLBLEED) // 2, (nh - FULLBLEED) // 2
+    img = resized.crop((cx0, cy0, cx0 + FULLBLEED, cy0 + FULLBLEED))  # full-bleed fill
+    d = ImageDraw.Draw(img)
     for bx in BOOK["pages"][page]:
         x0, y0, x1, y1 = bx["bbox"]
         if not (single or ((x0 < HALF) if half == "L" else (x0 >= HALF))):
             continue
-        lx0, ly0 = (x0 - off) * scale, y0 * scale + ytop
+        lx0 = (x0 - off) * scale - cx0
+        ly0 = y0 * scale - cy0
         bw, bh = (x1 - x0) * scale, (y1 - y0) * scale
+        # keep the text block inside the safe area
+        lx0 = max(FBM, min(lx0, FULLBLEED - FBM - bw))
         text = subst(bx["text"], char, ctx["name"], ctx["eye"])
         fo, lines, lh = fit_lo(d, text, bw, bh)
         ty = ly0 + (bh - len(lines) * lh) / 2
@@ -345,44 +351,61 @@ def star_chart():
     return img
 
 
+def cover_bg():
+    """Full-bleed warm gradient panel (no boxed frame)."""
+    img = Image.new("RGB", (FULLBLEED, FULLBLEED))
+    d = ImageDraw.Draw(img)
+    for y in range(FULLBLEED):
+        d.line([0, y, FULLBLEED, y], fill=lerp((253, 248, 240), (242, 229, 201), y / FULLBLEED))
+    return img, d
+
+
+def to_fb(img):
+    """Pad a trim-size design page onto a full-bleed cream canvas (content safe)."""
+    if img.size == (FULLBLEED, FULLBLEED):
+        return img
+    fb = Image.new("RGB", (FULLBLEED, FULLBLEED), CREAM)
+    fb.paste(img, ((FULLBLEED - img.width) // 2, (FULLBLEED - img.height) // 2))
+    return fb
+
+
 def front_cover(ctx):
-    img, d = blank(frame=True)
-    title_block(d, TRIM // 2, 205, ctx["name"])
-    aw, ah = 540, 600
-    hero_in_arch(img, d, ctx, TRIM // 2, 770, aw, ah)
-    byline(d, TRIM // 2, 770 + ah + 70)
+    img, d = cover_bg()
+    cx = FULLBLEED // 2
+    for sx, sy in [(150, 150), (FULLBLEED - 150, 150)]:
+        star_n(d, sx, sy, 20, 8)
+    title_block(d, cx, 250, ctx["name"])
+    hero_in_arch(img, d, ctx, cx, 1040, 760, 860)
+    byline(d, cx, 1040 + 860 + 95)
     return img
 
 
 def back_cover(ctx):
-    img, d = blank(frame=True)
-    star_n(d, TRIM // 2, 300, 30, 8)
+    img, d = cover_bg()
+    cx = FULLBLEED // 2
+    star_n(d, cx, 360, 34, 8)
     blurb = ("From the moment " + ctx["name"] + " wakes until bedtime, every "
-             "little moment has a beautiful dua. Join " + ctx["name"] + " through "
-             "a gentle day of remembrance — with the Arabic, an easy pronunciation "
-             "guide, audio you can scan and hear, and a star chart to treasure.")
-    box = (300, 600, TRIM - 300, 1400)
-    bw = box[2] - box[0]
-    fo = LO(54, 500); lines = wrap(d, blurb, fo, bw)
-    y = 620
-    for ln in lines:
-        ctext(d, ln, fo, TRIM // 2, y, DARK); y += int(54 * 1.55)
-    byline(d, TRIM // 2, TRIM - 360)
+             "moment has a beautiful dua. Join " + ctx["name"] + " through a gentle "
+             "day of remembrance — with the Arabic, an easy pronunciation guide, "
+             "audio you can scan and hear, and a star chart to treasure.")
+    fo = LO(56, 500)
+    y = 720
+    for ln in wrap(d, blurb, fo, FULLBLEED - 760):
+        ctext(d, ln, fo, cx, y, DARK); y += int(56 * 1.6)
+    byline(d, cx, FULLBLEED - 380)
     return img
 
 
 def cover_wrap(ctx):
-    """Full Lulu wrap: back + spine + front with bleed (8.5in square PB)."""
-    bleed, spine = 38, 60
+    """Full-bleed Lulu wrap: back + spine + front, sized to 17.39x8.75in."""
+    spine = 60
     fc, bc = front_cover(ctx), back_cover(ctx)
-    W = bleed + TRIM + spine + TRIM + bleed
-    H = bleed + TRIM + bleed
+    W, H = spine + 2 * FULLBLEED, FULLBLEED
     wrap = Image.new("RGB", (W, H), CREAM)
-    wrap.paste(bc, (bleed, bleed))
-    wrap.paste(fc, (bleed + TRIM + spine, bleed))
-    sd = ImageDraw.Draw(wrap)
-    sx = bleed + TRIM
-    sd.rectangle([sx, bleed, sx + spine, bleed + TRIM], fill=lerp(CREAM, GOLD, 0.12))
+    wrap.paste(bc, (0, 0))
+    wrap.paste(fc, (FULLBLEED + spine, 0))
+    ImageDraw.Draw(wrap).rectangle([FULLBLEED, 0, FULLBLEED + spine, H], fill=lerp(CREAM, GOLD, 0.14))
+    wrap = wrap.resize((5217, 2625), Image.LANCZOS)  # 17.39 x 8.75 in @ 300dpi
     return wrap, fc
 
 
@@ -393,6 +416,7 @@ def build(name, char, look, eye, out_dir):
     pages = [title_page(ctx), belongs_page(ctx)]
     pages += [story_page(e, ctx) for e in BOOK["reading_order"]]
     pages += [chest_opener(), chest_page(tc[:6], 0), chest_page(tc[6:], 6), star_chart(), end_page()]
+    pages = [to_fb(p) for p in pages]   # every page full-bleed (8.75in)
     for i, p in enumerate(pages):
         p.save(out / f"page{i+1:02d}.jpg", "JPEG", quality=88)
     interior = out / "interior.pdf"
