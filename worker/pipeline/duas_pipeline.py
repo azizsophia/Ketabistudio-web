@@ -190,7 +190,7 @@ def hero_in_arch(img, d, ctx, cx, top, aw, ah):
     # negligible crop); bottom-anchored to keep the praying hands intact
     sc = max(aw / hero.width, ah / hero.height)
     hr = hero.resize((int(hero.width * sc), int(hero.height * sc)), Image.LANCZOS)
-    lft = (hr.width - aw) // 2
+    lft = 0  # left-anchor: keep the child (sits left), drop empty right background
     hr = hr.crop((lft, hr.height - ah, lft + aw, hr.height))
     x0 = cx - aw // 2; r = aw // 2
     img.paste(hr, (x0, top), arch_mask(aw, ah))
