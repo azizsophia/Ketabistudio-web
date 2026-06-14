@@ -84,8 +84,16 @@ export default function Gateway() {
           {/* signature visual: one studio, three ages */}
           <div className={styles.heroArt} aria-hidden="true">
             <span className={`${styles.artCard} ${styles.artVideo}`}>
-              <Image src="/images/hero-dunes.jpg" alt="" width={640} height={420} className={styles.artImg} />
-              <span className={styles.artPlay}>▶</span>
+              <video
+                className={styles.artImg}
+                src="/videos/hero.mp4"
+                poster="/images/hero-video-poster.jpg"
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="metadata"
+              />
             </span>
             <span className={`${styles.artCard} ${styles.artBook}`}>
               <Image src="/images/book-duas.jpg" alt="" width={520} height={520} className={styles.artImg} />
