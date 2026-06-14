@@ -2,63 +2,58 @@
 
 /**
  * Live cover preview for the personalized "My Beautiful Duas" book.
- * Composes the child's name (elegant serif, approximating the print
- * Cormorant Garamond) over the arch-portrait art for the chosen
- * character + look. Art lives at /images/duas/{character}-{look}.jpg.
+ * Uses the real (nameless) printed cover art for the chosen character + look
+ * and overlays the customer's typed name in gold, matching the print layout.
+ * Nameless covers live at /images/duas/cover-{character}-{look}.jpg.
  */
 type Props = { name: string; character: string; look: string };
 
 export default function DuasPreview({ name, character, look }: Props) {
-  const src = `/images/duas/${character}-${look}.jpg`;
-  const display = (name || "Your child").trim() || "Your child";
+  const src = `/images/duas/cover-${character}-${look}.jpg`;
+  const display = (name || "Your Child").trim() || "Your Child";
   return (
     <div
       style={{
         position: "relative",
         aspectRatio: "1 / 1",
-        background: "#faf5ec",
-        border: "4px solid #b8862b",
         borderRadius: 14,
-        boxShadow: "0 10px 30px rgba(80,60,20,0.12)",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
         overflow: "hidden",
+        background: "#3a3460",
+        boxShadow: "0 10px 30px rgba(80,60,20,0.18)",
+        containerType: "inline-size",
       }}
     >
-      <div
-        style={{
-          fontFamily: "'Cormorant Garamond', Georgia, serif",
-          fontStyle: "italic",
-          fontWeight: 700,
-          color: "#b8862b",
-          fontSize: "clamp(30px, 8cqw, 64px)",
-          lineHeight: 1.05,
-          marginTop: "8%",
-        }}
-      >
-        {display}&rsquo;s
-      </div>
-      <div
-        style={{
-          fontFamily: "'Cormorant Garamond', Georgia, serif",
-          letterSpacing: "0.16em",
-          color: "#3a3226",
-          fontSize: "clamp(13px, 3.4cqw, 26px)",
-          marginTop: "2%",
-        }}
-      >
-        BEAUTIFUL DUAS
-      </div>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={src}
         alt=""
-        style={{ width: "66%", marginTop: "auto", marginBottom: "5%", objectFit: "contain" }}
+        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
         onError={(e) => {
           (e.currentTarget as HTMLImageElement).style.visibility = "hidden";
         }}
       />
+      <div
+        style={{
+          position: "absolute",
+          top: "6.5%",
+          left: 0,
+          right: 0,
+          textAlign: "center",
+          padding: "0 6%",
+          fontFamily: "'Cormorant Garamond', Georgia, serif",
+          fontStyle: "italic",
+          fontWeight: 700,
+          color: "#e0b25c",
+          fontSize: "clamp(28px, 9.4cqw, 74px)",
+          lineHeight: 1,
+          textShadow: "0 2px 10px rgba(40,30,60,0.35)",
+          whiteSpace: "nowrap",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+        }}
+      >
+        {display}&rsquo;s
+      </div>
     </div>
   );
 }

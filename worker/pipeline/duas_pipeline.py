@@ -431,7 +431,7 @@ def hero_cutout(ctx, target_w):
     return rgba.resize((target_w, int(rgba.height * sc)), Image.LANCZOS)
 
 
-def front_cover(ctx):
+def front_cover(ctx, show_name=True):
     img, d = cover_bg()
     cx = FULLBLEED // 2
     # scattered gold stars across the upper sky (clear of the title)
@@ -439,12 +439,15 @@ def front_cover(ctx):
                       (2300, 170, 19), (2150, 430, 11), (2380, 760, 12), (2060, 600, 8),
                       (980, 130, 9), (1660, 120, 11), (1300, 80, 7)]:
         star5(d, sx, sy, r, (250, 240, 208))
-    # title — gold name, cream subtitle (reads on the dark sky)
-    nm = ctx["name"] + "’s"
-    nsz, maxw = 250, FULLBLEED - 720
-    while nsz > 120 and d.textlength(nm, font=CG(nsz, 700, it=True)) > maxw:
-        nsz -= 6
-    ctext(d, nm, CG(nsz, 700, it=True), cx, 250 + (250 - nsz) // 2, (224, 178, 92))
+    # title — gold name, cream subtitle (reads on the dark sky). The name can be
+    # omitted (show_name=False) to produce a nameless cover the storefront
+    # overlays the customer's typed name onto.
+    if show_name:
+        nm = ctx["name"] + "’s"
+        nsz, maxw = 250, FULLBLEED - 720
+        while nsz > 120 and d.textlength(nm, font=CG(nsz, 700, it=True)) > maxw:
+            nsz -= 6
+        ctext(d, nm, CG(nsz, 700, it=True), cx, 250 + (250 - nsz) // 2, (224, 178, 92))
     ls(d, "BEAUTIFUL DUAS", CG(120, 600), cx, 600, (248, 241, 226), 10)
     ctext(d, "a keepsake of daily duas", CG(60, 500, it=True), cx, 760, (232, 220, 202))
     # child, lifted on a soft warm glow
