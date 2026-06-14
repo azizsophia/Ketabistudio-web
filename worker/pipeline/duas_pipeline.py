@@ -37,7 +37,7 @@ HALF = BOOK["half_split_x"]
 CREAM = (250, 245, 236); CARD = (255, 252, 245); GOLD = (184, 134, 52)
 DARK = (58, 50, 38); GRAY = (126, 116, 101); BORD = (206, 176, 120); BYL = (150, 116, 52); ACCENT = (150, 98, 30)
 COVER_HERO = "page0009"
-COVER_CROP = (0.10, 0.05, 0.40, 0.88)
+COVER_CROP = (0.11, 0.30, 0.40, 0.94)
 
 
 def CG(sz, w=600, it=False):
@@ -381,7 +381,7 @@ def front_cover(ctx):
     for sx, sy in [(150, 150), (FULLBLEED - 150, 150)]:
         star_n(d, sx, sy, 20, 8)
     title_block(d, cx, 150, ctx["name"])
-    hero_in_arch(img, d, ctx, cx, 770, 1600, 1700)   # large, dominant portrait
+    hero_in_arch(img, d, ctx, cx, 790, 1660, 1560)   # large, dominant portrait
     byline(d, cx, 2520)
     return img
 
