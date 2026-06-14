@@ -37,7 +37,7 @@ HALF = BOOK["half_split_x"]
 CREAM = (250, 245, 236); CARD = (255, 252, 245); GOLD = (184, 134, 52)
 DARK = (58, 50, 38); GRAY = (126, 116, 101); BORD = (206, 176, 120); BYL = (150, 116, 52); ACCENT = (150, 98, 30)
 COVER_HERO = "page0009"
-COVER_CROP = (0.084, 0.046, 0.411, 0.952)
+COVER_CROP = (0.10, 0.05, 0.40, 0.88)
 
 
 def CG(sz, w=600, it=False):
