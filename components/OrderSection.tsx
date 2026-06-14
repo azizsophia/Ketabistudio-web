@@ -2,9 +2,22 @@
 
 import { useState } from "react";
 import BookPreview from "./BookPreview";
+import DuasPreview from "./DuasPreview";
 import styles from "./OrderSection.module.css";
 
 const MAX_NAME = 14;
+
+const DUAS_CHARACTERS = [
+  { key: "girl", label: "Girl" },
+  { key: "boy", label: "Boy" },
+  { key: "hijab", label: "Girl with hijab" },
+] as const;
+const DUAS_LOOKS = [
+  { key: "afro", label: "Deep skin, curly hair" },
+  { key: "indian", label: "Medium skin, straight hair" },
+  { key: "white", label: "Light skin, blonde hair" },
+] as const;
+const EYE_COLORS = ["brown", "hazel", "green", "blue", "grey", "black"] as const;
 
 const SKINS = [
   { key: "light", label: "Light skin", swatch: "#f3d5bd" },
@@ -73,11 +86,16 @@ type Props = {
 type Step = "customize" | "shipping" | "done";
 
 export default function OrderSection({ slug, personalized }: Props) {
+  const isDuas = slug === "my-beautiful-duas";
+
   /* personalization */
   const [name, setName] = useState("");
   const [skin, setSkin] = useState<string>("medium");
   const [hair, setHair] = useState<string>("black");
   const [hairStyle, setHairStyle] = useState<string>("long-curly");
+  const [character, setCharacter] = useState<string>("girl");
+  const [look, setLook] = useState<string>("indian");
+  const [eyeColor, setEyeColor] = useState<string>("brown");
   const [nameError, setNameError] = useState("");
 
   /* shipping */
@@ -136,9 +154,12 @@ export default function OrderSection({ slug, personalized }: Props) {
         body: JSON.stringify({
           book_slug: slug,
           child_name: personalized ? name.trim() : null,
-          skin: personalized ? skin : null,
-          hair: personalized ? hair : null,
-          hair_style: personalized ? hairStyle : null,
+          skin: personalized && !isDuas ? skin : null,
+          hair: personalized && !isDuas ? hair : null,
+          hair_style: personalized && !isDuas ? hairStyle : null,
+          character: isDuas ? character : null,
+          look: isDuas ? look : null,
+          eye_color: isDuas ? eyeColor : null,
           email: email.trim(),
           shipping: {
             name: shipName.trim(),
@@ -175,6 +196,97 @@ export default function OrderSection({ slug, personalized }: Props) {
     } finally {
       setSubmitting(false);
     }
+  }
+
+  /* ── step: customize (My Beautiful Duas — pick by picture) ── */
+  if (step === "customize" && isDuas) {
+    return (
+      <section className={styles.section}>
+        <div className={styles.inner}>
+          <p className={styles.stepLabel}>Step 1 of 2</p>
+          <h2 className={styles.heading}>Make them the star</h2>
+          <p className={styles.sub}>
+            Choose your child, type their name, and watch their very own dua
+            book come together.
+          </p>
+
+          <div className={styles.personalizerGrid}>
+            <div className={styles.controls}>
+              <label className={styles.label} htmlFor="kid-name">Their name</label>
+              <input
+                id="kid-name"
+                className={styles.input}
+                type="text"
+                placeholder="Type their name"
+                maxLength={MAX_NAME}
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  if (e.target.value.trim()) setNameError("");
+                }}
+                autoComplete="off"
+              />
+              {nameError && <p className={styles.error}>{nameError}</p>}
+
+              <p className={styles.label} id="char-label">Your child</p>
+              <div className={styles.stylePills} role="group" aria-labelledby="char-label">
+                {DUAS_CHARACTERS.map((ch) => (
+                  <button
+                    key={ch.key} type="button"
+                    className={`${styles.pill} ${character === ch.key ? styles.pillActive : ""}`}
+                    aria-pressed={character === ch.key}
+                    onClick={() => setCharacter(ch.key)}
+                  >
+                    {ch.label}
+                  </button>
+                ))}
+              </div>
+
+              <p className={styles.label} id="look-label">Their look</p>
+              <div className={styles.lookGrid} role="group" aria-labelledby="look-label">
+                {DUAS_LOOKS.map((lk) => (
+                  <button
+                    key={lk.key} type="button"
+                    className={`${styles.lookOption} ${look === lk.key ? styles.lookActive : ""}`}
+                    aria-label={lk.label}
+                    aria-pressed={look === lk.key}
+                    onClick={() => setLook(lk.key)}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={`/images/duas/${character}-${lk.key}.jpg`} alt={lk.label} />
+                  </button>
+                ))}
+              </div>
+
+              <p className={styles.label} id="eye-label">Their eye colour</p>
+              <div className={styles.stylePills} role="group" aria-labelledby="eye-label">
+                {EYE_COLORS.map((c) => (
+                  <button
+                    key={c} type="button"
+                    className={`${styles.pill} ${eyeColor === c ? styles.pillActive : ""}`}
+                    aria-pressed={eyeColor === c}
+                    onClick={() => setEyeColor(c)}
+                  >
+                    {c[0].toUpperCase() + c.slice(1)}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className={styles.previewCol}>
+              <DuasPreview name={name} character={character} look={look} />
+            </div>
+          </div>
+
+          <button
+            className={`btn btn-primary ${styles.nextBtn}`}
+            onClick={continueToShipping}
+          >
+            Continue to shipping
+          </button>
+        </div>
+      </section>
+    );
   }
 
   /* ── step: customize (personalized books) ── */

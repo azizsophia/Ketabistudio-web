@@ -24,6 +24,7 @@ type Order = {
 
 const SLUG_LABELS: Record<string, string> = {
   "her-beautiful-hijab": "Her Beautiful Hijab",
+  "my-beautiful-duas": "My Beautiful Duas",
   "juha-and-the-enormous-pumpkin": "Juha and the Enormous Pumpkin",
   "maryam-is-kind-to-her-parents": "Maryam is Kind to Her Parents",
 };
