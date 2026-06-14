@@ -12,6 +12,8 @@ type World = {
   title: string;
   desc: string;
   img: string;
+  video?: string;
+  poster?: string;
   cta?: string;
   socials?: { label: string; href: string }[];
 };
@@ -25,6 +27,8 @@ const worlds: World[] = [
     title: "Short films",
     desc: "The Quran's wonders, our history, and the signs of our time — the videos that started it all.",
     img: "/images/door-watch.jpg",
+    video: "/videos/hero.mp4",
+    poster: "/images/door-watch.jpg",
     socials: [
       { label: "TikTok", href: "https://www.tiktok.com/@ketabi.studio" },
       { label: "YouTube", href: "https://www.youtube.com/@KetabiStudio" },
@@ -125,9 +129,21 @@ export default function Gateway() {
             const inner = (
               <>
                 <span className={styles.doorImgWrap} id={w.internal ? undefined : w.key}>
-                  <Image src={w.img} alt="" width={1200} height={800} className={styles.doorImg} />
+                  {w.video ? (
+                    <video
+                      className={styles.doorVid}
+                      src={w.video}
+                      poster={w.poster}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      preload="metadata"
+                    />
+                  ) : (
+                    <Image src={w.img} alt="" width={1200} height={800} className={styles.doorImg} />
+                  )}
                   <span className={styles.doorShade} aria-hidden="true" />
-                  {!w.internal && <span className={styles.doorPlay} aria-hidden="true">▶</span>}
                 </span>
                 <span className={styles.doorBody}>
                   <span className={styles.doorAge}>{w.age}</span>
