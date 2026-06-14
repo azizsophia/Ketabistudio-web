@@ -85,6 +85,11 @@ export async function POST(req: NextRequest) {
       ship = shipChargeFromLulu(quote);
       shipName = "Shipping";
     }
+    console.log(
+      `[checkout] order=${order.id} country=${country} ship=${
+        quote != null ? "lulu" : "flat"
+      } luluQuote=${quote ?? "null"} charge=${ship}`
+    );
   }
 
   /* Product name shown on the Stripe page and the receipt */
