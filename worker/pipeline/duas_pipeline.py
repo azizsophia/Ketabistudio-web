@@ -186,12 +186,14 @@ def hero_in_arch(img, d, ctx, cx, top, aw, ah):
     w, h = art.size
     fx0, fy0, fx1, fy1 = COVER_CROP
     hero = art.crop((int(fx0 * w), int(fy0 * h), int(fx1 * w), int(fy1 * h)))
-    # cover-fit into the arch box (preserve aspect, no stretch)
-    sc = max(aw / hero.width, ah / hero.height)
+    # contain-fit the WHOLE child inside the arch (no stretch, nothing cut),
+    # bottom-anchored so the praying hands sit near the arch base
+    sc = min(aw / hero.width, ah / hero.height)
     hr = hero.resize((int(hero.width * sc), int(hero.height * sc)), Image.LANCZOS)
-    hr = hr.crop(((hr.width - aw) // 2, 0, (hr.width - aw) // 2 + aw, ah))
+    panel = Image.new("RGB", (aw, ah), (255, 255, 255))
+    panel.paste(hr, ((aw - hr.width) // 2, ah - hr.height))
     x0 = cx - aw // 2; r = aw // 2
-    img.paste(hr, (x0, top), arch_mask(aw, ah))
+    img.paste(panel, (x0, top), arch_mask(aw, ah))
     d.arc([x0, top, x0 + aw, top + 2 * r], 180, 360, fill=GOLD, width=5)
     d.line([x0, top + r, x0, top + ah], fill=GOLD, width=5)
     d.line([x0 + aw, top + r, x0 + aw, top + ah], fill=GOLD, width=5)
