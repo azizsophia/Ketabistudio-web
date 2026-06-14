@@ -18,7 +18,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Deps
-        run: pip install pillow requests arabic-reshaper python-bidi qrcode
+        run: pip install pillow requests arabic-reshaper python-bidi
       - name: Render previews
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}

@@ -279,8 +279,8 @@ def end_page():
     img, d = blank(frame=True)
     chest(d, TRIM // 2, 420, 360)
     ctext(d, "The End", CG(150, 700), TRIM // 2, 1080, GOLD)
-    ctext(d, "Grown-ups: scan the codes in the", LO(40, 500), TRIM // 2, 1480, GRAY)
-    ctext(d, "Treasure Chest to hear each dua aloud.", LO(40, 500), TRIM // 2, 1545, GRAY)
+    ctext(d, "Say a dua today, and Allah is always", LO(40, 500), TRIM // 2, 1480, GRAY)
+    ctext(d, "near to listen and to love you.", LO(40, 500), TRIM // 2, 1545, GRAY)
     return img
 
 
@@ -291,17 +291,10 @@ def chest_opener():
     chest(d, TRIM // 2, 880, 560)
     ctext(d, "Every dua is a treasure.", CG(64, 600, it=True), TRIM // 2, 1660, DARK)
     ctext(d, "Collect a star each time you say one!", LO(48, 500), TRIM // 2, 1770, DARK)
-    ctext(d, "Tip: scan a code to hear the dua read aloud.", LO(38, 500), TRIM // 2, 1980, GRAY)
     return img
 
 
-def _qr(data, size):
-    import qrcode
-    q = qrcode.QRCode(box_size=10, border=1); q.add_data(data); q.make()
-    return q.make_image(fill_color=(80, 66, 46), back_color=CARD).convert("RGB").resize((size, size))
-
-
-def chest_page(duas, base_idx):
+def chest_page(duas):
     img, d = blank()
     ctext(d, "My Daily Duas", CG(80, 700), TRIM // 2, 70, GOLD)
     star_n(d, TRIM // 2, 215, 12, 8)
@@ -322,7 +315,7 @@ def chest_page(duas, base_idx):
         # measured heights for an evenly-spaced, vertically-centred block (1.5 spacing)
         g1, g2, g3, elh = 40, 38, 44, 42
         block = 34 + g1 + afo.size + g2 + 26 + g3 + len(enl) * elh
-        avail_t, avail_b = y + 40, y + chh - 130           # reserve bottom for source + QR
+        avail_t, avail_b = y + 40, y + chh - 86            # reserve bottom for source line
         sy = avail_t + max(0, (avail_b - avail_t - block) // 2)
         ls(d, lab.upper(), labf, cx, sy, ACCENT, 3); sy += 34 + g1
         ctext(d, rsh, afo, cx, sy, DARK); sy += afo.size + g2
@@ -330,10 +323,6 @@ def chest_page(duas, base_idx):
         for ln in enl:
             ctext(d, ln, enf, cx, sy, DARK); sy += elh
         ctext(d, f"({src})", LO(20, 500), cx, y + chh - 44, (188, 178, 162))
-        try:
-            img.paste(_qr(f"https://ketabi.studio/duas/audio/{base_idx + i}", 88), (x + cw - 114, y + chh - 114))
-        except Exception:
-            pass
     return img
 
 
@@ -448,8 +437,8 @@ def back_cover(ctx):
     star_n(d, cx, 380, 34, 8, fill=(224, 178, 92))
     blurb = ("From the moment " + ctx["name"] + " wakes until bedtime, every "
              "moment has a beautiful dua. Join " + ctx["name"] + " through a gentle "
-             "day of remembrance — with the Arabic, an easy pronunciation guide, "
-             "audio you can scan and hear, and a star chart to treasure.")
+             "day of remembrance, with the Arabic, an easy pronunciation guide, "
+             "and a keepsake star chart to treasure.")
     fo = LO(56, 500)
     y = 740
     for ln in wrap(d, blurb, fo, FULLBLEED - 760):
@@ -478,7 +467,7 @@ def build(name, char, look, eye, out_dir):
     tc = BOOK["treasure_chest"]
     pages = [title_page(ctx), belongs_page(ctx)]
     pages += [story_page(e, ctx) for e in BOOK["reading_order"]]
-    pages += [chest_opener(), chest_page(tc[:6], 0), chest_page(tc[6:], 6), star_chart(), end_page()]
+    pages += [chest_opener(), chest_page(tc[:6]), chest_page(tc[6:]), star_chart(), end_page()]
     pages = [to_fb(p) for p in pages]   # every page full-bleed (8.75in)
     for i, p in enumerate(pages):
         p.save(out / f"page{i+1:02d}.jpg", "JPEG", quality=88)
