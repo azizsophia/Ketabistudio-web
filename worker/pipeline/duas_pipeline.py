@@ -497,14 +497,21 @@ def cover_wrap(ctx):
 
 
 def intro_page(ctx):
+    """Left page of the opening spread: a keepsake bookplate + the cozy intro,
+    facing a reused illustration on the right."""
     img, d = blank(frame=True)
     cx = TRIM // 2
-    star_n(d, cx, 540, 24, 8)
+    # keepsake bookplate
+    ctext(d, "This book belongs to", CG(56, 500, it=True), cx, 360, GRAY)
+    ctext(d, ctx["name"], CG(150, 700, it=True), cx, 470, GOLD)
+    d.line([cx - 300, 775, cx + 300, 775], fill=BORD, width=2)
+    star_n(d, cx, 775, 13, 8)
+    # cozy intro
     txt = subst(BOOK["intro_text"], ctx["char"], ctx["name"], ctx["eye"])
-    y = 770
-    for ln in wrap(d, txt, CG(66, 500, it=True), TRIM - 620):
-        ctext(d, ln, CG(66, 500, it=True), cx, y, DARK); y += 100
-    flourish(d, cx, y + 150, 300)
+    y = 1060
+    for ln in wrap(d, txt, CG(62, 500, it=True), TRIM - 620):
+        ctext(d, ln, CG(62, 500, it=True), cx, y, DARK); y += 96
+    flourish(d, cx, y + 160, 280)
     return img
 
 
@@ -596,9 +603,10 @@ def build(name, char, look, eye, out_dir):
     out = Path(out_dir); out.mkdir(parents=True, exist_ok=True)
     ctx = {"name": name, "char": char, "look": look, "eye": eye}
     tc = BOOK["treasure_chest"]
-    # 3 front-matter pages, then 12 facing spreads (text verso + illustration
+    # 3 front-matter pages (title, then the opening spread = intro/bookplate +
+    # a reused illustration), then 12 facing spreads (text verso + illustration
     # recto), then 5 back-matter pages = 32 pages.
-    pages = [title_page(ctx), belongs_page(ctx), intro_page(ctx)]
+    pages = [title_page(ctx), intro_page(ctx), picture_page(["page0004", "R"], ctx)]
     for sp in BOOK["story_spreads"]:
         pages.append(text_page(sp, ctx))             # verso (left): words + dua
         pages.append(picture_page(sp["illus"], ctx))  # recto (right): illustration
