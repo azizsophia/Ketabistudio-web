@@ -330,25 +330,27 @@ def chest_page(duas):
     M, gx, gy, top = 70, 40, 36, 270
     cw = (TRIM - 2 * M - gx) // 2
     chh = (TRIM - top - M - 2 * gy) // 3
-    labf, trf, enf = CG(34, 600), LO(26, 500), LO(27, 500)
+    labf, trf, enf = CG(32, 600), CG(25, 500, it=True), LO(26, 500)
     for i, (lab, ar, tr, en, src) in enumerate(duas):
         r, c = divmod(i, 2); x = M + c * (cw + gx); y = top + r * (chh + gy)
         d.rounded_rectangle([x, y, x + cw, y + chh], radius=22, fill=CARD, outline=BORD, width=3)
-        cx = x + cw // 2; iw = cw - 230
+        cx = x + cw // 2; iw = cw - 110
         star_n(d, x + 46, y + 46, 15, 8)
-        s = 60; rsh = reshape(ar)
-        while s > 30 and d.textlength(rsh, font=AR(s)) > iw:
+        s = 56; rsh = reshape(ar)
+        while s > 26 and d.textlength(rsh, font=AR(s)) > iw:
             s -= 2
         afo = AR(s)
+        trl = wrap(d, tr, trf, iw)          # transliteration wraps (some duas are long)
         enl = wrap(d, en, enf, iw)
-        # measured heights for an evenly-spaced, vertically-centred block (1.5 spacing)
-        g1, g2, g3, elh = 36, 54, 50, 46
-        block = 34 + g1 + afo.size + g2 + 26 + g3 + len(enl) * elh
-        avail_t, avail_b = y + 40, y + chh - 86            # reserve bottom for source line
+        g1, g2, g3, tlh, elh = 20, 26, 22, 34, 38   # compact reference layout
+        block = 32 + g1 + afo.size + g2 + len(trl) * tlh + g3 + len(enl) * elh
+        avail_t, avail_b = y + 34, y + chh - 74            # reserve bottom for source line
         sy = avail_t + max(0, (avail_b - avail_t - block) // 2)
-        ls(d, lab.upper(), labf, cx, sy, ACCENT, 3); sy += 34 + g1
+        ls(d, lab.upper(), labf, cx, sy, ACCENT, 3); sy += 32 + g1
         ctext(d, rsh, afo, cx, sy, DARK); sy += afo.size + g2
-        ctext(d, tr, trf, cx, sy, GRAY); sy += 26 + g3
+        for ln in trl:
+            ctext(d, ln, trf, cx, sy, GRAY); sy += tlh
+        sy += g3
         for ln in enl:
             ctext(d, ln, enf, cx, sy, DARK); sy += elh
         ctext(d, f"({src})", LO(20, 500), cx, y + chh - 44, (188, 178, 162))

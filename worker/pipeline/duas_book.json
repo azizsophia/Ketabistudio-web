@@ -417,10 +417,10 @@
     ],
     [
       "When I get dressed",
-      "الْحَمْدُ لِلّهِ الّذِي كَسَانِي هَٰذَا الثَّوْبَ",
-      "Alhamdu lillahi alladhi kasani hadha-th-thawb",
-      "All praise is for Allah who clothed me with this.",
-      "Abu Dawud"
+      "الْحَمْدُ لِلَّهِ الَّذِي كَسَانِي هَٰذَا الثَّوْبَ وَرَزَقَنِيهِ مِنْ غَيْرِ حَوْلٍ مِنِّي وَلَا قُوَّةٍ",
+      "Alhamdu lillahil-ladhi kasani hadha-th-thawba wa razaqanihi min ghayri hawlin minni wa la quwwah.",
+      "All praise is for Allah who has clothed me with this garment and provided it for me, with no power nor might from myself.",
+      "Abu Dawud, Tirmidhi"
     ],
     [
       "When I enter the bathroom",
@@ -445,10 +445,10 @@
     ],
     [
       "When I leave home",
-      "بِسْمِ اللّهِ تَوَكَّلْتُ عَلَى اللّهِ وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللّهِ",
-      "Bismillahi tawakkaltu 'ala-llah, wa la hawla wa la quwwata illa billah",
-      "In the name of Allah, I trust in Allah; there is no might nor power except with Allah.",
-      "Abu Dawud"
+      "بِسْمِ اللَّهِ تَوَكَّلْتُ عَلَى اللَّهِ وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ",
+      "Bismillahi, tawakkaltu ‘ala Allahi, wa la hawla wa la quwwata illa billah.",
+      "In the name of Allah, I place my trust in Allah. There is no power and no strength except with Allah.",
+      "Abu Dawud, Tirmidhi"
     ],
     [
       "For protection (3x)",
@@ -466,10 +466,10 @@
     ],
     [
       "When I look in the mirror",
-      "اللّهُمَّ كَمَا حَسَّنْتَ خَلْقِي فَحَسِّنْ خُلُقِي",
-      "Allahumma kama hassanta khalqi fa-hassin khuluqi",
-      "O Allah, as You made my form beautiful, make my character beautiful too.",
-      "Ahmad"
+      "اللَّهُمَّ كَمَا حَسَّنْتَ خَلْقِي فَحَسِّنْ خُلُقِي",
+      "Allahumma kama hassanta khalqi, fa hassin khuluqi.",
+      "O Allah, just as You have made my external features beautiful, make my character beautiful as well.",
+      "Ahmad, Ibn Hibban"
     ],
     [
       "When I feel angry",
@@ -537,8 +537,8 @@
       ],
       "narrative": "[Child’s Name] got dressed all on [his/her] own, ready for a brand new day.",
       "arabic_ref": 1,
-      "translit": "Alhamdu lillahi alladhi kasani hadha-th-thawb.",
-      "meaning": "Thank You, Allah, for my clothes."
+      "translit": "Alhamdu lillahil-ladhi kasani hadha-th-thawba wa razaqanihi min ghayri hawlin minni wa la quwwah.",
+      "meaning": "All praise is for Allah who has clothed me with this garment and provided it for me, with no power nor might from myself."
     },
     {
       "occasion": "Before I eat",
@@ -559,8 +559,8 @@
       ],
       "narrative": "Soon it was time to head outside. [Child’s Name] paused at the door for a special dua.",
       "arabic_ref": 5,
-      "translit": "Bismillahi tawakkaltu ‘ala-llah, wa la hawla wa la quwwata illa billah.",
-      "meaning": "I put my trust in Allah."
+      "translit": "Bismillahi, tawakkaltu ‘ala Allahi, wa la hawla wa la quwwata illa billah.",
+      "meaning": "In the name of Allah, I place my trust in Allah. There is no power and no strength except with Allah."
     },
     {
       "occasion": "When I see Allah’s creation",
@@ -571,7 +571,7 @@
       "narrative": "Up, up went the swing, almost to the clouds! [Child’s Name] gazed at the wide blue sky.",
       "arabic": "سُبْحَانَ اللّٰه",
       "translit": "SubhanAllah!",
-      "meaning": "How perfect Allah is!"
+      "meaning": "Glory be to Allah."
     },
     {
       "occasion": "When I enter the masjid",
@@ -592,8 +592,8 @@
       ],
       "narrative": "[Child’s Name] looked in the mirror and saw [his/her] bright [eye color] eyes.",
       "arabic_ref": 8,
-      "translit": "Allahumma kama hassanta khalqi fa-hassin khuluqi.",
-      "meaning": "Make my heart beautiful too, Allah."
+      "translit": "Allahumma kama hassanta khalqi, fa hassin khuluqi.",
+      "meaning": "O Allah, just as You have made my external features beautiful, make my character beautiful as well."
     },
     {
       "occasion": "When I feel upset",
