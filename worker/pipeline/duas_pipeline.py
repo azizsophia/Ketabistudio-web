@@ -389,7 +389,9 @@ def hero_cutout(ctx, target_w):
         except Exception:
             pass
     rgba = hero.convert("RGBA")
-    rgba.putdata([(0, 0, 0, 0) if (p[0] > 250 and p[1] < 8 and p[2] > 250) else p for p in rgba.getdata()])
+    rgba.putdata([(0, 0, 0, 0) if ((p[0] > 250 and p[1] < 8 and p[2] > 250)
+                                   or (p[0] > 252 and p[1] > 252 and p[2] > 252))
+                  else p for p in rgba.getdata()])
     bb = rgba.getbbox()
     if bb:
         rgba = rgba.crop(bb)
