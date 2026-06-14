@@ -489,14 +489,17 @@ export default function OrderSection({ slug, personalized }: Props) {
               <span>$27.99</span>
             </div>
             <div className={styles.priceRow}>
-              <span>{isInternational ? "International shipping" : "Shipping"}</span>
-              <span>{isInternational ? "$14.99" : "$4.99"}</span>
+              <span>Shipping</span>
+              <span>Calculated at checkout</span>
             </div>
             <div className={`${styles.priceRow} ${styles.priceTotal}`}>
               <span>Total</span>
-              <span>{isInternational ? "$42.98" : "$32.98"}</span>
+              <span>$27.99 + shipping</span>
             </div>
             <p className={styles.priceNote}>
+              {isInternational
+                ? "Live shipping rate for your country, shown at checkout."
+                : "Live shipping rate shown at checkout."}{" "}
               Checked by hand before it ships — guaranteed right.
             </p>
           </div>
