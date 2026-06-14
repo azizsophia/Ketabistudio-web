@@ -88,6 +88,8 @@ def main():
                 bad = Image.new("RGB", (320, 320), (200, 90, 90))
                 ImageDraw.Draw(bad).text((10, 150), "FAIL", font=LABELF)
                 covers.append((bad, combo))
+            finally:
+                P._art.clear()  # free source art between combos (avoid OOM)
 
     # cover title fit for a long name (per character)
     for ch in CHARS:
@@ -98,6 +100,8 @@ def main():
             rec(f"longname:{ch}", True)
         except Exception as e:  # noqa: BLE001
             rec(f"longname:{ch}", False, e)
+        finally:
+            P._art.clear()
 
     grid("Duas covers — 9 combos + long-name", covers).save(OUT / "covers.jpg", quality=85)
     grid("Duas interior sample (story page)", pages).save(OUT / "interiors.jpg", quality=85)

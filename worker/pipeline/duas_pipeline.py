@@ -402,6 +402,7 @@ def build(name, char, look, eye, out_dir):
     wrap.save(out / "cover.jpg", "JPEG", quality=90)
     wrap.save(out / "cover.pdf", "PDF", resolution=300.0)
     print(f"built {len(pages)} interior pages + cover wrap {wrap.size}", flush=True)
+    _art.clear()  # release cached source art so memory doesn't grow across builds
     return str(interior), str(out / "cover.pdf"), len(pages)
 
 
