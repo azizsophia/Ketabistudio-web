@@ -12,6 +12,7 @@ Env: ZIP_URL (required), SUPABASE_URL, SUPABASE_SERVICE_KEY (optional).
 """
 import glob
 import os
+import re
 import zipfile
 from pathlib import Path
 
@@ -99,26 +100,28 @@ def find(dest: Path, *exts):
     return sorted(set(out))
 
 
-def main():
-    url = normalize(ZIP_URL)
-    print("downloading:", url, flush=True)
-    r = requests.get(url, timeout=1800)
+def label_for(url: str, i: int) -> str:
+    """A short, filesystem-safe label from a zip URL (its filename)."""
+    base = url.split("?")[0].rstrip("/").split("/")[-1]
+    base = re.sub(r"\.zip$", "", base, flags=re.I)
+    base = re.sub(r"[^A-Za-z0-9._-]+", "-", base).strip("-")
+    return base or f"set{i}"
+
+
+def process_set(label: str, url: str, report: list):
+    print(f"\n=== {label} ===\n{url}", flush=True)
+    r = requests.get(normalize(url), timeout=1800)
     r.raise_for_status()
-    zpath = Path("/tmp/in.zip")
+    zpath = Path(f"/tmp/{label}.zip")
     zpath.write_bytes(r.content)
-    print(f"download: {len(r.content)/1e6:.1f} MB", flush=True)
+    dest = Path(f"/tmp/in/{label}")
+    extract_all(zpath, dest)
+    psds = find(dest, ".psd")
+    images = [p for p in find(dest, ".png", ".jpg", ".jpeg") if "__MACOSX" not in p]
+    print(f"  {label}: {len(psds)} PSD + {len(images)} images "
+          f"({len(r.content)/1e6:.1f} MB)", flush=True)
+    report.append(f"# {label}\n\n{len(psds)} PSDs, {len(images)} images.\n")
 
-    zd = Path("/tmp/psd_in")
-    extract_all(zpath, zd)
-
-    psds = find(zd, ".psd")
-    images = [p for p in find(zd, ".png", ".jpg", ".jpeg")
-              if "__MACOSX" not in p]
-    print(f"found {len(psds)} PSD + {len(images)} image files", flush=True)
-
-    report = [f"# Import report\n\n{len(psds)} PSDs, {len(images)} images found.\n"]
-
-    report.append("## PSDs\n")
     for p in psds:
         path = Path(p)
         lines = [f"### {path.name}"]
@@ -128,38 +131,44 @@ def main():
             tree = []
             for layer in psd:
                 walk(layer, 0, tree)
-            lines.append("```")
-            lines.extend(tree)
-            lines.append("```")
+            lines += ["```", *tree, "```"]
             img = psd.composite().convert("RGB")
             img.thumbnail((1500, 1500))
-            img.save(PREV / (path.stem + ".jpg"), "JPEG", quality=82)
-            lines.append(f"- backup: {upload_raw(path, 'duas-psd', 'image/vnd.adobe.photoshop')}")
-            print(f"  ok PSD {path.name} {psd.size}", flush=True)
+            img.save(PREV / f"{label}__{path.stem}.jpg", "JPEG", quality=82)
+            lines.append(f"- backup: {upload_raw(path, f'duas-psd/{label}', 'image/vnd.adobe.photoshop')}")
         except Exception as e:  # noqa: BLE001
             lines.append(f"- ERROR: {e}")
-            print(f"  ERROR {path.name}: {e}", flush=True)
         report.append("\n".join(lines))
 
-    report.append("\n## Image assets\n")
-    for p in images:
-        path = Path(p)
-        try:
-            from PIL import Image
-            im = Image.open(p)
-            size = im.size
-            prev = im.convert("RGB")
-            prev.thumbnail((1100, 1100))
-            prev.save(PREV / ("asset_" + path.stem + ".jpg"), "JPEG", quality=80)
-            ct = "image/png" if path.suffix.lower() == ".png" else "image/jpeg"
-            up = upload_raw(path, "duas-assets", ct)
-            report.append(f"- {path.name}  {size}  {up}")
-            print(f"  ok IMG {path.name} {size}", flush=True)
-        except Exception as e:  # noqa: BLE001
-            report.append(f"- {path.name}  ERROR: {e}")
+    if images:
+        report.append(f"\n## {label} — image assets\n")
+        from PIL import Image
+        for p in images:
+            path = Path(p)
+            try:
+                im = Image.open(p)
+                prev = im.convert("RGB")
+                prev.thumbnail((1100, 1100))
+                prev.save(PREV / f"asset_{label}__{path.stem}.jpg", "JPEG", quality=80)
+                ct = "image/png" if path.suffix.lower() == ".png" else "image/jpeg"
+                up = upload_raw(path, f"duas-assets/{label}", ct)
+                report.append(f"- {path.name}  {im.size}  {up}")
+            except Exception as e:  # noqa: BLE001
+                report.append(f"- {path.name}  ERROR: {e}")
 
+
+def main():
+    urls = [u for u in re.split(r"[\s,]+", ZIP_URL.strip()) if u]
+    print(f"{len(urls)} URL(s) to import", flush=True)
+    report = []
+    for i, url in enumerate(urls):
+        try:
+            process_set(label_for(url, i), url, report)
+        except Exception as e:  # noqa: BLE001
+            report.append(f"# {label_for(url, i)}\n\nDOWNLOAD ERROR: {e}")
+            print(f"  ERROR on {url}: {e}", flush=True)
     (OUT / "report.md").write_text("\n\n".join(report))
-    print("wrote psd_import/report.md and previews/", flush=True)
+    print("\nwrote psd_import/report.md and previews/", flush=True)
 
 
 if __name__ == "__main__":
