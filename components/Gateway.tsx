@@ -84,14 +84,14 @@ export default function Gateway() {
           {/* signature visual: one studio, three ages */}
           <div className={styles.heroArt} aria-hidden="true">
             <span className={`${styles.artCard} ${styles.artVideo}`}>
-              <Image src="/images/door-watch.jpg" alt="" width={640} height={420} className={styles.artImg} />
+              <Image src="/images/hero-dunes.jpg" alt="" width={640} height={420} className={styles.artImg} />
               <span className={styles.artPlay}>▶</span>
             </span>
             <span className={`${styles.artCard} ${styles.artBook}`}>
               <Image src="/images/book-duas.jpg" alt="" width={520} height={520} className={styles.artImg} />
             </span>
             <span className={`${styles.artCard} ${styles.artPhone}`}>
-              <Image src="/images/app-garden.jpg" alt="" width={360} height={685} className={styles.artImg} />
+              <Image src="/images/app-journal.jpg" alt="" width={360} height={685} className={styles.artImg} />
             </span>
           </div>
         </div>
@@ -102,9 +102,10 @@ export default function Gateway() {
         <div className={`wrap ${styles.whyInner}`}>
           <span className="divider" aria-hidden="true"><span /></span>
           <p className={styles.whyText}>
-            We make the Islamic content we wish we&apos;d grown up with —
-            beautiful enough to keep, and true enough to trust. From a child&apos;s
-            first dua to your own quiet dhikr, Ketabi is for the whole family.
+            Every film, book, and feature is made with the same care: rooted in
+            the Quran and Sunnah, and beautiful enough to return to. One studio
+            for the whole family, from a child&apos;s first dua to your own quiet
+            dhikr.
           </p>
         </div>
       </section>
