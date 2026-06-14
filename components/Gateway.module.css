@@ -1,68 +1,180 @@
-/* ── hero ── */
+/* ── brand hero ── */
 .hero {
-  padding: clamp(56px, 12vw, 120px) 0 clamp(40px, 8vw, 72px);
-  text-align: center;
+  padding: clamp(40px, 8vw, 96px) 0 clamp(36px, 7vw, 80px);
 }
 
-.heroInner {
-  max-width: 720px;
+.heroGrid {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: clamp(28px, 5vw, 64px);
+  align-items: center;
+}
+
+.heroCopy {
+  max-width: 38rem;
 }
 
 .bismillah {
-  font-size: clamp(1.3rem, 4vw, 1.9rem);
+  font-size: clamp(1.15rem, 3.4vw, 1.6rem);
   color: var(--gold);
-  margin-bottom: 28px;
+  margin-bottom: 22px;
 }
 
 .h1 {
-  margin-top: 6px;
+  margin-top: 4px;
 }
 
 .gold { color: var(--gold); }
 
 .lede {
-  margin: 22px auto 0;
+  margin: 22px 0 0;
 }
 
-.doorSocials {
+.heroCta {
+  margin-top: 30px;
   display: flex;
-  gap: 10px;
-  margin-top: 8px;
+  align-items: center;
+  gap: clamp(16px, 3vw, 28px);
+  flex-wrap: wrap;
 }
 
-.doorSocials a {
-  padding: 9px 18px;
-  border-radius: 999px;
-  border: 1.5px solid var(--line);
-  font-size: 0.74rem;
+.heroTextLink {
+  font-size: 0.82rem;
   font-weight: 700;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--forest);
-  transition: all 0.15s ease;
+  border-bottom: 2px solid var(--gold);
+  padding-bottom: 3px;
+  transition: color 0.18s ease;
+}
+.heroTextLink:hover { color: var(--gold-deep); }
+
+/* signature visual: one studio, three ages */
+.heroArt {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  max-width: 520px;
+  margin-left: auto;
 }
 
-.doorSocials a:hover {
-  background: var(--forest);
-  border-color: var(--forest);
-  color: var(--cream);
+.artCard {
+  position: absolute;
+  border-radius: 18px;
+  overflow: hidden;
+  background: var(--card);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 30px 60px -28px rgba(46, 74, 58, 0.5);
 }
 
-.scrollHint {
-  margin-top: 44px;
+.artImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.artVideo {
+  width: 50%;
+  left: 0;
+  top: 4%;
+  aspect-ratio: 3 / 2;
+  z-index: 1;
+  animation: floatA 7s ease-in-out infinite;
+}
+
+.artBook {
+  width: 56%;
+  left: 24%;
+  top: 16%;
+  aspect-ratio: 1 / 1;
+  z-index: 2;
+  border-radius: 14px;
+  animation: floatB 8s ease-in-out infinite;
+}
+
+.artPhone {
+  width: 31%;
+  right: 0;
+  bottom: 0;
+  aspect-ratio: 360 / 685;
+  z-index: 3;
+  border-radius: 20px;
+  animation: floatC 6.5s ease-in-out infinite;
+}
+
+.artPlay {
+  position: absolute;
+  top: calc(4% + 30%);
+  left: 25%;
+  transform: translate(-50%, -50%);
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--forest);
+  font-size: 0.8rem;
+  padding-left: 3px;
+  box-shadow: 0 8px 20px -8px rgba(0, 0, 0, 0.45);
+  z-index: 4;
+}
+
+@keyframes floatA { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+@keyframes floatB { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(10px); } }
+@keyframes floatC { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .artVideo, .artBook, .artPhone { animation: none; }
+}
+
+/* ── the why ── */
+.why {
+  padding: clamp(40px, 7vw, 80px) 0;
+  background:
+    radial-gradient(120% 140% at 50% 0%, rgba(143, 166, 142, 0.16), transparent 60%),
+    var(--cream);
+}
+
+.whyInner {
+  max-width: 760px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+}
+
+.whyText {
   font-family: var(--font-display), Georgia, serif;
   font-style: italic;
-  font-size: 1.1rem;
-  color: var(--muted);
+  font-size: clamp(1.35rem, 3.4vw, 2.1rem);
+  line-height: 1.42;
+  color: var(--forest);
+  letter-spacing: -0.01em;
 }
 
-/* ── doorways ── */
-.doors {
-  scroll-margin-top: 90px;
+/* ── the three worlds ── */
+.worlds {
+  scroll-margin-top: 84px;
+  padding: clamp(48px, 8vw, 96px) 0 clamp(56px, 10vw, 110px);
+}
+
+.worldsHead {
+  text-align: center;
+  margin-bottom: clamp(28px, 4vw, 44px);
+}
+
+.worldsTitle {
+  margin-top: 2px;
+}
+
+.grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: clamp(16px, 2.4vw, 24px);
-  padding-bottom: clamp(48px, 10vw, 96px);
 }
 
 .door {
@@ -101,14 +213,29 @@
   transition: transform 0.5s ease;
 }
 
-.door:hover .doorImg {
-  transform: scale(1.05);
-}
+.door:hover .doorImg { transform: scale(1.05); }
 
 .doorShade {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(40, 38, 34, 0) 55%, rgba(40, 38, 34, 0.18));
+  background: linear-gradient(180deg, rgba(40, 38, 34, 0) 55%, rgba(40, 38, 34, 0.2));
+}
+
+.doorPlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--forest);
+  font-size: 0.95rem;
+  padding-left: 4px;
+  box-shadow: 0 10px 24px -10px rgba(0, 0, 0, 0.5);
 }
 
 .doorBody {
@@ -119,7 +246,7 @@
   flex: 1;
 }
 
-.doorEyebrow {
+.doorAge {
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -147,18 +274,40 @@
   text-transform: uppercase;
   color: var(--forest);
 }
-
 .door:hover .doorCta { color: var(--gold-deep); }
 
-/* ── tablet ── */
+.doorSocials {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.doorSocials a {
+  padding: 9px 18px;
+  border-radius: 999px;
+  border: 1.5px solid var(--line);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--forest);
+  transition: all 0.15s ease;
+}
+
+.doorSocials a:hover {
+  background: var(--forest);
+  border-color: var(--forest);
+  color: var(--cream);
+}
+
+/* ── responsive ── */
 @media (max-width: 900px) {
-  .doors {
+  .heroGrid { grid-template-columns: 1fr; }
+  .heroArt { max-width: 420px; margin: 8px auto 0; }
+  .grid {
     grid-template-columns: 1fr;
     max-width: 520px;
-    margin-left: auto;
-    margin-right: auto;
+    margin: 0 auto;
   }
-  .doorImgWrap {
-    aspect-ratio: 16 / 9;
-  }
+  .doorImgWrap { aspect-ratio: 16 / 9; }
 }
