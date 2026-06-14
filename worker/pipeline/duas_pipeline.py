@@ -358,13 +358,19 @@ def star_chart():
 
 
 def cover_bg():
-    """Full-bleed warm gradient panel (no boxed frame)."""
+    """Full-bleed dusk sky: deep indigo at the top fading to warm peach."""
     img = Image.new("RGB", (FULLBLEED, FULLBLEED))
     d = ImageDraw.Draw(img)
+    stops = [(0.0, (54, 52, 96)), (0.42, (118, 96, 138)), (0.70, (214, 150, 138)), (1.0, (245, 208, 158))]
     for y in range(FULLBLEED):
-        d.line([0, y, FULLBLEED, y], fill=lerp((252, 246, 235), (233, 210, 165), y / FULLBLEED))
+        t = y / FULLBLEED
+        col = stops[-1][1]
+        for k in range(len(stops) - 1):
+            a, ca = stops[k]; b, cb = stops[k + 1]
+            if a <= t <= b:
+                col = lerp(ca, cb, (t - a) / (b - a)); break
+        d.line([0, y, FULLBLEED, y], fill=col)
     return img, d
-
 
 def to_fb(img):
     """Pad a trim-size design page onto a full-bleed cream canvas (content safe)."""
@@ -402,38 +408,55 @@ def hero_cutout(ctx, target_w):
 def front_cover(ctx):
     img, d = cover_bg()
     cx = FULLBLEED // 2
-    for sx, sy in [(150, 150), (FULLBLEED - 150, 150)]:
-        star_n(d, sx, sy, 22, 8)
-    title_block(d, cx, 210, ctx["name"])
+    # scattered gold stars across the upper sky (clear of the title)
+    for sx, sy, r in [(170, 150, 17), (360, 380, 10), (250, 760, 12), (560, 560, 8),
+                      (2300, 170, 19), (2150, 430, 11), (2380, 760, 12), (2060, 600, 8),
+                      (980, 130, 9), (1660, 120, 11), (1300, 80, 7)]:
+        star5(d, sx, sy, r, (250, 240, 208))
+    # title — gold name, cream subtitle (reads on the dark sky)
+    nm = ctx["name"] + "’s"
+    nsz, maxw = 250, FULLBLEED - 720
+    while nsz > 120 and d.textlength(nm, font=CG(nsz, 700, it=True)) > maxw:
+        nsz -= 6
+    ctext(d, nm, CG(nsz, 700, it=True), cx, 250 + (250 - nsz) // 2, (224, 178, 92))
+    ls(d, "BEAUTIFUL DUAS", CG(120, 600), cx, 600, (248, 241, 226), 10)
+    ctext(d, "a keepsake of daily duas", CG(60, 500, it=True), cx, 760, (232, 220, 202))
+    # child, lifted on a soft warm glow
     hero = hero_cutout(ctx, 1500)
-    maxh = (FULLBLEED - 250) - 900            # room between title and byline
+    maxh = (FULLBLEED - 250) - 940
     if hero.height > maxh:
         hero = hero.resize((int(hero.width * maxh / hero.height), maxh), Image.LANCZOS)
     hx, hy = cx - hero.width // 2, (FULLBLEED - 250) - hero.height
-    # soft drop shadow so the pale shirt separates from the background
-    shadow = Image.new("RGBA", hero.size, (0, 0, 0, 0))
-    tint = Image.new("RGBA", hero.size, (92, 64, 30, 115))
-    shadow = Image.composite(tint, shadow, hero.split()[3]).filter(ImageFilter.GaussianBlur(28))
-    img.paste(shadow, (hx + 14, hy + 22), shadow)
+    glow = Image.new("RGBA", (FULLBLEED, FULLBLEED), (0, 0, 0, 0))
+    ImageDraw.Draw(glow).ellipse([hx - 200, hy - 60, hx + hero.width + 200, hy + hero.height + 140],
+                                 fill=(255, 248, 230, 160))
+    glow = glow.filter(ImageFilter.GaussianBlur(140))
+    img.paste(glow, (0, 0), glow)
     img.paste(hero, (hx, hy), hero)
-    byline(d, cx, FULLBLEED - 170)
+    # byline on the warm lower band
+    tw = ls(d, "BY KETABI STUDIO", CG(50, 600), cx, FULLBLEED - 170, (104, 62, 32), 10)
+    for sgn in (-1, 1):
+        xs = cx + sgn * (tw / 2 + 46)
+        d.line([xs, FULLBLEED - 148, xs + sgn * 120, FULLBLEED - 148], fill=(150, 100, 58), width=2)
     return img
+
 
 
 def back_cover(ctx):
     img, d = cover_bg()
     cx = FULLBLEED // 2
-    star_n(d, cx, 360, 34, 8)
+    star_n(d, cx, 380, 34, 8, fill=(224, 178, 92))
     blurb = ("From the moment " + ctx["name"] + " wakes until bedtime, every "
              "moment has a beautiful dua. Join " + ctx["name"] + " through a gentle "
              "day of remembrance — with the Arabic, an easy pronunciation guide, "
              "audio you can scan and hear, and a star chart to treasure.")
     fo = LO(56, 500)
-    y = 720
+    y = 740
     for ln in wrap(d, blurb, fo, FULLBLEED - 760):
-        ctext(d, ln, fo, cx, y, DARK); y += int(56 * 1.6)
-    byline(d, cx, FULLBLEED - 380)
+        ctext(d, ln, fo, cx, y, (248, 241, 226)); y += int(56 * 1.6)
+    tw = ls(d, "BY KETABI STUDIO", CG(50, 600), cx, FULLBLEED - 360, (104, 62, 32), 10)
     return img
+
 
 
 def cover_wrap(ctx):
