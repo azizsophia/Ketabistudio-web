@@ -375,14 +375,40 @@ def to_fb(img):
     return fb
 
 
+def hero_cutout(ctx, target_w):
+    """The child with the white background removed (floats cleanly on the cover)."""
+    art = fetch_art(BOOK["asset_packs"][ctx["char"]],
+                    BOOK.get("page_aliases", {}).get(ctx["char"], {}).get(COVER_HERO, COVER_HERO), ctx["look"])
+    w, h = art.size
+    fx0, fy0, fx1, fy1 = COVER_CROP
+    hero = art.crop((int(fx0 * w), int(fy0 * h), int(fx1 * w), int(fy1 * h))).convert("RGB")
+    KEY = (255, 0, 255)
+    for cpt in [(1, 1), (hero.width - 2, 1), (1, hero.height - 2), (hero.width - 2, hero.height - 2)]:
+        try:
+            ImageDraw.floodfill(hero, cpt, KEY, thresh=45)
+        except Exception:
+            pass
+    rgba = hero.convert("RGBA")
+    rgba.putdata([(0, 0, 0, 0) if (p[0] > 250 and p[1] < 8 and p[2] > 250) else p for p in rgba.getdata()])
+    bb = rgba.getbbox()
+    if bb:
+        rgba = rgba.crop(bb)
+    sc = target_w / rgba.width
+    return rgba.resize((target_w, int(rgba.height * sc)), Image.LANCZOS)
+
+
 def front_cover(ctx):
     img, d = cover_bg()
     cx = FULLBLEED // 2
     for sx, sy in [(150, 150), (FULLBLEED - 150, 150)]:
-        star_n(d, sx, sy, 20, 8)
-    title_block(d, cx, 150, ctx["name"])
-    hero_in_arch(img, d, ctx, cx, 760, 1140, 1660)   # large, dominant portrait
-    byline(d, cx, 2520)
+        star_n(d, sx, sy, 22, 8)
+    title_block(d, cx, 210, ctx["name"])
+    hero = hero_cutout(ctx, 1500)
+    maxh = (FULLBLEED - 250) - 900            # room between title and byline
+    if hero.height > maxh:
+        hero = hero.resize((int(hero.width * maxh / hero.height), maxh), Image.LANCZOS)
+    img.paste(hero, (cx - hero.width // 2, (FULLBLEED - 250) - hero.height), hero)
+    byline(d, cx, FULLBLEED - 170)
     return img
 
 
