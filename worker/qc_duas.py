@@ -72,8 +72,8 @@ def main():
                     raise AssertionError(f"{len(r.pages)} pages, expected 32")
                 mb = r.pages[0].mediabox
                 win = round(float(mb.width) / 72, 2); hin = round(float(mb.height) / 72, 2)
-                if not (8.4 <= win <= 8.6 and 8.4 <= hin <= 8.6):
-                    raise AssertionError(f"trim {win}x{hin}in, expected 8.5sq")
+                if not (8.6 <= win <= 8.9 and 8.6 <= hin <= 8.9):
+                    raise AssertionError(f"page {win}x{hin}in, expected 8.75sq (8.5 trim + bleed)")
                 if not Path(cover).exists():
                     raise AssertionError("cover missing")
                 blanks = [i + 1 for i in range(32) if is_blank(wd / f"page{i+1:02d}.jpg")]
