@@ -303,8 +303,8 @@ def chest_page(duas, base_idx):
             s -= 2
         afo = AR(s)
         enl = wrap(d, en, enf, iw)
-        # measured heights for an evenly-spaced, vertically-centred block
-        g1, g2, g3, elh = 24, 22, 26, 36
+        # measured heights for an evenly-spaced, vertically-centred block (1.5 spacing)
+        g1, g2, g3, elh = 40, 38, 44, 42
         block = 34 + g1 + afo.size + g2 + 26 + g3 + len(enl) * elh
         avail_t, avail_b = y + 40, y + chh - 130           # reserve bottom for source + QR
         sy = avail_t + max(0, (avail_b - avail_t - block) // 2)
