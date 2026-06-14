@@ -61,12 +61,13 @@ export default function Gateway() {
     <>
       {/* ── brand hero ── */}
       <section className={styles.hero}>
-        <div className={`wrap ${styles.heroGrid}`}>
+        <div className="wrap">
+          <div className={styles.bismillahWrap}>
+            <p className={styles.bismillah}>بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ</p>
+            <span className="divider" aria-hidden="true"><span /></span>
+          </div>
+          <div className={styles.heroGrid}>
           <div className={styles.heroCopy}>
-            <p className={`arabic ${styles.bismillah}`}>
-              بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ
-            </p>
-            <p className="eyebrow">Ketabi Studio</p>
             <h1 className={styles.h1}>
               Beautiful Islamic learning,
               <br />
@@ -105,6 +106,7 @@ export default function Gateway() {
             <span className={`${styles.artCard} ${styles.artPhone}`}>
               <Image src="/images/app-home.jpg" alt="" width={360} height={685} className={styles.artImg} />
             </span>
+          </div>
           </div>
         </div>
       </section>

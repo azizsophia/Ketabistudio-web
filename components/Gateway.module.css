@@ -14,10 +14,26 @@
   max-width: 38rem;
 }
 
+.bismillahWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: clamp(32px, 5vw, 60px);
+}
+
 .bismillah {
-  font-size: clamp(1.15rem, 3.4vw, 1.6rem);
-  color: var(--gold);
-  margin-bottom: 22px;
+  font-family: "Aref Ruqaa", Georgia, serif;
+  direction: rtl;
+  font-size: clamp(2.1rem, 6.5vw, 3.7rem);
+  line-height: 1.35;
+  color: var(--gold-deep);
+  background: linear-gradient(180deg, #d8b95e 0%, #bd9134 58%, #a87426 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  padding: 4px 10px 10px;
+  text-align: center;
 }
 
 .h1 {
