@@ -353,7 +353,7 @@ def chest_page(duas):
         sy += g3
         for ln in enl:
             ctext(d, ln, enf, cx, sy, DARK); sy += elh
-        ctext(d, f"({src})", LO(20, 500), cx, y + chh - 44, (188, 178, 162))
+        ctext(d, f"({src})", LO(24, 500), cx, y + chh - 46, (170, 158, 140))
     return img
 
 
