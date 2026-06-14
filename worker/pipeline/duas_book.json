@@ -308,107 +308,103 @@
  "reading_order": [
   [
    "page0001",
-   0
+   "L"
   ],
   [
    "page0001",
-   1
+   "R"
   ],
   [
    "page0002",
-   0
+   "L"
   ],
   [
    "page0002",
-   1
+   "R"
   ],
   [
    "page0006",
-   0
+   "L"
   ],
   [
    "page0006",
-   1
-  ],
-  [
-   "page0006",
-   2
+   "R"
   ],
   [
    "page0003",
-   0
+   "L"
   ],
   [
    "page0003",
-   1
+   "R"
   ],
   [
    "page0004",
-   0
+   "L"
   ],
   [
    "page0004",
-   1
+   "R"
   ],
   [
    "page0005",
-   0
+   "L"
   ],
   [
    "page0005",
-   1
+   "R"
   ],
   [
    "page0010",
-   0
+   "L"
   ],
   [
    "page0010",
-   1
+   "R"
   ],
   [
    "page0021",
-   0
+   "L"
   ],
   [
    "page0007",
-   0
+   "L"
   ],
   [
    "page0007",
-   1
+   "R"
   ],
   [
    "page0008",
-   0
+   "L"
   ],
   [
    "page0008",
-   1
+   "R"
   ],
   [
    "page0009",
-   0
+   "L"
   ],
   [
    "page0021",
-   1
+   "R"
   ],
   [
    "page0022",
-   0
+   "L"
   ],
   [
    "page0022",
-   1
+   "R"
   ],
   [
    "page0023",
-   0
+   "L"
   ],
   [
    "page0009",
-   1
+   "R"
   ]
  ],
  "treasure_chest": [
@@ -508,5 +504,16 @@
   "Protection",
   "Evening",
   "Going to sleep"
- ]
+ ],
+ "page_aliases": {
+  "boy": {
+   "page0021": "page0011",
+   "page0022": "page0012",
+   "page0023": "page0013"
+  }
+ },
+ "single_pages": [
+  "page0023"
+ ],
+ "half_split_x": 3039
 }

@@ -1,0 +1,48 @@
+name: Render Duas Sample
+
+# Render a full personalized "My Beautiful Duas" sample (interior PDF + page
+# previews + cover) and push the result to the 'duas-sample-results' branch.
+on:
+  workflow_dispatch:
+    inputs:
+      name:
+        description: "Child's name"
+        default: "Yusuf"
+      character:
+        description: "boy | girl | hijab"
+        default: "boy"
+      look:
+        description: "afro | indian | white"
+        default: "afro"
+      eye_color:
+        description: "eye colour word"
+        default: "brown"
+
+permissions:
+  contents: write
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Deps
+        run: pip install pillow requests arabic-reshaper python-bidi qrcode
+      - name: Render sample
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          python worker/pipeline/duas_pipeline.py "${{ inputs.name }}" "${{ inputs.character }}" "${{ inputs.look }}" "${{ inputs.eye_color }}"
+          rm -rf duas_sample && cp -r /tmp/duas_sample duas_sample
+      - name: Push results
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add duas_sample
+          git commit -m "Duas sample: ${{ inputs.name }} / ${{ inputs.character }} / ${{ inputs.look }}" || { echo "nothing"; exit 0; }
+          git push origin HEAD:duas-sample-results --force
