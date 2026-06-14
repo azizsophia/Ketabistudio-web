@@ -99,7 +99,7 @@ export default function Gateway() {
               <Image src="/images/book-duas.jpg" alt="" width={520} height={520} className={styles.artImg} />
             </span>
             <span className={`${styles.artCard} ${styles.artPhone}`}>
-              <Image src="/images/app-journal.jpg" alt="" width={360} height={685} className={styles.artImg} />
+              <Image src="/images/app-heart.jpg" alt="" width={360} height={685} className={styles.artImg} />
             </span>
           </div>
         </div>
