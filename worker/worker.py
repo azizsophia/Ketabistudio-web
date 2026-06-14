@@ -47,6 +47,7 @@ FIXED_ASSETS = {
 DEFAULT_SPEC = {"page_count": 32, "pod": POD}
 BOOK_SPECS = {
     "her-beautiful-hijab": {"page_count": 32, "pod": POD},
+    "my-beautiful-duas": {"page_count": 32, "pod": POD},
     "juha-and-the-enormous-pumpkin": {"page_count": 32, "pod": POD},
     "maryam-is-kind-to-her-parents": {"page_count": 32, "pod": POD},
 }
@@ -108,6 +109,18 @@ def generate_amira(order, workdir: Path):
         name, order["skin"], order["hair"], order["hair_style"], workdir)
 
 
+def generate_duas(order, workdir: Path):
+    """Personalized 'My Beautiful Duas' interior + cover."""
+    import duas_pipeline
+
+    name = order["child_name"].strip()
+    qc.gate_name(name)
+    opt = order.get("options") or {}
+    interior, cover, _ = duas_pipeline.build(
+        name, opt.get("character"), opt.get("look"), opt.get("eye_color"), workdir)
+    return interior, cover
+
+
 # ── per-order processing ────────────────────────────────────────────
 def process(order):
     import lulu_client
@@ -132,6 +145,9 @@ def process(order):
         cover.write_bytes(storage_download("book-assets", cpath))
         interior, cover = str(interior), str(cover)
         ref_report = {"fixed_book": True}
+    elif slug == "my-beautiful-duas":
+        interior, cover = generate_duas(order, workdir)
+        ref_report = {"duas_book": True, "options": order.get("options")}
     else:
         interior, cover = generate_amira(order, workdir)
         ref_report = qc.gate_reference(

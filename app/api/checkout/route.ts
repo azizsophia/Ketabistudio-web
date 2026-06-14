@@ -13,6 +13,7 @@ const STRIPE_KEY = process.env.STRIPE_SECRET_KEY?.replace(/\s/g, "");
 
 const SLUG_TITLES: Record<string, string> = {
   "her-beautiful-hijab": "and Her Beautiful Hijab",
+  "my-beautiful-duas": "Beautiful Duas",
   "juha-and-the-enormous-pumpkin": "Juha and the Enormous Pumpkin",
   "maryam-is-kind-to-her-parents": "Maryam is Kind to Her Parents",
 };
@@ -58,10 +59,14 @@ export async function POST(req: NextRequest) {
 
   /* Product name shown on the Stripe page and the receipt */
   const childName = order.child_name?.trim();
-  const bookName =
-    order.book_slug === "her-beautiful-hijab" && childName
-      ? `${childName} and Her Beautiful Hijab`
-      : SLUG_TITLES[order.book_slug] || "Ketabi Studio Book";
+  let bookName: string;
+  if (order.book_slug === "her-beautiful-hijab" && childName) {
+    bookName = `${childName} and Her Beautiful Hijab`;
+  } else if (order.book_slug === "my-beautiful-duas" && childName) {
+    bookName = `${childName}'s Beautiful Duas`;
+  } else {
+    bookName = SLUG_TITLES[order.book_slug] || "Ketabi Studio Book";
+  }
 
   const origin =
     req.headers.get("origin") ||

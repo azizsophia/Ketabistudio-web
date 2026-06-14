@@ -308,3 +308,31 @@
   font-weight: 600;
   text-align: center;
 }
+
+/* Duas: pick-by-picture look chooser */
+.lookGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 6px 0 4px;
+}
+.lookOption {
+  border: 2px solid #e3d9c4;
+  border-radius: 12px;
+  background: #faf5ec;
+  padding: 6px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color 0.15s, transform 0.1s;
+}
+.lookOption img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  display: block;
+}
+.lookOption:hover { transform: translateY(-2px); }
+.lookActive {
+  border-color: #b8862b;
+  box-shadow: 0 0 0 3px rgba(184, 134, 43, 0.18);
+}

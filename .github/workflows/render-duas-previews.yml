@@ -1,0 +1,33 @@
+name: Render Duas Previews
+
+# Generate the storefront preview images for the Duas book and push them to the
+# 'duas-previews-results' branch (public/images/duas/*, book-duas.jpg, gallery).
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Deps
+        run: pip install pillow requests arabic-reshaper python-bidi qrcode
+      - name: Render previews
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: python worker/pipeline/duas_previews.py
+      - name: Push results
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add public/images/duas public/images/book-duas.jpg public/images/duas-preview-1.jpg public/images/duas-preview-2.jpg public/images/duas-preview-3.jpg
+          git commit -m "Duas storefront preview images" || { echo nothing; exit 0; }
+          git push origin HEAD:duas-previews-results --force

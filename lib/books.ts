@@ -39,7 +39,23 @@ export const STYLE_TO_PSD: Record<HairStyle, string> = {
   "short-curly": "Short curly",
 };
 
-/** Shared Lulu print spec — identical for all three titles (validated). */
+/** Duas book personalization (pick-by-picture). Internal keys only; the
+ * storefront shows pictures + the respectful labels below, never these words. */
+export type DuasCharacter = "boy" | "girl" | "hijab";
+export type DuasLook = "afro" | "indian" | "white";
+
+export const DUAS_CHARACTER_LABEL: Record<DuasCharacter, string> = {
+  boy: "Boy",
+  girl: "Girl",
+  hijab: "Girl with hijab",
+};
+export const DUAS_LOOK_LABEL: Record<DuasLook, string> = {
+  afro: "Deep skin, curly hair",
+  indian: "Medium skin, straight hair",
+  white: "Light skin, blonde hair",
+};
+
+/** Shared Lulu print spec — identical for all titles (validated). */
 export const PRINT_SPEC = {
   podPackageId: "0850X0850.FC.PRE.PB.080CW444.MXX",
   pages: 32,
@@ -71,6 +87,17 @@ export type Book = {
           skin: Skin[];
           hair: Hair[];
           hairStyle: HairStyle[];
+        };
+        appearsOn: string[];
+      }
+    | {
+        type: "personalized";
+        pipeline: "duas_pipeline";
+        fields: {
+          name: { min: 1; max: 14 };
+          character: DuasCharacter[];
+          look: DuasLook[];
+          eyeColor: boolean;
         };
         appearsOn: string[];
       }
@@ -114,6 +141,35 @@ export const BOOKS: Book[] = [
         ],
       },
       appearsOn: ["Front cover", "Title page", "Dedication", "Bookplate"],
+    },
+  },
+  {
+    slug: "my-beautiful-duas",
+    title: "Your Child & Their Beautiful Duas",
+    printTitle: "{name}'s Beautiful Duas",
+    tag: "Personalized",
+    value: "Daily duas, gratitude, and remembrance of Allah",
+    blurb:
+      "A premium personalized keepsake — your child saying a beautiful dua for every part of their day.",
+    description:
+      "Choose your child — a boy, a girl, or a girl with hijab — and their look, type their name, and we print a one-of-a-kind book where they are the star. A gentle day of authentic daily duas (Arabic, easy pronunciation, and English), with scan-to-hear audio and a keepsake star chart.",
+    cover: "/images/book-duas.jpg",
+    spine: "#c48e34",
+    previews: [
+      { src: "/images/duas-preview-1.jpg", caption: "A dua for every moment" },
+      { src: "/images/duas-preview-2.jpg", caption: "Arabic, pronunciation & meaning" },
+      { src: "/images/duas-preview-3.jpg", caption: "A keepsake star chart" },
+    ],
+    personalization: {
+      type: "personalized",
+      pipeline: "duas_pipeline",
+      fields: {
+        name: { min: 1, max: 14 },
+        character: ["boy", "girl", "hijab"],
+        look: ["afro", "indian", "white"],
+        eyeColor: true,
+      },
+      appearsOn: ["Front cover", "Title page", "Belongs-to page", "Every story page"],
     },
   },
   {

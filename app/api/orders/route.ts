@@ -6,13 +6,17 @@ const KEY = process.env.SUPABASE_SERVICE_KEY?.replace(/\s/g, "");
 
 const VALID_SLUGS = [
   "her-beautiful-hijab",
+  "my-beautiful-duas",
   "juha-and-the-enormous-pumpkin",
   "maryam-is-kind-to-her-parents",
 ];
-const PERSONALIZED_SLUGS = ["her-beautiful-hijab"];
+const PERSONALIZED_SLUGS = ["her-beautiful-hijab", "my-beautiful-duas"];
+const DUAS_SLUGS = ["my-beautiful-duas"];
 const VALID_SKIN = ["light", "medium", "dark"];
 const VALID_HAIR = ["black", "brown", "blonde", "red"];
 const VALID_STYLE = ["long-straight", "long-curly", "short-straight", "short-curly"];
+const VALID_CHARACTER = ["boy", "girl", "hijab"];
+const VALID_LOOK = ["afro", "indian", "white"];
 
 export async function POST(req: NextRequest) {
   if (!SB || !KEY) {
@@ -32,12 +36,14 @@ export async function POST(req: NextRequest) {
   }
 
   const personalized = PERSONALIZED_SLUGS.includes(slug);
+  const isDuas = DUAS_SLUGS.includes(slug);
 
   /* validate personalization fields */
   let childName: string | null = null;
   let skin: string | null = null;
   let hair: string | null = null;
   let hairStyle: string | null = null;
+  let options: Record<string, string> | null = null;
 
   if (personalized) {
     childName = String(body.child_name || "").trim();
@@ -47,15 +53,28 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-    skin = String(body.skin || "");
-    hair = String(body.hair || "");
-    hairStyle = String(body.hair_style || "");
-    if (!VALID_SKIN.includes(skin))
-      return NextResponse.json({ error: "invalid skin" }, { status: 400 });
-    if (!VALID_HAIR.includes(hair))
-      return NextResponse.json({ error: "invalid hair" }, { status: 400 });
-    if (!VALID_STYLE.includes(hairStyle))
-      return NextResponse.json({ error: "invalid hair style" }, { status: 400 });
+    if (isDuas) {
+      const character = String(body.character || "");
+      const look = String(body.look || "");
+      const eyeColor = String(body.eye_color || "").trim().slice(0, 20);
+      if (!VALID_CHARACTER.includes(character))
+        return NextResponse.json({ error: "invalid character" }, { status: 400 });
+      if (!VALID_LOOK.includes(look))
+        return NextResponse.json({ error: "invalid look" }, { status: 400 });
+      if (!eyeColor)
+        return NextResponse.json({ error: "eye colour required" }, { status: 400 });
+      options = { character, look, eye_color: eyeColor };
+    } else {
+      skin = String(body.skin || "");
+      hair = String(body.hair || "");
+      hairStyle = String(body.hair_style || "");
+      if (!VALID_SKIN.includes(skin))
+        return NextResponse.json({ error: "invalid skin" }, { status: 400 });
+      if (!VALID_HAIR.includes(hair))
+        return NextResponse.json({ error: "invalid hair" }, { status: 400 });
+      if (!VALID_STYLE.includes(hairStyle))
+        return NextResponse.json({ error: "invalid hair style" }, { status: 400 });
+    }
   }
 
   /* validate email */
@@ -109,6 +128,7 @@ export async function POST(req: NextRequest) {
     skin,
     hair,
     hair_style: hairStyle,
+    options,
     customer_email: email,
     shipping,
     status: "awaiting_payment",
