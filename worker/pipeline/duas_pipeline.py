@@ -470,12 +470,87 @@ def cover_wrap(ctx):
     return wrap, fc
 
 
+def intro_page(ctx):
+    img, d = blank(frame=True)
+    cx = TRIM // 2
+    star_n(d, cx, 540, 24, 8)
+    txt = subst(BOOK["intro_text"], ctx["char"], ctx["name"], ctx["eye"])
+    y = 770
+    for ln in wrap(d, txt, CG(66, 500, it=True), TRIM - 620):
+        ctext(d, ln, CG(66, 500, it=True), cx, y, DARK); y += 100
+    chest(d, cx, y + 150, 360)
+    return img
+
+
+def picture_page(illus, ctx):
+    """Full-bleed illustration for the right (recto) page of a spread, using the
+    subject half of the source art (with the centre-gutter sliver trimmed)."""
+    page, half = illus
+    char = ctx["char"]; pack = BOOK["asset_packs"][char]
+    fpage = BOOK.get("page_aliases", {}).get(char, {}).get(page, page)
+    art = fetch_art(pack, fpage, ctx["look"])
+    GUT = 180
+    if page in BOOK.get("single_pages", []):
+        crop = art
+    elif half == "L":
+        crop = art.crop((0, 0, HALF - GUT, SPREAD_H))
+    else:
+        crop = art.crop((HALF + GUT, 0, art.width, SPREAD_H))
+    scale = max(FULLBLEED / crop.width, FULLBLEED / crop.height)
+    nw, nh = int(crop.width * scale), int(crop.height * scale)
+    resized = crop.resize((nw, nh), Image.LANCZOS)
+    cx0, cy0 = (nw - FULLBLEED) // 2, (nh - FULLBLEED) // 2
+    return resized.crop((cx0, cy0, cx0 + FULLBLEED, cy0 + FULLBLEED))
+
+
+def text_page(sp, ctx):
+    """Clean left (verso) page of a spread: occasion, warm narrative, the dua in
+    Arabic, transliteration, and a child-friendly meaning, vertically centred."""
+    img, d = blank(frame=True)
+    cx = TRIM // 2
+    narf, narlh = LO(52, 500), 80
+    nar = subst(sp["narrative"], ctx["char"], ctx["name"], ctx["eye"])
+    narlines = wrap(d, nar, narf, TRIM - 560)
+    has_dua = ("arabic" in sp) or ("arabic_ref" in sp)
+    occ = sp.get("occasion", "")
+    # measure the whole block so it sits vertically centred on the page
+    H = (56 + 70) if occ else 0
+    H += len(narlines) * narlh
+    if has_dua:
+        ar = sp.get("arabic") or BOOK["treasure_chest"][sp["arabic_ref"]][1]
+        rsh = reshape(ar); s = 100
+        while s > 46 and d.textlength(rsh, font=AR(s)) > TRIM - 520:
+            s -= 2
+        trf = CG(52, 500, it=True); trlines = wrap(d, sp["translit"], trf, TRIM - 560)
+        mnf = LO(44, 500); mnlines = wrap(d, sp["meaning"], mnf, TRIM - 620)
+        H += 90 + s + 46 + len(trlines) * 64 + 28 + len(mnlines) * 58
+    y = max(300, (TRIM - H) // 2)
+    if occ:
+        ls(d, occ.upper(), CG(44, 600), cx, y, ACCENT, 4); y += 56
+        star_n(d, cx, y + 28, 15, 8); y += 70
+    for ln in narlines:
+        ctext(d, ln, narf, cx, y, DARK); y += narlh
+    if has_dua:
+        y += 90
+        ctext(d, rsh, AR(s), cx, y, DARK); y += s + 46
+        for ln in trlines:
+            ctext(d, ln, trf, cx, y, GRAY); y += 64
+        y += 28
+        for ln in mnlines:
+            ctext(d, ln, mnf, cx, y, ACCENT); y += 58
+    return img
+
+
 def build(name, char, look, eye, out_dir):
     out = Path(out_dir); out.mkdir(parents=True, exist_ok=True)
     ctx = {"name": name, "char": char, "look": look, "eye": eye}
     tc = BOOK["treasure_chest"]
-    pages = [title_page(ctx), belongs_page(ctx)]
-    pages += [story_page(e, ctx) for e in BOOK["reading_order"]]
+    # 3 front-matter pages, then 12 facing spreads (text verso + illustration
+    # recto), then 5 back-matter pages = 32 pages.
+    pages = [title_page(ctx), belongs_page(ctx), intro_page(ctx)]
+    for sp in BOOK["story_spreads"]:
+        pages.append(text_page(sp, ctx))             # verso (left): words + dua
+        pages.append(picture_page(sp["illus"], ctx))  # recto (right): illustration
     pages += [chest_opener(), chest_page(tc[:6]), chest_page(tc[6:]), star_chart(), end_page()]
     pages = [to_fb(p) for p in pages]   # every page full-bleed (8.75in)
     for i, p in enumerate(pages):
