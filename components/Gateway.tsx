@@ -112,11 +112,6 @@ export default function Gateway() {
 
       {/* ── the three worlds ── */}
       <section className={`wrap ${styles.worlds}`} id="worlds">
-        <header className={styles.worldsHead}>
-          <p className="eyebrow">One studio, every age</p>
-          <h2 className={styles.worldsTitle}>Three ways to grow</h2>
-        </header>
-
         <div className={styles.grid}>
           {worlds.map((w) => {
             const inner = (
