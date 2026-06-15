@@ -352,23 +352,40 @@
 }
 .photoNote {
   display: flex;
-  align-items: flex-start;
-  gap: 9px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
   background: var(--paper);
   border: 1px solid var(--line-2);
   border-radius: 3px;
-  padding: 10px 14px;
+  padding: 14px;
   margin-top: 18px;
   max-width: 484px;
 }
-.photoNote .info {
-  font: 600 13px var(--cards-ui), sans-serif;
-  color: var(--gold);
+.uploadBtn {
+  align-self: flex-start;
+  appearance: none;
+  cursor: pointer;
+  background: #262320;
+  color: #f4f0e7;
+  border: none;
+  border-radius: 3px;
+  padding: 12px 22px;
+  min-height: 44px;
+  font: 500 12px var(--cards-ui), sans-serif;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
+.uploadBtn:hover { background: #3a352f; }
 .photoNote .txt {
   font: 400 12px var(--cards-ui), sans-serif;
   color: var(--muted);
   line-height: 1.45;
+}
+.photoWarn {
+  font: 500 12px var(--cards-ui), sans-serif;
+  color: #b3261e;
+  line-height: 1.4;
 }
 
 /* controls column */

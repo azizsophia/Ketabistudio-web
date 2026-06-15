@@ -235,12 +235,14 @@ function ImageFace({
   f,
   accent,
   interactive,
-  onLowRes,
+  photoUrl,
+  onPickPhoto,
 }: {
   f: FrontSlots;
   accent: string;
   interactive?: boolean;
-  onLowRes?: (low: boolean) => void;
+  photoUrl?: string | null;
+  onPickPhoto?: (file: File) => void;
 }) {
   return (
     <div
@@ -253,7 +255,7 @@ function ImageFace({
       }}
     >
       {interactive ? (
-        <PhotoSlot width={232} height={192} onLowRes={onLowRes} />
+        <PhotoSlot width={232} height={192} url={photoUrl} onPick={onPickPhoto} />
       ) : (
         <div
           style={{
@@ -660,13 +662,15 @@ function FrontInner({
   slots,
   accent,
   interactive,
-  onLowRes,
+  photoUrl,
+  onPickPhoto,
 }: {
   styleId: CollectionId;
   slots: FrontSlots;
   accent: string;
   interactive?: boolean;
-  onLowRes?: (low: boolean) => void;
+  photoUrl?: string | null;
+  onPickPhoto?: (file: File) => void;
 }) {
   switch (styleId) {
     case "field":
@@ -679,7 +683,8 @@ function FrontInner({
           f={slots}
           accent={accent}
           interactive={interactive}
-          onLowRes={onLowRes}
+          photoUrl={photoUrl}
+          onPickPhoto={onPickPhoto}
         />
       );
     case "textile":
@@ -1235,7 +1240,8 @@ interface CardFaceProps {
   // front config
   slots?: FrontSlots;
   interactive?: boolean;
-  onLowRes?: (low: boolean) => void;
+  photoUrl?: string | null;
+  onPickPhoto?: (file: File) => void;
   // inside config
   message?: string;
   sender?: string;
@@ -1249,7 +1255,8 @@ export default function CardFace({
   face,
   slots,
   interactive,
-  onLowRes,
+  photoUrl,
+  onPickPhoto,
   message = "",
   sender = "",
   eyebrow = "",
@@ -1262,7 +1269,8 @@ export default function CardFace({
         slots={slots as FrontSlots}
         accent={accent}
         interactive={interactive}
-        onLowRes={onLowRes}
+        photoUrl={photoUrl}
+        onPickPhoto={onPickPhoto}
       />
     ) : (
       <InsideInner

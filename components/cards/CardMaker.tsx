@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import styles from "./CardMaker.module.css";
 import CardFace from "./CardFace";
 import {
@@ -72,6 +72,19 @@ export default function CardMaker() {
   const [shipCountry, setShipCountry] = useState("United Kingdom");
 
   // preview + accordion UI state (not part of the card data)
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [photoLowRes, setPhotoLowRes] = useState(false);
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const pickPhoto = useCallback((file: File) => {
+    if (!file || !file.type.startsWith("image/")) return;
+    const u = URL.createObjectURL(file);
+    const probe = new window.Image();
+    probe.onload = () =>
+      setPhotoLowRes(Math.min(probe.naturalWidth, probe.naturalHeight) < 1500);
+    probe.src = u;
+    setPhotoUrl(u);
+  }, []);
+
   const [faceTab, setFaceTab] = useState<"front" | "inside">("front");
   const [openSection, setOpenSection] = useState<AccordionKey | null>(
     "wording",
@@ -314,7 +327,7 @@ export default function CardMaker() {
               <div className={styles.singleFace}>
                 <div className={styles.faceWrap}>
                   {faceTab === "front" ? (
-                    <CardFace styleId={styleId} accent={accent} px={232} face="front" slots={slots} interactive />
+                    <CardFace styleId={styleId} accent={accent} px={232} face="front" slots={slots} interactive photoUrl={photoUrl} onPickPhoto={pickPhoto} />
                   ) : (
                     <CardFace styleId={styleId} accent={accent} px={232} face="inside" message={message} sender={sender} eyebrow={item.eyebrow} />
                   )}
@@ -326,7 +339,7 @@ export default function CardMaker() {
               <div className={styles.facesRow}>
                 <div>
                   <div className={styles.faceWrap}>
-                    <CardFace styleId={styleId} accent={accent} px={232} face="front" slots={slots} interactive />
+                    <CardFace styleId={styleId} accent={accent} px={232} face="front" slots={slots} interactive photoUrl={photoUrl} onPickPhoto={pickPhoto} />
                   </div>
                   <div className={styles.faceCaption}>Front</div>
                 </div>
@@ -340,12 +353,35 @@ export default function CardMaker() {
 
               {styleId === "image" && (
                 <div className={styles.photoNote}>
-                  <span className={styles.info}>&#9432;</span>
+                  <button
+                    type="button"
+                    className={styles.uploadBtn}
+                    onClick={() => photoInputRef.current?.click()}
+                  >
+                    {photoUrl ? "Change photo" : "Upload photo"}
+                  </button>
+                  <input
+                    ref={photoInputRef}
+                    type="file"
+                    accept="image/*"
+                    hidden
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) pickPhoto(f);
+                      e.target.value = "";
+                    }}
+                  />
                   <span className={styles.txt}>
-                    Drag a photo onto the card. For a crisp print, use an image at
-                    least <span style={{ color: "#262320" }}>1500px</span> on the
-                    shortest side. We&rsquo;ll flag anything lower at upload.
+                    For a crisp print, use an image at least{" "}
+                    <span style={{ color: "#262320" }}>1500px</span> on the
+                    shortest side. We&rsquo;ll flag anything lower.
                   </span>
+                  {photoLowRes && (
+                    <span className={styles.photoWarn}>
+                      That image looks low resolution. It may print soft. Try one
+                      at least 1500px on the shortest side.
+                    </span>
+                  )}
                 </div>
               )}
             </div>
