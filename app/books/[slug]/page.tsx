@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BOOKS, PRINT_SPEC, getBook } from "@/lib/books";
 import OrderSection from "@/components/OrderSection";
+import FlipBook from "@/components/FlipBook";
 import styles from "./book.module.css";
 
 export function generateStaticParams() {
@@ -29,6 +30,7 @@ export default async function BookPage({
   if (!book) notFound();
 
   const personalized = book.personalization.type === "personalized";
+  const fixed = book.personalization.type === "fixed";
 
   return (
     <div className={styles.page}>
@@ -83,7 +85,14 @@ export default async function BookPage({
         </div>
       </div>
 
-      {!personalized && (
+      {fixed && (
+      <div className={`wrap ${styles.previewBlock}`}>
+        <p className="eyebrow">A peek inside</p>
+        <FlipBook cover={book.cover} title={book.title} pages={book.previews} />
+      </div>
+      )}
+
+      {!personalized && !fixed && (
       <div className={`wrap ${styles.previewBlock}`}>
         <p className="eyebrow">A peek inside</p>
         <div className={styles.previews}>
