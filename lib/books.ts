@@ -184,9 +184,9 @@ export const BOOKS: Book[] = [
     cover: "/images/book-juha.jpg",
     spine: "#d88a2b",
     previews: [
-      { src: "/images/preview-juha-5.jpg", caption: "Juha's farm" },
-      { src: "/images/preview-juha-8.jpg", caption: "At the palace" },
-      { src: "/images/preview-juha-12.jpg", caption: "A lesson in giving" },
+      { src: "/images/preview-juha-5.jpg", caption: "Too special to keep" },
+      { src: "/images/preview-juha-8.jpg", caption: "The ruler's reward" },
+      { src: "/images/preview-juha-12.jpg", caption: "Riding home grateful" },
     ],
     personalization: {
       type: "fixed",
@@ -206,9 +206,9 @@ export const BOOKS: Book[] = [
     cover: "/images/book-maryam.jpg",
     spine: "#78bab2",
     previews: [
-      { src: "/images/preview-maryam-5.jpg", caption: "Maryam helps" },
-      { src: "/images/preview-maryam-8.jpg", caption: "Splash, splash!" },
-      { src: "/images/preview-maryam-12.jpg", caption: "Folding with Baba" },
+      { src: "/images/preview-maryam-5.jpg", caption: "Praying as a family" },
+      { src: "/images/preview-maryam-8.jpg", caption: "Tidying every toy" },
+      { src: "/images/preview-maryam-12.jpg", caption: "Mama's proud smile" },
     ],
     personalization: {
       type: "fixed",
