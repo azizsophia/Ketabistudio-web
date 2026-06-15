@@ -1,16 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
+import { COMING_SOON, PREVIEW_KEY } from "@/lib/flags";
 
 /* ── Coming-soon gate ──────────────────────────────────────────────
-   When COMING_SOON=1, the public is redirected to /coming-soon (which
-   promotes the app + keeps the legal pages reachable for the App Store /
-   Play listings). The owner can browse and place test orders by visiting
-   any page with ?preview=<PREVIEW_KEY> once — that sets a bypass cookie.
+   When COMING_SOON (lib/flags.ts) is true, the public is redirected to
+   /coming-soon (which promotes the app + keeps the legal pages reachable
+   for the App Store / Play listings). The owner browses + places test
+   orders by visiting any page with ?preview=<PREVIEW_KEY> once — that sets
+   a bypass cookie. Flip COMING_SOON to false in lib/flags.ts to go live. */
 
-   With COMING_SOON unset the site behaves normally, so dev and Vercel
-   previews are untouched until the flag is switched on for the domain. */
-
-const COMING_SOON = process.env.COMING_SOON === "1";
-const PREVIEW_KEY = process.env.PREVIEW_KEY || "";
 const COOKIE = "ketabi_preview";
 
 /* Always reachable, even behind the gate. The legal pages are linked from
@@ -25,11 +22,7 @@ const ALLOW = [
 ];
 
 export function middleware(req: NextRequest) {
-  if (!COMING_SOON) {
-    /* One log per cold start so we can confirm what the build baked in. */
-    console.log(`[mw] COMING_SOON gate OFF (env=${JSON.stringify(process.env.COMING_SOON)})`);
-    return NextResponse.next();
-  }
+  if (!COMING_SOON) return NextResponse.next();
 
   const { pathname, searchParams } = req.nextUrl;
 
