@@ -1,0 +1,214 @@
+.page { padding-top: 0; }
+
+/* ── hero ───────────────────────────────────────────── */
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(72px, 12vw, 132px) 0 clamp(48px, 8vw, 88px);
+  background:
+    radial-gradient(120% 120% at 50% 0%, rgba(143, 166, 142, 0.16), transparent 60%),
+    var(--cream);
+  text-align: center;
+}
+
+.heroInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 760px;
+}
+
+.bismillah {
+  font-family: "Aref Ruqaa", Georgia, serif;
+  direction: rtl;
+  font-size: clamp(1.7rem, 5vw, 2.6rem);
+  line-height: 1.5;
+  background: linear-gradient(180deg, #d8b95e 0%, #bd9134 58%, #a87426 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: clamp(22px, 4vw, 36px);
+}
+
+.h1 { margin-top: 4px; }
+.gold { color: var(--gold); }
+
+.lede {
+  margin: 22px auto 0;
+  text-align: center;
+}
+
+.heroDivider { margin-top: clamp(30px, 5vw, 44px); }
+
+/* ── narrative ──────────────────────────────────────── */
+.story {
+  padding: clamp(48px, 8vw, 88px) 0;
+}
+
+.storyInner {
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.lead {
+  font-family: var(--font-display), Georgia, serif;
+  font-style: italic;
+  font-size: clamp(1.3rem, 3.2vw, 1.9rem);
+  line-height: 1.42;
+  color: var(--forest);
+  letter-spacing: -0.01em;
+}
+
+.para {
+  color: var(--muted);
+  font-size: 1.05rem;
+}
+
+.para strong { color: var(--ink); font-weight: 600; }
+
+/* ── values / pillars ───────────────────────────────── */
+.values {
+  padding: clamp(48px, 8vw, 88px) 0;
+  background:
+    radial-gradient(120% 140% at 50% 0%, rgba(143, 166, 142, 0.14), transparent 60%),
+    var(--cream);
+}
+
+.valuesHead {
+  text-align: center;
+  max-width: 620px;
+  margin: 0 auto clamp(36px, 5vw, 52px);
+}
+
+.valuesHead h2 { margin-top: 4px; }
+
+.valuesGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(18px, 2.6vw, 26px);
+}
+
+.pillar {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  padding: clamp(28px, 3.5vw, 38px);
+  text-align: center;
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.pillar:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 22px 46px -28px rgba(46, 74, 58, 0.35);
+}
+
+.pillarMark {
+  width: 12px;
+  height: 12px;
+  background: var(--gold);
+  transform: rotate(45deg);
+  margin: 0 auto 20px;
+}
+
+.pillarTitle {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.45rem;
+  color: var(--forest);
+  margin-bottom: 10px;
+}
+
+.pillarDesc {
+  font-size: 0.96rem;
+  color: var(--muted);
+}
+
+/* ── three expressions, one mission ─────────────────── */
+.threads {
+  padding: clamp(48px, 8vw, 88px) 0;
+  text-align: center;
+}
+
+.threadsInner { max-width: 760px; margin: 0 auto; }
+
+.threadsLine {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(1.3rem, 3.4vw, 2rem);
+  line-height: 1.42;
+  color: var(--forest);
+  letter-spacing: -0.01em;
+  margin-top: 28px;
+}
+
+.threadsLine .accent { color: var(--gold-deep); }
+
+/* ── closing CTA ────────────────────────────────────── */
+.cta {
+  padding: 0 0 var(--space-section);
+}
+
+.ctaInner {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 120% at 50% 0%, rgba(201, 168, 76, 0.18), transparent 60%),
+    var(--forest);
+  border-radius: var(--radius-card);
+  padding: clamp(48px, 8vw, 80px) clamp(22px, 5vw, 48px);
+  text-align: center;
+  color: var(--cream);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ctaTitle { color: var(--cream); }
+
+.ctaBody {
+  margin: 16px auto 0;
+  max-width: 50ch;
+  color: var(--sage);
+  font-size: 1rem;
+}
+
+.ctaRow {
+  margin-top: 30px;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.ctaPlay {
+  background: transparent;
+  color: var(--cream);
+  box-shadow: inset 0 0 0 2px rgba(246, 244, 239, 0.45);
+}
+.ctaPlay:hover {
+  background: rgba(246, 244, 239, 0.1);
+  transform: translateY(-1px);
+}
+
+.contact {
+  margin-top: 28px;
+  font-size: 0.95rem;
+  color: var(--sage);
+}
+
+.contact a {
+  color: var(--gold);
+  border-bottom: 1px solid rgba(201, 168, 76, 0.5);
+  padding-bottom: 1px;
+}
+.contact a:hover { color: #d8b95e; }
+
+/* ── responsive ─────────────────────────────────────── */
+@media (max-width: 760px) {
+  .valuesGrid { grid-template-columns: 1fr; max-width: 420px; margin: 0 auto; }
+}
+
+@media (max-width: 520px) {
+  .ctaRow .btn { flex: 1; }
+}

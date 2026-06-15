@@ -1,61 +1,208 @@
-.page { padding-top: 56px; }
+.page { padding-top: 0; }
 
+/* ── floating phones hero ───────────────────────────── */
 .hero {
-  display: grid;
-  grid-template-columns: 1.15fr 0.85fr;
-  gap: 56px;
+  position: relative;
+  overflow: hidden;
+  padding: clamp(72px, 12vw, 128px) 0 clamp(56px, 9vw, 96px);
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(143, 166, 142, 0.22), transparent 60%),
+    linear-gradient(180deg, var(--forest) 0%, var(--forest-deep) 100%);
+  color: var(--cream);
+  text-align: center;
+}
+
+/* soft gold light behind the phones */
+.heroGlow {
+  position: absolute;
+  left: 50%;
+  bottom: -18%;
+  width: min(820px, 120%);
+  aspect-ratio: 1 / 1;
+  transform: translateX(-50%);
+  background: radial-gradient(circle, rgba(201, 168, 76, 0.28), transparent 62%);
+  pointer-events: none;
+}
+
+.heroInner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
   align-items: center;
 }
 
-.h1 { margin-top: 2px; }
+.heroEyebrow { color: var(--gold); }
+
+.h1 {
+  margin-top: 4px;
+  color: var(--cream);
+}
 .gold { color: var(--gold); }
-.lede { margin-top: 20px; }
+
+.lede {
+  margin: 20px auto 0;
+  color: rgba(246, 244, 239, 0.82);
+  text-align: center;
+}
 
 .stores {
-  margin-top: 32px;
+  margin-top: 30px;
   display: flex;
   gap: 14px;
   flex-wrap: wrap;
+  justify-content: center;
 }
 
-.heroPhone { display: flex; justify-content: center; }
+/* google play button on the dark hero */
+.heroPlay {
+  background: transparent;
+  color: var(--cream);
+  box-shadow: inset 0 0 0 2px rgba(246, 244, 239, 0.45);
+}
+.heroPlay:hover {
+  background: rgba(246, 244, 239, 0.1);
+  transform: translateY(-1px);
+}
 
-.heroShot {
-  width: min(300px, 80%);
+.heroNote {
+  margin-top: 18px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sage);
+}
+
+/* the fanned trio of screenshots */
+.fan {
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  margin: clamp(40px, 7vw, 72px) auto 0;
+  aspect-ratio: 16 / 11;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.fanCard {
+  position: absolute;
+  bottom: 0;
+  width: min(38%, 230px);
+  border-radius: 30px;
+  overflow: hidden;
+  border: 1px solid rgba(246, 244, 239, 0.18);
+  background: var(--card);
+  box-shadow: 0 44px 90px -40px rgba(0, 0, 0, 0.7);
+}
+
+.fanImg {
+  width: 100%;
   height: auto;
-  border-radius: 26px;
-  border: 1px solid var(--line);
-  box-shadow: 0 44px 80px -36px rgba(46, 74, 58, 0.5);
-  transform: rotate(1.6deg);
+  display: block;
 }
 
-/* features */
+.fanCenter {
+  z-index: 3;
+  transform: translateY(-8px);
+  animation: floatMid 7s ease-in-out infinite;
+}
+
+.fanLeft {
+  z-index: 2;
+  left: 8%;
+  transform: rotate(-9deg) translateY(26px);
+  transform-origin: bottom center;
+  animation: floatLeft 8s ease-in-out infinite;
+}
+
+.fanRight {
+  z-index: 2;
+  right: 8%;
+  transform: rotate(9deg) translateY(26px);
+  transform-origin: bottom center;
+  animation: floatRight 8.5s ease-in-out infinite;
+}
+
+@keyframes floatMid {
+  0%, 100% { transform: translateY(-8px); }
+  50% { transform: translateY(-22px); }
+}
+@keyframes floatLeft {
+  0%, 100% { transform: rotate(-9deg) translateY(26px); }
+  50% { transform: rotate(-9deg) translateY(12px); }
+}
+@keyframes floatRight {
+  0%, 100% { transform: rotate(9deg) translateY(26px); }
+  50% { transform: rotate(9deg) translateY(12px); }
+}
+
+/* gentle parallax on scroll, native + graceful fallback */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .fanLeft, .fanCenter, .fanRight {
+      animation: parallaxLift linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 50%;
+    }
+  }
+}
+
+@keyframes parallaxLift {
+  from { transform: translateY(40px); opacity: 0.6; }
+  to { transform: translateY(-8px); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fanLeft, .fanCenter, .fanRight { animation: none; }
+}
+
+/* ── features ───────────────────────────────────────── */
 .features {
-  margin-top: 88px;
+  margin-top: clamp(72px, 11vw, 120px);
   display: flex;
   flex-direction: column;
-  gap: 88px;
+  gap: clamp(72px, 10vw, 112px);
 }
 
 .feature {
   display: grid;
-  grid-template-columns: 0.8fr 1.2fr;
-  gap: 56px;
+  grid-template-columns: 0.85fr 1.15fr;
+  gap: clamp(40px, 6vw, 72px);
   align-items: center;
 }
 
 .flip { direction: rtl; }
 .flip > * { direction: ltr; }
 
-.featurePhone { display: flex; justify-content: center; }
+.featurePhone {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.featureGlow {
+  position: absolute;
+  inset: 8% 14%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(143, 166, 142, 0.3), transparent 65%);
+  filter: blur(8px);
+  z-index: 0;
+}
 
 .shot {
-  width: min(260px, 76%);
+  position: relative;
+  z-index: 1;
+  width: min(270px, 78%);
   height: auto;
-  border-radius: 22px;
+  border-radius: 30px;
   border: 1px solid var(--line);
-  box-shadow: 0 30px 56px -30px rgba(46, 74, 58, 0.45);
+  box-shadow: 0 36px 70px -34px rgba(46, 74, 58, 0.5);
+  transition: transform 0.35s ease;
 }
+
+.feature:hover .shot { transform: translateY(-6px); }
 
 .h2 { margin-top: 4px; }
 
@@ -65,9 +212,9 @@
   max-width: 46ch;
 }
 
-/* support */
+/* ── support ────────────────────────────────────────── */
 .supportRow {
-  margin-top: 96px;
+  margin-top: clamp(80px, 11vw, 110px);
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 22px;
@@ -88,25 +235,33 @@
 
 .supportDesc { font-size: 0.92rem; color: var(--muted); }
 
-/* coffee */
-.coffee { margin-top: 72px; }
+/* ── coffee ─────────────────────────────────────────── */
+.coffee { margin-top: 72px; padding-bottom: var(--space-section); }
 
 .coffeeInner {
-  background: var(--forest);
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 120% at 50% 0%, rgba(201, 168, 76, 0.18), transparent 60%),
+    var(--forest);
   border-radius: var(--radius-card);
-  padding: clamp(40px, 8vw, 64px) clamp(22px, 5vw, 40px);
+  padding: clamp(44px, 8vw, 72px) clamp(22px, 5vw, 48px);
   text-align: center;
   color: var(--cream);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .coffeeArabic {
   font-size: clamp(1.5rem, 6vw, 2rem);
   color: var(--gold);
   line-height: 1.8;
+  margin-bottom: 18px;
 }
 
 .coffeeTitle {
-  margin-top: 14px;
+  margin-top: 18px;
   color: var(--cream);
 }
 
@@ -119,20 +274,34 @@
 
 .coffeeBtn { margin-top: 28px; }
 
+/* ── responsive ─────────────────────────────────────── */
 @media (max-width: 840px) {
-  .hero, .feature {
+  .feature {
     grid-template-columns: 1fr;
-    gap: 32px;
+    gap: 28px;
     text-align: center;
   }
-  .hero .stores, .stores { justify-content: center; }
   .featureCopy .body { margin-left: auto; margin-right: auto; }
   .flip { direction: ltr; }
   .supportRow { grid-template-columns: 1fr; }
   .features { gap: 56px; margin-top: 64px; }
-  .feature { gap: 24px; }
 }
 
-@media (max-width: 520px) {
+@media (max-width: 560px) {
+  .fan {
+    max-width: 360px;
+    aspect-ratio: 1 / 1;
+  }
+  .fanCard { width: 46%; }
+  .fanLeft { left: 0; transform: rotate(-7deg) translateY(30px); }
+  .fanRight { right: 0; transform: rotate(7deg) translateY(30px); }
+  @keyframes floatLeft {
+    0%, 100% { transform: rotate(-7deg) translateY(30px); }
+    50% { transform: rotate(-7deg) translateY(18px); }
+  }
+  @keyframes floatRight {
+    0%, 100% { transform: rotate(7deg) translateY(30px); }
+    50% { transform: rotate(7deg) translateY(18px); }
+  }
   .stores .btn { flex: 1; }
 }
