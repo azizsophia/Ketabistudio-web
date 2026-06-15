@@ -40,7 +40,7 @@ def main():
             P.front_cover(ctx, show_name=False).resize((900, 900), Image.LANCZOS).save(
                 OUT / "duas" / f"cover-{ch}-{lk}.jpg", "JPEG", quality=90)
             # story illustration for the flip-through preview (reflects the look)
-            P.picture_page(["page0004", "R"], {"char": ch, "look": lk, "eye": "brown"}).resize(
+            P.picture_page(["page0005", "L"], {"char": ch, "look": lk, "eye": "brown"}).resize(
                 (900, 900), Image.LANCZOS).save(
                 OUT / "duas" / f"scene-{ch}-{lk}.jpg", "JPEG", quality=90)
             print("combo", ch, lk, flush=True)
