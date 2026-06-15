@@ -39,6 +39,10 @@ def main():
             bust_portrait(ch, lk).save(OUT / "duas" / f"{ch}-{lk}.jpg", "JPEG", quality=88)
             P.front_cover(ctx, show_name=False).resize((900, 900), Image.LANCZOS).save(
                 OUT / "duas" / f"cover-{ch}-{lk}.jpg", "JPEG", quality=90)
+            # story illustration for the flip-through preview (reflects the look)
+            P.picture_page(["page0004", "R"], {"char": ch, "look": lk, "eye": "brown"}).resize(
+                (900, 900), Image.LANCZOS).save(
+                OUT / "duas" / f"scene-{ch}-{lk}.jpg", "JPEG", quality=90)
             print("combo", ch, lk, flush=True)
 
     # catalogue cover — real design, neutral (no sample child name)
