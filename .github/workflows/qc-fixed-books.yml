@@ -1,0 +1,34 @@
+name: QC Fixed Books (Juha + Maryam)
+
+# Rasterize the pre-made Juha + Maryam interior PDFs to images for an accuracy
+# review (text vs art). Pushes contact sheets + per-page images to the
+# 'qc-fixed-results' branch.
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  qc:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Deps
+        run: pip install pillow requests pymupdf
+      - name: Render fixed-book pages
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: python worker/qc_fixed_books.py
+      - name: Push results
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add qc_fixed
+          git commit -m "Fixed-books QC render" || { echo nothing; exit 0; }
+          git push origin HEAD:qc-fixed-results --force
