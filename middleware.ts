@@ -13,8 +13,16 @@ const COMING_SOON = process.env.COMING_SOON === "1";
 const PREVIEW_KEY = process.env.PREVIEW_KEY || "";
 const COOKIE = "ketabi_preview";
 
-/* Always reachable, even behind the gate (App Store / Play link to these). */
-const ALLOW = ["/coming-soon", "/privacy-policy", "/terms", "/refund-policy"];
+/* Always reachable, even behind the gate. The legal pages are linked from
+   the App Store / Play listings; /cards/print is the chrome-free render the
+   worker screenshots for Prodigi print assets. */
+const ALLOW = [
+  "/coming-soon",
+  "/privacy-policy",
+  "/terms",
+  "/refund-policy",
+  "/cards/print",
+];
 
 export function middleware(req: NextRequest) {
   if (!COMING_SOON) return NextResponse.next();

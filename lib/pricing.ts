@@ -9,6 +9,11 @@ export const TEST_DOLLAR_PRICING = true;
 
 export const BOOK_PRICE_CENTS = TEST_DOLLAR_PRICING ? 100 : 2799; // $1 test / $27.99 live
 
+/* Greeting cards are priced "delivered" — one flat price that includes
+   Prodigi printing + shipping, so there is no separate shipping line. */
+export const CARD_PRICE_CENTS = TEST_DOLLAR_PRICING ? 100 : 900; // $1 test / $9 delivered
+export const CARD_PRICE_DISPLAY = TEST_DOLLAR_PRICING ? "$1.00" : "$9.00";
+
 export const SHIPPING_US_CENTS = 499; // $4.99 domestic
 export const SHIPPING_INTL_CENTS = 1499; // $14.99 international
 
