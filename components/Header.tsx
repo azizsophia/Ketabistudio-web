@@ -27,7 +27,11 @@ export default function Header() {
 
         <nav className={styles.nav} aria-label="Main">
           <Link href="/#watch">Watch</Link>
-          <Link href="/books">Children's books</Link>
+          <Link href="/books">Books</Link>
+          <Link href="/kids">Kids Corner</Link>
+          <Link href="/cards" className={styles.soonLink}>
+            Cards <span className={styles.soon}>soon</span>
+          </Link>
           <div
             className={styles.dropWrap}
             onMouseEnter={() => setAppOpen(true)}
@@ -78,7 +82,11 @@ export default function Header() {
       {open && (
         <nav className={styles.sheet} aria-label="Mobile">
           <Link href="/#watch" onClick={() => setOpen(false)}>Watch</Link>
-          <Link href="/books" onClick={() => setOpen(false)}>Children's books</Link>
+          <Link href="/books" onClick={() => setOpen(false)}>Books</Link>
+          <Link href="/kids" onClick={() => setOpen(false)}>Kids Corner</Link>
+          <Link href="/cards" onClick={() => setOpen(false)}>
+            Cards <span className={styles.soon}>soon</span>
+          </Link>
           <p className={styles.sheetGroup}>The Ketabi app</p>
           {APP_LINKS.map((l) =>
             l.ext ? (
