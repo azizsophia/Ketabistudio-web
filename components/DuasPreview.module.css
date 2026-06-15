@@ -39,7 +39,7 @@
    Ported from the original cover-only DuasPreview treatment. ── */
 .coverName {
   position: absolute;
-  top: 6.5%;
+  top: 11%;
   left: 0;
   right: 0;
   text-align: center;
@@ -48,7 +48,7 @@
   font-style: italic;
   font-weight: 700;
   color: #e0b25c;
-  font-size: clamp(28px, 9.4cqw, 74px);
+  font-size: clamp(30px, 10.2cqw, 82px);
   line-height: 1;
   text-shadow: 0 2px 10px rgba(40, 30, 60, 0.35);
   white-space: nowrap;
