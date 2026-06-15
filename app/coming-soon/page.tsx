@@ -134,8 +134,8 @@ export default function ComingSoon() {
         </div>
 
         <p className={styles.tourFoot}>
-          Plus a studio of luxury Islamic greeting cards, personalized and
-          posted straight to your loved ones.
+          Plus a studio of beautifully designed Islamic greeting cards,
+          personalized and posted straight to your loved ones.
         </p>
 
         <nav className={styles.legal} aria-label="Legal">

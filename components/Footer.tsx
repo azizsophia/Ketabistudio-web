@@ -1,10 +1,18 @@
 import Link from "next/link";
+import Image from "next/image";
 import styles from "./Footer.module.css";
 
 export default function Footer() {
   return (
     <footer className={styles.footer}>
       <div className={`wrap ${styles.inner}`}>
+        <Image
+          src="/images/icon-cream.png"
+          alt="Ketabi Studio"
+          width={56}
+          height={56}
+          className={styles.brandMark}
+        />
         <p className={`arabic ${styles.bismillah}`}>
           الْحَمْدُ لِلّٰهِ
         </p>
