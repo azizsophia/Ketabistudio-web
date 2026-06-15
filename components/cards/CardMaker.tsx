@@ -308,7 +308,7 @@ export default function CardMaker() {
             <div className={styles.eyebrow}>The collections</div>
             <h1 className={styles.h1}>Choose a collection</h1>
             <p className={styles.lede}>
-              Six luxury looks. Pick the visual world; every card comes in each.
+              Six beautiful looks. Pick the visual world; every card comes in each.
             </p>
           </div>
           <div className={styles.collGrid}>

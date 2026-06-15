@@ -5,7 +5,7 @@ import { cardsFontVars } from "@/lib/cardsFonts";
 export const metadata: Metadata = {
   title: "Card Studio — Personalised Islamic greeting cards",
   description:
-    "Design a personalised, luxury Islamic greeting card. Choose a collection, personalise the wording, colour and message, and we post it directly to your recipient.",
+    "Design a personalised, beautifully crafted Islamic greeting card. Choose a collection, personalise the wording, colour and message, and we post it directly to your recipient.",
 };
 
 export default function CardsPage() {

@@ -7,7 +7,7 @@ import WaitlistForm from "./WaitlistForm";
 export const metadata: Metadata = {
   title: "Coming soon",
   description:
-    "Ketabi Studio. Beautiful, intentional Islamic learning for the whole family. Personalized storybooks and luxury cards are opening soon. Join the list and download the Ketabi app today.",
+    "Ketabi Studio. Beautiful, intentional Islamic learning for the whole family. Personalized storybooks and beautifully made cards are opening soon. Join the list and download the Ketabi app today.",
 };
 
 const APP_STORE = "https://apps.apple.com/us/app/ketabi/id6768112231";
@@ -62,7 +62,7 @@ export default function ComingSoon() {
         <p className={styles.lede}>
           Beautiful, intentional Islamic learning for the whole family, from a
           child&apos;s first dua to your own daily dhikr. Personalized
-          storybooks and luxury cards are opening soon, Inshallah.
+          storybooks and beautifully made cards are opening soon, Inshallah.
         </p>
 
         {/* ── waitlist ── */}
