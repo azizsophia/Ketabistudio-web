@@ -327,9 +327,9 @@ export default function CardMaker() {
               <div className={styles.singleFace}>
                 <div className={styles.faceWrap}>
                   {faceTab === "front" ? (
-                    <CardFace styleId={styleId} accent={accent} px={232} face="front" slots={slots} interactive photoUrl={photoUrl} onPickPhoto={pickPhoto} />
+                    <CardFace styleId={styleId} accent={accent} px={300} face="front" slots={slots} interactive photoUrl={photoUrl} onPickPhoto={pickPhoto} />
                   ) : (
-                    <CardFace styleId={styleId} accent={accent} px={232} face="inside" message={message} sender={sender} eyebrow={item.eyebrow} />
+                    <CardFace styleId={styleId} accent={accent} px={300} face="inside" message={message} sender={sender} eyebrow={item.eyebrow} />
                   )}
                 </div>
                 <div className={styles.faceCaption}>{faceTab}</div>
@@ -339,13 +339,13 @@ export default function CardMaker() {
               <div className={styles.facesRow}>
                 <div>
                   <div className={styles.faceWrap}>
-                    <CardFace styleId={styleId} accent={accent} px={232} face="front" slots={slots} interactive photoUrl={photoUrl} onPickPhoto={pickPhoto} />
+                    <CardFace styleId={styleId} accent={accent} px={248} face="front" slots={slots} interactive photoUrl={photoUrl} onPickPhoto={pickPhoto} />
                   </div>
                   <div className={styles.faceCaption}>Front</div>
                 </div>
                 <div>
                   <div className={styles.faceWrap}>
-                    <CardFace styleId={styleId} accent={accent} px={232} face="inside" message={message} sender={sender} eyebrow={item.eyebrow} />
+                    <CardFace styleId={styleId} accent={accent} px={248} face="inside" message={message} sender={sender} eyebrow={item.eyebrow} />
                   </div>
                   <div className={styles.faceCaption}>Inside</div>
                 </div>
