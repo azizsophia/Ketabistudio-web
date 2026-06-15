@@ -1,0 +1,143 @@
+/* Full-viewport overlay so it cleanly covers the global Header/Footer. */
+.screen {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 22px;
+  overflow-y: auto;
+  background:
+    radial-gradient(120% 90% at 50% -10%, color-mix(in srgb, var(--sand) 70%, transparent), transparent 60%),
+    linear-gradient(180deg, var(--cream), color-mix(in srgb, var(--sand) 55%, var(--cream)));
+}
+
+.inner {
+  width: 100%;
+  max-width: 580px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mark {
+  border-radius: 16px;
+  box-shadow: 0 18px 40px -22px rgba(46, 74, 58, 0.45);
+}
+
+.bismillah {
+  margin: 22px 0 4px;
+  font-family: "Aref Ruqaa", Georgia, serif;
+  font-size: clamp(1.4rem, 5vw, 1.95rem);
+  line-height: 1.6;
+  background: linear-gradient(100deg, var(--gold-deep), var(--gold));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.eyebrow {
+  margin: 10px 0 0;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+}
+
+.h1 {
+  margin: 14px 0 0;
+  font-family: var(--font-display), Georgia, serif;
+  font-weight: 600;
+  font-size: clamp(2.1rem, 7vw, 3.2rem);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  color: var(--forest-deep, var(--forest));
+}
+
+.gold {
+  color: var(--gold-deep);
+}
+
+.lede {
+  margin: 18px auto 0;
+  max-width: 44ch;
+  font-size: 1.04rem;
+  line-height: 1.65;
+  color: var(--muted);
+}
+
+.appNote {
+  margin: 30px 0 14px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+}
+
+.stores {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+.storeBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 168px;
+  padding: 11px 22px;
+  border-radius: 13px;
+  background: var(--forest);
+  color: var(--cream);
+  text-align: left;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  box-shadow: 0 14px 30px -18px rgba(46, 74, 58, 0.6);
+}
+
+.storeBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 38px -18px rgba(46, 74, 58, 0.7);
+}
+
+.storeKicker {
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.storeName {
+  font-size: 1.12rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.legal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 38px;
+  font-size: 0.84rem;
+  color: var(--muted);
+}
+
+.legal a:hover {
+  color: var(--forest);
+}
+
+.legal span {
+  color: var(--line);
+}
+
+.copyright {
+  margin-top: 12px;
+  font-size: 0.76rem;
+  color: var(--muted);
+  opacity: 0.8;
+}
