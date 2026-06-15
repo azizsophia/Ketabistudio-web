@@ -86,26 +86,6 @@ export default function BooksPage() {
           );
         })}
       </section>
-
-      {/* ── trust strip ── */}
-      <section className={`wrap ${styles.trust}`} aria-label="How we make our books">
-        <p className={styles.trustItem}>
-          <span className={styles.trustMark} aria-hidden="true" />
-          Hand-illustrated
-        </p>
-        <p className={styles.trustItem}>
-          <span className={styles.trustMark} aria-hidden="true" />
-          Human-written
-        </p>
-        <p className={styles.trustItem}>
-          <span className={styles.trustMark} aria-hidden="true" />
-          Printed to order
-        </p>
-        <p className={styles.trustItem}>
-          <span className={styles.trustMark} aria-hidden="true" />
-          Rooted in Quran &amp; Sunnah
-        </p>
-      </section>
     </div>
   );
 }
