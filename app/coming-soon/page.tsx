@@ -138,6 +138,31 @@ export default function ComingSoon() {
           personalized and posted straight to your loved ones.
         </p>
 
+        {/* ── follow along (hifz series) ── */}
+        <div className={styles.followWrap}>
+          <p className={styles.followLabel}>
+            Follow our Hifz journey while you wait
+          </p>
+          <div className={styles.socials}>
+            <a
+              href="https://www.youtube.com/@KetabiStudio"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.socialBtn}
+            >
+              YouTube
+            </a>
+            <a
+              href="https://www.tiktok.com/@ketabi.studio"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.socialBtn}
+            >
+              TikTok
+            </a>
+          </div>
+        </div>
+
         <nav className={styles.legal} aria-label="Legal">
           <Link href="/privacy-policy">Privacy Policy</Link>
           <span aria-hidden="true">·</span>

@@ -325,6 +325,44 @@
   color: var(--muted);
 }
 
+/* ── follow along (hifz) ── */
+.followWrap {
+  margin-top: 40px;
+  width: 100%;
+}
+
+.followLabel {
+  margin: 0 0 14px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.socials {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+.socialBtn {
+  padding: 10px 26px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--forest) 30%, transparent);
+  background: color-mix(in srgb, var(--cream) 60%, #fff);
+  color: var(--forest);
+  font-size: 0.86rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  transition: transform 0.16s ease, background 0.16s ease, color 0.16s ease;
+}
+
+.socialBtn:hover {
+  transform: translateY(-2px);
+  background: var(--forest);
+  color: var(--cream);
+}
+
 .appNote {
   margin: 44px 0 14px;
   font-size: 0.86rem;
