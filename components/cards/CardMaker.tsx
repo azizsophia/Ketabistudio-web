@@ -21,6 +21,42 @@ import {
   StepId,
   SWATCHES,
 } from "@/lib/cards";
+import { CARD_PRICE_DISPLAY } from "@/lib/pricing";
+
+// Supported destination countries (label + 2-letter ISO code). Matches the
+// set the book order route accepts. Default GB (the sample address is London).
+const COUNTRIES: { code: string; name: string }[] = [
+  { code: "GB", name: "United Kingdom" },
+  { code: "US", name: "United States" },
+  { code: "AU", name: "Australia" },
+  { code: "AT", name: "Austria" },
+  { code: "BH", name: "Bahrain" },
+  { code: "BE", name: "Belgium" },
+  { code: "CA", name: "Canada" },
+  { code: "DK", name: "Denmark" },
+  { code: "EG", name: "Egypt" },
+  { code: "FI", name: "Finland" },
+  { code: "FR", name: "France" },
+  { code: "DE", name: "Germany" },
+  { code: "IE", name: "Ireland" },
+  { code: "IT", name: "Italy" },
+  { code: "JO", name: "Jordan" },
+  { code: "KW", name: "Kuwait" },
+  { code: "MY", name: "Malaysia" },
+  { code: "NL", name: "Netherlands" },
+  { code: "NZ", name: "New Zealand" },
+  { code: "NO", name: "Norway" },
+  { code: "OM", name: "Oman" },
+  { code: "QA", name: "Qatar" },
+  { code: "SA", name: "Saudi Arabia" },
+  { code: "SG", name: "Singapore" },
+  { code: "ZA", name: "South Africa" },
+  { code: "ES", name: "Spain" },
+  { code: "SE", name: "Sweden" },
+  { code: "CH", name: "Switzerland" },
+  { code: "TR", name: "Turkey" },
+  { code: "AE", name: "United Arab Emirates" },
+];
 
 // The card maker stepper. Single component holding all state, ported from the
 // prototype's `Component extends DCLogic` state object. Mobile-first: on small
@@ -69,10 +105,16 @@ export default function CardMaker() {
   const [shipLine, setShipLine] = useState("14 Marlborough Road");
   const [shipCity, setShipCity] = useState("London");
   const [shipPost, setShipPost] = useState("N19 4QT");
-  const [shipCountry, setShipCountry] = useState("United Kingdom");
+  const [shipCountry, setShipCountry] = useState("GB");
+  const [buyerEmail, setBuyerEmail] = useState("");
+
+  // order submission state
+  const [submitting, setSubmitting] = useState(false);
+  const [orderError, setOrderError] = useState<string | null>(null);
 
   // preview + accordion UI state (not part of the card data)
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoLowRes, setPhotoLowRes] = useState(false);
   const photoInputRef = useRef<HTMLInputElement>(null);
   const pickPhoto = useCallback((file: File) => {
@@ -83,6 +125,7 @@ export default function CardMaker() {
       setPhotoLowRes(Math.min(probe.naturalWidth, probe.naturalHeight) < 1500);
     probe.src = u;
     setPhotoUrl(u);
+    setPhotoFile(file);
   }, []);
 
   const [faceTab, setFaceTab] = useState<"front" | "inside">("front");
@@ -128,6 +171,85 @@ export default function CardMaker() {
   function insertDua() {
     const m = message.trim();
     setMessage(m + (m ? "\n\n" : "") + item.dua);
+  }
+
+  // ---- place order: upload photo (if any) → create order → Stripe checkout ----
+  async function placeOrder() {
+    if (submitting) return;
+    setOrderError(null);
+
+    const email = buyerEmail.trim();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setOrderError("Please enter a valid email for your receipt.");
+      return;
+    }
+    if (!shipName.trim() || !shipLine.trim() || !shipCity.trim() || !shipPost.trim()) {
+      setOrderError("Please complete the delivery address.");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      // a) upload the photo for image cards (placeholder prints if none chosen)
+      let photoUploadUrl: string | null = null;
+      if (styleId === "image" && photoFile) {
+        const fd = new FormData();
+        fd.append("file", photoFile);
+        const pr = await fetch("/api/cards/photo", { method: "POST", body: fd });
+        const pj = await pr.json().catch(() => ({}));
+        if (!pr.ok || !pj.url) {
+          throw new Error(pj.error || "Could not upload your photo. Please try again.");
+        }
+        photoUploadUrl = pj.url;
+      }
+
+      // b) create the card order
+      const or = await fetch("/api/cards/order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          collection: styleId,
+          item_id: itemId,
+          accent,
+          recipient_name: recipient,
+          show_name: showName,
+          custom_front: customFront,
+          arabic_index: arabicIndex,
+          arabic_off: arabicOff,
+          message,
+          sender,
+          photo_url: photoUploadUrl,
+          paper,
+          email,
+          shipping: {
+            name: shipName,
+            line1: shipLine,
+            city: shipCity,
+            postcode: shipPost,
+            country_code: shipCountry,
+          },
+        }),
+      });
+      const oj = await or.json().catch(() => ({}));
+      if (!or.ok || !oj.orderId) {
+        throw new Error(oj.error || "Could not place your order. Please try again.");
+      }
+
+      // c) start Stripe checkout and redirect
+      const cr = await fetch("/api/cards/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId: oj.orderId }),
+      });
+      const cj = await cr.json().catch(() => ({}));
+      if (!cr.ok || !cj.url) {
+        throw new Error(cj.error || "Could not start checkout. Please try again.");
+      }
+      window.location.href = cj.url;
+    } catch (e) {
+      setOrderError(e instanceof Error ? e.message : "Something went wrong. Please try again.");
+      setSubmitting(false);
+    }
   }
 
   function toggleSection(key: AccordionKey) {
@@ -639,18 +761,55 @@ export default function CardMaker() {
                 </div>
                 <div className={styles.formFull}>
                   <label className={styles.label}>Country</label>
-                  <input className={styles.field} value={shipCountry} onChange={(e) => setShipCountry(e.target.value)} placeholder="United Kingdom" />
+                  <select
+                    className={styles.field}
+                    value={shipCountry}
+                    onChange={(e) => setShipCountry(e.target.value)}
+                  >
+                    {COUNTRIES.map((c) => (
+                      <option key={c.code} value={c.code}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className={styles.formFull}>
+                  <label className={styles.label}>Your email (for the receipt)</label>
+                  <input
+                    className={styles.field}
+                    type="email"
+                    value={buyerEmail}
+                    onChange={(e) => setBuyerEmail(e.target.value)}
+                    placeholder="you@example.com"
+                  />
                 </div>
               </div>
 
+              {orderError && (
+                <div
+                  style={{
+                    marginTop: 14,
+                    padding: "10px 14px",
+                    borderRadius: 10,
+                    background: "#fbeceb",
+                    border: "1px solid #e3b5b1",
+                    color: "#8a322c",
+                    fontSize: "0.9rem",
+                  }}
+                >
+                  {orderError}
+                </div>
+              )}
+
               <div className={styles.actions}>
-                {/* TODO (phase 2): real print-PDF generation, POD API, Stripe payment, low-res image guard.
-                    No charge happens here; "Place order" only advances to the confirmation step. */}
                 <button
                   className={`${styles.primary} ${styles.primaryDark}`}
-                  onClick={() => setStep("handoff")}
+                  onClick={placeOrder}
+                  disabled={submitting}
                 >
-                  Place order &middot; {paperObj.price}
+                  {submitting
+                    ? "Starting checkout…"
+                    : `Place order · ${CARD_PRICE_DISPLAY}`}
                 </button>
                 <button className={styles.ghostBtn} onClick={() => setStep("maker")}>
                   &larr; Back to the card
@@ -674,15 +833,15 @@ export default function CardMaker() {
               <div className={styles.summaryRows}>
                 <div className={styles.sumRow}>
                   <span>Card &amp; printing</span>
-                  <span>{paperObj.price}</span>
+                  <span>{CARD_PRICE_DISPLAY}</span>
                 </div>
                 <div className={styles.sumRow}>
                   <span>Direct delivery</span>
-                  <span className={styles.sumFree}>Free</span>
+                  <span className={styles.sumFree}>Included</span>
                 </div>
                 <div className={styles.sumTotal}>
                   <span>Total</span>
-                  <span>{paperObj.price}</span>
+                  <span>{CARD_PRICE_DISPLAY}</span>
                 </div>
               </div>
             </div>

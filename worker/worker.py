@@ -23,6 +23,7 @@ sys.path.insert(0, str(Path(__file__).parent / "pipeline"))
 
 import qc  # noqa: E402
 import emailer  # noqa: E402
+import cards_worker  # noqa: E402
 
 SB = "".join(os.environ["SUPABASE_URL"].split()).rstrip("/")
 KEY = "".join(os.environ["SUPABASE_SERVICE_KEY"].split())
@@ -273,6 +274,17 @@ def main():
                     poll_shipping(order)
                 except Exception:
                     traceback.print_exc()
+            # ── greeting-card fulfillment (Prodigi) ──
+            # Runs AFTER all book processing; each call is isolated so a card
+            # error never breaks book fulfillment.
+            try:
+                cards_worker.tick_cards()
+            except Exception:
+                traceback.print_exc()
+            try:
+                cards_worker.poll_card_shipping()
+            except Exception:
+                traceback.print_exc()
         except Exception:
             traceback.print_exc()
         time.sleep(poll)

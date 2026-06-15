@@ -152,3 +152,28 @@ def send_shipped(order: dict, tracking_url: str = "", carrier: str = "") -> bool
         f"Your book has shipped — {book}",
         _shell(inner),
     )
+
+
+def send_card_shipped(order: dict) -> bool:
+    """Sent when a greeting-card order reports shipped from Prodigi."""
+    ship = order.get("shipping") or {}
+    recipient = html.escape((ship.get("name") or "your recipient").strip())
+    short = str(order.get("id", ""))[:8]
+    inner = f"""\
+<h1 style="margin:0 0 12px;font-size:22px;color:{FOREST};">Your card is on its way</h1>
+<p style="margin:0 0 16px;font-size:15px;line-height:1.6;">
+  Good news — your personalised greeting card has been printed and posted
+  directly to <strong>{recipient}</strong>, blind and white-label, with no
+  Ketabi or printer branding. It simply arrives, beautifully, from you.
+</p>
+<p style="margin:0 0 16px;font-size:15px;line-height:1.6;">
+  If anything is not right when it arrives, just reply to this email and we
+  will make it right.
+</p>
+<p style="margin:0;font-size:13px;color:#8a847a;">Order {short}</p>
+"""
+    return send_email(
+        order["customer_email"],
+        "Your card has shipped",
+        _shell(inner),
+    )

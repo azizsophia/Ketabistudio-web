@@ -18,3 +18,13 @@ services:
         value: sandbox
       - key: POLL_SECONDS
         value: "30"
+      - key: PRODIGI_API_KEY
+        sync: false
+      - key: PRODIGI_ENV
+        value: sandbox
+      - key: SITE_URL
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
