@@ -31,6 +31,15 @@ export function shippingLabel(countryCode: string): string {
 
 export const CURRENCY = "usd";
 
+/* ── Hifz (Quran memorization) recurring subscription ──
+   Two billing cadences. While TEST_DOLLAR_PRICING is true both are $1 so the
+   owner can run real recurring test charges cheaply. */
+export const HIFZ_MONTHLY_CENTS = TEST_DOLLAR_PRICING ? 100 : 699; // $6.99/mo
+export const HIFZ_ANNUAL_CENTS = TEST_DOLLAR_PRICING ? 100 : 5900; // $59/yr
+
+export const HIFZ_MONTHLY_DISPLAY = TEST_DOLLAR_PRICING ? "$1.00" : "$6.99";
+export const HIFZ_ANNUAL_DISPLAY = TEST_DOLLAR_PRICING ? "$1.00" : "$59";
+
 /* Human-readable for the storefront */
 export const BOOK_PRICE_DISPLAY = TEST_DOLLAR_PRICING ? "$1.00" : "$27.99";
 export const SHIPPING_US_DISPLAY = "$4.99";
