@@ -38,10 +38,11 @@ const features = [
 export default function AppPage() {
   return (
     <div className={styles.page}>
-      {/* hero */}
-      <section className={`wrap ${styles.hero}`}>
-        <div>
-          <p className="eyebrow">The Ketabi app</p>
+      {/* ── floating phones hero ── */}
+      <section className={styles.hero}>
+        <div className={styles.heroGlow} aria-hidden="true" />
+        <div className={`wrap ${styles.heroInner}`}>
+          <p className={`eyebrow ${styles.heroEyebrow}`}>The Ketabi app</p>
           <h1 className={styles.h1}>
             A calm space for
             <br />
@@ -56,7 +57,7 @@ export default function AppPage() {
               href="https://apps.apple.com/us/app/ketabi/id6768112231"
               target="_blank"
               rel="noopener noreferrer"
-              className="btn btn-primary"
+              className="btn btn-gold"
             >
               App Store
             </a>
@@ -64,21 +65,44 @@ export default function AppPage() {
               href="https://play.google.com/store/apps/details?id=com.ketabi.myapp"
               target="_blank"
               rel="noopener noreferrer"
-              className="btn btn-outline"
+              className={`btn ${styles.heroPlay}`}
             >
               Google Play
             </a>
           </div>
-        </div>
-        <div className={styles.heroPhone}>
-          <Image
-            src="/images/app-adhkar-ar.jpg"
-            alt="Ketabi app, Quran recitation screen"
-            width={560}
-            height={1065}
-            priority
-            className={styles.heroShot}
-          />
+          <p className={styles.heroNote}>Always free. Always ad-free.</p>
+
+          {/* fanned, floating app screens */}
+          <div className={styles.fan} aria-hidden="true">
+            <span className={`${styles.fanCard} ${styles.fanLeft}`}>
+              <Image
+                src="/images/app-heart.jpg"
+                alt=""
+                width={560}
+                height={1065}
+                className={styles.fanImg}
+              />
+            </span>
+            <span className={`${styles.fanCard} ${styles.fanRight}`}>
+              <Image
+                src="/images/app-adhkar.jpg"
+                alt=""
+                width={560}
+                height={1065}
+                className={styles.fanImg}
+              />
+            </span>
+            <span className={`${styles.fanCard} ${styles.fanCenter}`}>
+              <Image
+                src="/images/app-home.jpg"
+                alt="Ketabi app home screen"
+                width={560}
+                height={1065}
+                priority
+                className={styles.fanImg}
+              />
+            </span>
+          </div>
         </div>
       </section>
 
@@ -90,6 +114,7 @@ export default function AppPage() {
             className={`wrap ${styles.feature} ${i % 2 ? styles.flip : ""}`}
           >
             <div className={styles.featurePhone}>
+              <span className={styles.featureGlow} aria-hidden="true" />
               <Image
                 src={f.img}
                 alt={`${f.title}, app screen`}
@@ -135,6 +160,7 @@ export default function AppPage() {
           <p className={`arabic ${styles.coffeeArabic}`}>
             بِسْمِ اللّٰهِ
           </p>
+          <span className="divider" aria-hidden="true"><span /></span>
           <h2 className={styles.coffeeTitle}>Keep Ketabi free</h2>
           <p className={styles.coffeeBody}>
             Ketabi is free, ad-free, and built independently, your prayers
