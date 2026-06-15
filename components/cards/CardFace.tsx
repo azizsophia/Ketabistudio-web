@@ -256,6 +256,22 @@ function ImageFace({
     >
       {interactive ? (
         <PhotoSlot width={232} height={327} url={photoUrl} onPick={onPickPhoto} />
+      ) : photoUrl ? (
+        // Non-interactive (e.g. the headless /cards/print render): paint the
+        // chosen photo directly so it appears in the print asset.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={photoUrl}
+          alt=""
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            display: "block",
+          }}
+        />
       ) : (
         <div
           style={{
