@@ -10,12 +10,12 @@ export const metadata: Metadata = {
 
 const pillars = [
   {
-    title: "Beautiful",
-    desc: "Hand-illustrated, carefully typeset, and calm to return to. We believe sacred learning deserves to be lovely.",
+    title: "Calm by design",
+    desc: "A gentle aesthetic that never overwhelms you with notifications or gamification. Every page and screen is crafted to bring you peace.",
   },
   {
-    title: "Accurate",
-    desc: "Rooted in the Quran and Sunnah. Every dua, ayah, and story is checked against authentic sources, never invented.",
+    title: "Authentic",
+    desc: "Rooted in the Quran and Sunnah. Every dua, ayah, and story is checked against authentic sources and verified Hadith, never invented.",
   },
   {
     title: "Intentional",
@@ -32,16 +32,16 @@ export default function About() {
           <p className={`arabic ${styles.bismillah}`}>
             بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ
           </p>
-          <p className="eyebrow">Our story</p>
+          <p className="eyebrow">About</p>
           <h1 className={styles.h1}>
-            An Islamic studio,
+            Spiritual growth,
             <br />
-            made with intention<span className={styles.gold}>.</span>
+            made beautiful<span className={styles.gold}>.</span>
           </h1>
           <p className={`lede ${styles.lede}`}>
             Ketabi means &ldquo;my book.&rdquo; We make beautiful, intentional
-            learning for the whole family, from a child&apos;s first dua to your
-            own daily dhikr.
+            Islamic learning for the whole family, designed to be woven into
+            daily life, from a child&apos;s first dua to your own daily dhikr.
           </p>
           <span className={`divider ${styles.heroDivider}`} aria-hidden="true">
             <span />
@@ -53,23 +53,21 @@ export default function About() {
       <section className={styles.story}>
         <div className={`wrap ${styles.storyInner}`}>
           <p className={styles.lead}>
-            Ketabi began with a simple wish: that learning our deen could feel
-            as warm and beautiful as the deen itself.
+            We believe spiritual growth should be beautiful, seamless, and
+            deeply woven into daily life.
           </p>
           <p className={styles.para}>
-            It started as short films, the Quran&apos;s wonders, our history,
-            and the signs of our time, shared with anyone who was curious. From
-            there it grew into hand-illustrated storybooks where a child becomes
-            the star of their own dua, and then into a quiet app for the
-            grown-ups: daily adhkar, a Quran journal, and a Garden in Jannah
-            that grows with your dhikr.
+            In a world full of distractions, our faith often takes a backseat.
+            We started Ketabi to change that, to make remembering Allah feel as
+            warm and beautiful as the deen itself.
           </p>
           <p className={styles.para}>
-            One studio, three ways to grow closer to Allah, all made by hand and
-            held to the same standard. We write every word ourselves, illustrate
-            every page, and check every dua against the Quran and Sunnah. If it
-            isn&apos;t beautiful, accurate, and made on purpose, it doesn&apos;t
-            ship.
+            It began as short films about the Quran&apos;s wonders, our history,
+            and the signs of our time. From there it grew into hand-illustrated
+            storybooks where a child becomes the star of their own dua, and then
+            into a calm app for the grown-ups: daily adhkar, a Quran journal,
+            and a Garden in Jannah that grows with your dhikr. One studio,
+            three ways to grow closer to Allah, all held to the same standard.
           </p>
         </div>
       </section>
@@ -78,8 +76,8 @@ export default function About() {
       <section className={styles.values}>
         <div className="wrap">
           <div className={styles.valuesHead}>
-            <p className="eyebrow">What we hold to</p>
-            <h2>Three things, every time</h2>
+            <p className="eyebrow">Design philosophy</p>
+            <h2>Made with intent</h2>
           </div>
           <div className={styles.valuesGrid}>
             {pillars.map((p) => (

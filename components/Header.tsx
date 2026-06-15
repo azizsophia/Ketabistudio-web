@@ -84,24 +84,14 @@ export default function Header() {
           <Link href="/#watch" onClick={() => setOpen(false)}>Watch</Link>
           <Link href="/books" onClick={() => setOpen(false)}>Books</Link>
           <Link href="/kids" onClick={() => setOpen(false)}>Kids Corner</Link>
-          <Link href="/cards" onClick={() => setOpen(false)}>
+          <Link href="/cards" onClick={() => setOpen(false)} className={styles.soonLink}>
             Cards <span className={styles.soon}>soon</span>
           </Link>
-          <p className={styles.sheetGroup}>The Ketabi app</p>
-          {APP_LINKS.map((l) =>
-            l.ext ? (
-              <a key={l.label} href={l.href} className={styles.sheetSub}
-                 target={l.href.startsWith("mailto") ? undefined : "_blank"} rel="noopener noreferrer"
-                 onClick={() => setOpen(false)}>
-                {l.label}
-              </a>
-            ) : (
-              <Link key={l.label} href={l.href} className={styles.sheetSub} onClick={() => setOpen(false)}>
-                {l.label}
-              </Link>
-            )
-          )}
+          <Link href="/app" onClick={() => setOpen(false)}>App</Link>
           <Link href="/about" onClick={() => setOpen(false)}>About</Link>
+          <Link href="/books" className="btn btn-primary" onClick={() => setOpen(false)}>
+            Shop books
+          </Link>
         </nav>
       )}
     </header>
