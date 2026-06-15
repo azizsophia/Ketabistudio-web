@@ -7,7 +7,7 @@ import WaitlistForm from "./WaitlistForm";
 export const metadata: Metadata = {
   title: "Coming soon",
   description:
-    "Ketabi Studio — beautiful, intentional Islamic learning for the whole family. Personalized storybooks and luxury cards are opening soon. Join the list and download the Ketabi app today.",
+    "Ketabi Studio. Beautiful, intentional Islamic learning for the whole family. Personalized storybooks and luxury cards are opening soon. Join the list and download the Ketabi app today.",
 };
 
 const APP_STORE = "https://apps.apple.com/us/app/ketabi/id6768112231";
@@ -18,7 +18,7 @@ const TOUR = [
   {
     src: "/images/book-amira.jpg",
     title: "Her Beautiful Hijab",
-    note: "Personalized — her name on the cover & through every page",
+    note: "Personalized, with her name on the cover and through every page",
   },
   {
     src: "/images/book-duas.jpg",
@@ -33,7 +33,7 @@ const TOUR = [
   {
     src: "/images/book-maryam.jpg",
     title: "Maryam is Kind to Her Parents",
-    note: "Little hands, big kindness — ending on the Quranic dua",
+    note: "Little hands, big kindness, ending on the Quranic dua",
   },
 ];
 
@@ -42,18 +42,16 @@ export default function ComingSoon() {
     <div className={styles.screen}>
       <div className={styles.inner}>
         {/* ── hero ── */}
-        <Image
-          src="/icon.png"
-          alt="Ketabi Studio"
-          width={64}
-          height={64}
-          className={styles.mark}
-          priority
-        />
-
         <p className={styles.bismillah}>بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ</p>
 
-        <p className={styles.eyebrow}>Ketabi Studio</p>
+        <Image
+          src="/images/logo-vertical.png"
+          alt="Ketabi Studio"
+          width={170}
+          height={173}
+          className={styles.logo}
+          priority
+        />
 
         <h1 className={styles.h1}>
           Something beautiful
@@ -62,9 +60,9 @@ export default function ComingSoon() {
         </h1>
 
         <p className={styles.lede}>
-          Beautiful, intentional Islamic learning for the whole family — from a
+          Beautiful, intentional Islamic learning for the whole family, from a
           child&apos;s first dua to your own daily dhikr. Personalized
-          storybooks and luxury cards are opening soon, in shaa Allah.
+          storybooks and luxury cards are opening soon, Inshallah.
         </p>
 
         {/* ── waitlist ── */}
@@ -74,44 +72,12 @@ export default function ComingSoon() {
           </p>
           <WaitlistForm />
           <p className={styles.waitFine}>
-            No spam, ever — just one note when we launch.
+            No spam, ever. Just one note when we launch.
           </p>
         </div>
 
-        {/* ── a peek at what's coming ── */}
-        <div className={styles.tourHead}>
-          <span className={styles.tourRule} aria-hidden="true" />
-          <span>A peek at what&apos;s coming</span>
-          <span className={styles.tourRule} aria-hidden="true" />
-        </div>
-
-        <div className={styles.tourGrid}>
-          {TOUR.map((b) => (
-            <figure key={b.title} className={styles.tourCard}>
-              <span className={styles.tourImgWrap}>
-                <Image
-                  src={b.src}
-                  alt={b.title}
-                  width={300}
-                  height={300}
-                  className={styles.tourImg}
-                />
-              </span>
-              <figcaption className={styles.tourCap}>
-                <span className={styles.tourTitle}>{b.title}</span>
-                <span className={styles.tourNote}>{b.note}</span>
-              </figcaption>
-            </figure>
-          ))}
-        </div>
-
-        <p className={styles.tourFoot}>
-          Plus a studio of luxury Islamic greeting cards — personalised and
-          posted straight to your loved ones.
-        </p>
-
-        {/* ── app available today ── */}
-        <p className={styles.appNote}>The Ketabi app is here today:</p>
+        {/* ── app available today (above the books) ── */}
+        <p className={styles.appNote}>The Ketabi app is here today</p>
 
         <div className={styles.stores}>
           <a
@@ -133,6 +99,44 @@ export default function ComingSoon() {
             <span className={styles.storeName}>Google Play</span>
           </a>
         </div>
+
+        {/* ── a peek at what's coming ── */}
+        <div className={styles.tourHead}>
+          <span className={styles.tourRule} aria-hidden="true" />
+          <span>A peek at what&apos;s coming</span>
+          <span className={styles.tourRule} aria-hidden="true" />
+        </div>
+
+        <p className={styles.tourIntro}>
+          A whole Kids Corner of children&apos;s books, personalized so your
+          little one becomes the star of their very own story.
+        </p>
+
+        <div className={styles.tourGrid}>
+          {TOUR.map((b) => (
+            <figure key={b.title} className={styles.tourCard}>
+              <span className={styles.tourImgWrap}>
+                <Image
+                  src={b.src}
+                  alt={b.title}
+                  width={300}
+                  height={300}
+                  className={styles.tourImg}
+                />
+                <span className={styles.tourSheen} aria-hidden="true" />
+              </span>
+              <figcaption className={styles.tourCap}>
+                <span className={styles.tourTitle}>{b.title}</span>
+                <span className={styles.tourNote}>{b.note}</span>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+
+        <p className={styles.tourFoot}>
+          Plus a studio of luxury Islamic greeting cards, personalized and
+          posted straight to your loved ones.
+        </p>
 
         <nav className={styles.legal} aria-label="Legal">
           <Link href="/privacy-policy">Privacy Policy</Link>

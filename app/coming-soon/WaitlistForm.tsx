@@ -42,7 +42,7 @@ export default function WaitlistForm() {
         <span className={styles.waitTick} aria-hidden="true">
           ✓
         </span>
-        Jazāk Allāhu khayran — you&apos;re on the list. We&apos;ll be in touch
+        Jazāk Allāhu khayran, you&apos;re on the list. We&apos;ll send one note
         the moment the shop opens.
       </div>
     );
