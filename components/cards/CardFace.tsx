@@ -261,36 +261,67 @@ function ImageFace({
           style={{
             position: "absolute",
             inset: 0,
-            background: `radial-gradient(circle at 30% 30%,${hexA(
-              "#ffe6ad",
-              0.9,
-            )},transparent 46%),linear-gradient(155deg,${hexA(
-              accent,
-              0.92,
-            )},${accent})`,
+            background: `linear-gradient(150deg,${hexA(accent, 0.14)},${hexA(accent, 0.3)})`,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 8,
           }}
-        />
+        >
+          <div
+            style={{
+              width: 34,
+              height: 28,
+              borderRadius: 5,
+              border: `1.5px solid ${hexA(accent, 0.75)}`,
+              position: "relative",
+            }}
+          >
+            <div
+              style={{
+                position: "absolute",
+                left: 6,
+                bottom: 5,
+                width: 8,
+                height: 8,
+                borderRadius: 999,
+                background: hexA(accent, 0.75),
+              }}
+            />
+          </div>
+          <div
+            style={{
+              font: "500 10px var(--cards-ui, sans-serif)",
+              letterSpacing: ".12em",
+              textTransform: "uppercase",
+              color: hexA(accent, 0.95),
+            }}
+          >
+            Your photo here
+          </div>
+        </div>
       )}
       <div
         style={{
           position: "absolute",
-          left: 16,
-          right: 16,
-          bottom: 16,
-          background: hexA("#f8f1e4", 0.96),
-          padding: "18px 16px",
+          left: 0,
+          right: 0,
+          bottom: 0,
+          padding: "36px 18px 16px",
           textAlign: "center",
-          boxShadow: "0 12px 26px rgba(0,0,0,.22)",
+          background: `linear-gradient(to top,${hexA("#191309", 0.74)},${hexA("#191309", 0.34)} 55%,transparent)`,
+          textShadow: "0 1px 5px rgba(0,0,0,.55)",
         }}
       >
-        {eyebrowEl("#9a7b52", f.eyebrow)}
+        {eyebrowEl("#f1e7d2", f.eyebrow)}
         <div
           style={{
             fontFamily: f.bigArabic ? ARABIC_DISPLAY : SERIF,
             fontWeight: 500,
             fontSize: f.bigArabic ? 30 : 24,
             fontStyle: f.bigArabic ? "normal" : "italic",
-            color: "#3a2a1a",
+            color: "#fdf8ef",
             lineHeight: 1.1,
           }}
         >
@@ -302,7 +333,7 @@ function ImageFace({
               fontFamily: f.line2Arabic ? ARABIC_DISPLAY : SERIF,
               fontWeight: 500,
               fontSize: f.line2Arabic ? 18 : 14,
-              color: accent,
+              color: "#f3e9d2",
               marginTop: 8,
             }}
           >
@@ -316,7 +347,7 @@ function ImageFace({
               fontWeight: 500,
               fontSize: 15,
               fontStyle: "italic",
-              color: "#6b5235",
+              color: "#efe6d3",
               marginTop: 10,
             }}
           >
