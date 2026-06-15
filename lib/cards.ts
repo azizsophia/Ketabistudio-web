@@ -253,14 +253,14 @@ export const PAPERS: Paper[] = [
     name: "324gsm Mohawk Fine Paper",
     desc: "Uncoated · soft tactile finish",
     short: "324gsm Mohawk",
-    price: "$14.00",
+    price: "$9.00",
   },
   {
     id: "gloss",
     name: "330gsm Fedrigoni Gloss",
     desc: "Pressed · subtle UV varnish",
     short: "330gsm Fedrigoni",
-    price: "$13.00",
+    price: "$9.00",
   },
 ];
 
