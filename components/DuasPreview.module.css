@@ -1,0 +1,216 @@
+/* ── DuasPreview — live flip-through for "My Beautiful Duas" ── */
+
+.previewShell {
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.page {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(80, 60, 20, 0.18);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  background: #3a3460;
+}
+
+.turning {
+  opacity: 0;
+  transform: translateX(-12px) scale(0.985);
+}
+
+.spread {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  container-type: inline-size;
+}
+
+.art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+/* ── Cover name — gold, italic serif, overlaid on the nameless cover art.
+   Ported from the original cover-only DuasPreview treatment. ── */
+.coverName {
+  position: absolute;
+  top: 11%;
+  left: 0;
+  right: 0;
+  text-align: center;
+  padding: 0 6%;
+  font-family: "Cormorant Garamond", var(--font-display), Georgia, serif;
+  font-style: italic;
+  font-weight: 700;
+  color: #e0b25c;
+  font-size: clamp(30px, 10.2cqw, 82px);
+  line-height: 1;
+  text-shadow: 0 2px 10px rgba(40, 30, 60, 0.35);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+
+/* ── Illustration caption ── */
+.caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 14px 16px 12px;
+  text-align: center;
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: 0.78rem;
+  color: #faf5ec;
+  background: linear-gradient(to top, rgba(40, 30, 20, 0.55), rgba(40, 30, 20, 0));
+}
+
+/* ── Text pages — premium cream book page, thin gold frame, calm + centered ── */
+.textPage {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, #faf5ec 0%, #f6f0e3 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6cqw;
+}
+
+.frame {
+  width: 100%;
+  height: 100%;
+  border: 1px solid #d9c79a;
+  box-shadow: inset 0 0 0 4px rgba(184, 134, 43, 0.12);
+  border-radius: 6px;
+  padding: 7cqw 6cqw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 3cqw;
+}
+
+.occasion {
+  font-family: var(--font-body), system-ui, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 2.6cqw;
+  font-weight: 600;
+  color: #b8862b;
+  margin: 0;
+}
+
+.occasion::after {
+  content: "";
+  display: block;
+  width: 34px;
+  height: 2px;
+  margin: 2.6cqw auto 0;
+  background: #b8862b;
+  opacity: 0.55;
+}
+
+.narrative {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 3.5cqw;
+  line-height: 1.5;
+  color: #3a3226;
+  margin: 0;
+  max-width: 92%;
+}
+
+.arabic {
+  font-family: var(--font-arabic), serif;
+  font-size: 5.6cqw;
+  line-height: 1.7;
+  color: #3a3226;
+  margin: 1cqw 0 0;
+  direction: rtl;
+}
+
+.translit {
+  font-family: var(--font-display), Georgia, serif;
+  font-style: italic;
+  font-size: 2.9cqw;
+  line-height: 1.45;
+  color: #6b5d44;
+  margin: 0;
+  max-width: 94%;
+}
+
+.meaning {
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: 2.7cqw;
+  line-height: 1.5;
+  color: #7a6a4e;
+  margin: 0;
+  max-width: 92%;
+}
+
+/* ── Controls (match BookPreview) ── */
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 14px;
+}
+
+.turnBtn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid var(--line, #e3dcc9);
+  background: var(--card, #fff);
+  color: #b8862b;
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  padding-bottom: 4px;
+}
+
+.turnBtn:active:not(:disabled) {
+  background: #b8862b;
+  color: #faf5ec;
+}
+
+.turnBtn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.dots {
+  display: flex;
+  gap: 8px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--line, #e3dcc9);
+  transition: background 0.2s;
+}
+
+.dotActive {
+  background: #b8862b;
+}
+
+.hint {
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--muted, #8a7e66);
+  margin-top: 10px;
+  font-style: italic;
+}
