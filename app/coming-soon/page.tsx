@@ -2,21 +2,46 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import styles from "./coming-soon.module.css";
+import WaitlistForm from "./WaitlistForm";
 
 export const metadata: Metadata = {
   title: "Coming soon",
   description:
-    "Ketabi Studio — beautiful, intentional Islamic learning for the whole family. Our storybook shop is opening soon. Download the Ketabi app today.",
+    "Ketabi Studio — beautiful, intentional Islamic learning for the whole family. Personalized storybooks and luxury cards are opening soon. Join the list and download the Ketabi app today.",
 };
 
 const APP_STORE = "https://apps.apple.com/us/app/ketabi/id6768112231";
 const GOOGLE_PLAY =
   "https://play.google.com/store/apps/details?id=com.ketabi.myapp";
 
+const TOUR = [
+  {
+    src: "/images/book-amira.jpg",
+    title: "Her Beautiful Hijab",
+    note: "Personalized — her name on the cover & through every page",
+  },
+  {
+    src: "/images/book-duas.jpg",
+    title: "Beautiful Duas",
+    note: "A dua for every moment, with your child as the star",
+  },
+  {
+    src: "/images/book-juha.jpg",
+    title: "Juha & the Enormous Pumpkin",
+    note: "A warm, witty folktale to read together",
+  },
+  {
+    src: "/images/book-maryam.jpg",
+    title: "Maryam is Kind to Her Parents",
+    note: "Little hands, big kindness — ending on the Quranic dua",
+  },
+];
+
 export default function ComingSoon() {
   return (
     <div className={styles.screen}>
       <div className={styles.inner}>
+        {/* ── hero ── */}
         <Image
           src="/icon.png"
           alt="Ketabi Studio"
@@ -38,10 +63,54 @@ export default function ComingSoon() {
 
         <p className={styles.lede}>
           Beautiful, intentional Islamic learning for the whole family — from a
-          child&apos;s first dua to your own daily dhikr. Our personalized
-          storybook shop is opening soon, in shaa Allah.
+          child&apos;s first dua to your own daily dhikr. Personalized
+          storybooks and luxury cards are opening soon, in shaa Allah.
         </p>
 
+        {/* ── waitlist ── */}
+        <div className={styles.waitWrap}>
+          <p className={styles.waitLabel}>
+            Be the first to know when the shop opens
+          </p>
+          <WaitlistForm />
+          <p className={styles.waitFine}>
+            No spam, ever — just one note when we launch.
+          </p>
+        </div>
+
+        {/* ── a peek at what's coming ── */}
+        <div className={styles.tourHead}>
+          <span className={styles.tourRule} aria-hidden="true" />
+          <span>A peek at what&apos;s coming</span>
+          <span className={styles.tourRule} aria-hidden="true" />
+        </div>
+
+        <div className={styles.tourGrid}>
+          {TOUR.map((b) => (
+            <figure key={b.title} className={styles.tourCard}>
+              <span className={styles.tourImgWrap}>
+                <Image
+                  src={b.src}
+                  alt={b.title}
+                  width={300}
+                  height={300}
+                  className={styles.tourImg}
+                />
+              </span>
+              <figcaption className={styles.tourCap}>
+                <span className={styles.tourTitle}>{b.title}</span>
+                <span className={styles.tourNote}>{b.note}</span>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+
+        <p className={styles.tourFoot}>
+          Plus a studio of luxury Islamic greeting cards — personalised and
+          posted straight to your loved ones.
+        </p>
+
+        {/* ── app available today ── */}
         <p className={styles.appNote}>The Ketabi app is here today:</p>
 
         <div className={styles.stores}>
