@@ -25,11 +25,11 @@ type Spot = {
   slow?: boolean;
 };
 
+// Kept clear of the left-aligned headline copy so a star never lands on a letter.
 const STARS: Spot[] = [
-  { top: "14%", left: "6%", size: 26, spin: -12 },
-  { top: "8%", right: "10%", size: 18, spin: 18, slow: true },
-  { bottom: "18%", left: "12%", size: 16, spin: 8, slow: true },
-  { top: "46%", right: "5%", size: 22, spin: -8 },
+  { top: "9%", right: "7%", size: 20, spin: 18, slow: true },
+  { top: "52%", right: "4%", size: 22, spin: -8 },
+  { bottom: "15%", right: "18%", size: 15, spin: 8, slow: true },
 ];
 
 type BlobSpot = Spot & { color: string };
