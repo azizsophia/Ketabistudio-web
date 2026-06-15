@@ -10,9 +10,9 @@ export const dynamic = "force-dynamic";
 
 // Sensible defaults — see report notes:
 //   translation 131 = "The Clear Quran" (Dr. Mustafa Khattab)
-//   recitation   7 = Mishary Rashid Alafasy
+//   recitation   3 = Abdur-Rahman as-Sudais
 const TRANSLATION_ID = "131";
-const RECITER_ID = 7;
+const RECITER_ID = 3;
 
 // Per-ayah audio urls from QF come back as paths; prefix the CDN host when
 // they aren't already absolute.
