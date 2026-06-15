@@ -255,15 +255,12 @@ function ImageFace({
       }}
     >
       {interactive ? (
-        <PhotoSlot width={232} height={192} url={photoUrl} onPick={onPickPhoto} />
+        <PhotoSlot width={232} height={327} url={photoUrl} onPick={onPickPhoto} />
       ) : (
         <div
           style={{
             position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            height: 170,
+            inset: 0,
             background: `radial-gradient(circle at 30% 30%,${hexA(
               "#ffe6ad",
               0.9,
@@ -277,13 +274,13 @@ function ImageFace({
       <div
         style={{
           position: "absolute",
-          left: 18,
-          right: 18,
-          top: 104,
+          left: 16,
+          right: 16,
+          bottom: 16,
           background: hexA("#f8f1e4", 0.96),
-          padding: "22px 16px",
+          padding: "18px 16px",
           textAlign: "center",
-          boxShadow: "0 10px 20px rgba(0,0,0,.16)",
+          boxShadow: "0 12px 26px rgba(0,0,0,.22)",
         }}
       >
         {eyebrowEl("#9a7b52", f.eyebrow)}
