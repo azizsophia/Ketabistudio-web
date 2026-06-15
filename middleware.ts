@@ -25,7 +25,11 @@ const ALLOW = [
 ];
 
 export function middleware(req: NextRequest) {
-  if (!COMING_SOON) return NextResponse.next();
+  if (!COMING_SOON) {
+    /* One log per cold start so we can confirm what the build baked in. */
+    console.log(`[mw] COMING_SOON gate OFF (env=${JSON.stringify(process.env.COMING_SOON)})`);
+    return NextResponse.next();
+  }
 
   const { pathname, searchParams } = req.nextUrl;
 
