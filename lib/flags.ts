@@ -10,4 +10,4 @@
    is used. */
 export const COMING_SOON = true;
 
-export const PREVIEW_KEY = process.env.PREVIEW_KEY || "ketabi-preview-2026";
+export const PREVIEW_KEY = "ketabi-preview-2026";

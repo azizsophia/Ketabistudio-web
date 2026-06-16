@@ -26,12 +26,11 @@ export function middleware(req: NextRequest) {
 
   const { pathname, searchParams } = req.nextUrl;
 
-  /* Owner bypass: ?preview=KEY sets a 30-day cookie, then clean the URL. */
+  /* Owner bypass: ?preview=KEY lets THIS request straight through and drops a
+     30-day cookie for later navigation (no redirect round-trip to depend on). */
   const preview = searchParams.get("preview");
-  if (preview && PREVIEW_KEY && preview === PREVIEW_KEY) {
-    const clean = req.nextUrl.clone();
-    clean.searchParams.delete("preview");
-    const res = NextResponse.redirect(clean);
+  if (preview && preview === PREVIEW_KEY) {
+    const res = NextResponse.next();
     res.cookies.set(COOKIE, PREVIEW_KEY, {
       httpOnly: true,
       sameSite: "lax",
