@@ -70,12 +70,17 @@ def create_order(
         countryCode, townOrCity, stateOrCounty? } }
     assets: list of { "printArea": "outside"|"inside", "url": <public url> }
     """
+    # Branded packing slip (PDF hosted on the site). Falls back to white-label
+    # (no slip) if neither PACKING_SLIP_URL nor SITE_URL is configured.
+    site = "".join(os.environ.get("SITE_URL", "").split()).rstrip("/")
+    slip_url = os.environ.get("PACKING_SLIP_URL") or (
+        f"{site}/packing-slip.pdf" if site else None
+    )
     body = {
         "merchantReference": merchant_reference,
         "shippingMethod": shipping_method,
         "recipient": recipient,
-        # White-label packing slip: no Ketabi / no printer branding.
-        "packingSlip": {"url": None},
+        "packingSlip": {"url": slip_url},
         "items": [
             {
                 "merchantReference": merchant_reference,

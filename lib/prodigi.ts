@@ -152,9 +152,13 @@ export async function createOrder(
     merchantReference: params.merchantReference,
     shippingMethod: params.shippingMethod ?? "Standard",
     recipient: params.recipient,
-    // White-label packing slip: no Ketabi / no printer branding on the parcel.
+    // Branded packing slip PDF hosted on the site (falls back to white-label).
     packingSlip: {
-      url: null as string | null,
+      url:
+        process.env.PACKING_SLIP_URL ||
+        (process.env.NEXT_PUBLIC_SITE_URL
+          ? `${process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "")}/packing-slip.pdf`
+          : null),
     },
     items: [
       {
