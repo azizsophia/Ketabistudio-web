@@ -19,7 +19,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Deps
-        run: pip install pillow requests arabic-reshaper python-bidi pypdf
+        run: pip install pillow requests arabic-reshaper python-bidi pypdf img2pdf
       - name: Run Duas QC
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
