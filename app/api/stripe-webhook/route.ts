@@ -13,16 +13,28 @@ const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET?.replace(/\s/g, "");
 /* Stripe needs the raw body to verify the signature, so disable parsing. */
 export const runtime = "nodejs";
 
-async function patchOrder(orderId: string, fields: Record<string, unknown>) {
-  await fetch(`${SB}/rest/v1/orders?id=eq.${orderId}`, {
+/* PATCH an order, optionally only when it is still in `onlyIfStatus`.
+   Returns the number of rows actually changed — so repeat Stripe deliveries
+   (auto-retries / manual resends) are idempotent and never re-trigger the
+   worker, duplicate emails, or duplicate print jobs. */
+async function patchOrder(
+  orderId: string,
+  fields: Record<string, unknown>,
+  onlyIfStatus?: string
+): Promise<number> {
+  const guard = onlyIfStatus ? `&status=eq.${onlyIfStatus}` : "";
+  const r = await fetch(`${SB}/rest/v1/orders?id=eq.${orderId}${guard}`, {
     method: "PATCH",
     headers: {
       Authorization: `Bearer ${KEY}`,
       apikey: KEY!,
       "Content-Type": "application/json",
+      Prefer: "return=representation",
     },
     body: JSON.stringify(fields),
   });
+  const rows = await r.json().catch(() => []);
+  return Array.isArray(rows) ? rows.length : 0;
 }
 
 async function logEvent(orderId: string, event: string, detail?: unknown) {
@@ -39,17 +51,25 @@ async function logEvent(orderId: string, event: string, detail?: unknown) {
 
 async function patchCardOrder(
   cardOrderId: string,
-  fields: Record<string, unknown>
-) {
-  await fetch(`${SB}/rest/v1/card_orders?id=eq.${cardOrderId}`, {
-    method: "PATCH",
-    headers: {
-      Authorization: `Bearer ${KEY}`,
-      apikey: KEY!,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(fields),
-  });
+  fields: Record<string, unknown>,
+  onlyIfStatus?: string
+): Promise<number> {
+  const guard = onlyIfStatus ? `&status=eq.${onlyIfStatus}` : "";
+  const r = await fetch(
+    `${SB}/rest/v1/card_orders?id=eq.${cardOrderId}${guard}`,
+    {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${KEY}`,
+        apikey: KEY!,
+        "Content-Type": "application/json",
+        Prefer: "return=representation",
+      },
+      body: JSON.stringify(fields),
+    }
+  );
+  const rows = await r.json().catch(() => []);
+  return Array.isArray(rows) ? rows.length : 0;
 }
 
 async function logCardEvent(
@@ -163,37 +183,53 @@ export async function POST(req: NextRequest) {
 
     const cardOrderId = session.metadata?.cardOrderId;
     if (cardOrderId && session.payment_status === "paid") {
-      await patchCardOrder(cardOrderId, {
-        status: "pending",
-        notes: JSON.stringify({
-          paid: true,
-          stripe_session_id: session.id,
-          stripe_payment_intent: String(session.payment_intent || ""),
-          amount_paid_cents: session.amount_total ?? null,
-        }),
-      });
-      await logCardEvent(cardOrderId, "paid", {
-        amount: session.amount_total,
-        currency: session.currency,
-      });
-      console.log(`[card ${cardOrderId}] paid → released to worker`);
+      const changed = await patchCardOrder(
+        cardOrderId,
+        {
+          status: "pending",
+          notes: JSON.stringify({
+            paid: true,
+            stripe_session_id: session.id,
+            stripe_payment_intent: String(session.payment_intent || ""),
+            amount_paid_cents: session.amount_total ?? null,
+          }),
+        },
+        "awaiting_payment"
+      );
+      if (changed) {
+        await logCardEvent(cardOrderId, "paid", {
+          amount: session.amount_total,
+          currency: session.currency,
+        });
+        console.log(`[card ${cardOrderId}] paid → released to worker`);
+      } else {
+        console.log(`[card ${cardOrderId}] duplicate paid event ignored`);
+      }
     }
     const orderId = session.metadata?.orderId;
     if (orderId && session.payment_status === "paid") {
-      await patchOrder(orderId, {
-        status: "pending",
-        notes: JSON.stringify({
-          paid: true,
-          stripe_session_id: session.id,
-          stripe_payment_intent: String(session.payment_intent || ""),
-          amount_paid_cents: session.amount_total ?? null,
-        }),
-      });
-      await logEvent(orderId, "paid", {
-        amount: session.amount_total,
-        currency: session.currency,
-      });
-      console.log(`[${orderId}] paid → released to worker`);
+      const changed = await patchOrder(
+        orderId,
+        {
+          status: "pending",
+          notes: JSON.stringify({
+            paid: true,
+            stripe_session_id: session.id,
+            stripe_payment_intent: String(session.payment_intent || ""),
+            amount_paid_cents: session.amount_total ?? null,
+          }),
+        },
+        "awaiting_payment"
+      );
+      if (changed) {
+        await logEvent(orderId, "paid", {
+          amount: session.amount_total,
+          currency: session.currency,
+        });
+        console.log(`[${orderId}] paid → released to worker`);
+      } else {
+        console.log(`[${orderId}] duplicate paid event ignored`);
+      }
     }
   }
 
@@ -202,34 +238,50 @@ export async function POST(req: NextRequest) {
     const session = event.data.object as Stripe.Checkout.Session;
     const cardOrderId = session.metadata?.cardOrderId;
     if (cardOrderId) {
-      await patchCardOrder(cardOrderId, {
-        status: "pending",
-        notes: JSON.stringify({ paid: true, stripe_session_id: session.id }),
-      });
-      await logCardEvent(cardOrderId, "paid_async");
+      const changed = await patchCardOrder(
+        cardOrderId,
+        {
+          status: "pending",
+          notes: JSON.stringify({ paid: true, stripe_session_id: session.id }),
+        },
+        "awaiting_payment"
+      );
+      if (changed) await logCardEvent(cardOrderId, "paid_async");
     }
     const orderId = session.metadata?.orderId;
     if (orderId) {
-      await patchOrder(orderId, {
-        status: "pending",
-        notes: JSON.stringify({ paid: true, stripe_session_id: session.id }),
-      });
-      await logEvent(orderId, "paid_async");
+      const changed = await patchOrder(
+        orderId,
+        {
+          status: "pending",
+          notes: JSON.stringify({ paid: true, stripe_session_id: session.id }),
+        },
+        "awaiting_payment"
+      );
+      if (changed) await logEvent(orderId, "paid_async");
     }
   }
 
-  /* Async payment failed → mark so it is not generated */
+  /* Async payment failed → mark so it is not generated (only if still awaiting) */
   if (event.type === "checkout.session.async_payment_failed") {
     const session = event.data.object as Stripe.Checkout.Session;
     const cardOrderId = session.metadata?.cardOrderId;
     if (cardOrderId) {
-      await patchCardOrder(cardOrderId, { status: "payment_failed" });
-      await logCardEvent(cardOrderId, "payment_failed");
+      const changed = await patchCardOrder(
+        cardOrderId,
+        { status: "payment_failed" },
+        "awaiting_payment"
+      );
+      if (changed) await logCardEvent(cardOrderId, "payment_failed");
     }
     const orderId = session.metadata?.orderId;
     if (orderId) {
-      await patchOrder(orderId, { status: "payment_failed" });
-      await logEvent(orderId, "payment_failed");
+      const changed = await patchOrder(
+        orderId,
+        { status: "payment_failed" },
+        "awaiting_payment"
+      );
+      if (changed) await logEvent(orderId, "payment_failed");
     }
   }
 
