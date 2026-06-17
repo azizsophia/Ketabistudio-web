@@ -653,19 +653,43 @@ def build(name, char, look, eye, out_dir, cover_type="softcover",
     out = Path(out_dir); out.mkdir(parents=True, exist_ok=True)
     ctx = {"name": name, "char": char, "look": look, "eye": eye}
     tc = BOOK["treasure_chest"]
-    # 3 front-matter pages (title, then the opening spread = intro/bookplate +
-    # a reused illustration), then 12 facing spreads (text verso + illustration
-    # recto), then 5 back-matter pages = 32 pages.
-    pages = [title_page(ctx), intro_page(ctx), picture_page(["page0004", "R"], ctx)]
+    # Build pages as lazy thunks so we render → save → FREE one page at a time.
+    # Holding all 32 full-bleed pages in RAM (plus PIL's multi-page PDF encoder,
+    # which needs every image open at once) is what OOM'd the worker.
+    import gc
+    import img2pdf
+    thunks = [
+        lambda: title_page(ctx),
+        lambda: intro_page(ctx),
+        lambda: picture_page(["page0004", "R"], ctx),
+    ]
     for sp in BOOK["story_spreads"]:
-        pages.append(text_page(sp, ctx))             # verso (left): words + dua
-        pages.append(picture_page(sp["illus"], ctx))  # recto (right): illustration
-    pages += [chest_opener(), chest_page(tc[:6]), chest_page(tc[6:]), star_chart(), end_page()]
-    pages = [to_fb(p) for p in pages]   # every page full-bleed (8.75in)
-    for i, p in enumerate(pages):
-        p.save(out / f"page{i+1:02d}.jpg", "JPEG", quality=88)
+        thunks.append(lambda sp=sp: text_page(sp, ctx))       # verso: words + dua
+        thunks.append(lambda sp=sp: picture_page(sp["illus"], ctx))  # recto: art
+    thunks += [
+        lambda: chest_opener(),
+        lambda: chest_page(tc[:6]),
+        lambda: chest_page(tc[6:]),
+        lambda: star_chart(),
+        lambda: end_page(),
+    ]
+    jpgs = []
+    for i, mk in enumerate(thunks):
+        img = to_fb(mk())                       # full-bleed (8.75in)
+        if img.mode != "RGB":
+            img = img.convert("RGB")
+        jp = out / f"page{i + 1:02d}.jpg"
+        img.save(jp, "JPEG", quality=88, dpi=(300, 300))
+        jpgs.append(str(jp))
+        img.close()
+        del img
+        gc.collect()
+    n_pages = len(jpgs)
     interior = out / "interior.pdf"
-    pages[0].save(interior, "PDF", save_all=True, append_images=pages[1:], resolution=300.0)
+    # img2pdf embeds the JPEGs directly (no re-decode) → tiny memory footprint;
+    # the 300-DPI metadata gives the correct 8.75in page size.
+    with open(interior, "wb") as f:
+        f.write(img2pdf.convert(jpgs))
     if cover_type == "hardcover" and client is None:
         import lulu_client as _lc
         client = _lc.LuluClient(
@@ -677,9 +701,10 @@ def build(name, char, look, eye, out_dir, cover_type="softcover",
     fc.save(out / "cover_front.jpg", "JPEG", quality=90)
     wrap.save(out / "cover.jpg", "JPEG", quality=90)
     wrap.save(out / "cover.pdf", "PDF", resolution=300.0)
-    print(f"built {len(pages)} interior pages + cover wrap {wrap.size}", flush=True)
+    print(f"built {n_pages} interior pages + cover wrap {wrap.size}", flush=True)
     _art.clear()  # release cached source art so memory doesn't grow across builds
-    return str(interior), str(out / "cover.pdf"), len(pages)
+    gc.collect()
+    return str(interior), str(out / "cover.pdf"), n_pages
 
 
 if __name__ == "__main__":
