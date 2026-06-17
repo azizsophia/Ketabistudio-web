@@ -35,7 +35,9 @@ export default function BooksPage() {
 
       {/* ── the shelf ── */}
       <section className={`wrap ${styles.grid}`} aria-label="All books">
-        {BOOKS.map((b, i) => {
+        {[...BOOKS]
+          .sort((a, b) => Number(!!a.comingSoon) - Number(!!b.comingSoon))
+          .map((b, i) => {
           const personalized = b.tag === "Personalized";
           const soon = !!b.comingSoon;
           return (
