@@ -7,7 +7,19 @@
    place real test orders cheaply. */
 export const TEST_DOLLAR_PRICING = true;
 
-export const BOOK_PRICE_CENTS = TEST_DOLLAR_PRICING ? 100 : 2799; // $1 test / $27.99 live
+export const BOOK_PRICE_CENTS = TEST_DOLLAR_PRICING ? 100 : 2799; // $1 test / $27.99 live (softcover, default)
+
+/* Hardcover upsell — offered ONLY for the two personalized books
+   (her-beautiful-hijab, my-beautiful-duas). Softcover stays the default. */
+export const HARDCOVER_PRICE_CENTS = TEST_DOLLAR_PRICING ? 100 : 4299; // $1 test / $42.99 live
+export const HARDCOVER_PRICE_DISPLAY = TEST_DOLLAR_PRICING ? "$1.00" : "$42.99";
+
+export type CoverType = "softcover" | "hardcover";
+
+/** Book price in cents for the chosen cover type (softcover is the default). */
+export function bookPriceCents(coverType?: string): number {
+  return coverType === "hardcover" ? HARDCOVER_PRICE_CENTS : BOOK_PRICE_CENTS;
+}
 
 /* Greeting cards are priced "delivered" — one flat price that includes
    Prodigi printing + shipping, so there is no separate shipping line. */
@@ -42,6 +54,7 @@ export const HIFZ_ANNUAL_DISPLAY = TEST_DOLLAR_PRICING ? "$1.00" : "$59";
 
 /* Human-readable for the storefront */
 export const BOOK_PRICE_DISPLAY = TEST_DOLLAR_PRICING ? "$1.00" : "$27.99";
+export const SOFTCOVER_PRICE_DISPLAY = BOOK_PRICE_DISPLAY;
 export const SHIPPING_US_DISPLAY = "$4.99";
 export const SHIPPING_INTL_DISPLAY = "$14.99";
 
@@ -50,6 +63,11 @@ export const SHIPPING_INTL_DISPLAY = "$14.99";
    All current titles are 8.5in square, 32pp, same POD package. */
 export const POD_PACKAGE = "0850X0850.FC.PRE.PB.080CW444.MXX";
 
+/* ⚠️ CANDIDATE HARDCOVER POD — casewrap (CW). Keep in sync with the worker's
+   HARDCOVER_POD (worker.py / lulu_client.py). Used only to quote shipping for
+   hardcover orders; must be confirmed by Lulu on the first real order. */
+export const HARDCOVER_POD = "0850X0850.FC.PRE.CW.080CW444.MXX";
+
 export const BOOK_SHIP_SPEC: Record<string, { pageCount: number; pod: string }> = {
   "her-beautiful-hijab": { pageCount: 32, pod: POD_PACKAGE },
   "my-beautiful-duas": { pageCount: 32, pod: POD_PACKAGE },
@@ -57,6 +75,23 @@ export const BOOK_SHIP_SPEC: Record<string, { pageCount: number; pod: string }> 
   "maryam-is-kind-to-her-parents": { pageCount: 32, pod: POD_PACKAGE },
 };
 export const DEFAULT_SHIP_SPEC = { pageCount: 32, pod: POD_PACKAGE };
+
+/* Books that may be ordered in hardcover (personalized only). */
+export const HARDCOVER_SLUGS = ["her-beautiful-hijab", "my-beautiful-duas"];
+
+/** Shipping spec for a book + cover type. Hardcover (personalized books only)
+ *  quotes shipping with the casewrap POD; everything else uses the softcover
+ *  POD, so existing behavior is unchanged. */
+export function shipSpecFor(
+  slug: string,
+  coverType?: string
+): { pageCount: number; pod: string } {
+  const base = BOOK_SHIP_SPEC[slug] || DEFAULT_SHIP_SPEC;
+  if (coverType === "hardcover" && HARDCOVER_SLUGS.includes(slug)) {
+    return { pageCount: base.pageCount, pod: HARDCOVER_POD };
+  }
+  return base;
+}
 
 /* Charge = Lulu's shipping cost + modest handling, rounded up to the next
    $0.50, with a sensible floor so micro-quotes still cover packaging. */

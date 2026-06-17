@@ -4,6 +4,10 @@ import { useState } from "react";
 import BookPreview from "./BookPreview";
 import DuasPreview from "./DuasPreview";
 import styles from "./OrderSection.module.css";
+import {
+  SOFTCOVER_PRICE_DISPLAY,
+  HARDCOVER_PRICE_DISPLAY,
+} from "@/lib/pricing";
 
 const MAX_NAME = 14;
 
@@ -96,6 +100,7 @@ export default function OrderSection({ slug, personalized }: Props) {
   const [wearsHijab, setWearsHijab] = useState<boolean>(true);
   const [look, setLook] = useState<string>("indian");
   const [eyeColor, setEyeColor] = useState<string>("brown");
+  const [coverType, setCoverType] = useState<"softcover" | "hardcover">("softcover");
   const [nameError, setNameError] = useState("");
 
   /* shipping */
@@ -162,6 +167,7 @@ export default function OrderSection({ slug, personalized }: Props) {
           character: isDuas ? effectiveChar : null,
           look: isDuas ? look : null,
           eye_color: isDuas ? eyeColor : null,
+          cover_type: personalized ? coverType : "softcover",
           email: email.trim(),
           shipping: {
             name: shipName.trim(),
@@ -297,6 +303,8 @@ export default function OrderSection({ slug, personalized }: Props) {
                   </button>
                 ))}
               </div>
+
+              <CoverChoice coverType={coverType} setCoverType={setCoverType} />
             </div>
 
             <div className={styles.previewCol}>
@@ -389,6 +397,8 @@ export default function OrderSection({ slug, personalized }: Props) {
                   </button>
                 ))}
               </div>
+
+              <CoverChoice coverType={coverType} setCoverType={setCoverType} />
             </div>
 
             <div className={styles.previewCol}>
@@ -513,8 +523,19 @@ export default function OrderSection({ slug, personalized }: Props) {
 
           <div className={styles.priceSummary}>
             <div className={styles.priceRow}>
-              <span>Book</span>
-              <span>$27.99</span>
+              <span>
+                Book
+                {personalized
+                  ? coverType === "hardcover"
+                    ? " (Hardcover)"
+                    : " (Softcover)"
+                  : ""}
+              </span>
+              <span>
+                {personalized && coverType === "hardcover"
+                  ? HARDCOVER_PRICE_DISPLAY
+                  : SOFTCOVER_PRICE_DISPLAY}
+              </span>
             </div>
             <div className={styles.priceRow}>
               <span>Shipping</span>
@@ -522,7 +543,11 @@ export default function OrderSection({ slug, personalized }: Props) {
             </div>
             <div className={`${styles.priceRow} ${styles.priceTotal}`}>
               <span>Total</span>
-              <span>$27.99 + shipping</span>
+              <span>
+                {(personalized && coverType === "hardcover"
+                  ? HARDCOVER_PRICE_DISPLAY
+                  : SOFTCOVER_PRICE_DISPLAY) + " + shipping"}
+              </span>
             </div>
             <p className={styles.priceNote}>
               {isInternational
@@ -578,4 +603,50 @@ export default function OrderSection({ slug, personalized }: Props) {
   }
 
   return null;
+}
+
+/* ── Cover choice (personalized books only) — softcover default, hardcover
+   upsell. On-brand cream/forest/gold via the shared option styles. ── */
+function CoverChoice({
+  coverType,
+  setCoverType,
+}: {
+  coverType: "softcover" | "hardcover";
+  setCoverType: (v: "softcover" | "hardcover") => void;
+}) {
+  const options: {
+    key: "softcover" | "hardcover";
+    label: string;
+    price: string;
+  }[] = [
+    { key: "softcover", label: "Softcover", price: SOFTCOVER_PRICE_DISPLAY },
+    { key: "hardcover", label: "Hardcover", price: HARDCOVER_PRICE_DISPLAY },
+  ];
+  return (
+    <>
+      <p className={styles.label} id="cover-label">
+        Cover
+      </p>
+      <div
+        className={styles.coverGrid}
+        role="group"
+        aria-labelledby="cover-label"
+      >
+        {options.map((o) => (
+          <button
+            key={o.key}
+            type="button"
+            className={`${styles.coverOption} ${
+              coverType === o.key ? styles.coverActive : ""
+            }`}
+            aria-pressed={coverType === o.key}
+            onClick={() => setCoverType(o.key)}
+          >
+            <span className={styles.coverName}>{o.label}</span>
+            <span className={styles.coverPrice}>{o.price}</span>
+          </button>
+        ))}
+      </div>
+    </>
+  );
 }

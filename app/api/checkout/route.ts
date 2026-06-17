@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import {
-  BOOK_PRICE_CENTS,
+  bookPriceCents,
   shippingCents,
   shippingLabel,
   shipChargeFromLulu,
-  BOOK_SHIP_SPEC,
-  DEFAULT_SHIP_SPEC,
+  shipSpecFor,
   CURRENCY,
 } from "@/lib/pricing";
 import { luluShippingCents } from "@/lib/lulu";
@@ -43,7 +42,7 @@ export async function POST(req: NextRequest) {
 
   /* fetch the order — must exist and still be awaiting payment */
   const r = await fetch(
-    `${SB}/rest/v1/orders?id=eq.${orderId}&select=id,status,book_slug,child_name,customer_email,shipping`,
+    `${SB}/rest/v1/orders?id=eq.${orderId}&select=id,status,book_slug,child_name,customer_email,shipping,cover_type`,
     { headers: { Authorization: `Bearer ${KEY}`, apikey: KEY! }, cache: "no-store" }
   );
   const rows = await r.json();
@@ -59,6 +58,7 @@ export async function POST(req: NextRequest) {
   }
 
   const country = (order.shipping?.country_code || "US").toUpperCase();
+  const coverType = order.cover_type === "hardcover" ? "hardcover" : "softcover";
 
   /* Real-time Lulu shipping (Option B): quote the live cost for this address,
      fall back to flat zone rates if Lulu is unavailable so checkout never
@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
   let shipName = shippingLabel(country);
   const addr = order.shipping;
   if (addr?.street1 && addr?.city && addr?.postcode) {
-    const spec = BOOK_SHIP_SPEC[order.book_slug] || DEFAULT_SHIP_SPEC;
+    const spec = shipSpecFor(order.book_slug, coverType);
     const quote = await luluShippingCents(
       {
         name: addr.name,
@@ -102,6 +102,8 @@ export async function POST(req: NextRequest) {
   } else {
     bookName = SLUG_TITLES[order.book_slug] || "Ketabi Studio Book";
   }
+  /* Reflect the chosen cover in the product name shown on Stripe + receipt */
+  bookName += coverType === "hardcover" ? " (Hardcover)" : " (Softcover)";
 
   const origin =
     req.headers.get("origin") ||
@@ -117,10 +119,13 @@ export async function POST(req: NextRequest) {
           quantity: 1,
           price_data: {
             currency: CURRENCY,
-            unit_amount: BOOK_PRICE_CENTS,
+            unit_amount: bookPriceCents(coverType),
             product_data: {
               name: bookName,
-              description: "Personalized hardcover-quality keepsake, printed to order",
+              description:
+                coverType === "hardcover"
+                  ? "Personalized hardcover keepsake, printed to order"
+                  : "Personalized softcover keepsake, printed to order",
             },
           },
         },

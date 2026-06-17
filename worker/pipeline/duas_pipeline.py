@@ -488,10 +488,53 @@ def back_cover(ctx):
 
 
 
-def cover_wrap(ctx):
-    """Full-bleed Lulu wrap: back + spine + front, sized to 17.39x8.75in."""
-    spine = 60
+def cover_wrap(ctx, cover_type="softcover", client=None, page_count=32, pod=None):
+    """Full-bleed Lulu wrap: back + spine + front.
+
+    softcover (default): sized to 17.39x8.75in (perfect bound) — unchanged.
+    hardcover: sized to EXACTLY the casewrap dimensions Lulu requires for the
+      hardcover POD + page count (queried via client.calculate_cover_dimensions).
+      The art bleeds full across back + spine + front and the title sits in the
+      front-cover safe area (front_cover already keeps text >=~0.5in inside the
+      trim and the spine band is centred between the two full panels).
+
+    NOTE: the casewrap spine width / panel placement below is a first cut and
+    may need ONE tweak after the first real Lulu validate/proof of a hardcover.
+    The Lulu validate-cover QC gate (against the hardcover POD) protects orders.
+    """
     fc, bc = front_cover(ctx), back_cover(ctx)
+    if cover_type == "hardcover":
+        from lulu_client import HARDCOVER_POD, cover_dims_to_px
+        if client is None:
+            raise RuntimeError(
+                "hardcover cover generation requires a Lulu client to query "
+                "cover dimensions")
+        pod = pod or HARDCOVER_POD
+        dims = client.calculate_cover_dimensions(pod, page_count)
+        total_w, total_h = cover_dims_to_px(dims)  # px @ 300 DPI
+        # Spine = whatever horizontal space remains after the two full trim
+        # panels; the casewrap turn-in is absorbed by the full-bleed art.
+        spine = max(0, total_w - 2 * FULLBLEED)
+        wrap = Image.new("RGB", (max(total_w, 2 * FULLBLEED + spine),
+                                 max(total_h, FULLBLEED)), CREAM)
+        y_off = (wrap.height - FULLBLEED) // 2
+        wrap.paste(bc, (0, y_off))
+        wrap.paste(fc, (FULLBLEED + spine, y_off))
+        if spine > 0:
+            ImageDraw.Draw(wrap).rectangle(
+                [FULLBLEED, 0, FULLBLEED + spine, wrap.height],
+                fill=lerp(CREAM, GOLD, 0.14))
+        # Bleed top/bottom turn-in by stretching the art edges.
+        if y_off > 0:
+            top = wrap.crop((0, y_off, wrap.width, y_off + 1)).resize((wrap.width, y_off))
+            wrap.paste(top, (0, 0))
+            bot = wrap.crop((0, y_off + FULLBLEED - 1, wrap.width, y_off + FULLBLEED)).resize(
+                (wrap.width, wrap.height - (y_off + FULLBLEED)))
+            wrap.paste(bot, (0, y_off + FULLBLEED))
+        wrap = wrap.resize((total_w, total_h), Image.LANCZOS)
+        return wrap, fc
+    # ── Softcover (perfect bound) — unchanged ────────────────────────
+    spine = 60
     W, H = spine + 2 * FULLBLEED, FULLBLEED
     wrap = Image.new("RGB", (W, H), CREAM)
     wrap.paste(bc, (0, 0))
@@ -604,7 +647,8 @@ def text_page(sp, ctx):
     return img
 
 
-def build(name, char, look, eye, out_dir):
+def build(name, char, look, eye, out_dir, cover_type="softcover",
+          client=None, page_count=32, pod=None):
     out = Path(out_dir); out.mkdir(parents=True, exist_ok=True)
     ctx = {"name": name, "char": char, "look": look, "eye": eye}
     tc = BOOK["treasure_chest"]
@@ -621,7 +665,14 @@ def build(name, char, look, eye, out_dir):
         p.save(out / f"page{i+1:02d}.jpg", "JPEG", quality=88)
     interior = out / "interior.pdf"
     pages[0].save(interior, "PDF", save_all=True, append_images=pages[1:], resolution=300.0)
-    wrap, fc = cover_wrap(ctx)
+    if cover_type == "hardcover" and client is None:
+        import lulu_client as _lc
+        client = _lc.LuluClient(
+            client_key="".join(os.environ.get("LULU_CLIENT_KEY", "").split()),
+            client_secret="".join(os.environ.get("LULU_CLIENT_SECRET", "").split()),
+            env=os.environ.get("LULU_ENV", "sandbox").strip())
+    wrap, fc = cover_wrap(ctx, cover_type=cover_type, client=client,
+                          page_count=page_count, pod=pod)
     fc.save(out / "cover_front.jpg", "JPEG", quality=90)
     wrap.save(out / "cover.jpg", "JPEG", quality=90)
     wrap.save(out / "cover.pdf", "PDF", resolution=300.0)

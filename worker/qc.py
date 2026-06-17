@@ -81,7 +81,8 @@ def gate_cover_name_fit(child_name: str) -> dict:
 
 
 # ── Gate 2: spec ────────────────────────────────────────────────────
-def gate_spec(interior_pdf: str, cover_pdf: str, expected_pages: int = INTERIOR_PAGES) -> dict:
+def gate_spec(interior_pdf: str, cover_pdf: str, expected_pages: int = INTERIOR_PAGES,
+              cover_type: str = "softcover") -> dict:
     r = PdfReader(interior_pdf)
     if len(r.pages) != expected_pages:
         raise QCFailure(f"interior has {len(r.pages)} pages, expected {expected_pages}")
@@ -92,7 +93,18 @@ def gate_spec(interior_pdf: str, cover_pdf: str, expected_pages: int = INTERIOR_
     rc = PdfReader(cover_pdf)
     cw = float(rc.pages[0].mediabox.width) / 72
     ch = float(rc.pages[0].mediabox.height) / 72
-    if abs(cw - COVER_W_IN) > TOL_IN or abs(ch - COVER_H_IN) > TOL_IN:
+    if cover_type == "hardcover":
+        # Casewrap (hardcover) wrap dimensions are sized from Lulu's
+        # /print-job-cover-dimensions/ endpoint at generation time (they are
+        # larger than the softcover wrap and vary by binding), so we do NOT
+        # assert a fixed cover size here. The cover's exact correctness is
+        # enforced by the Lulu validate-cover gate against the hardcover POD;
+        # we only sanity-check the cover height is in a plausible range.
+        if ch < INTERIOR_IN - 0.5 or ch > INTERIOR_IN + 2.0:
+            raise QCFailure(
+                f"hardcover cover height {ch:.2f}in implausible "
+                f"(expected near {INTERIOR_IN}in + casewrap turn-in)")
+    elif abs(cw - COVER_W_IN) > TOL_IN or abs(ch - COVER_H_IN) > TOL_IN:
         raise QCFailure(f"cover {cw:.2f}x{ch:.2f}, expected {COVER_W_IN}x{COVER_H_IN}")
     # blank scan: every page must contain ink
     blanks = []

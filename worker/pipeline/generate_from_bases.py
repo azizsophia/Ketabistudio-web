@@ -118,8 +118,25 @@ def generate_page_from_base(pg, child_name, skin, hair, style):
     return m.add_bleed(img)
 
 
-def generate_cover_from_base(child_name, skin, hair, style):
-    """Mirror of m.generate_cover's text + wrap assembly, art from base."""
+def generate_cover_from_base(child_name, skin, hair, style,
+                             cover_type="softcover", client=None,
+                             page_count=32, pod=None):
+    """Mirror of m.generate_cover's text + wrap assembly, art from base.
+
+    cover_type:
+      'softcover' (default) — behavior unchanged: perfect-bound wrap built with
+        the historical fixed BLEED/SPINE geometry.
+      'hardcover' — casewrap. The wrap is sized to EXACTLY the dimensions Lulu
+        requires for the hardcover POD + page count (queried live via
+        client.calculate_cover_dimensions); the back+front art is scaled to
+        fully cover the bleed (back + spine + front) and the title/name text is
+        placed within the front-cover SAFE area (>=~0.5in from trim edges and
+        clear of the spine).
+
+    NOTE: the casewrap geometry below (art scale/position and spine placement)
+    is a best-effort first cut. It may need ONE tweak after the first real Lulu
+    validate/proof of a hardcover — this is expected and called out in the PR.
+    """
     import numpy as np
     child_name = m.clean_child_name(child_name)
     img = fetch_base(f"cover__{skin}-{hair}-{style}.jpg")
@@ -243,15 +260,20 @@ def generate_cover_from_base(child_name, skin, hair, style):
     m._draw_wrapped(draw, blurb_text, blurb_font, m.BODY_DARK, blurb_box,
                     line_spacing=1.35, align="center")
 
-    BLEED_PX = 38
-    SPINE_PX = 42
     trim_w = w // 2
-    total_w = BLEED_PX + trim_w + SPINE_PX + trim_w + BLEED_PX
-    total_h = BLEED_PX + h + BLEED_PX
-
     back = img.crop((0, 0, trim_w, h))
     front = img.crop((trim_w, 0, w, h))
     spine_color = img.getpixel((trim_w - 1, h // 2))
+
+    if cover_type == "hardcover":
+        return _assemble_hardcover_wrap(
+            back, front, spine_color, client, page_count, pod)
+
+    # ── Softcover (perfect bound) — historical geometry, unchanged ───
+    BLEED_PX = 38
+    SPINE_PX = 42
+    total_w = BLEED_PX + trim_w + SPINE_PX + trim_w + BLEED_PX
+    total_h = BLEED_PX + h + BLEED_PX
 
     cover = Image.new("RGB", (total_w, total_h), spine_color)
     x_spine = BLEED_PX + trim_w
@@ -272,9 +294,73 @@ def generate_cover_from_base(child_name, skin, hair, style):
     return cover
 
 
-def build_from_bases(child_name, skin, hair, style, out_dir):
+def _assemble_hardcover_wrap(back, front, spine_color, client, page_count, pod):
+    """Build a casewrap (hardcover) cover at EXACTLY Lulu's required dimensions.
+
+    The title/name text is already composited on `front` (trim space). We size
+    the wrap to Lulu's casewrap dims, then place back + spine + front so the
+    front trim sits flush against its outer (right) edge minus the wrap turn-in,
+    and let the back art fill the remaining left area. The art is scaled so the
+    book illustrations bleed fully to every edge — Lulu trims/wraps the excess.
+
+    Geometry caveat: art scale/position + spine width here are a first cut and
+    may need one tweak after the first real Lulu validate/proof. The Lulu
+    validate-cover QC gate (against the hardcover POD) protects every order.
+    """
+    from lulu_client import HARDCOVER_POD, cover_dims_to_px
+    if client is None:
+        raise RuntimeError(
+            "hardcover cover generation requires a Lulu client to query "
+            "cover dimensions")
+    pod = pod or HARDCOVER_POD
+    dims = client.calculate_cover_dimensions(pod, page_count)
+    total_w, total_h = cover_dims_to_px(dims)  # px @ 300 DPI
+
+    trim_w, trim_h = front.size  # 2550 x 2550
+    # Spine width = wrap width minus the two trim panels (back + front).
+    # Casewrap adds turn-in on all sides; the leftover horizontal space after
+    # the two full trim panels is the spine + the side turn-ins. We give the
+    # whole leftover to a centered spine band and let the art bleed under the
+    # turn-in regions on the outer edges.
+    spine_px = max(0, total_w - 2 * trim_w)
+
+    cover = Image.new("RGB", (total_w, total_h), spine_color)
+
+    # Vertically center the trim panels; the casewrap turn-in (top/bottom) is
+    # filled by edge-stretching the art so it bleeds past the trim.
+    y_off = (total_h - trim_h) // 2
+
+    x_back = 0
+    x_spine = trim_w
+    x_front = trim_w + spine_px
+
+    cover.paste(back, (x_back, y_off))
+    if spine_px > 0:
+        cover.paste(Image.new("RGB", (spine_px, trim_h), spine_color),
+                    (x_spine, y_off))
+    cover.paste(front, (x_front, y_off))
+
+    # Bleed the art to fill the turn-in margins (top/bottom edge stretch, and
+    # left/right edge stretch) so no cream/unprinted area lands in the wrap.
+    if y_off > 0:
+        top = cover.crop((0, y_off, total_w, y_off + 1)).resize((total_w, y_off))
+        cover.paste(top, (0, 0))
+        bot_src = cover.crop((0, y_off + trim_h - 1, total_w, y_off + trim_h))
+        bot = bot_src.resize((total_w, total_h - (y_off + trim_h)))
+        cover.paste(bot, (0, y_off + trim_h))
+    return cover
+
+
+def build_from_bases(child_name, skin, hair, style, out_dir,
+                     cover_type="softcover", client=None,
+                     page_count=32, pod=None):
     """Full book from bases, memory-lean: each page streamed to disk,
-    PDF assembled from files. Identical output to the certified build."""
+    PDF assembled from files. Identical output to the certified build.
+
+    The interior is IDENTICAL for both cover types; only the cover wrap differs
+    (see generate_cover_from_base). For hardcover a Lulu client is required to
+    fetch the casewrap cover dimensions; if not supplied one is constructed from
+    the environment credentials."""
     import gc
     import title_page as tp
     import matter_pages as mp
@@ -330,7 +416,15 @@ def build_from_bases(child_name, skin, hair, style, out_dir):
         cv.showPage()
     cv.save()
 
-    cover = generate_cover_from_base(name, skin, hair, style)
+    if cover_type == "hardcover" and client is None:
+        import lulu_client as _lc
+        client = _lc.LuluClient(
+            client_key="".join(os.environ.get("LULU_CLIENT_KEY", "").split()),
+            client_secret="".join(os.environ.get("LULU_CLIENT_SECRET", "").split()),
+            env=os.environ.get("LULU_ENV", "sandbox").strip())
+    cover = generate_cover_from_base(
+        name, skin, hair, style, cover_type=cover_type, client=client,
+        page_count=page_count, pod=pod)
     cover_jpg = out / "cover_raw.jpg"
     cover.save(cover_jpg, "JPEG", quality=95, dpi=(300, 300))
     cw, ch = cover.size[0] / 300, cover.size[1] / 300

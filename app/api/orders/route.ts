@@ -38,6 +38,21 @@ export async function POST(req: NextRequest) {
   const personalized = PERSONALIZED_SLUGS.includes(slug);
   const isDuas = DUAS_SLUGS.includes(slug);
 
+  /* cover type — default softcover. Hardcover is ALLOWED ONLY for the two
+     personalized books; reject it for any other slug so fixed books stay
+     softcover-only. */
+  const coverTypeRaw = String(body.cover_type || "softcover").toLowerCase();
+  if (coverTypeRaw !== "softcover" && coverTypeRaw !== "hardcover") {
+    return NextResponse.json({ error: "invalid cover type" }, { status: 400 });
+  }
+  if (coverTypeRaw === "hardcover" && !PERSONALIZED_SLUGS.includes(slug)) {
+    return NextResponse.json(
+      { error: "hardcover not available for this book" },
+      { status: 400 }
+    );
+  }
+  const coverType = coverTypeRaw;
+
   /* validate personalization fields */
   let childName: string | null = null;
   let skin: string | null = null;
@@ -129,6 +144,7 @@ export async function POST(req: NextRequest) {
     hair,
     hair_style: hairStyle,
     options,
+    cover_type: coverType,
     customer_email: email,
     shipping,
     status: "awaiting_payment",

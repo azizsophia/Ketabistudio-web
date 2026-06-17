@@ -318,6 +318,50 @@
   text-align: center;
 }
 
+/* ── Cover choice (softcover / hardcover upsell) ── */
+.coverGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 6px 0 4px;
+}
+
+.coverOption {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 12px 14px;
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  background: var(--card);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s;
+}
+
+.coverOption:hover {
+  border-color: var(--sage);
+}
+
+.coverActive {
+  border-color: var(--forest);
+  background: var(--cream);
+  box-shadow: 0 0 0 2px rgba(46, 74, 58, 0.12);
+}
+
+.coverName {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--forest);
+}
+
+.coverPrice {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--gold-deep);
+}
+
 /* Duas: pick-by-picture look chooser */
 .lookGrid {
   display: grid;

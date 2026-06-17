@@ -30,6 +30,15 @@ KEY = "".join(os.environ["SUPABASE_SERVICE_KEY"].split())
 HDRS = {"Authorization": f"Bearer {KEY}", "apikey": KEY,
         "Content-Type": "application/json"}
 POD = "0850X0850.FC.PRE.PB.080CW444.MXX"
+# ⚠️ CANDIDATE HARDCOVER POD — casewrap (CW) binding, same trim/paper as the
+# softcover above. Must be confirmed by Lulu's validate-cover gate on the first
+# real hardcover order; keep in sync with lulu_client.HARDCOVER_POD and the
+# Next.js HARDCOVER_POD in lib/pricing.ts.
+HARDCOVER_POD = "0850X0850.FC.PRE.CW.080CW444.MXX"
+
+# Books that may be ordered in hardcover (personalized only — fixed books keep
+# pre-made softcover cover art and are never offered in hardcover).
+HARDCOVER_SLUGS = {"her-beautiful-hijab", "my-beautiful-duas"}
 
 SKIN_TO_PSD = {"light": "Blonde light", "medium": "Blonde dark", "dark": "Dark"}
 HAIR_TO_PSD = {"black": "Black", "brown": "Brown", "blonde": "Blonde", "red": "Red"}
@@ -54,8 +63,15 @@ BOOK_SPECS = {
 }
 
 
-def spec_for(slug):
-    return BOOK_SPECS.get(slug, DEFAULT_SPEC)
+def spec_for(slug, cover_type="softcover"):
+    """Per-book print spec. Returns the hardcover POD only when a hardcover
+    order is placed for a personalized book; everything else (including fixed
+    books, and any unexpected cover_type) falls back to the softcover POD so
+    existing behavior is unchanged."""
+    spec = dict(BOOK_SPECS.get(slug, DEFAULT_SPEC))
+    if cover_type == "hardcover" and slug in HARDCOVER_SLUGS:
+        spec["pod"] = HARDCOVER_POD
+    return spec
 
 
 # ── supabase helpers ────────────────────────────────────────────────
@@ -99,26 +115,37 @@ def storage_download(bucket, path) -> bytes:
 
 
 # ── generation (personalized book) ──────────────────────────────────
-def generate_amira(order, workdir: Path):
-    """Runs the exact validated pipeline. Returns (interior_pdf, cover_pdf)."""
+def generate_amira(order, workdir: Path, cover_type="softcover", client=None):
+    """Runs the exact validated pipeline. Returns (interior_pdf, cover_pdf).
+
+    The interior PDF is identical for both cover types — only the cover wrap
+    geometry changes for hardcover (see generate_from_bases.build_from_bases).
+    """
     from generate_from_bases import build_from_bases
 
     name = order["child_name"].strip()
     qc.gate_name(name)
 
+    spec = spec_for(order["book_slug"], cover_type)
     return build_from_bases(
-        name, order["skin"], order["hair"], order["hair_style"], workdir)
+        name, order["skin"], order["hair"], order["hair_style"], workdir,
+        cover_type=cover_type, client=client,
+        page_count=spec["page_count"], pod=spec["pod"])
 
 
-def generate_duas(order, workdir: Path):
-    """Personalized 'My Beautiful Duas' interior + cover."""
+def generate_duas(order, workdir: Path, cover_type="softcover", client=None):
+    """Personalized 'My Beautiful Duas' interior + cover. Interior is identical
+    for both cover types; only the cover wrap geometry changes for hardcover."""
     import duas_pipeline
 
     name = order["child_name"].strip()
     qc.gate_name(name)
     opt = order.get("options") or {}
+    spec = spec_for(order["book_slug"], cover_type)
     interior, cover, _ = duas_pipeline.build(
-        name, opt.get("character"), opt.get("look"), opt.get("eye_color"), workdir)
+        name, opt.get("character"), opt.get("look"), opt.get("eye_color"),
+        workdir, cover_type=cover_type, client=client,
+        page_count=spec["page_count"], pod=spec["pod"])
     return interior, cover
 
 
@@ -127,6 +154,11 @@ def process(order):
     import lulu_client
     oid = order["id"]
     slug = order["book_slug"]
+    cover_type = order.get("cover_type", "softcover") or "softcover"
+    # Hardcover is only valid for personalized books; force softcover otherwise
+    # so a stray value can never change a fixed book's binding.
+    if cover_type == "hardcover" and slug not in HARDCOVER_SLUGS:
+        cover_type = "softcover"
     workdir = Path(f"/tmp/order-{oid}")
     workdir.mkdir(exist_ok=True)
     set_status(oid, "generating")
@@ -138,7 +170,18 @@ def process(order):
     except Exception as e:  # noqa: BLE001
         print(f"[{oid}] confirmation email error (non-fatal): {e}")
 
+    # Lulu client — created up front because hardcover cover generation must
+    # query Lulu for the required casewrap cover dimensions before rendering.
+    client = lulu_client.LuluClient(
+        client_key="".join(os.environ["LULU_CLIENT_KEY"].split()),
+        client_secret="".join(os.environ["LULU_CLIENT_SECRET"].split()),
+        env=os.environ.get("LULU_ENV", "sandbox").strip())
+
+    # Per-order print spec (POD differs for personalized hardcover orders).
+    spec = spec_for(slug, cover_type)
+
     if slug in FIXED_ASSETS:
+        # Fixed books are always softcover with pre-made cover art — untouched.
         ipath, cpath = FIXED_ASSETS[slug]
         interior = workdir / "interior.pdf"
         cover = workdir / "cover.pdf"
@@ -147,15 +190,19 @@ def process(order):
         interior, cover = str(interior), str(cover)
         ref_report = {"fixed_book": True}
     elif slug == "my-beautiful-duas":
-        interior, cover = generate_duas(order, workdir)
-        ref_report = {"duas_book": True, "options": order.get("options")}
+        interior, cover = generate_duas(order, workdir, cover_type=cover_type,
+                                        client=client)
+        ref_report = {"duas_book": True, "options": order.get("options"),
+                      "cover_type": cover_type}
     else:
-        interior, cover = generate_amira(order, workdir)
+        interior, cover = generate_amira(order, workdir, cover_type=cover_type,
+                                         client=client)
         ref_report = qc.gate_reference(
             interior, order["skin"], order["hair"], order["hair_style"])
+        ref_report["cover_type"] = cover_type
 
-    spec = spec_for(slug)
-    spec_report = qc.gate_spec(interior, cover, expected_pages=spec["page_count"])
+    spec_report = qc.gate_spec(interior, cover, expected_pages=spec["page_count"],
+                               cover_type=cover_type)
     set_status(oid, "qc_passed",
                qc_report={"spec": spec_report, "reference": ref_report})
 
@@ -167,11 +214,9 @@ def process(order):
     digest = qc.build_digest(interior, cover, order)
     storage_upload("orders", f"{oid}/digest.jpg", digest, "image/jpeg")
 
-    # Lulu validation on signed URLs
-    client = lulu_client.LuluClient(
-        client_key="".join(os.environ["LULU_CLIENT_KEY"].split()),
-        client_secret="".join(os.environ["LULU_CLIENT_SECRET"].split()),
-        env=os.environ.get("LULU_ENV", "sandbox").strip())
+    # Lulu validation on signed URLs — validates the cover against THIS order's
+    # POD (softcover or hardcover), so a wrong hardcover cover fails QC and the
+    # order halts before printing.
     lulu_report = qc.gate_lulu(client, signed_url("orders", ikey),
                                signed_url("orders", ckey), spec["pod"])
     set_status(oid, "validated",
@@ -191,7 +236,10 @@ def submit_approved(order):
         client_secret="".join(os.environ["LULU_CLIENT_SECRET"].split()),
         env=os.environ.get("LULU_ENV", "sandbox").strip())
     ship = order["shipping"]
-    spec = spec_for(order["book_slug"])
+    # Use the SAME per-order POD that QC validated (softcover or hardcover) —
+    # read the order's cover_type, never a global default.
+    cover_type = order.get("cover_type", "softcover") or "softcover"
+    spec = spec_for(order["book_slug"], cover_type)
     job = client.create_print_job(
         title=f"Ketabi {order['book_slug']} {order.get('child_name') or ''}".strip(),
         interior_url=signed_url("orders", order["interior_path"]),

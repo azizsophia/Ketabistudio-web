@@ -24,9 +24,37 @@ PRODUCTION_BASE = "https://api.lulu.com"
 # 80# coated white, matte) — already in Lulu's new dotted format.
 DEFAULT_POD_PACKAGE = "0850X0850.FC.PRE.PB.080CW444.MXX"
 
+# ⚠️ CANDIDATE HARDCOVER POD — casewrap (CW) binding, same 8.5x8.5 trim,
+# full color, premium, 80# coated white. This swaps the perfect-bound code
+# (PB) for casewrap (CW). It MUST be confirmed by Lulu's validate-cover gate
+# on the first real hardcover order — if Lulu rejects it, correct this single
+# constant (and HARDCOVER_POD in worker.py / lib/pricing.ts to match).
+HARDCOVER_POD = "0850X0850.FC.PRE.CW.080CW444.MXX"
+
 
 class LuluError(Exception):
     pass
+
+
+def pt_to_px(pt, dpi=300):
+    """Convert PDF points to pixels at the given DPI (Lulu cover dims are pt)."""
+    return int(round(float(pt) / 72.0 * dpi))
+
+
+def cover_dims_to_px(dims, dpi=300):
+    """Pull (width_px, height_px) out of a calculate_cover_dimensions() result.
+
+    Lulu's /print-job-cover-dimensions/ response reports the required wrap
+    width + height. Field names have varied across API versions, so accept the
+    common spellings. Raises LuluError if neither pair is present.
+    """
+    w = dims.get("width") or dims.get("cover_width") or \
+        (dims.get("dimensions") or {}).get("width")
+    h = dims.get("height") or dims.get("cover_height") or \
+        (dims.get("dimensions") or {}).get("height")
+    if w is None or h is None:
+        raise LuluError(f"cover dimensions missing width/height: {dims}")
+    return pt_to_px(w, dpi), pt_to_px(h, dpi)
 
 
 class LuluClient:
@@ -92,6 +120,34 @@ class LuluClient:
         if resp.status_code not in (200, 201):
             raise LuluError(
                 f"Cost calc failed ({resp.status_code}): {resp.text[:500]}"
+            )
+        return resp.json()
+
+    # ── Cover dimensions (required wrap size for a given binding) ────
+    def calculate_cover_dimensions(self, pod_package_id, page_count, unit="pt"):
+        """Ask Lulu for the exact cover-wrap dimensions a given binding +
+        page count requires. Casewrap (hardcover) wraps are physically larger
+        than a perfect-bound paperback cover (extra wrap/turn-in + a real
+        spine), so the cover MUST be generated at exactly these dimensions —
+        never hardcoded.
+
+        POSTs to /print-job-cover-dimensions/ with the package id and the
+        interior page count. Returns Lulu's response, which contains the
+        required width and height (Lulu reports these in points by default).
+        Callers convert pt→px at 300 DPI: px = round(pt / 72 * 300).
+        """
+        payload = {
+            "pod_package_id": pod_package_id,
+            "interior_page_count": page_count,
+            "unit": unit,
+        }
+        resp = requests.post(
+            f"{self.base}/print-job-cover-dimensions/",
+            headers=self._headers(), json=payload, timeout=60,
+        )
+        if resp.status_code not in (200, 201):
+            raise LuluError(
+                f"Cover dimensions failed ({resp.status_code}): {resp.text[:500]}"
             )
         return resp.json()
 
