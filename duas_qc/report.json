@@ -1,0 +1,69 @@
+{
+  "items": [
+    {
+      "item": "spec:boy-afro",
+      "status": "PASS",
+      "detail": "32pp 8.75x8.75"
+    },
+    {
+      "item": "spec:boy-indian",
+      "status": "PASS",
+      "detail": "32pp 8.75x8.75"
+    },
+    {
+      "item": "spec:boy-white",
+      "status": "PASS",
+      "detail": "32pp 8.75x8.75"
+    },
+    {
+      "item": "spec:girl-afro",
+      "status": "PASS",
+      "detail": "32pp 8.75x8.75"
+    },
+    {
+      "item": "spec:girl-indian",
+      "status": "PASS",
+      "detail": "32pp 8.75x8.75"
+    },
+    {
+      "item": "spec:girl-white",
+      "status": "PASS",
+      "detail": "32pp 8.75x8.75"
+    },
+    {
+      "item": "spec:hijab-afro",
+      "status": "PASS",
+      "detail": "32pp 8.75x8.75"
+    },
+    {
+      "item": "spec:hijab-indian",
+      "status": "PASS",
+      "detail": "32pp 8.75x8.75"
+    },
+    {
+      "item": "spec:hijab-white",
+      "status": "PASS",
+      "detail": "32pp 8.75x8.75"
+    },
+    {
+      "item": "longname:boy",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "item": "longname:girl",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "item": "longname:hijab",
+      "status": "PASS",
+      "detail": ""
+    }
+  ],
+  "summary": {
+    "pass": 12,
+    "fail": 0,
+    "result": "PASS"
+  }
+}
