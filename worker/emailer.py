@@ -106,8 +106,9 @@ def send_order_confirmation(order: dict) -> bool:
   confirmed. Your book is being made now.
 </p>
 <p style="margin:0 0 16px;font-size:15px;line-height:1.6;">
-  Every book is checked by hand before it goes to print, so each page is
-  exactly right. We will email you again the moment it ships.
+  Every order is carefully reviewed and quality-checked before it goes to
+  print, so your child&rsquo;s name, the artwork, and each page are just
+  right. We will email you again the moment it ships.
 </p>
 <p style="margin:0;font-size:13px;color:#8a847a;">Order {short}</p>
 """
