@@ -19,6 +19,7 @@ const ALLOW = [
   "/terms",
   "/refund-policy",
   "/cards/print",
+  "/admin", // password-protected (ADMIN_KEY); always reachable for the owner
 ];
 
 export function middleware(req: NextRequest) {

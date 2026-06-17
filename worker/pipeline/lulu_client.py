@@ -176,10 +176,11 @@ class LuluClient:
     # ── Print-job creation + status ─────────────────────────────────
     def create_print_job(self, title, cover_url, interior_url,
                          shipping_address, contact_email,
-                         pod_package_id=DEFAULT_POD_PACKAGE, quantity=1,
-                         shipping_level="MAIL", external_id=None):
+                         pod_package_id=DEFAULT_POD_PACKAGE, page_count=None,
+                         quantity=1, shipping_level="MAIL", external_id=None):
         """Create a print job. Builds Lulu's required nested line-item
-        structure (cover/interior as objects with source_url)."""
+        structure (cover/interior as objects with source_url). page_count is
+        required by Lulu for the line item."""
         line_item = {
             "title": title,
             "cover": {"source_url": cover_url},
@@ -187,6 +188,8 @@ class LuluClient:
             "pod_package_id": pod_package_id,
             "quantity": quantity,
         }
+        if page_count is not None:
+            line_item["page_count"] = page_count
         payload = {
             "contact_email": contact_email,
             "line_items": [line_item],

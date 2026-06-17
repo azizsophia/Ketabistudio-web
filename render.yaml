@@ -15,7 +15,7 @@ services:
       - key: LULU_CLIENT_SECRET
         sync: false
       - key: LULU_ENV
-        value: sandbox
+        sync: false   # set in dashboard: 'sandbox' or 'production' (must match the keys)
       - key: POLL_SECONDS
         value: "30"
       - key: PRODIGI_API_KEY
