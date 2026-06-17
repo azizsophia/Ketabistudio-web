@@ -389,3 +389,16 @@
   border-color: #b8862b;
   box-shadow: 0 0 0 3px rgba(184, 134, 43, 0.18);
 }
+
+/* Preview-only personalizer (coming-soon books) */
+.playground {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  max-width: 920px;
+  margin: 0 auto;
+  align-items: start;
+}
+@media (max-width: 760px) {
+  .playground { grid-template-columns: 1fr; }
+}

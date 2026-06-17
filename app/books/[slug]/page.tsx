@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BOOKS, PRINT_SPEC, getBook } from "@/lib/books";
 import OrderSection from "@/components/OrderSection";
+import DuasPreviewPlayground from "@/components/DuasPreviewPlayground";
 import FlipBook from "@/components/FlipBook";
 import styles from "./book.module.css";
 
@@ -115,22 +116,28 @@ export default async function BookPage({
       )}
 
       {soon ? (
-        <div className={`wrap ${styles.previewBlock}`}>
-          <div className={styles.soonPanel}>
-            <p className="eyebrow">Coming soon</p>
-            <h2 className={styles.soonTitle}>
-              This one&apos;s on its way, in shaa Allah
-            </h2>
-            <p className={styles.soonText}>
-              {book.title} isn&apos;t quite ready to order yet — we&apos;re
-              putting the finishing touches on it. Join the list and we&apos;ll
-              let you know the moment it opens.
-            </p>
-            <Link href="/coming-soon" className="btn btn-primary">
-              Notify me
-            </Link>
+        <>
+          <div className={`wrap ${styles.previewBlock}`}>
+            <div className={styles.soonPanel}>
+              <p className="eyebrow">Coming soon</p>
+              <h2 className={styles.soonTitle}>
+                This one&apos;s on its way, in shaa Allah
+              </h2>
+              <p className={styles.soonText}>
+                {book.title} isn&apos;t quite ready to order yet — we&apos;re
+                putting the finishing touches on it. Join the list and we&apos;ll
+                let you know the moment it opens.
+              </p>
+              <Link href="/coming-soon" className="btn btn-primary">
+                Notify me
+              </Link>
+            </div>
           </div>
-        </div>
+          <div className={`wrap ${styles.previewBlock}`}>
+            <p className="eyebrow">Get a glimpse</p>
+            <DuasPreviewPlayground />
+          </div>
+        </>
       ) : (
         <div id="order">
           <OrderSection slug={book.slug} personalized={personalized} />
