@@ -4,7 +4,7 @@ services:
     runtime: docker
     dockerfilePath: ./worker/Dockerfile
     dockerContext: .
-    plan: starter
+    plan: standard   # 2 GB RAM — book/hardcover render needs the headroom (Starter 512MB OOM'd)
     envVars:
       - key: SUPABASE_URL
         sync: false
