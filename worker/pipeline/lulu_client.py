@@ -131,7 +131,7 @@ class LuluClient:
         spine), so the cover MUST be generated at exactly these dimensions —
         never hardcoded.
 
-        POSTs to /print-job-cover-dimensions/ with the package id and the
+        POSTs to /cover-dimensions/ with the package id and the
         interior page count. Returns Lulu's response, which contains the
         required width and height (Lulu reports these in points by default).
         Callers convert pt→px at 300 DPI: px = round(pt / 72 * 300).
@@ -142,7 +142,7 @@ class LuluClient:
             "unit": unit,
         }
         resp = requests.post(
-            f"{self.base}/print-job-cover-dimensions/",
+            f"{self.base}/cover-dimensions/",
             headers=self._headers(), json=payload, timeout=60,
         )
         if resp.status_code not in (200, 201):

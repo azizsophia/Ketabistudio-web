@@ -87,8 +87,10 @@ def send_email(to: str, subject: str, html_body: str) -> bool:
 def _book_label(order: dict) -> str:
     slug = order.get("book_slug", "")
     child = (order.get("child_name") or "").strip()
-    if slug == "her-beautiful-hijab" and child:
-        return f"{child} and Her Beautiful Hijab"
+    if slug == "her-beautiful-hijab":
+        return f"{child} and Her Beautiful Hijab" if child else "Her Beautiful Hijab"
+    if slug == "my-beautiful-duas":
+        return f"{child}'s Beautiful Duas" if child else "My Beautiful Duas"
     return {
         "juha-and-the-enormous-pumpkin": "Juha and the Enormous Pumpkin",
         "maryam-is-kind-to-her-parents": "Maryam is Kind to Her Parents",
