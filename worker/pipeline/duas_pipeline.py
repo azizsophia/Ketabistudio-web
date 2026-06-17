@@ -86,6 +86,7 @@ def fetch_art(pack, page, look):
 
 
 def subst(text, char, name, eye):
+    eye = eye or ""  # eye colour is no longer named in the text; coerce None
     for token, val in BOOK["pronouns"][char].items():
         text = text.replace(f"[{token}]", val)
     return text.replace("[Child’s Name]", name).replace("[Child's Name]", name).replace("[eye color]", eye)

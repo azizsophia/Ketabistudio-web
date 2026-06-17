@@ -20,7 +20,6 @@ const DUAS_LOOKS = [
   { key: "indian", label: "Medium skin, straight hair" },
   { key: "white", label: "Light skin, blonde hair" },
 ] as const;
-const EYE_COLORS = ["brown", "hazel", "green", "blue", "grey", "black"] as const;
 
 const SKINS = [
   { key: "light", label: "Light skin", swatch: "#f3d5bd" },
@@ -99,7 +98,6 @@ export default function OrderSection({ slug, personalized }: Props) {
   const [character, setCharacter] = useState<string>("girl");
   const [wearsHijab, setWearsHijab] = useState<boolean>(true);
   const [look, setLook] = useState<string>("indian");
-  const [eyeColor, setEyeColor] = useState<string>("brown");
   const [coverType, setCoverType] = useState<"softcover" | "hardcover">("softcover");
   const [nameError, setNameError] = useState("");
 
@@ -166,7 +164,6 @@ export default function OrderSection({ slug, personalized }: Props) {
           hair_style: personalized && !isDuas ? hairStyle : null,
           character: isDuas ? effectiveChar : null,
           look: isDuas ? look : null,
-          eye_color: isDuas ? eyeColor : null,
           cover_type: personalized ? coverType : "softcover",
           email: email.trim(),
           shipping: {
@@ -286,20 +283,6 @@ export default function OrderSection({ slug, personalized }: Props) {
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={`/images/duas/${effectiveChar}-${lk.key}.jpg`} alt={lk.label} />
-                  </button>
-                ))}
-              </div>
-
-              <p className={styles.label} id="eye-label">Their eye colour</p>
-              <div className={styles.stylePills} role="group" aria-labelledby="eye-label">
-                {EYE_COLORS.map((c) => (
-                  <button
-                    key={c} type="button"
-                    className={`${styles.pill} ${eyeColor === c ? styles.pillActive : ""}`}
-                    aria-pressed={eyeColor === c}
-                    onClick={() => setEyeColor(c)}
-                  >
-                    {c[0].toUpperCase() + c.slice(1)}
                   </button>
                 ))}
               </div>

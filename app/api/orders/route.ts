@@ -71,14 +71,13 @@ export async function POST(req: NextRequest) {
     if (isDuas) {
       const character = String(body.character || "");
       const look = String(body.look || "");
-      const eyeColor = String(body.eye_color || "").trim().slice(0, 20);
       if (!VALID_CHARACTER.includes(character))
         return NextResponse.json({ error: "invalid character" }, { status: 400 });
       if (!VALID_LOOK.includes(look))
         return NextResponse.json({ error: "invalid look" }, { status: 400 });
-      if (!eyeColor)
-        return NextResponse.json({ error: "eye colour required" }, { status: 400 });
-      options = { character, look, eye_color: eyeColor };
+      // Eye colour is no longer named in the book (it clashed with the fixed
+      // artwork), so it is no longer collected or required.
+      options = { character, look };
     } else {
       skin = String(body.skin || "");
       hair = String(body.hair || "");

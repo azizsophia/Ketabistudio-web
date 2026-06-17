@@ -181,7 +181,7 @@
           2736,
           816
         ],
-        "text": "[Child’s Name] looked in the mirror and saw [his/her] lovely [eye color] eyes. “Allahumma kama hassanta khalqi fa-hassin khuluqi.” Make my heart beautiful too, Allah."
+        "text": "[Child’s Name] looked in the mirror and saw [his/her] lovely eyes. “Allahumma kama hassanta khalqi fa-hassin khuluqi.” Make my heart beautiful too, Allah."
       },
       {
         "bbox": [
@@ -590,7 +590,7 @@
         "page0007",
         "L"
       ],
-      "narrative": "[Child’s Name] looked in the mirror and saw [his/her] bright [eye color] eyes.",
+      "narrative": "[Child’s Name] looked in the mirror and saw [his/her] bright, happy eyes.",
       "arabic_ref": 8,
       "translit": "Allahumma kama hassanta khalqi, fa hassin khuluqi.",
       "meaning": "O Allah, just as You have made my external features beautiful, make my character beautiful as well."
