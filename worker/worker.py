@@ -227,6 +227,17 @@ def process(order):
     set_status(oid, "awaiting_approval")
     print(f"[{oid}] awaiting approval — digest at orders/{oid}/digest.jpg")
 
+    # Ping the owner with the preview + one-tap approve/reject links.
+    try:
+        site = os.environ.get("SITE_URL", "").strip().rstrip("/")
+        tok = order.get("approval_token", "")
+        digest_url = signed_url("orders", f"{oid}/digest.jpg")
+        approve_url = f"{site}/api/approve?order={oid}&token={tok}&action=approve"
+        reject_url = f"{site}/api/approve?order={oid}&token={tok}&action=reject"
+        emailer.send_admin_review(order, digest_url, approve_url, reject_url)
+    except Exception as e:  # noqa: BLE001
+        print(f"[{oid}] admin review email error (non-fatal): {e}")
+
 
 def submit_approved(order):
     import lulu_client

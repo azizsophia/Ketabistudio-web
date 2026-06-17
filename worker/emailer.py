@@ -16,6 +16,8 @@ RESEND_API_KEY = "".join(os.environ.get("RESEND_API_KEY", "").split())
 EMAIL_FROM = os.environ.get(
     "EMAIL_FROM", "Ketabi Studio <orders@ketabistudio.com>"
 ).strip()
+# Where owner approval requests go. Falls back to the studio inbox.
+ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "ketabistudio@gmail.com").strip()
 
 FOREST = "#2E4A3A"
 CREAM = "#F6F4EF"
@@ -180,3 +182,41 @@ def send_card_shipped(order: dict) -> bool:
         "Your card has shipped",
         _shell(inner),
     )
+
+
+def send_admin_review(order: dict, digest_url: str = "",
+                      approve_url: str = "", reject_url: str = "") -> bool:
+    """Notify the owner that an order is generated and awaiting approval, with
+    the preview digest + one-tap approve/reject links."""
+    book = html.escape(_book_label(order))
+    oid = str(order.get("id", ""))[:8]
+    ship = order.get("shipping") or {}
+    where = html.escape(
+        ", ".join(p for p in [ship.get("city"), ship.get("country_code")] if p))
+    cover = "hardcover" if order.get("cover_type") == "hardcover" else "softcover"
+    digest_img = (
+        f'<img src="{html.escape(digest_url, quote=True)}" alt="preview" '
+        f'style="width:100%;border-radius:12px;border:1px solid #e7e2d8;margin:14px 0;">'
+        if digest_url else "")
+    inner = f"""\
+<h1 style="margin:0 0 6px;font-size:20px;color:{FOREST};">A book is ready to approve</h1>
+<p style="margin:0 0 4px;font-size:15px;line-height:1.6;"><strong>{book}</strong> ({cover})</p>
+<p style="margin:0 0 6px;font-size:13px;color:#8a847a;">Order {oid}{(' &middot; ' + where) if where else ''}</p>
+{digest_img}
+<p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#6f6a5f;">
+  Check the name, look and pages above. Approve to send it to print, or reject to cancel.
+</p>
+<table role="presentation" cellpadding="0" cellspacing="0"><tr>
+  <td style="padding-right:10px;">
+    <a href="{html.escape(approve_url, quote=True)}"
+       style="display:inline-block;background:{FOREST};color:{CREAM};text-decoration:none;
+              padding:12px 26px;border-radius:10px;font-weight:700;">Approve &amp; print</a>
+  </td>
+  <td>
+    <a href="{html.escape(reject_url, quote=True)}"
+       style="display:inline-block;background:#ffffff;color:#b3503c;text-decoration:none;
+              padding:12px 22px;border-radius:10px;font-weight:700;border:1px solid #e7c4bb;">Reject</a>
+  </td>
+</tr></table>
+"""
+    return send_email(ADMIN_EMAIL, f"Approve: {book} (order {oid})", _shell(inner))
