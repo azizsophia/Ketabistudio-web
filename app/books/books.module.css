@@ -121,6 +121,22 @@
   box-shadow: 0 12px 24px -12px rgba(46, 74, 58, 0.7);
 }
 
+.soonBadge {
+  position: absolute;
+  z-index: 2;
+  top: 4px;
+  right: clamp(2px, 6%, 28px);
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: var(--gold-deep);
+  color: var(--cream);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  box-shadow: 0 12px 24px -12px rgba(46, 74, 58, 0.7);
+}
+
 .badgeDiamond {
   width: 7px;
   height: 7px;

@@ -37,6 +37,7 @@ export default function BooksPage() {
       <section className={`wrap ${styles.grid}`} aria-label="All books">
         {BOOKS.map((b, i) => {
           const personalized = b.tag === "Personalized";
+          const soon = !!b.comingSoon;
           return (
             <Link
               key={b.slug}
@@ -58,11 +59,15 @@ export default function BooksPage() {
                   className={styles.coverImg}
                   priority={i === 0}
                 />
-                {personalized && (
-                  <span className={styles.personalizeBadge}>
-                    <span className={styles.badgeDiamond} aria-hidden="true" />
-                    Personalize
-                  </span>
+                {soon ? (
+                  <span className={styles.soonBadge}>Coming soon</span>
+                ) : (
+                  personalized && (
+                    <span className={styles.personalizeBadge}>
+                      <span className={styles.badgeDiamond} aria-hidden="true" />
+                      Personalize
+                    </span>
+                  )
                 )}
               </span>
 
@@ -78,7 +83,11 @@ export default function BooksPage() {
                 <span className={styles.value}>{b.value}</span>
                 <span className={styles.blurb}>{b.blurb}</span>
                 <span className={styles.cta}>
-                  {personalized ? "Personalize this book" : "See the book"}
+                  {soon
+                    ? "Coming soon"
+                    : personalized
+                    ? "Personalize this book"
+                    : "See the book"}
                   <span aria-hidden="true"> &rarr;</span>
                 </span>
               </span>

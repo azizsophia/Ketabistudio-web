@@ -161,3 +161,27 @@
   font-weight: 600;
   color: var(--muted);
 }
+
+/* Coming-soon panel (shown instead of the order form for unreleased books) */
+.soonPanel {
+  text-align: center;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 40px 28px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card, 18px);
+  background: color-mix(in srgb, var(--sand) 45%, var(--cream));
+}
+.soonTitle {
+  font-family: var(--font-display), Georgia, serif;
+  font-weight: 600;
+  font-size: clamp(1.4rem, 4vw, 2rem);
+  color: var(--forest-deep, var(--forest));
+  margin: 8px 0 12px;
+}
+.soonText {
+  color: var(--muted);
+  line-height: 1.6;
+  margin: 0 auto 22px;
+  max-width: 46ch;
+}

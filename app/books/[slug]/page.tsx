@@ -31,6 +31,7 @@ export default async function BookPage({
 
   const personalized = book.personalization.type === "personalized";
   const fixed = book.personalization.type === "fixed";
+  const soon = !!book.comingSoon;
 
   return (
     <div className={styles.page}>
@@ -72,15 +73,16 @@ export default async function BookPage({
           </ul>
 
           <div className={styles.ctaRow}>
-            <a
-              className="btn btn-primary"
-              href="#order"
-            >
-              Order now
-            </a>
-            <span className={styles.priceTag}>
-              $27.99 + shipping
-            </span>
+            {soon ? (
+              <span className={styles.priceTag}>Coming soon, in shaa Allah</span>
+            ) : (
+              <>
+                <a className="btn btn-primary" href="#order">
+                  Order now
+                </a>
+                <span className={styles.priceTag}>$27.99 + shipping</span>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -112,9 +114,28 @@ export default async function BookPage({
       </div>
       )}
 
-      <div id="order">
-        <OrderSection slug={book.slug} personalized={personalized} />
-      </div>
+      {soon ? (
+        <div className={`wrap ${styles.previewBlock}`}>
+          <div className={styles.soonPanel}>
+            <p className="eyebrow">Coming soon</p>
+            <h2 className={styles.soonTitle}>
+              This one&apos;s on its way, in shaa Allah
+            </h2>
+            <p className={styles.soonText}>
+              {book.title} isn&apos;t quite ready to order yet — we&apos;re
+              putting the finishing touches on it. Join the list and we&apos;ll
+              let you know the moment it opens.
+            </p>
+            <Link href="/coming-soon" className="btn btn-primary">
+              Notify me
+            </Link>
+          </div>
+        </div>
+      ) : (
+        <div id="order">
+          <OrderSection slug={book.slug} personalized={personalized} />
+        </div>
+      )}
 
       <div className={`wrap ${styles.backRow}`}>
         <Link href="/books" className="btn btn-outline">

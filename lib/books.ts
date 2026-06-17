@@ -106,6 +106,8 @@ export type Book = {
         pipeline: "juha_pipeline" | "kind_pipeline";
         appearsOn: string[];
       };
+  /** When true, the book is teased but not yet orderable (storefront + API). */
+  comingSoon?: boolean;
 };
 
 export const BOOKS: Book[] = [
@@ -171,6 +173,7 @@ export const BOOKS: Book[] = [
       },
       appearsOn: ["Front cover", "Title page", "Belongs-to page", "Every story page"],
     },
+    comingSoon: true,
   },
   {
     slug: "juha-and-the-enormous-pumpkin",

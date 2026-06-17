@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
+import { BOOKS } from "@/lib/books";
+
+/* Books teased but not yet orderable (single source: lib/books comingSoon). */
+const COMING_SOON_SLUGS = new Set(
+  BOOKS.filter((b) => b.comingSoon).map((b) => b.slug)
+);
 
 const SB = process.env.SUPABASE_URL?.replace(/\s/g, "").replace(/\/$/, "");
 const KEY = process.env.SUPABASE_SERVICE_KEY?.replace(/\s/g, "");
@@ -33,6 +39,12 @@ export async function POST(req: NextRequest) {
   const slug = String(body.book_slug || "");
   if (!VALID_SLUGS.includes(slug)) {
     return NextResponse.json({ error: "invalid book" }, { status: 400 });
+  }
+  if (COMING_SOON_SLUGS.has(slug)) {
+    return NextResponse.json(
+      { error: "This book isn't available to order yet." },
+      { status: 400 }
+    );
   }
 
   const personalized = PERSONALIZED_SLUGS.includes(slug);
