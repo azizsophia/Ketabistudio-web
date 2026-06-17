@@ -402,3 +402,10 @@
 @media (max-width: 760px) {
   .playground { grid-template-columns: 1fr; }
 }
+
+/* Make the name field prominent in the preview-only personalizer */
+.playground .field {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 1.05rem;
+}

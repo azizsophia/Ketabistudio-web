@@ -101,7 +101,7 @@ export default function DuasPreviewPlayground() {
       <div className={styles.previewCol}>
         <DuasPreview name={name} character={effectiveChar} look={look} />
         <p className={styles.previewHint}>
-          A glimpse of the personalized preview — orders open soon, in shaa Allah.
+          A glimpse of the personalized preview. Orders open soon, Inshallah.
         </p>
       </div>
     </div>

@@ -75,7 +75,7 @@ export default async function BookPage({
 
           <div className={styles.ctaRow}>
             {soon ? (
-              <span className={styles.priceTag}>Coming soon, in shaa Allah</span>
+              <span className={styles.priceTag}>Coming soon, Inshallah</span>
             ) : (
               <>
                 <a className="btn btn-primary" href="#order">
@@ -121,7 +121,7 @@ export default async function BookPage({
             <div className={styles.soonPanel}>
               <p className="eyebrow">Coming soon</p>
               <h2 className={styles.soonTitle}>
-                This one&apos;s on its way, in shaa Allah
+                This one&apos;s on its way, Inshallah
               </h2>
               <p className={styles.soonText}>
                 {book.title} isn&apos;t quite ready to order yet — we&apos;re

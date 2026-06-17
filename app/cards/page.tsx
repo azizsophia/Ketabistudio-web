@@ -24,8 +24,8 @@ export default function CardsPage() {
           padding: "10px 16px",
         }}
       >
-        Sneak peek — the Card Studio is still in the works. Have a play; ordering
-        opens soon, in shaa Allah.
+        Sneak peek of the Card Studio, still in the works. Have a play; ordering
+        opens soon, Inshallah.
       </div>
       <CardMaker />
     </div>
