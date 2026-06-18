@@ -232,7 +232,7 @@ RECIPIENTS = {
     "about-grandpa": ("Jiddo", "Yusuf"),
     "about-spouse": ("Aisha", "Omar"),
     "about-baby": ("Yusuf", "Mama & Baba"),
-    "our-ramadan": ("Ramadan", "The Aziz family"),
+    "our-ramadan": ("Ramadan", "The Rahman family"),
 }
 # distinct photo seeds per template so previews don't all look identical
 SEEDS = {s: i for i, s in enumerate(RECIPIENTS)}
