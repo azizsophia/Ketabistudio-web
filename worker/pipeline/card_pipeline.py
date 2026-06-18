@@ -104,9 +104,8 @@ def _back_panel(d, x0, accent):
     """The back cover (left panel): quiet ivory with the wordmark + a hairline."""
     w = PANEL_W
     cx = x0 + w // 2
-    ls(d, "KETABI STUDIO", PF(36, 500), cx, SPREAD_H // 2 - 30, accent, 12)
-    _hairline(d, cx, SPREAD_H // 2 + 60, 90, accent, 2)
-    ls(d, "PRINTED TO ORDER", CG(30, 520), cx, SPREAD_H // 2 + 110, STONE, 4)
+    ls(d, "KETABI STUDIO", PF(36, 500), cx, SPREAD_H // 2 - 24, accent, 12)
+    _hairline(d, cx, SPREAD_H // 2 + 56, 90, accent, 2)
 
 
 def render_outside(accent, slots):
@@ -122,9 +121,7 @@ def render_inside(accent, message, dua, sign_off=""):
     img = Image.new("RGB", (SPREAD_W, SPREAD_H), BONE)
     d = ImageDraw.Draw(img)
 
-    # left panel — a quiet accent moment (room for a handwritten note)
-    lcx = PANEL_W // 2
-    _hairline(d, lcx, SPREAD_H // 2 - 4, 70, accent, 2)
+    # left panel — left intentionally blank for a handwritten note
 
     # right panel — the printed message + dua
     x0 = PANEL_W
