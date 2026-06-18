@@ -44,12 +44,12 @@ def _lerp(a, b, t):
 
 
 PALETTE_PAIRS = [
-    (pb.CREAM, pb.FOREST),
-    (pb.CREAM, pb.GOLD),
-    (pb.PAPER, pb.TERRA),
-    (pb.GOLD_DEEP, pb.FOREST),
-    (pb.CREAM, pb.TERRA),
-    (pb.FOREST, pb.GOLD),
+    (pb.BONE, pb.ESPRESSO),
+    (pb.BONE, pb.GOLD),
+    (pb.PAPER, pb.STONE),
+    (pb.GOLD_DEEP, pb.ESPRESSO),
+    (pb.BONE, pb.STONE),
+    (pb.ESPRESSO, pb.GOLD),
 ]
 
 
@@ -83,7 +83,7 @@ def _placeholder(n):
     tw = d.textlength(label, font=fo)
     # pick a label colour that contrasts the midtone
     mid = _lerp(top, bot, 0.5)
-    ink = (250, 246, 238) if sum(mid) < 380 else pb.FOREST
+    ink = (247, 242, 234) if sum(mid) < 380 else pb.ESPRESSO
     d.text(((PX - tw) / 2, PX / 2 - 200), label, font=fo, fill=ink)
     sub = "sample placeholder"
     sfo = ImageFont.truetype(pb.CORM, 120)

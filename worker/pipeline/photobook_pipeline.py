@@ -58,22 +58,27 @@ FD = Path(__file__).resolve().parent.parent / "fonts"
 CORM = str(FD / "Cormorant.ttf")
 CORM_IT = str(FD / "Cormorant-Italic.ttf")
 
-# ── premium keepsake palette (2026-27 best practices) ───────────────
-# Warm cream base, deep forest green, gold (light + deep), one soft terracotta
-# accent used sparingly. 3-4 colours, cohesive and timeless.
-CREAM = (250, 246, 238)      # #FAF6EE  page base
-FOREST = (46, 74, 58)        # #2E4A3A  deep forest green (primary ink)
-GOLD = (201, 168, 76)        # #C9A84C  gold (rules / display)
-GOLD_DEEP = (160, 127, 74)   # #A07F4A  deep gold (fine keylines)
-TERRA = (200, 128, 106)      # #C8806A  soft terracotta/rose (accent, sparing)
-INK = (52, 58, 52)           # near-forest body ink for long captions
-GRAY = (122, 124, 116)       # muted secondary text
-PAPER = (255, 252, 246)      # photo-mat / inset paper (a touch brighter)
+# ── luxury keepsake palette (fine-art / gallery photo book) ─────────
+# Deliberately NOT the storybook language (forest-green + bright gold + little
+# stars). This is a quiet, editorial, photo-forward palette: warm ivory paper,
+# deep espresso ink, restrained champagne gold used only as hairlines + small
+# caps, and a soft stone grey for secondary text.
+BONE = (246, 241, 233)       # #F6F1E9  warm ivory page base
+ESPRESSO = (43, 38, 34)      # #2B2622  deep warm ink (primary text)
+GOLD = (181, 151, 92)        # #B5975C  champagne / antique gold (hairlines)
+GOLD_DEEP = (150, 122, 70)   # #967A46  deeper gold (the finest keylines)
+STONE = (150, 141, 128)      # #968D80  muted stone grey (secondary text)
+INK = (58, 52, 46)           # #3A342E  soft body ink for longer lines
+PAPER = (250, 246, 240)      # inset paper, a touch brighter than the page
 
-# The dua printed on the dua page. VERIFIED — Qur'an 17:24. Mirrors
-# lib/photobook.ts; render EXACTLY (the Arabic is shaped RTL by AR/reshape).
+# The dua printed on the dua page. VERIFIED — Qur'an 17:24 (the dua for
+# parents, grammatically DUAL in the Qur'an). Mirrors lib/photobook.ts; render
+# EXACTLY (the Arabic is shaped RTL by AR/reshape). The `label` is the small
+# kicker above it — kept parent-neutral so it reads cleanly in both the Mama
+# and Baba keepsakes without altering the verse.
 DUA = {
     "about-mama": {
+        "label": "A DUA FOR THE ONES WHO RAISED ME",
         "arabic": "رَّبِّ ٱرْحَمْهُمَا كَمَا رَبَّيَانِى صَغِيرًا",
         "translit": "Rabbi-rḥamhumā kamā rabbayānī ṣaghīrā",
         "english":
@@ -125,17 +130,35 @@ def _cover_fit(img, w, h):
 
 
 # ── design helpers ──────────────────────────────────────────────────
-def _cream_page():
-    """A bare cream trim-size page with generous breathing room (no frame)."""
-    img = Image.new("RGB", (TRIM, TRIM), CREAM)
+def _page():
+    """A bare ivory trim-size page with generous breathing room (no frame)."""
+    img = Image.new("RGB", (TRIM, TRIM), BONE)
     return img, ImageDraw.Draw(img)
 
 
-def _gold_rule(d, cx, y, half=320, color=GOLD, width=3, dot=True):
-    """A centred gold hairline with an optional small star at its centre."""
+def _hairline(d, cx, y, half=180, color=GOLD, width=2):
+    """A single fine centred gold hairline — the only recurring motif. No star,
+    no flourish: restraint is the point."""
     d.line([cx - half, y, cx + half, y], fill=color, width=width)
-    if dot:
-        star_n(d, cx, y, 11, 8, fill=color)
+
+
+def _bottom_scrim(base, frac=0.40, max_alpha=165, color=(20, 17, 14)):
+    """Composite a soft transparent->dark gradient over the bottom `frac` of a
+    full-bleed photo so a light caption stays legible without a hard band.
+    Gallery/editorial style — the photo still reads edge to edge."""
+    w, h = base.size
+    sh = int(h * frac)
+    col = Image.new("L", (1, sh))
+    for i in range(sh):
+        # ease-in so the darkening is gentle at the top of the scrim
+        t = i / max(1, sh - 1)
+        col.putpixel((0, i), int(max_alpha * (t ** 1.5)))
+    alpha = col.resize((w, sh))
+    overlay = Image.new("RGBA", (w, sh), color + (0,))
+    overlay.putalpha(alpha)
+    out = base.convert("RGBA")
+    out.alpha_composite(overlay, (0, h - sh))
+    return out.convert("RGB")
 
 
 def _fit_lines(d, text, fo_maker, maxw, start, minsz, lh_factor=1.34,
@@ -161,217 +184,193 @@ def _fit_one_line(d, text, fo_maker, maxw, start, minsz):
 
 # ── interior pages (all trim-size; padded to full-bleed by to_fb) ────
 def title_page(recipient, author):
-    """Designed title: cream + forest, gold rule, gold display title."""
-    img, d = _cream_page()
+    """Quiet editorial title: ivory, one fine gold hairline frame, a small-caps
+    kicker, the title in espresso Cormorant, a hairline, and a soft byline."""
+    img, d = _page()
     cx = TRIM // 2
-    M = 300  # generous side margin
-    # slim double keyline frame, well inside the safe area
-    d.rectangle([M - 70, M - 70, TRIM - M + 70, TRIM - M + 70],
-                outline=GOLD, width=3)
-    d.rectangle([M - 54, M - 54, TRIM - M + 54, TRIM - M + 54],
-                outline=GOLD_DEEP, width=1)
-    star_n(d, cx, 460, 26, 8, fill=GOLD)
-    ls(d, "A KETABI STUDIO KEEPSAKE", CG(40, 600), cx, 560, GOLD_DEEP, 8)
+    M = 240
+    # ONE fine gold hairline frame, generously inset (no double keyline).
+    d.rectangle([M, M, TRIM - M, TRIM - M], outline=GOLD_DEEP, width=2)
+    ls(d, "A KEEPSAKE", CG(40, 600), cx, 580, GOLD, 12)
 
     lines = ["Everything I Love", f"About {recipient}"]
-    y = 760
+    y = 850
     for ln in lines:
-        fo, s = _fit_one_line(d, ln, lambda z: CG(z, 660), TRIM - 2 * M, 158, 70)
-        ctext(d, ln, fo, cx, y, FOREST)
-        y += s + 18
-    y += 40
-    _gold_rule(d, cx, y, half=300, color=GOLD, width=3)
-    ctext(d, f"by {author}", CG(76, 560, it=True), cx, y + 70, TERRA)
+        fo, s = _fit_one_line(d, ln, lambda z: CG(z, 640),
+                              TRIM - 2 * M - 160, 156, 64)
+        ctext(d, ln, fo, cx, y, ESPRESSO)
+        y += s + 12
+    y += 44
+    _hairline(d, cx, y, half=190, color=GOLD, width=2)
+    ctext(d, f"by {author}", CG(68, 540, it=True), cx, y + 56, STONE)
     return img
 
 
 def dedication_page(recipient, author):
-    img, d = _cream_page()
+    """Gallery-quiet dedication: lots of air, a small-caps 'for', the name set
+    large in italic, a hairline, and a soft byline."""
+    img, d = _page()
     cx = TRIM // 2
-    star_n(d, cx, 640, 22, 8, fill=GOLD)
-    msg = f"For {recipient},"
-    sub = f"with love — {author}"
-    ctext(d, msg, CG(120, 560, it=True), cx, 980, FOREST)
-    ctext(d, sub, CG(86, 560, it=True), cx, 1170, INK)
-    _gold_rule(d, cx, 1420, half=210, color=GOLD_DEEP, width=2, dot=False)
-    star_n(d, cx, 1420, 12, 8, fill=TERRA)
+    ls(d, "FOR", CG(38, 600), cx, 1000, GOLD, 16)
+    fo, _ = _fit_one_line(d, recipient, lambda z: CG(z, 540, it=True),
+                          TRIM - 700, 168, 80)
+    ctext(d, recipient, fo, cx, 1110, ESPRESSO)
+    _hairline(d, cx, 1430, half=160, color=GOLD, width=2)
+    ctext(d, f"with love, {author}", CG(70, 540, it=True), cx, 1500, STONE)
     return img
 
 
 def hero_photo_page(photo, caption):
-    """Full-bleed hero: photo bleeds past trim, caption sits in a small
-    translucent forest band near the bottom. Returns a FULLBLEED image."""
+    """Full-bleed hero: the photo reads edge to edge; the caption sits over a
+    soft gradient scrim (no hard band), in ivory italic with a fine gold tick.
+    Returns a FULLBLEED image."""
     base = _cover_fit(photo, FULLBLEED, FULLBLEED)
     cap = (caption or "").strip()
-    if cap:
-        d = ImageDraw.Draw(base, "RGBA")
-        # caption band — translucent forest, content kept inside the safe area
-        fo, s, lines, lh = _fit_lines(
-            d, cap, lambda z: CG(z, 540, it=True), FULLBLEED - 2 * (FBM + 220),
-            72, 56, lh_factor=1.3, max_h=420)
-        block_h = len(lines) * lh
-        band_h = block_h + 150
-        band_top = FULLBLEED - FBM - band_h - 90
-        d.rectangle([0, band_top, FULLBLEED, band_top + band_h],
-                    fill=(FOREST[0], FOREST[1], FOREST[2], 205))
-        # thin gold edge on the band
-        d.line([0, band_top, FULLBLEED, band_top], fill=GOLD + (235,), width=3)
-        cx = FULLBLEED // 2
-        y = band_top + 60
-        for ln in lines:
-            ctext(d, ln, fo, cx, y, (250, 246, 238))
-            y += lh
+    if not cap:
+        return base
+    base = _bottom_scrim(base, frac=0.42, max_alpha=170)
+    d = ImageDraw.Draw(base, "RGBA")
+    cx = FULLBLEED // 2
+    IVORY = (247, 242, 234)
+    fo, s, lines, lh = _fit_lines(
+        d, cap, lambda z: CG(z, 520, it=True), FULLBLEED - 2 * (FBM + 360),
+        66, 48, lh_factor=1.32, max_h=360)
+    block_h = len(lines) * lh
+    y = FULLBLEED - FBM - 220 - block_h
+    d.line([cx - 70, y - 50, cx + 70, y - 50], fill=GOLD + (235,), width=2)
+    for ln in lines:
+        ctext(d, ln, fo, cx, y, IVORY)
+        y += lh
     return base
 
 
-def framed_photo_page(photo, caption, photo_left=True):
-    """Framed inset on a cream page: thin gold keyline + mat, generous margins,
-    a short baseline-anchored caption beneath in Cormorant Italic. The photo is
-    offset to one side (alternating across spreads) so the book feels composed
-    rather than 12 identical pages."""
-    img, d = _cream_page()
-    cx = TRIM // 2
-    # Asymmetric margins so the page breathes; the photo hugs one side.
-    near = 250   # margin on the side the photo hugs
-    far = 470    # larger margin on the far side -> generous whitespace
-    top = 360
+def gallery_photo_page(photo, caption, photo_left=True):
+    """Editorial gallery page: a single clean photo set large with generous
+    asymmetric whitespace and ONE fine gold hairline (no mat, no double frame,
+    no star). The caption sits beneath in espresso italic. Sides alternate so
+    the book feels composed rather than a stack of identical pages."""
+    img, d = _page()
+    # Asymmetric margins -> generous breathing room; photo hugs one side.
+    near = 220   # margin on the side the photo hugs
+    far = 430    # larger margin on the far side
+    top = 300
     win = TRIM - near - far
-    win_h = win
     wx = near if photo_left else far
     wy = top
-
-    # mat + keyline
-    mat = 28
-    d.rectangle([wx - mat, wy - mat, wx + win + mat, wy + win_h + mat],
-                fill=PAPER, outline=GOLD, width=4)
-    d.rectangle([wx - mat + 9, wy - mat + 9, wx + win + mat - 9,
-                 wy + win_h + mat - 9], outline=GOLD_DEEP, width=1)
-    photo_fit = _cover_fit(photo, win, win_h)
+    photo_fit = _cover_fit(photo, win, win)
     img.paste(photo_fit, (wx, wy))
-    d.rectangle([wx, wy, wx + win, wy + win_h], outline=GOLD_DEEP, width=2)
+    # one fine gold hairline directly bordering the photo
+    d.rectangle([wx, wy, wx + win, wy + win], outline=GOLD_DEEP, width=2)
 
-    # short caption beneath, centred under the photo column
     cap = (caption or "").strip()
     if cap:
         col_cx = wx + win // 2
-        cap_top = wy + win_h + mat + 90
-        cap_avail_h = TRIM - cap_top - 180
+        cap_top = wy + win + 104
+        cap_avail_h = TRIM - cap_top - 150
         fo, s, lines, lh = _fit_lines(
-            d, cap, lambda z: CG(z, 520, it=True), win + 2 * mat + 40, 84, 48,
-            lh_factor=1.32, max_h=max(110, cap_avail_h))
+            d, cap, lambda z: CG(z, 500, it=True), win + 80, 80, 44,
+            lh_factor=1.34, max_h=max(100, cap_avail_h))
         block_h = len(lines) * lh
         y = cap_top + max(0, (cap_avail_h - block_h) // 2)
         for ln in lines:
-            ctext(d, ln, fo, col_cx, y, FOREST)
+            ctext(d, ln, fo, col_cx, y, ESPRESSO)
             y += lh
-        star_n(d, col_cx, y + 44, 8, 8, fill=TERRA)
     return img
 
 
 def dua_page(template):
-    """Calligraphic Arabic (17:24) + transliteration + English + reference.
-    Arabic is shaped RTL via the duas_pipeline approach (AR/reshape) — DO NOT
-    change the text or the shaping path."""
+    """Calligraphic Arabic (17:24) + transliteration + English + reference, set
+    quietly on ivory with one fine hairline frame. Arabic is shaped RTL via the
+    duas_pipeline approach (AR/reshape) — DO NOT change the text or shaping."""
     dua = DUA[template]
-    img, d = _cream_page()
+    img, d = _page()
     cx = TRIM // 2
-    M = 280
-    d.rectangle([M - 60, M - 60, TRIM - M + 60, TRIM - M + 60],
-                outline=GOLD, width=2)
-    star_n(d, cx, 470, 20, 8, fill=GOLD)
-    ls(d, "A DUA FOR MAMA & BABA", CG(44, 600), cx, 600, TERRA, 4)
+    M = 250
+    d.rectangle([M, M, TRIM - M, TRIM - M], outline=GOLD_DEEP, width=2)
+    ls(d, dua["label"], CG(40, 600), cx, 620, GOLD, 6)
 
     # Arabic — shaped + fit to width (verified glyphs, RTL).
     rsh = reshape(dua["arabic"])
     s = 124
-    while s > 50 and d.textlength(rsh, font=AR(s)) > TRIM - 2 * M:
+    while s > 50 and d.textlength(rsh, font=AR(s)) > TRIM - 2 * M - 80:
         s -= 2
     afo = AR(s)
-    y = 960
-    ctext(d, rsh, afo, cx, y, FOREST)
+    y = 1000
+    ctext(d, rsh, afo, cx, y, ESPRESSO)
     y += s + 150
-    _gold_rule(d, cx, y - 30, half=180, color=GOLD, width=2)
+    _hairline(d, cx, y - 30, half=170, color=GOLD, width=2)
     # transliteration
-    trf = CG(60, 520, it=True)
+    trf = CG(58, 520, it=True)
     for ln in wrap(d, dua["translit"], trf, TRIM - 2 * M):
-        ctext(d, ln, trf, cx, y, GRAY)
-        y += 86
-    y += 46
+        ctext(d, ln, trf, cx, y, STONE)
+        y += 84
+    y += 44
     # english
-    enf = CG(56, 520)
+    enf = CG(54, 520)
     for ln in wrap(d, dua["english"], enf, TRIM - 2 * M):
         ctext(d, ln, enf, cx, y, INK)
-        y += 80
-    y += 44
-    ctext(d, dua["ref"], CG(44, 600), cx, y, GOLD_DEEP)
+        y += 78
+    y += 46
+    ls(d, dua["ref"].upper(), CG(38, 600), cx, y, GOLD, 4)
     return img
 
 
 def closing_page(author):
-    img, d = _cream_page()
+    img, d = _page()
     cx = TRIM // 2
-    star_n(d, cx, 720, 26, 8, fill=GOLD)
-    ctext(d, "Made with love", CG(116, 560, it=True), cx, 1010, FOREST)
-    ctext(d, f"by {author}", CG(86, 520, it=True), cx, 1200, TERRA)
-    _gold_rule(d, cx, 1440, half=260, color=GOLD, width=2)
-    ls(d, "KETABI STUDIO", CG(46, 600), cx, 1540, GOLD_DEEP, 8)
+    ctext(d, "Made with love", CG(104, 540, it=True), cx, 1060, ESPRESSO)
+    ctext(d, f"by {author}", CG(72, 540, it=True), cx, 1230, STONE)
+    _hairline(d, cx, 1450, half=210, color=GOLD, width=2)
+    ls(d, "KETABI STUDIO", CG(42, 600), cx, 1530, GOLD, 12)
     return img
 
 
 # ── cover ───────────────────────────────────────────────────────────
 def _front_cover(recipient, author, cover_photo):
-    """Designed cream/gold front panel with a small framed photo window."""
-    img = Image.new("RGB", (FULLBLEED, FULLBLEED), CREAM)
+    """Restrained ivory front panel: one fine gold hairline frame, a small-caps
+    kicker, the title in espresso, and a clean photo window (single hairline,
+    no mat, no double frame, no star)."""
+    img = Image.new("RGB", (FULLBLEED, FULLBLEED), BONE)
     d = ImageDraw.Draw(img)
     cx = FULLBLEED // 2
-    # outer gold rules
-    d.rectangle([FBM + 50, FBM + 50, FULLBLEED - FBM - 50, FULLBLEED - FBM - 50],
-                outline=GOLD, width=5)
-    d.rectangle([FBM + 72, FBM + 72, FULLBLEED - FBM - 72, FULLBLEED - FBM - 72],
-                outline=GOLD_DEEP, width=1)
-    star_n(d, cx, 470, 28, 8, fill=GOLD)
-    ls(d, "A KETABI STUDIO KEEPSAKE", CG(38, 600), cx, 560, GOLD_DEEP, 6)
+    inset = FBM + 120
+    # ONE fine gold hairline frame, inset within the safe area.
+    d.rectangle([inset, inset, FULLBLEED - inset, FULLBLEED - inset],
+                outline=GOLD_DEEP, width=2)
+    ls(d, "A KEEPSAKE", CG(38, 600), cx, FBM + 280, GOLD, 10)
     # title
-    y = 660
+    y = FBM + 400
     for ln in ["Everything I Love", f"About {recipient}"]:
-        fo, s = _fit_one_line(d, ln, lambda z: CG(z, 660), FULLBLEED - 760,
-                              150, 64)
-        ctext(d, ln, fo, cx, y, FOREST)
-        y += s + 18
-    # small framed photo window
-    win = 980
-    wx, wy = cx - win // 2, y + 100
-    frame_pad = 26
-    d.rectangle([wx - frame_pad, wy - frame_pad, wx + win + frame_pad,
-                 wy + win + frame_pad], fill=PAPER, outline=GOLD, width=6)
-    d.rectangle([wx - frame_pad + 10, wy - frame_pad + 10,
-                 wx + win + frame_pad - 10, wy + win + frame_pad - 10],
-                outline=GOLD_DEEP, width=1)
+        fo, s = _fit_one_line(d, ln, lambda z: CG(z, 640),
+                              FULLBLEED - 2 * inset - 140, 140, 60)
+        ctext(d, ln, fo, cx, y, ESPRESSO)
+        y += s + 10
+    # clean photo window — single fine gold hairline, no mat
+    win = 1040
+    wx, wy = cx - win // 2, y + 110
     photo = _cover_fit(cover_photo, win, win)
     img.paste(photo, (wx, wy))
     d.rectangle([wx, wy, wx + win, wy + win], outline=GOLD_DEEP, width=2)
     # byline
-    ctext(d, f"by {author}", CG(70, 560, it=True), cx, wy + win + 120, TERRA)
+    ctext(d, f"by {author}", CG(62, 540, it=True), cx, wy + win + 96, STONE)
     return img
 
 
 def _back_cover(recipient, author):
-    img = Image.new("RGB", (FULLBLEED, FULLBLEED), CREAM)
+    img = Image.new("RGB", (FULLBLEED, FULLBLEED), BONE)
     d = ImageDraw.Draw(img)
     cx = FULLBLEED // 2
-    d.rectangle([FBM + 50, FBM + 50, FULLBLEED - FBM - 50, FULLBLEED - FBM - 50],
-                outline=GOLD, width=5)
-    d.rectangle([FBM + 72, FBM + 72, FULLBLEED - FBM - 72, FULLBLEED - FBM - 72],
-                outline=GOLD_DEEP, width=1)
-    star_n(d, cx, 720, 24, 8, fill=GOLD)
+    inset = FBM + 120
+    d.rectangle([inset, inset, FULLBLEED - inset, FULLBLEED - inset],
+                outline=GOLD_DEEP, width=2)
     blurb = (f"Twenty things {author} loves about {recipient} — in {author}'s "
              "own photos and words, sealed with the dua for parents.")
-    fo = CG(64, 520, it=True)
-    y = 1020
-    for ln in wrap(d, blurb, fo, FULLBLEED - 940):
-        ctext(d, ln, fo, cx, y, FOREST)
-        y += 96
-    ls(d, "KETABI STUDIO", CG(42, 600), cx, FULLBLEED - FBM - 210, GOLD_DEEP, 8)
+    fo = CG(60, 520, it=True)
+    y = 1060
+    for ln in wrap(d, blurb, fo, FULLBLEED - 2 * inset - 200):
+        ctext(d, ln, fo, cx, y, ESPRESSO)
+        y += 92
+    ls(d, "KETABI STUDIO", CG(40, 600), cx, FULLBLEED - inset - 170, GOLD, 10)
     return img
 
 
@@ -404,14 +403,14 @@ def cover_wrap(recipient, author, cover_photo, cover_type="softcover",
         total_w, total_h = cover_dims_to_px(dims)  # px @ 300 DPI
         spine = max(0, total_w - 2 * FULLBLEED)
         wrap = Image.new("RGB", (max(total_w, 2 * FULLBLEED + spine),
-                                 max(total_h, FULLBLEED)), CREAM)
+                                 max(total_h, FULLBLEED)), BONE)
         y_off = (wrap.height - FULLBLEED) // 2
         wrap.paste(bc, (0, y_off))
         wrap.paste(fc, (FULLBLEED + spine, y_off))
         if spine > 0:
             ImageDraw.Draw(wrap).rectangle(
                 [FULLBLEED, 0, FULLBLEED + spine, wrap.height],
-                fill=lerp(CREAM, GOLD, 0.14))
+                fill=lerp(BONE, GOLD, 0.12))
         if y_off > 0:
             top = wrap.crop((0, y_off, wrap.width, y_off + 1)).resize(
                 (wrap.width, y_off))
@@ -425,11 +424,11 @@ def cover_wrap(recipient, author, cover_photo, cover_type="softcover",
     # ── softcover (perfect bound) — fixed geometry, no Lulu call ──────
     spine = SOFTCOVER_SPINE
     W, H = spine + 2 * FULLBLEED, FULLBLEED
-    wrap = Image.new("RGB", (W, H), CREAM)
+    wrap = Image.new("RGB", (W, H), BONE)
     wrap.paste(bc, (0, 0))
     wrap.paste(fc, (FULLBLEED + spine, 0))
     ImageDraw.Draw(wrap).rectangle([FULLBLEED, 0, FULLBLEED + spine, H],
-                                   fill=lerp(CREAM, GOLD, 0.14))
+                                   fill=lerp(BONE, GOLD, 0.12))
     wrap = wrap.resize(SOFTCOVER_WRAP_PX, Image.LANCZOS)  # 17.39 x 8.75 @ 300
     return wrap, fc
 
@@ -466,7 +465,7 @@ def _plan_photo_pages(photos, captions):
             framed_index += 1
             thunks.append(
                 lambda photo=photo, cap=cap, left=left:
-                framed_photo_page(photo, cap, photo_left=left))
+                gallery_photo_page(photo, cap, photo_left=left))
     return thunks
 
 
