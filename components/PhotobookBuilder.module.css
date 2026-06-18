@@ -16,6 +16,12 @@
 .formPane {
   min-width: 0;
 }
+.fieldHint {
+  margin: 6px 0 0;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: #8a8478;
+}
 .layoutTag {
   display: inline-block;
   margin-left: 10px;

@@ -389,10 +389,14 @@ export default function PhotobookBuilder({
             className={styles.input}
             type="text"
             maxLength={30}
-            placeholder="Whose book this is"
+            placeholder="e.g. Yusuf"
             value={author}
             onChange={(e) => setAuthor(e.target.value)}
           />
+          <p className={styles.fieldHint}>
+            Who the keepsake is from — appears as &ldquo;by &hellip;&rdquo; on the
+            cover and dedication.
+          </p>
 
           <p className={styles.label}>Cover photo</p>
           <Uploader photo={coverPhoto} onFile={onCoverFile} label="Add cover photo" />
