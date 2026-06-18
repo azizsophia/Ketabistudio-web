@@ -60,44 +60,52 @@ def _hairline(d, cx, y, half, color, w=2):
     d.line([cx - half, y, cx + half, y], fill=color, width=w)
 
 
+# Type colours for the colour-forward front (set over the accent panel).
+IVORY = (247, 242, 234)
+LGOLD = (214, 188, 130)
+
+
 # ── outside: front + back ───────────────────────────────────────────
-def _front_panel(d, x0, accent, slots):
-    """The front cover (right panel): kicker, big Arabic word, transliteration,
-    an English line, and a foot line — all centred, on a fine accent keyline."""
+def _front_panel(d, img, x0, accent, slots):
+    """The front cover (right panel) — COLOUR-FORWARD: the panel is filled with
+    the card's accent colour; the kicker, big Arabic word, transliteration,
+    English line and foot are set in ivory + light gold on a fine gold keyline."""
     w = PANEL_W
     cx = x0 + w // 2
     inner = SAFE + 30
-    # fine accent keyline frame within the panel
+    # accent fills the whole front panel (incl. bleed)
+    ImageDraw.Draw(img).rectangle([x0, 0, SPREAD_W, SPREAD_H], fill=accent)
+    # fine light-gold keyline frame within the panel
     d.rectangle([x0 + inner, BLEED + inner, x0 + w - inner, SPREAD_H - BLEED - inner],
-                outline=accent, width=2)
+                outline=LGOLD, width=2)
 
-    ls(d, slots["eyebrow"].upper(), PF(34, 500), cx, 360, accent, 8)
+    ls(d, slots["eyebrow"].upper(), PF(34, 500), cx, 360, LGOLD, 8)
 
     y = 620
     if slots["bigArabic"]:
         shaped = reshape(slots["bigText"])
         afo, asz = _fit_ar(d, shaped, w - 2 * inner - 80, 150)
-        ctext(d, shaped, afo, cx, y, ESPRESSO)
+        ctext(d, shaped, afo, cx, y, IVORY)
         y += asz + 70
         if slots["translit"]:
-            ctext(d, slots["translit"], CG(50, 520, it=True), cx, y, STONE)
+            ctext(d, slots["translit"], CG(50, 520, it=True), cx, y, LGOLD)
             y += 96
     else:
         fo, sz = _fit_one(d, slots["bigText"], lambda z: PF(z, 500),
                           w - 2 * inner - 60, 132, 64)
-        ctext(d, slots["bigText"], fo, cx, y, ESPRESSO)
+        ctext(d, slots["bigText"], fo, cx, y, IVORY)
         y += sz + 60
 
-    _hairline(d, cx, y, 130, accent, 2)
+    _hairline(d, cx, y, 130, LGOLD, 2)
     y += 70
     if slots.get("line2"):
         fo, sz = _fit_one(d, slots["line2"], lambda z: CG(z, 540, it=True),
                           w - 2 * inner - 40, 84, 48)
-        ctext(d, slots["line2"], fo, cx, y, ESPRESSO)
+        ctext(d, slots["line2"], fo, cx, y, IVORY)
         y += sz + 40
     if slots.get("foot"):
         ctext(d, slots["foot"], CG(46, 520, it=True), cx,
-              SPREAD_H - BLEED - inner - 130, STONE)
+              SPREAD_H - BLEED - inner - 130, LGOLD)
 
 
 def _back_panel(d, x0, accent):
@@ -112,7 +120,7 @@ def render_outside(accent, slots):
     img = Image.new("RGB", (SPREAD_W, SPREAD_H), BONE)
     d = ImageDraw.Draw(img)
     _back_panel(d, 0, accent)
-    _front_panel(d, PANEL_W, accent, slots)
+    _front_panel(d, img, PANEL_W, accent, slots)
     return img
 
 
