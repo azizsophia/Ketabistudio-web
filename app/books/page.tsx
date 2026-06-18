@@ -97,6 +97,51 @@ export default function BooksPage() {
           );
         })}
       </section>
+
+      {/* ── keepsake line (photo books) ── */}
+      <section className={`wrap ${styles.grid}`} aria-label="Keepsakes">
+        <Link
+          href="/keepsakes/about-mama"
+          className={`card ${styles.bookCard}`}
+        >
+          <span className={styles.cover}>
+            <span
+              className={styles.coverGlow}
+              style={{ background: "#c9a84c" }}
+              aria-hidden="true"
+            />
+            <Image
+              src="/images/book-duas.jpg"
+              alt="Everything I Love About Mama keepsake"
+              width={700}
+              height={700}
+              sizes="(max-width: 720px) 90vw, 340px"
+              className={styles.coverImg}
+            />
+            <span className={styles.personalizeBadge}>
+              <span className={styles.badgeDiamond} aria-hidden="true" />
+              Your photos
+            </span>
+          </span>
+          <span className={styles.body}>
+            <span className={`${styles.tag} ${styles.tagPersonalized}`}>
+              Keepsake
+            </span>
+            <span className={styles.title}>Everything I Love About Mama</span>
+            <span className={styles.value}>
+              Your own photos &amp; words, sealed with the dua for parents
+            </span>
+            <span className={styles.blurb}>
+              Fill a beautiful printed keepsake with ten things you love about
+              Mama — your photos, your words.
+            </span>
+            <span className={styles.cta}>
+              Make this keepsake
+              <span aria-hidden="true"> &rarr;</span>
+            </span>
+          </span>
+        </Link>
+      </section>
     </div>
   );
 }

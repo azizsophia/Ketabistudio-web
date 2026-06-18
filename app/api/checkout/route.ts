@@ -10,6 +10,7 @@ import {
   CURRENCY,
 } from "@/lib/pricing";
 import { luluShippingCents } from "@/lib/lulu";
+import { isPhotobookSlug, photobookOrderTitle } from "@/lib/photobook";
 
 const SB = process.env.SUPABASE_URL?.replace(/\s/g, "").replace(/\/$/, "");
 const KEY = process.env.SUPABASE_SERVICE_KEY?.replace(/\s/g, "");
@@ -20,6 +21,7 @@ const SLUG_TITLES: Record<string, string> = {
   "my-beautiful-duas": "Beautiful Duas",
   "juha-and-the-enormous-pumpkin": "Juha and the Enormous Pumpkin",
   "maryam-is-kind-to-her-parents": "Maryam is Kind to Her Parents",
+  "about-mama": "Everything I Love About Mama",
 };
 
 export async function POST(req: NextRequest) {
@@ -43,7 +45,7 @@ export async function POST(req: NextRequest) {
 
   /* fetch the order — must exist and still be awaiting payment */
   const r = await fetch(
-    `${SB}/rest/v1/orders?id=eq.${orderId}&select=id,status,book_slug,child_name,customer_email,shipping,cover_type`,
+    `${SB}/rest/v1/orders?id=eq.${orderId}&select=id,status,book_slug,child_name,customer_email,shipping,cover_type,photo_data`,
     { headers: { Authorization: `Bearer ${KEY}`, apikey: KEY! }, cache: "no-store" }
   );
   const rows = await r.json();
@@ -100,7 +102,13 @@ export async function POST(req: NextRequest) {
   /* Product name shown on the Stripe page and the receipt */
   const childName = order.child_name?.trim();
   let bookName: string;
-  if (order.book_slug === "her-beautiful-hijab" && childName) {
+  if (isPhotobookSlug(order.book_slug)) {
+    // Photo-book keepsake — title comes from the recipient in photo_data.
+    bookName = photobookOrderTitle(
+      order.book_slug,
+      order.photo_data?.recipient_name
+    );
+  } else if (order.book_slug === "her-beautiful-hijab" && childName) {
     bookName = `${childName} and Her Beautiful Hijab`;
   } else if (order.book_slug === "my-beautiful-duas" && childName) {
     bookName = `${childName}'s Beautiful Duas`;

@@ -36,9 +36,15 @@ POD = "0850X0850.FC.PRE.PB.080CW444.MXX"
 # Next.js HARDCOVER_POD in lib/pricing.ts.
 HARDCOVER_POD = "0850X0850.FC.PRE.CW.080CW444.MXX"
 
-# Books that may be ordered in hardcover (personalized only — fixed books keep
-# pre-made softcover cover art and are never offered in hardcover).
-HARDCOVER_SLUGS = {"her-beautiful-hijab", "my-beautiful-duas"}
+# Photo-book keepsake templates (orders with book_slug = template slug). Built
+# from the customer's uploaded photos + captions via photobook_pipeline. Same
+# 8.5x8.5, 32pp spec as the books; offered in softcover + hardcover.
+PHOTOBOOK_SLUGS = {"about-mama"}
+
+# Books that may be ordered in hardcover (personalized books + every photo-book
+# keepsake). Fixed books keep pre-made softcover cover art and are never
+# offered in hardcover.
+HARDCOVER_SLUGS = {"her-beautiful-hijab", "my-beautiful-duas"} | PHOTOBOOK_SLUGS
 
 SKIN_TO_PSD = {"light": "Blonde light", "medium": "Blonde dark", "dark": "Dark"}
 HAIR_TO_PSD = {"black": "Black", "brown": "Brown", "blonde": "Blonde", "red": "Red"}
@@ -60,6 +66,7 @@ BOOK_SPECS = {
     "my-beautiful-duas": {"page_count": 32, "pod": POD},
     "juha-and-the-enormous-pumpkin": {"page_count": 32, "pod": POD},
     "maryam-is-kind-to-her-parents": {"page_count": 32, "pod": POD},
+    "about-mama": {"page_count": 32, "pod": POD},
 }
 
 
@@ -149,6 +156,23 @@ def generate_duas(order, workdir: Path, cover_type="softcover", client=None):
     return interior, cover
 
 
+def generate_photobook(order, workdir: Path, cover_type="softcover", client=None):
+    """Customer photo-book keepsake. Builds a 32pp interior + cover wrap from
+    the order's photo_data (uploaded photos + captions). Interior is identical
+    for both cover types; only the cover wrap geometry changes for hardcover."""
+    import photobook_pipeline
+
+    photo_data = order.get("photo_data") or {}
+    if not photo_data.get("pages"):
+        raise qc.QCFailure("photo book has no pages")
+    spec = spec_for(order["book_slug"], cover_type)
+    interior, cover, _ = photobook_pipeline.build(
+        photo_data, workdir, cover_type=cover_type, client=client,
+        page_count=spec["page_count"], pod=spec["pod"],
+        template=order["book_slug"])
+    return interior, cover
+
+
 # ── per-order processing ────────────────────────────────────────────
 def process(order):
     import lulu_client
@@ -195,6 +219,13 @@ def process(order):
         cover.write_bytes(storage_download("book-assets", cpath))
         interior, cover = str(interior), str(cover)
         ref_report = {"fixed_book": True}
+    elif slug in PHOTOBOOK_SLUGS:
+        # Customer photo-book keepsake — built from uploaded photos + captions.
+        interior, cover = generate_photobook(order, workdir,
+                                             cover_type=cover_type,
+                                             client=client)
+        ref_report = {"photo_book": True, "template": slug,
+                      "cover_type": cover_type}
     elif slug == "my-beautiful-duas":
         interior, cover = generate_duas(order, workdir, cover_type=cover_type,
                                         client=client)
@@ -260,8 +291,14 @@ def submit_approved(order):
     # read the order's cover_type, never a global default.
     cover_type = order.get("cover_type", "softcover") or "softcover"
     spec = spec_for(order["book_slug"], cover_type)
+    # Title shown to Lulu — recipient name for photo books, child name otherwise.
+    if order["book_slug"] in PHOTOBOOK_SLUGS:
+        pd = order.get("photo_data") or {}
+        who = (pd.get("recipient_name") or "").strip()
+    else:
+        who = order.get("child_name") or ""
     job = client.create_print_job(
-        title=f"Ketabi {order['book_slug']} {order.get('child_name') or ''}".strip(),
+        title=f"Ketabi {order['book_slug']} {who}".strip(),
         interior_url=signed_url("orders", order["interior_path"]),
         cover_url=signed_url("orders", order["cover_path"]),
         pod_package_id=spec["pod"], page_count=spec["page_count"],

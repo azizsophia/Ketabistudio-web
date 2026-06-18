@@ -74,16 +74,27 @@ export const POD_PACKAGE = "0850X0850.FC.PRE.PB.080CW444.MXX";
    hardcover orders; must be confirmed by Lulu on the first real order. */
 export const HARDCOVER_POD = "0850X0850.FC.PRE.CW.080CW444.MXX";
 
+/* Photo-book keepsake templates (orders with book_slug = template slug). They
+   are the same 8.5x8.5, 32pp spec as the books and are offered in softcover +
+   hardcover. Kept here (not imported) to avoid a server/client import cycle. */
+export const PHOTOBOOK_SLUGS = ["about-mama"];
+
 export const BOOK_SHIP_SPEC: Record<string, { pageCount: number; pod: string }> = {
   "her-beautiful-hijab": { pageCount: 32, pod: POD_PACKAGE },
   "my-beautiful-duas": { pageCount: 32, pod: POD_PACKAGE },
   "juha-and-the-enormous-pumpkin": { pageCount: 32, pod: POD_PACKAGE },
   "maryam-is-kind-to-her-parents": { pageCount: 32, pod: POD_PACKAGE },
+  "about-mama": { pageCount: 32, pod: POD_PACKAGE },
 };
 export const DEFAULT_SHIP_SPEC = { pageCount: 32, pod: POD_PACKAGE };
 
-/* Books that may be ordered in hardcover (personalized only). */
-export const HARDCOVER_SLUGS = ["her-beautiful-hijab", "my-beautiful-duas"];
+/* Books that may be ordered in hardcover (personalized books + all photo-book
+   keepsakes). The casewrap POD is selected by shipSpecFor below. */
+export const HARDCOVER_SLUGS = [
+  "her-beautiful-hijab",
+  "my-beautiful-duas",
+  ...PHOTOBOOK_SLUGS,
+];
 
 /** Shipping spec for a book + cover type. Hardcover (personalized books only)
  *  quotes shipping with the casewrap POD; everything else uses the softcover

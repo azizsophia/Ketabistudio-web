@@ -1,0 +1,265 @@
+.section {
+  background: var(--cream);
+  color: var(--ink);
+  padding: 48px 0 96px;
+}
+.inner {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+.stepLabel {
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--gold-deep);
+  margin: 0 0 8px;
+}
+.heading {
+  font-family: var(--font-display), Georgia, serif;
+  color: var(--forest);
+  font-size: clamp(1.7rem, 4vw, 2.6rem);
+  margin: 0 0 10px;
+}
+.sub {
+  color: #5a5750;
+  max-width: 60ch;
+  margin: 0 0 28px;
+  line-height: 1.6;
+}
+.label {
+  display: block;
+  font-weight: 600;
+  color: var(--forest);
+  margin: 18px 0 6px;
+  font-size: 0.95rem;
+}
+.input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid #d8d2c4;
+  border-radius: 10px;
+  background: #fffdf8;
+  color: var(--ink);
+  font-size: 1rem;
+  font-family: inherit;
+}
+.input:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.2);
+}
+.row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.fieldFull {
+  grid-column: 1 / -1;
+}
+@media (max-width: 620px) {
+  .row2,
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* uploader */
+.uploader {
+  border: 1.5px dashed #cdbf93;
+  border-radius: 12px;
+  background: #fffdf8;
+  padding: 14px;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+.thumb {
+  width: 96px;
+  height: 96px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex: 0 0 auto;
+  border: 1px solid #e3dccb;
+}
+.thumbEmpty {
+  width: 96px;
+  height: 96px;
+  border-radius: 8px;
+  flex: 0 0 auto;
+  background: #f1ece0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #b3a988;
+  font-size: 0.8rem;
+  text-align: center;
+}
+.uploadBody {
+  flex: 1;
+  min-width: 0;
+}
+.fileBtn {
+  display: inline-block;
+  cursor: pointer;
+  background: var(--forest);
+  color: var(--cream);
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.fileBtn input {
+  display: none;
+}
+.dpiBlock {
+  color: #b03a2e;
+  font-size: 0.86rem;
+  margin: 8px 0 0;
+  font-weight: 600;
+}
+.dpiWarn {
+  color: var(--gold-deep);
+  font-size: 0.86rem;
+  margin: 8px 0 0;
+}
+.dpiOk {
+  color: #2e7d52;
+  font-size: 0.86rem;
+  margin: 8px 0 0;
+}
+
+/* spreads */
+.spread {
+  border: 1px solid #e6dfce;
+  border-radius: 14px;
+  padding: 18px;
+  margin: 0 0 18px;
+  background: #fffdf8;
+}
+.spreadNum {
+  font-family: var(--font-display), Georgia, serif;
+  color: var(--gold-deep);
+  font-size: 0.95rem;
+  margin: 0 0 8px;
+}
+.captionInput {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid #d8d2c4;
+  border-radius: 10px;
+  background: #fffdf8;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.05rem;
+  font-style: italic;
+  color: var(--ink);
+  resize: vertical;
+  min-height: 52px;
+}
+
+/* cover choice */
+.coverGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 8px;
+}
+.coverOption {
+  border: 2px solid #ddd6c6;
+  border-radius: 12px;
+  padding: 16px;
+  background: #fffdf8;
+  cursor: pointer;
+  text-align: left;
+}
+.coverActive {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.18);
+}
+.coverName {
+  display: block;
+  font-weight: 700;
+  color: var(--forest);
+}
+.coverPrice {
+  display: block;
+  color: var(--gold-deep);
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+/* dua note */
+.duaNote {
+  margin: 24px 0;
+  padding: 18px 20px;
+  border: 1px solid #e6dfce;
+  border-radius: 12px;
+  background: #fbf7ec;
+  text-align: center;
+}
+.duaArabic {
+  font-family: var(--font-arabic), serif;
+  direction: rtl;
+  font-size: 1.6rem;
+  color: var(--forest);
+  margin: 0 0 8px;
+  line-height: 1.7;
+}
+.duaTranslit {
+  font-style: italic;
+  color: #6b675e;
+  margin: 0 0 4px;
+}
+.duaEnglish {
+  color: var(--ink);
+  margin: 0 0 4px;
+}
+.duaRef {
+  color: var(--gold-deep);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.priceSummary {
+  margin: 22px 0;
+  padding: 16px 18px;
+  border: 1px solid #e6dfce;
+  border-radius: 12px;
+  background: #fbf7ec;
+}
+.priceRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+}
+.priceTotal {
+  font-weight: 700;
+  border-top: 1px solid #e0d8c5;
+  margin-top: 6px;
+  padding-top: 10px;
+}
+.priceNote {
+  color: #76726a;
+  font-size: 0.82rem;
+  margin: 10px 0 0;
+}
+
+.error {
+  color: #b03a2e;
+  font-weight: 600;
+  margin: 12px 0;
+}
+.btnRow {
+  display: flex;
+  gap: 12px;
+  margin-top: 28px;
+}
+.nextBtn {
+  flex: 1;
+}
