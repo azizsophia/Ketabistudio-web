@@ -92,10 +92,15 @@ TITLES = {
     "about-baba": "Everything I Love About Baba",
     "about-grandma": "Everything I Love About Grandma",
     "about-grandpa": "Everything I Love About Grandpa",
-    "about-spouse": "Everything I Love About You",
-    "about-baby": "Everything We Love About You",
-    "our-ramadan": "Everything I Love About Ramadan",
+    "about-spouse": "The Coolness of My Eyes",
+    "about-baby": "Welcome, Little One",
+    "our-ramadan": "Thirty Beautiful Nights",
 }
+
+# These keepsakes print their distinctive title on the cover/title page (the
+# recipient's name still appears inside, on the dedication). The rest use the
+# personalised "Everything I/We Love About <name>" form.
+CUSTOM_COVER_TITLE = {"about-spouse", "about-baby", "our-ramadan"}
 
 # The heartfelt dedication line (set beneath the recipient's name). Warm and
 # faith-rooted; the recipient's and author's names frame it on the page.
@@ -245,11 +250,27 @@ def _fit_one_line(d, text, fo_maker, maxw, start, minsz):
 
 
 # ── interior pages (all trim-size; padded to full-bleed by to_fb) ────
-def _cover_title_lines(recipient, template):
-    """The two title lines. Baby uses 'We Love' (from the parents); all others
-    use 'I Love'."""
+def _cover_lines(d, recipient, template, maxw):
+    """The title lines to print on the cover/title page. Custom-title keepsakes
+    use their distinctive name (wrapped to fit); the rest use the personalised
+    'Everything I/We Love / About <name>' two-line form."""
+    if template in CUSTOM_COVER_TITLE:
+        return wrap(d, TITLES.get(template, ""), PF(150, 500), maxw)
     verb = "Everything We Love" if template == "about-baby" else "Everything I Love"
     return [verb, f"About {recipient}"]
+
+
+def _draw_title(d, lines, cx, y, maxw, color, start=150, minsz=60, gap=16):
+    """Draw the title lines at a single uniform size that fits every line in
+    maxw, so multi-line titles stay visually balanced. Returns the y below."""
+    s = start
+    while s > minsz and any(d.textlength(ln, font=PF(s, 500)) > maxw for ln in lines):
+        s -= 4
+    fo = PF(s, 500)
+    for ln in lines:
+        ctext(d, ln, fo, cx, y, color)
+        y += s + gap
+    return y
 
 
 def title_page(recipient, author, template="about-mama"):
@@ -262,14 +283,10 @@ def title_page(recipient, author, template="about-mama"):
     d.rectangle([M, M, TRIM - M, TRIM - M], outline=ACCENT_DEEP, width=2)
     ls(d, "A KEEPSAKE", PF(40, 500), cx, 580, ACCENT, 14)
 
-    lines = _cover_title_lines(recipient, template)
-    y = 850
-    for ln in lines:
-        fo, s = _fit_one_line(d, ln, lambda z: PF(z, 500),
-                              TRIM - 2 * M - 160, 150, 60)
-        ctext(d, ln, fo, cx, y, ESPRESSO)
-        y += s + 18
-    y += 44
+    maxw = TRIM - 2 * M - 160
+    lines = _cover_lines(d, recipient, template, maxw)
+    y = _draw_title(d, lines, cx, 850, maxw, ESPRESSO, start=150, minsz=60)
+    y += 28
     _hairline(d, cx, y, half=190, color=ACCENT, width=2)
     ctext(d, f"by {author}", CG(68, 540, it=True), cx, y + 56, STONE)
     return img
@@ -422,12 +439,10 @@ def _front_cover(recipient, author, cover_photo, template="about-mama"):
     y = int(FULLBLEED * 0.60)
     ls(d, "A KEEPSAKE", PF(44, 500), cx, y, ACCENT_DARK, 16)
     y += 130
-    for ln in _cover_title_lines(recipient, template):
-        fo, s = _fit_one_line(d, ln, lambda z: PF(z, 500),
-                              FULLBLEED - 2 * M, 150, 64)
-        ctext(d, ln, fo, cx, y, IVORY)
-        y += s + 16
-    y += 40
+    maxw = FULLBLEED - 2 * M
+    lines = _cover_lines(d, recipient, template, maxw)
+    y = _draw_title(d, lines, cx, y, maxw, IVORY, start=150, minsz=64)
+    y += 24
     d.line([cx - 150, y, cx + 150, y], fill=ACCENT_DARK + (240,), width=2)
     y += 56
     ctext(d, f"by {author}", CG(64, 540, it=True), cx, y, IVORY)
