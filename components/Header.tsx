@@ -27,11 +27,8 @@ export default function Header() {
 
         <nav className={styles.nav} aria-label="Main">
           <Link href="/#watch">Watch</Link>
-          <Link href="/books">Books</Link>
+          <Link href="/shop">Shop</Link>
           <Link href="/kids">Kids Corner</Link>
-          <Link href="/cards" className={styles.soonLink}>
-            Cards <span className={styles.soon}>soon</span>
-          </Link>
           <div
             className={styles.dropWrap}
             onMouseEnter={() => setAppOpen(true)}
@@ -63,8 +60,8 @@ export default function Header() {
           <Link href="/about">About</Link>
         </nav>
 
-        <Link href="/books" className={`btn btn-primary ${styles.cta}`}>
-          Shop books
+        <Link href="/shop" className={`btn btn-primary ${styles.cta}`}>
+          Shop
         </Link>
 
         <button
@@ -82,15 +79,12 @@ export default function Header() {
       {open && (
         <nav className={styles.sheet} aria-label="Mobile">
           <Link href="/#watch" onClick={() => setOpen(false)}>Watch</Link>
-          <Link href="/books" onClick={() => setOpen(false)}>Books</Link>
+          <Link href="/shop" onClick={() => setOpen(false)}>Shop</Link>
           <Link href="/kids" onClick={() => setOpen(false)}>Kids Corner</Link>
-          <Link href="/cards" onClick={() => setOpen(false)} className={styles.soonLink}>
-            Cards <span className={styles.soon}>soon</span>
-          </Link>
           <Link href="/app" onClick={() => setOpen(false)}>App</Link>
           <Link href="/about" onClick={() => setOpen(false)}>About</Link>
-          <Link href="/books" className="btn btn-primary" onClick={() => setOpen(false)}>
-            Shop books
+          <Link href="/shop" className="btn btn-primary" onClick={() => setOpen(false)}>
+            Shop
           </Link>
         </nav>
       )}
