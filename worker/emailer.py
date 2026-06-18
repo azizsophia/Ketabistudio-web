@@ -185,9 +185,10 @@ def send_card_shipped(order: dict) -> bool:
 
 
 def send_admin_review(order: dict, digest_url: str = "",
-                      approve_url: str = "", reject_url: str = "") -> bool:
+                      approve_url: str = "", reject_url: str = "",
+                      dashboard_url: str = "") -> bool:
     """Notify the owner that an order is generated and awaiting approval, with
-    the preview digest + one-tap approve/reject links."""
+    the preview digest + one-tap approve/reject links + a dashboard link."""
     book = html.escape(_book_label(order))
     oid = str(order.get("id", ""))[:8]
     ship = order.get("shipping") or {}
@@ -198,6 +199,11 @@ def send_admin_review(order: dict, digest_url: str = "",
         f'<img src="{html.escape(digest_url, quote=True)}" alt="preview" '
         f'style="width:100%;border-radius:12px;border:1px solid #e7e2d8;margin:14px 0;">'
         if digest_url else "")
+    dash_block = (
+        f'<p style="margin:0 0 16px;font-size:14px;line-height:1.6;">'
+        f'<a href="{html.escape(dashboard_url, quote=True)}" '
+        f'style="color:{FOREST};font-weight:700;">Review &amp; manage in the admin dashboard &rarr;</a></p>'
+        if dashboard_url else "")
     inner = f"""\
 <h1 style="margin:0 0 6px;font-size:20px;color:{FOREST};">A book is ready to approve</h1>
 <p style="margin:0 0 4px;font-size:15px;line-height:1.6;"><strong>{book}</strong> ({cover})</p>
@@ -218,5 +224,7 @@ def send_admin_review(order: dict, digest_url: str = "",
               padding:12px 22px;border-radius:10px;font-weight:700;border:1px solid #e7c4bb;">Reject</a>
   </td>
 </tr></table>
+<p style="margin:16px 0 0;"></p>
+{dash_block}
 """
     return send_email(ADMIN_EMAIL, f"Approve: {book} (order {oid})", _shell(inner))

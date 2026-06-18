@@ -235,12 +235,15 @@ def process(order):
 
     # Ping the owner with the preview + one-tap approve/reject links.
     try:
-        site = os.environ.get("SITE_URL", "").strip().rstrip("/")
+        site = (os.environ.get("SITE_URL", "").strip().rstrip("/")
+                or "https://www.ketabistudio.com")
         tok = order.get("approval_token", "")
         digest_url = signed_url("orders", f"{oid}/digest.jpg")
         approve_url = f"{site}/api/approve?order={oid}&token={tok}&action=approve"
         reject_url = f"{site}/api/approve?order={oid}&token={tok}&action=reject"
-        emailer.send_admin_review(order, digest_url, approve_url, reject_url)
+        dashboard_url = f"{site}/admin"
+        emailer.send_admin_review(order, digest_url, approve_url, reject_url,
+                                  dashboard_url)
     except Exception as e:  # noqa: BLE001
         print(f"[{oid}] admin review email error (non-fatal): {e}")
 
