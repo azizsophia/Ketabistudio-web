@@ -173,9 +173,30 @@ def generate_photobook(order, workdir: Path, cover_type="hardcover", client=None
     import photobook_pipeline
 
     photo_data = order.get("photo_data") or {}
-    if not photo_data.get("pages"):
+    pages = photo_data.get("pages") or []
+    if not pages:
         raise qc.QCFailure("photo book has no pages")
     spec = spec_for(order["book_slug"], cover_type)
+
+    # ── content QC (defensive; the order API already enforces these) ──
+    # Guarantees a malformed book is caught here and routed for review rather
+    # than printed broken. Photo count must exactly fill the 24pp spec, every
+    # page needs a photo, and captions must fit the layout (verified ≤140 chars).
+    expected_photos = spec["page_count"] - 4  # title+dedication+dua+closing
+    if len(pages) != expected_photos:
+        raise qc.QCFailure(
+            f"photo book has {len(pages)} photo pages, expected "
+            f"{expected_photos}")
+    if not photo_data.get("cover_photo_url"):
+        raise qc.QCFailure("photo book is missing its cover photo")
+    CAPTION_HARD_MAX = 140  # render-safe ceiling (UI caps lower, at 110)
+    for idx, pg in enumerate(pages, start=1):
+        if not (pg or {}).get("photo_url"):
+            raise qc.QCFailure(f"photo book page {idx} is missing its photo")
+        if len((pg.get("caption") or "")) > CAPTION_HARD_MAX:
+            raise qc.QCFailure(
+                f"photo book page {idx} caption is too long to print cleanly")
+
     interior, cover, _ = photobook_pipeline.build(
         photo_data, workdir, cover_type=cover_type, client=client,
         page_count=spec["page_count"], pod=spec["pod"],

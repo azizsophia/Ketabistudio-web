@@ -4,6 +4,7 @@ import {
   getPhotobookTemplate,
   photobookSpreadCount,
   isPhotobookSlug,
+  CAPTION_MAX,
 } from "@/lib/photobook";
 
 const SB = process.env.SUPABASE_URL?.replace(/\s/g, "").replace(/\/$/, "");
@@ -88,9 +89,9 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-    if (caption.length > 160) {
+    if (caption.length > CAPTION_MAX) {
       return NextResponse.json(
-        { error: `Page ${i + 1}: caption is too long.` },
+        { error: `Page ${i + 1}: caption must be ${CAPTION_MAX} characters or fewer.` },
         { status: 400 }
       );
     }

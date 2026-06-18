@@ -3,6 +3,7 @@
 import { useState, type ReactNode } from "react";
 import styles from "./PhotobookBuilder.module.css";
 import type { PhotobookTemplate } from "@/lib/photobook";
+import { CAPTION_MAX } from "@/lib/photobook";
 import { HARDCOVER_PRICE_DISPLAY } from "@/lib/pricing";
 import KeepsakeLivePreview from "./KeepsakeLivePreview";
 
@@ -448,7 +449,7 @@ export default function PhotobookBuilder({
               <textarea
                 className={styles.captionInput}
                 value={cap}
-                maxLength={160}
+                maxLength={CAPTION_MAX}
                 onChange={(e) =>
                   setCaptions((prev) => {
                     const next = [...prev];
@@ -457,6 +458,13 @@ export default function PhotobookBuilder({
                   })
                 }
               />
+              <span
+                className={`${styles.charCount} ${
+                  cap.length >= CAPTION_MAX ? styles.charCountMax : ""
+                }`}
+              >
+                {cap.length}/{CAPTION_MAX}
+              </span>
               <div style={{ height: 10 }} />
               <Uploader
                 photo={photos[i]}

@@ -22,6 +22,18 @@
   line-height: 1.45;
   color: #8a8478;
 }
+.charCount {
+  display: block;
+  text-align: right;
+  font-size: 0.75rem;
+  color: #a39a89;
+  margin-top: 4px;
+  font-variant-numeric: tabular-nums;
+}
+.charCountMax {
+  color: var(--gold-deep);
+  font-weight: 600;
+}
 .layoutTag {
   display: inline-block;
   margin-left: 10px;

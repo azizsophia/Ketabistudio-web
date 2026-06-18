@@ -28,6 +28,12 @@ export function isPhotobookSlug(slug: string): slug is PhotobookSlug {
   return (PHOTOBOOK_SLUGS as readonly string[]).includes(slug);
 }
 
+/** Max characters for an editable caption. Chosen so even the longest caption
+ *  fits cleanly (≤2 lines) on both the full-bleed and gallery layouts at a
+ *  premium size — verified against the print engine. Shared by the builder
+ *  (live counter + maxLength) and the order API (server validation). */
+export const CAPTION_MAX = 110;
+
 /** The verified dua printed on the dua page. Render EXACTLY — do not alter a
  *  glyph. Sourced from keepsakeDuas.json. */
 export type PhotobookDua = {

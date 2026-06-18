@@ -188,6 +188,11 @@
   line-height: 1.35;
   color: #f7f2ea;
   text-align: center;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
 }
 
 /* ── gallery (centred 4:5) ── */
@@ -212,6 +217,11 @@
   color: #2b2622;
   text-align: center;
   max-width: 72cqw;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
 }
 
 /* ── empty (no photo yet) ── */
