@@ -57,6 +57,9 @@ from duas_pipeline import (
 FD = Path(__file__).resolve().parent.parent / "fonts"
 CORM = str(FD / "Cormorant.ttf")
 CORM_IT = str(FD / "Cormorant-Italic.ttf")
+# Playfair Display — high-contrast editorial serif for premium display/titles.
+PLAY = str(FD / "PlayfairDisplay.ttf")
+PLAY_IT = str(FD / "PlayfairDisplay-Italic.ttf")
 
 # ── luxury keepsake palette (fine-art / gallery photo book) ─────────
 # Deliberately NOT the storybook language (forest-green + bright gold + little
@@ -118,6 +121,21 @@ def CG(sz, w=600, it=False):
     except Exception:
         pass
     return f
+
+
+def PF(sz, w=500, it=False):
+    """Playfair Display — the premium display face for titles, the cover, and
+    small-caps kickers. High contrast reads as luxe/editorial."""
+    f = ImageFont.truetype(PLAY_IT if it else PLAY, sz)
+    try:
+        f.set_variation_by_axes([w])
+    except Exception:
+        pass
+    return f
+
+
+# Light champagne gold for type set OVER a darkened photo (cover/hero scrims).
+GOLD_ON_DARK = (208, 182, 120)
 
 
 # ── photo download + fit ────────────────────────────────────────────
@@ -213,15 +231,15 @@ def title_page(recipient, author):
     M = 240
     # ONE fine gold hairline frame, generously inset (no double keyline).
     d.rectangle([M, M, TRIM - M, TRIM - M], outline=GOLD_DEEP, width=2)
-    ls(d, "A KEEPSAKE", CG(40, 600), cx, 580, GOLD, 12)
+    ls(d, "A KEEPSAKE", PF(40, 500), cx, 580, GOLD, 14)
 
     lines = ["Everything I Love", f"About {recipient}"]
     y = 850
     for ln in lines:
-        fo, s = _fit_one_line(d, ln, lambda z: CG(z, 640),
-                              TRIM - 2 * M - 160, 156, 64)
+        fo, s = _fit_one_line(d, ln, lambda z: PF(z, 500),
+                              TRIM - 2 * M - 160, 150, 60)
         ctext(d, ln, fo, cx, y, ESPRESSO)
-        y += s + 12
+        y += s + 18
     y += 44
     _hairline(d, cx, y, half=190, color=GOLD, width=2)
     ctext(d, f"by {author}", CG(68, 540, it=True), cx, y + 56, STONE)
@@ -234,8 +252,8 @@ def dedication_page(recipient, author, template="about-mama"):
     generous air so it feels like the opening of a keepsake, not a label."""
     img, d = _page()
     cx = TRIM // 2
-    ls(d, "FOR", CG(38, 600), cx, 660, GOLD, 16)
-    fo, _ = _fit_one_line(d, recipient, lambda z: CG(z, 540, it=True),
+    ls(d, "FOR", PF(38, 500), cx, 660, GOLD, 18)
+    fo, _ = _fit_one_line(d, recipient, lambda z: PF(z, 500, it=True),
                           TRIM - 760, 168, 76)
     ctext(d, recipient, fo, cx, 770, ESPRESSO)
 
@@ -322,7 +340,7 @@ def dua_page(template):
     cx = TRIM // 2
     M = 250
     d.rectangle([M, M, TRIM - M, TRIM - M], outline=GOLD_DEEP, width=2)
-    ls(d, dua["label"], CG(40, 600), cx, 620, GOLD, 6)
+    ls(d, dua["label"], PF(40, 500), cx, 620, GOLD, 8)
 
     # Arabic — shaped + fit to width (verified glyphs, RTL).
     rsh = reshape(dua["arabic"])
@@ -346,49 +364,45 @@ def dua_page(template):
         ctext(d, ln, enf, cx, y, INK)
         y += 78
     y += 46
-    ls(d, dua["ref"].upper(), CG(38, 600), cx, y, GOLD, 4)
+    ls(d, dua["ref"].upper(), PF(38, 500), cx, y, GOLD, 6)
     return img
 
 
 def closing_page(author):
     img, d = _page()
     cx = TRIM // 2
-    ctext(d, "Made with love", CG(104, 540, it=True), cx, 1060, ESPRESSO)
+    ctext(d, "Made with love", PF(104, 500, it=True), cx, 1060, ESPRESSO)
     ctext(d, f"by {author}", CG(72, 540, it=True), cx, 1230, STONE)
     _hairline(d, cx, 1450, half=210, color=GOLD, width=2)
-    ls(d, "KETABI STUDIO", CG(42, 600), cx, 1530, GOLD, 12)
+    ls(d, "KETABI STUDIO", PF(42, 500), cx, 1530, GOLD, 14)
     return img
 
 
 # ── cover ───────────────────────────────────────────────────────────
 def _front_cover(recipient, author, cover_photo):
-    """Restrained ivory front panel: one fine gold hairline frame, a small-caps
-    kicker, the title in espresso, and a clean photo window (single hairline,
-    no mat, no double frame, no star)."""
-    img = Image.new("RGB", (FULLBLEED, FULLBLEED), BONE)
-    d = ImageDraw.Draw(img)
+    """Premium full-bleed cover: the photo runs edge to edge; the title is set
+    over a soft bottom scrim in ivory Playfair with a small-caps kicker, a fine
+    gold rule, and an italic byline — a coffee-table / fine-art book feel."""
+    base = _cover_fit(cover_photo, FULLBLEED, FULLBLEED)
+    base = _bottom_scrim(base, frac=0.62, max_alpha=195)
+    d = ImageDraw.Draw(base, "RGBA")
     cx = FULLBLEED // 2
-    inset = FBM + 120
-    # ONE fine gold hairline frame, inset within the safe area.
-    d.rectangle([inset, inset, FULLBLEED - inset, FULLBLEED - inset],
-                outline=GOLD_DEEP, width=2)
-    ls(d, "A KEEPSAKE", CG(38, 600), cx, FBM + 280, GOLD, 10)
-    # title
-    y = FBM + 400
+    IVORY = (247, 242, 234)
+    M = FBM + 280  # side margin for the title text
+
+    y = int(FULLBLEED * 0.60)
+    ls(d, "A KEEPSAKE", PF(44, 500), cx, y, GOLD_ON_DARK, 16)
+    y += 130
     for ln in ["Everything I Love", f"About {recipient}"]:
-        fo, s = _fit_one_line(d, ln, lambda z: CG(z, 640),
-                              FULLBLEED - 2 * inset - 140, 140, 60)
-        ctext(d, ln, fo, cx, y, ESPRESSO)
-        y += s + 10
-    # clean photo window — single fine gold hairline, no mat
-    win = 1040
-    wx, wy = cx - win // 2, y + 110
-    photo = _cover_fit(cover_photo, win, win)
-    img.paste(photo, (wx, wy))
-    d.rectangle([wx, wy, wx + win, wy + win], outline=GOLD_DEEP, width=2)
-    # byline
-    ctext(d, f"by {author}", CG(62, 540, it=True), cx, wy + win + 96, STONE)
-    return img
+        fo, s = _fit_one_line(d, ln, lambda z: PF(z, 500),
+                              FULLBLEED - 2 * M, 150, 64)
+        ctext(d, ln, fo, cx, y, IVORY)
+        y += s + 16
+    y += 40
+    d.line([cx - 150, y, cx + 150, y], fill=GOLD_ON_DARK + (240,), width=2)
+    y += 56
+    ctext(d, f"by {author}", CG(64, 540, it=True), cx, y, IVORY)
+    return base
 
 
 def _back_cover(recipient, author):
@@ -405,7 +419,7 @@ def _back_cover(recipient, author):
     for ln in wrap(d, blurb, fo, FULLBLEED - 2 * inset - 200):
         ctext(d, ln, fo, cx, y, ESPRESSO)
         y += 92
-    ls(d, "KETABI STUDIO", CG(40, 600), cx, FULLBLEED - inset - 170, GOLD, 10)
+    ls(d, "KETABI STUDIO", PF(40, 500), cx, FULLBLEED - inset - 170, GOLD, 14)
     return img
 
 

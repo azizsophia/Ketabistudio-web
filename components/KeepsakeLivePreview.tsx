@@ -55,13 +55,15 @@ export default function KeepsakeLivePreview({
   const by = author.trim();
 
   const cover: ReactNode = (
-    <div className={`${s.pg} ${s.centered}`}>
-      <Frame />
-      <span className={s.kicker}>A Keepsake</span>
-      <span className={s.title}>Everything I Love</span>
-      <span className={s.title}>About {who}</span>
-      <PhotoOrEmpty url={coverPhotoUrl} className={s.coverWin} />
-      {by && <span className={s.byline}>by {by}</span>}
+    <div className={s.pg}>
+      <PhotoOrEmpty url={coverPhotoUrl} className={s.heroPhoto} />
+      <span className={s.coverOverlay}>
+        <span className={s.coverKicker}>A Keepsake</span>
+        <span className={s.coverTitle}>Everything I Love</span>
+        <span className={s.coverTitle}>About {who}</span>
+        <span className={s.coverRule} aria-hidden="true" />
+        {by && <span className={s.coverBy}>by {by}</span>}
+      </span>
     </div>
   );
 

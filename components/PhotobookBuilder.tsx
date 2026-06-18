@@ -166,16 +166,18 @@ export default function PhotobookBuilder({
     if (p.quality === "block") {
       return (
         <p className={styles.dpiBlock}>
-          This photo will print blurry — please use one at least {DPI_MIN}px on
-          the short side (ideally {DPI_GOOD}px+).
+          This photo is too low-resolution to print sharply. Please upload a
+          high-quality photo — we print at 300 DPI, so one straight from your
+          phone or camera looks best (screenshots and saved web images usually
+          won&apos;t print well).
         </p>
       );
     }
     if (p.quality === "warn") {
       return (
         <p className={styles.dpiWarn}>
-          This will print, but it could be sharper — a photo {DPI_GOOD}px+ on the
-          short side will look crisper.
+          This will print, but for the sharpest keepsake upload a
+          higher-quality photo (we print at 300 DPI).
         </p>
       );
     }
@@ -185,8 +187,8 @@ export default function PhotobookBuilder({
     // unknown dimensions (e.g. HEIC) — block, but stay friendly
     return (
       <p className={styles.dpiBlock}>
-        We couldn&apos;t read this photo&apos;s size — please upload a JPG or PNG
-        so we can make sure it prints sharply.
+        We couldn&apos;t check this photo&apos;s quality. Please upload a
+        high-quality JPG or PNG (we print at 300 DPI) so it prints sharply.
       </p>
     );
   }

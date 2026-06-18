@@ -1,5 +1,11 @@
 import type { Metadata } from "next";
-import { Fraunces, Plus_Jakarta_Sans, Amiri, Cormorant } from "next/font/google";
+import {
+  Fraunces,
+  Plus_Jakarta_Sans,
+  Amiri,
+  Cormorant,
+  Playfair_Display,
+} from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 import Header from "@/components/Header";
@@ -32,6 +38,15 @@ const cormorant = Cormorant({
   variable: "--font-cormorant",
 });
 
+/* Premium display face for keepsake titles/cover — matches the print pipeline
+   (Playfair Display). */
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+  weight: ["400", "500", "600"],
+  variable: "--font-playfair",
+});
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.ketabistudio.com"),
   title: {
@@ -56,7 +71,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${fraunces.variable} ${jakarta.variable} ${amiri.variable} ${cormorant.variable}`}
+        className={`${fraunces.variable} ${jakarta.variable} ${amiri.variable} ${cormorant.variable} ${playfair.variable}`}
       >
         <Splash />
         <Header />
