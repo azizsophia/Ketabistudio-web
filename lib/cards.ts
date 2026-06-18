@@ -289,6 +289,9 @@ export const STEP_NAMES: Record<StepId, string> = {
   handoff: "Print",
 };
 
+// Max characters for the inside message (fits the printed inside spread).
+export const CARD_MESSAGE_MAX = 300;
+
 // Arabic detection (Arabic Unicode block U+0600..U+06FF).
 export const ARABIC_RE = /[؀-ۿ]/;
 

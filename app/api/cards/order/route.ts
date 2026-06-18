@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { COLLECTIONS, PAPERS, CARD_ITEMS } from "@/lib/cards";
+import { COLLECTIONS, PAPERS, CARD_ITEMS, CARD_MESSAGE_MAX } from "@/lib/cards";
 
 const SB = process.env.SUPABASE_URL?.replace(/\s/g, "").replace(/\/$/, "");
 const KEY = process.env.SUPABASE_SERVICE_KEY?.replace(/\s/g, "");
@@ -27,19 +27,27 @@ export async function POST(req: NextRequest) {
   }
 
   /* validate design selections */
-  const collection = String(body.collection || "");
-  if (!COLLECTION_IDS.has(collection as never)) {
-    return NextResponse.json({ error: "invalid collection" }, { status: 400 });
-  }
-
   const itemId = String(body.item_id || "");
   if (!ITEM_IDS.has(itemId)) {
     return NextResponse.json({ error: "invalid card" }, { status: 400 });
   }
 
-  const paper = String(body.paper || "");
-  if (!PAPER_IDS.has(paper)) {
-    return NextResponse.json({ error: "invalid paper" }, { status: 400 });
+  // Collection + paper are no longer customer-facing (one premium style, one
+  // premium stock). Accept defaults; the renderer ignores collection.
+  const collectionRaw = String(body.collection || "");
+  const collection = COLLECTION_IDS.has(collectionRaw as never)
+    ? collectionRaw
+    : "arch";
+  const paperRaw = String(body.paper || "");
+  const paper = PAPER_IDS.has(paperRaw) ? paperRaw : "mohawk";
+
+  // Inside message must fit the printed spread.
+  const message = String(body.message || "").trim();
+  if (message.length > CARD_MESSAGE_MAX) {
+    return NextResponse.json(
+      { error: `Message must be ${CARD_MESSAGE_MAX} characters or fewer.` },
+      { status: 400 }
+    );
   }
 
   /* validate email */
@@ -89,7 +97,7 @@ export async function POST(req: NextRequest) {
       ? Number(body.arabic_index)
       : 0,
     arabic_off: !!body.arabic_off,
-    message: String(body.message || "").trim() || null,
+    message: message || null,
     sender: String(body.sender || "").trim() || null,
     photo_url: String(body.photo_url || "").trim() || null,
     paper,
