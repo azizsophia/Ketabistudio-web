@@ -42,8 +42,8 @@ export default function WaitlistForm() {
         <span className={styles.waitTick} aria-hidden="true">
           ✓
         </span>
-        Jazāk Allāhu khayran, you&apos;re on the list. We&apos;ll send one note
-        the moment the shop opens.
+        Jazāk Allāhu khayran — you&apos;re on the founding list. You&apos;ll get
+        early access the moment we open, Inshallah.
       </div>
     );
   }
@@ -68,7 +68,7 @@ export default function WaitlistForm() {
         className={styles.waitBtn}
         disabled={state === "loading"}
       >
-        {state === "loading" ? "Adding…" : "Notify me"}
+        {state === "loading" ? "Adding…" : "Join the list"}
       </button>
       {state === "error" && <p className={styles.waitErr}>{msg}</p>}
     </form>

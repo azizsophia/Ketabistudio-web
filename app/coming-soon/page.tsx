@@ -7,7 +7,7 @@ import WaitlistForm from "./WaitlistForm";
 export const metadata: Metadata = {
   title: "Coming soon",
   description:
-    "Ketabi Studio. Beautiful, intentional Islamic learning for the whole family. Personalized storybooks and beautifully made cards are opening soon. Join the list and download the Ketabi app today.",
+    "Ketabi Studio. Personalized Islamic storybooks, hardcover photo keepsakes, and beautifully made greeting cards — each sealed with a dua. Join the founding list and download the Ketabi app today.",
 };
 
 const APP_STORE = "https://apps.apple.com/us/app/ketabi/id6768112231";
@@ -37,6 +37,19 @@ const TOUR = [
   },
 ];
 
+const CARDS = [
+  { src: "/images/cards/eid.jpg", title: "Eid" },
+  { src: "/images/cards/nikah.jpg", title: "Nikah" },
+  { src: "/images/cards/baby.jpg", title: "New Baby" },
+  { src: "/images/cards/wife.jpg", title: "For My Wife" },
+];
+
+const PERKS = [
+  "Shop first — early access before we open to everyone",
+  "First look at every new book, keepsake & card",
+  "A founding-member welcome when we open, Inshallah",
+];
+
 export default function ComingSoon() {
   return (
     <div className={styles.screen}>
@@ -60,19 +73,28 @@ export default function ComingSoon() {
         </h1>
 
         <p className={styles.lede}>
-          Beautiful, intentional Islamic learning for the whole family, from a
-          child&apos;s first dua to your own daily dhikr. Personalized
-          storybooks and beautifully made cards are opening soon, Inshallah.
+          Beautiful, intentional Islamic gifts for the whole family —
+          personalized storybooks, hardcover photo keepsakes you fill with your
+          own photos, and beautifully made greeting cards. Each one sealed with a
+          dua. Opening soon, Inshallah.
         </p>
 
         {/* ── waitlist ── */}
         <div className={styles.waitWrap}>
-          <p className={styles.waitLabel}>
-            Be the first to know when the shop opens
-          </p>
+          <p className={styles.waitLabel}>Join the founding list</p>
+          <ul className={styles.perks}>
+            {PERKS.map((p) => (
+              <li key={p} className={styles.perk}>
+                <span className={styles.perkMark} aria-hidden="true">
+                  ✦
+                </span>
+                {p}
+              </li>
+            ))}
+          </ul>
           <WaitlistForm />
           <p className={styles.waitFine}>
-            No spam, ever. Just one note when we launch.
+            One note when we open. No spam, ever.
           </p>
         </div>
 
@@ -107,8 +129,9 @@ export default function ComingSoon() {
           <span className={styles.tourRule} aria-hidden="true" />
         </div>
 
+        <p className={styles.peekSub}>Personalized storybooks</p>
         <p className={styles.tourIntro}>
-          A whole Kids Corner of children&apos;s books, personalized so your
+          A whole shelf of children&apos;s books — some personalized so your
           little one becomes the star of their very own story.
         </p>
 
@@ -133,16 +156,35 @@ export default function ComingSoon() {
           ))}
         </div>
 
-        <p className={styles.tourFoot}>
-          Plus a studio of beautifully designed Islamic greeting cards,
+        <p className={styles.peekSub}>Photo keepsakes</p>
+        <p className={styles.tourIntro}>
+          Hardcover books you fill with your own photos and words — for Mama,
+          Baba, grandparents, your spouse, a new baby, and Ramadan. Sealed with
+          the dua for parents.
+        </p>
+
+        <p className={styles.peekSub}>Greeting cards</p>
+        <p className={styles.tourIntro}>
+          Beautifully designed Islamic cards, each with a vetted dua —
           personalized and posted straight to your loved ones.
         </p>
 
-        {/* ── follow along (hifz series) ── */}
+        <div className={styles.cardsRow}>
+          {CARDS.map((c) => (
+            <span key={c.title} className={styles.cardThumb}>
+              <Image src={c.src} alt={c.title} width={300} height={420} />
+            </span>
+          ))}
+        </div>
+
+        <p className={styles.tourFoot}>
+          And soon, Inshallah: soft children&apos;s play mats, thoughtfully
+          designed for little ones.
+        </p>
+
+        {/* ── follow us ── */}
         <div className={styles.followWrap}>
-          <p className={styles.followLabel}>
-            Follow our Hifz journey while you wait
-          </p>
+          <p className={styles.followLabel}>Follow us</p>
           <div className={styles.socials}>
             <a
               href="https://www.youtube.com/@KetabiStudio"
