@@ -1,0 +1,233 @@
+#!/usr/bin/env python3
+"""
+Render engine for Ketabi Studio GREETING CARDS.
+
+One cohesive premium house style — the SAME language as the photo-book keepsakes
+(warm ivory, Playfair display, Cormorant text, Amiri Arabic, a single per-card
+accent + fine keylines). No more six clashing "collections".
+
+What it prints (Prodigi GLOBAL-GRE-FAP-A6, folded A6 greeting card):
+  outside spread = back-cover (left panel) + front-cover (right panel)
+  inside  spread = quiet accent page (left) + the message + dua (right)
+Each spread is the EXACT Prodigi artboard: 216 x 154 mm @ 300 DPI = 2551 x 1819,
+fold down the centre, ~3 mm bleed on every edge.
+
+Because this renders the print asset directly (PIL), what we preview IS what
+prints — no headless browser, and the cards match the keepsakes by construction.
+"""
+import os
+from pathlib import Path
+
+from PIL import Image, ImageDraw
+
+# Reuse the keepsake type system + Arabic shaping + palette so the cards are
+# the same family as the books.
+from photobook_pipeline import (
+    PF, CG, AR, reshape, wrap, ctext, ls,
+    BONE, ESPRESSO, STONE, INK,
+)
+
+SPREAD_W, SPREAD_H = 2551, 1819      # Prodigi A6 spread @ 300 DPI
+BLEED = 36                           # ~3 mm
+PANEL_W = SPREAD_W // 2              # fold at the centre
+SAFE = 150                           # keep content this far from panel edges
+
+
+def _rgb(hex_):
+    h = hex_.lstrip("#")
+    return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
+
+
+def _lerp(a, b, t):
+    return tuple(int(a[i] + (b[i] - a[i]) * t) for i in range(3))
+
+
+def _fit_ar(d, shaped, maxw, start, minsz=44):
+    s = start
+    while s > minsz and d.textlength(shaped, font=AR(s)) > maxw:
+        s -= 2
+    return AR(s), s
+
+
+def _fit_one(d, text, maker, maxw, start, minsz):
+    s = start
+    while s > minsz and d.textlength(text, font=maker(s)) > maxw:
+        s -= 4
+    return maker(s), s
+
+
+def _hairline(d, cx, y, half, color, w=2):
+    d.line([cx - half, y, cx + half, y], fill=color, width=w)
+
+
+# ── outside: front + back ───────────────────────────────────────────
+def _front_panel(d, x0, accent, slots):
+    """The front cover (right panel): kicker, big Arabic word, transliteration,
+    an English line, and a foot line — all centred, on a fine accent keyline."""
+    w = PANEL_W
+    cx = x0 + w // 2
+    inner = SAFE + 30
+    # fine accent keyline frame within the panel
+    d.rectangle([x0 + inner, BLEED + inner, x0 + w - inner, SPREAD_H - BLEED - inner],
+                outline=accent, width=2)
+
+    ls(d, slots["eyebrow"].upper(), PF(34, 500), cx, 360, accent, 8)
+
+    y = 620
+    if slots["bigArabic"]:
+        shaped = reshape(slots["bigText"])
+        afo, asz = _fit_ar(d, shaped, w - 2 * inner - 80, 150)
+        ctext(d, shaped, afo, cx, y, ESPRESSO)
+        y += asz + 70
+        if slots["translit"]:
+            ctext(d, slots["translit"], CG(50, 520, it=True), cx, y, STONE)
+            y += 96
+    else:
+        fo, sz = _fit_one(d, slots["bigText"], lambda z: PF(z, 500),
+                          w - 2 * inner - 60, 132, 64)
+        ctext(d, slots["bigText"], fo, cx, y, ESPRESSO)
+        y += sz + 60
+
+    _hairline(d, cx, y, 130, accent, 2)
+    y += 70
+    if slots.get("line2"):
+        fo, sz = _fit_one(d, slots["line2"], lambda z: CG(z, 540, it=True),
+                          w - 2 * inner - 40, 84, 48)
+        ctext(d, slots["line2"], fo, cx, y, ESPRESSO)
+        y += sz + 40
+    if slots.get("foot"):
+        ctext(d, slots["foot"], CG(46, 520, it=True), cx,
+              SPREAD_H - BLEED - inner - 130, STONE)
+
+
+def _back_panel(d, x0, accent):
+    """The back cover (left panel): quiet ivory with the wordmark + a hairline."""
+    w = PANEL_W
+    cx = x0 + w // 2
+    ls(d, "KETABI STUDIO", PF(36, 500), cx, SPREAD_H // 2 - 30, accent, 12)
+    _hairline(d, cx, SPREAD_H // 2 + 60, 90, accent, 2)
+    ls(d, "PRINTED TO ORDER", CG(30, 520), cx, SPREAD_H // 2 + 110, STONE, 4)
+
+
+def render_outside(accent, slots):
+    img = Image.new("RGB", (SPREAD_W, SPREAD_H), BONE)
+    d = ImageDraw.Draw(img)
+    _back_panel(d, 0, accent)
+    _front_panel(d, PANEL_W, accent, slots)
+    return img
+
+
+# ── inside: quiet left + message/dua right ──────────────────────────
+def render_inside(accent, message, dua, sign_off=""):
+    img = Image.new("RGB", (SPREAD_W, SPREAD_H), BONE)
+    d = ImageDraw.Draw(img)
+
+    # left panel — a quiet accent moment (room for a handwritten note)
+    lcx = PANEL_W // 2
+    _hairline(d, lcx, SPREAD_H // 2 - 4, 70, accent, 2)
+
+    # right panel — the printed message + dua
+    x0 = PANEL_W
+    w = PANEL_W
+    cx = x0 + w // 2
+    inner = SAFE + 30
+    maxw = w - 2 * inner
+
+    msg = (message or "").strip()
+    mfo, msz, lines, lh = None, 58, [], 0
+    # fit the message to a comfortable block
+    s = 64
+    while s > 40:
+        f = CG(s, 520)
+        lines = wrap(d, msg, f, maxw)
+        lh = int(s * 1.4)
+        if len(lines) * lh <= SPREAD_H - 900 or s <= 40:
+            mfo = f
+            msz = s
+            break
+        s -= 2
+    mfo = mfo or CG(msz, 520)
+
+    block_h = len(lines) * lh
+    y = max(BLEED + inner + 60, (SPREAD_H - block_h) // 2 - 200)
+    for ln in lines:
+        ctext(d, ln, mfo, cx, y, INK)
+        y += lh
+
+    y += 60
+    _hairline(d, cx, y, 120, accent, 2)
+    y += 70
+    if dua:
+        for ln in wrap(d, dua, CG(48, 520, it=True), maxw):
+            ctext(d, ln, CG(48, 520, it=True), cx, y, ESPRESSO)
+            y += 72
+    if sign_off:
+        ctext(d, sign_off, CG(50, 520, it=True), cx,
+              SPREAD_H - BLEED - inner - 120, STONE)
+    return img
+
+
+def build(card, out_dir, recipient="", message=None, sign_off=""):
+    """Render outside.png + inside.png for one card config.
+
+    card = {group, eyebrow, en/headlineEn, words/word(ar+translit), sub, dua,
+            msg, color}
+    """
+    out = Path(out_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    accent = _rgb(card.get("color", "#967A46"))
+
+    # front slots (mirrors lib/cards.ts frontSlots, premium variant)
+    if card["group"] == "occasion":
+        words = card.get("words") or []
+        ar = words[0] if words else None
+        slots = {
+            "eyebrow": card["eyebrow"],
+            "bigText": ar["ar"] if ar else card.get("en", ""),
+            "bigArabic": bool(ar),
+            "translit": ar["translit"] if ar else "",
+            "line2": "" if ar else "",
+            "foot": (f"For {recipient}" if recipient else card.get("en", "")),
+        }
+    else:
+        word = card.get("word")
+        slots = {
+            "eyebrow": card["eyebrow"],
+            "bigText": word["ar"] if word else card.get("headlineEn", ""),
+            "bigArabic": bool(word),
+            "translit": word["translit"] if word else "",
+            "line2": card.get("headlineEn", ""),
+            "foot": (f"For {recipient}" if recipient else card.get("sub", "")),
+        }
+
+    outside = render_outside(accent, slots)
+    inside = render_inside(accent, message if message is not None else card.get("msg", ""),
+                           card.get("dua", ""), sign_off)
+    op = out / "outside.png"
+    ip = out / "inside.png"
+    outside.save(op, "PNG")
+    inside.save(ip, "PNG")
+    return str(op), str(ip)
+
+
+if __name__ == "__main__":
+    samples = {
+        "eid": {
+            "group": "occasion", "color": "#1f6b5a", "eyebrow": "Eid Mubarak",
+            "en": "Blessed Eid",
+            "words": [{"ar": "عيد مبارك", "translit": "Eid Mubarak"}],
+            "dua": "May Allah accept from us and from you.",
+            "msg": "Wishing you and your family a joyful and blessed Eid. May your home be filled with light, laughter and barakah.",
+        },
+        "wife": {
+            "group": "relationship", "color": "#a85c63", "eyebrow": "To my wife",
+            "headlineEn": "You are my sakīnah",
+            "word": {"ar": "سكينة", "translit": "Sakeenah"},
+            "sub": "the calm Allah placed in my heart",
+            "dua": "May Allah preserve our home in love and mercy.",
+            "msg": "To the calm in my every storm, thank you for the home and peace you bring. I love you, today and always.",
+        },
+    }
+    for cid, c in samples.items():
+        build(c, f"/tmp/card_{cid}", recipient="" if cid == "eid" else "")
+        print("built", cid)

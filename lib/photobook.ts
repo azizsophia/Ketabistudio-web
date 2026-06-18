@@ -326,7 +326,7 @@ const OUR_RAMADAN: PhotobookTemplate = {
   recipientLabel: "What you're celebrating",
   recipientPlaceholder: "e.g. Ramadan or Eid",
   authorLabel: "Your family",
-  authorPlaceholder: "e.g. The Rahman family",
+  authorPlaceholder: "Your family name here",
   coverPhoto: true,
   dedication:
     "the month our home fills with light, and our hearts draw closer to Allah and to one another.",
