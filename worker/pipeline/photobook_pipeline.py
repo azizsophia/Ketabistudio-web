@@ -245,7 +245,14 @@ def _fit_one_line(d, text, fo_maker, maxw, start, minsz):
 
 
 # ── interior pages (all trim-size; padded to full-bleed by to_fb) ────
-def title_page(recipient, author):
+def _cover_title_lines(recipient, template):
+    """The two title lines. Baby uses 'We Love' (from the parents); all others
+    use 'I Love'."""
+    verb = "Everything We Love" if template == "about-baby" else "Everything I Love"
+    return [verb, f"About {recipient}"]
+
+
+def title_page(recipient, author, template="about-mama"):
     """Quiet editorial title: ivory, one fine gold hairline frame, a small-caps
     kicker, the title in espresso Cormorant, a hairline, and a soft byline."""
     img, d = _page()
@@ -255,7 +262,7 @@ def title_page(recipient, author):
     d.rectangle([M, M, TRIM - M, TRIM - M], outline=ACCENT_DEEP, width=2)
     ls(d, "A KEEPSAKE", PF(40, 500), cx, 580, ACCENT, 14)
 
-    lines = ["Everything I Love", f"About {recipient}"]
+    lines = _cover_title_lines(recipient, template)
     y = 850
     for ln in lines:
         fo, s = _fit_one_line(d, ln, lambda z: PF(z, 500),
@@ -401,7 +408,7 @@ def closing_page(author):
 
 
 # ── cover ───────────────────────────────────────────────────────────
-def _front_cover(recipient, author, cover_photo):
+def _front_cover(recipient, author, cover_photo, template="about-mama"):
     """Premium full-bleed cover: the photo runs edge to edge; the title is set
     over a soft bottom scrim in ivory Playfair with a small-caps kicker, a fine
     gold rule, and an italic byline — a coffee-table / fine-art book feel."""
@@ -415,7 +422,7 @@ def _front_cover(recipient, author, cover_photo):
     y = int(FULLBLEED * 0.60)
     ls(d, "A KEEPSAKE", PF(44, 500), cx, y, ACCENT_DARK, 16)
     y += 130
-    for ln in ["Everything I Love", f"About {recipient}"]:
+    for ln in _cover_title_lines(recipient, template):
         fo, s = _fit_one_line(d, ln, lambda z: PF(z, 500),
                               FULLBLEED - 2 * M, 150, 64)
         ctext(d, ln, fo, cx, y, IVORY)
@@ -451,7 +458,7 @@ SOFTCOVER_SPINE = 60
 
 
 def cover_wrap(recipient, author, cover_photo, cover_type="softcover",
-               client=None, page_count=32, pod=None):
+               client=None, page_count=32, pod=None, template="about-mama"):
     """Full-bleed Lulu wrap: back + spine + front.
 
     softcover: 17.39x8.75in perfect-bound wrap (same as the books) — built from
@@ -461,7 +468,7 @@ def cover_wrap(recipient, author, cover_photo, cover_type="softcover",
       casewrap spine/turn-in geometry is a first cut — flag for human review on
       the first real hardcover proof; the Lulu validate-cover gate protects it.
     """
-    fc = _front_cover(recipient, author, cover_photo)
+    fc = _front_cover(recipient, author, cover_photo, template)
     bc = _back_cover(recipient, author)
     if cover_type == "hardcover":
         from lulu_client import HARDCOVER_POD, cover_dims_to_px
@@ -582,7 +589,7 @@ def build(photo_data, out_dir, cover_type="hardcover", client=None,
     captions = [(pg.get("caption") or "").strip() for pg in pages]
 
     front = [
-        lambda: title_page(recipient, author),
+        lambda: title_page(recipient, author, template),
         lambda: dedication_page(recipient, author, template),
     ]
     photo_pages = _plan_photo_pages(photos, captions)   # 1 page per photo
@@ -632,7 +639,7 @@ def build(photo_data, out_dir, cover_type="hardcover", client=None,
 
     wrap, fc = cover_wrap(recipient, author, cover_photo,
                           cover_type=cover_type, client=client,
-                          page_count=page_count, pod=pod)
+                          page_count=page_count, pod=pod, template=template)
     fc.save(out / "cover_front.jpg", "JPEG", quality=90)
     wrap.save(out / "cover.jpg", "JPEG", quality=90)
     wrap.save(out / "cover.pdf", "PDF", resolution=300.0)

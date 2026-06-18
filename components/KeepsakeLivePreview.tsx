@@ -53,13 +53,14 @@ export default function KeepsakeLivePreview({
 }) {
   const who = recipient.trim() || template.recipientLabel.replace(/'s name$/, "");
   const by = author.trim();
+  const verb = template.slug === "about-baby" ? "Everything We Love" : "Everything I Love";
 
   const cover: ReactNode = (
     <div className={s.pg}>
       <PhotoOrEmpty url={coverPhotoUrl} className={s.heroPhoto} />
       <span className={s.coverOverlay}>
         <span className={s.coverKicker}>A Keepsake</span>
-        <span className={s.coverTitle}>Everything I Love</span>
+        <span className={s.coverTitle}>{verb}</span>
         <span className={s.coverTitle}>About {who}</span>
         <span className={s.coverRule} aria-hidden="true" />
         {by && <span className={s.coverBy}>by {by}</span>}
@@ -71,7 +72,7 @@ export default function KeepsakeLivePreview({
     <div className={`${s.pg} ${s.centered}`}>
       <Frame />
       <span className={s.kicker}>A Keepsake</span>
-      <span className={s.title}>Everything I Love</span>
+      <span className={s.title}>{verb}</span>
       <span className={s.title}>About {who}</span>
       <span className={s.rule} aria-hidden="true" />
       {by && <span className={s.byline}>by {by}</span>}
