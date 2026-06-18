@@ -73,9 +73,23 @@ function fmtStatus(st: string) {
 /* ── QC report renderer ── */
 function QcBlock({ report }: { report: Record<string, unknown> }) {
   const spec = report.spec as Record<string, unknown> | undefined;
-  const ref = report.reference as Record<string, { match_dist: number; wrong_dist: number }> | undefined;
+  const refRaw = report.reference as Record<string, unknown> | undefined;
   const lulu = report.lulu as Record<string, string> | undefined;
   const failure = report.failure as string | undefined;
+
+  // Only the Hijab book has pixel-diff reference entries ({match_dist,
+  // wrong_dist}); Duas/fixed books use other shapes — filter to the real ones
+  // so we never call .toFixed on a non-number and crash the page.
+  const matches = (
+    refRaw && typeof refRaw === "object"
+      ? Object.entries(refRaw).filter(
+          ([, v]) =>
+            v &&
+            typeof v === "object" &&
+            typeof (v as { match_dist?: number }).match_dist === "number"
+        )
+      : []
+  ) as [string, { match_dist: number; wrong_dist: number }][];
 
   return (
     <div className={s.qc}>
@@ -87,10 +101,10 @@ function QcBlock({ report }: { report: Record<string, unknown> }) {
           <br />
         </>
       )}
-      {ref && typeof ref === "object" && !("fixed_book" in ref) && (
+      {matches.length > 0 && (
         <>
           Reference match:{" "}
-          {Object.entries(ref).map(([k, v]) => (
+          {matches.map(([k, v]) => (
             <span key={k}>
               {k}={v.match_dist.toFixed(1)}{" "}
               <span className={s.qcOk}>(ok, wrong={v.wrong_dist.toFixed(0)})</span>{" "}
