@@ -164,36 +164,40 @@ def render_inside(accent, message, dua, sign_off=""):
     return img
 
 
-def build(card, out_dir, recipient="", message=None, sign_off=""):
+def build(card, out_dir, recipient="", message=None, sign_off="",
+          arabic_index=0, arabic_off=False, accent_hex=None):
     """Render outside.png + inside.png for one card config.
 
     card = {group, eyebrow, en/headlineEn, words/word(ar+translit), sub, dua,
             msg, color}
+    arabic_index / arabic_off mirror the builder's Arabic choice; accent_hex
+    overrides the card's default colour when the customer picked an accent.
     """
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
-    accent = _rgb(card.get("color", "#967A46"))
+    accent = _rgb(accent_hex or card.get("color", "#967A46"))
 
     # front slots (mirrors lib/cards.ts frontSlots, premium variant)
     if card["group"] == "occasion":
         words = card.get("words") or []
-        ar = words[0] if words else None
+        idx = arabic_index if 0 <= arabic_index < len(words) else 0
+        ar = None if (arabic_off or not words) else words[idx]
         slots = {
             "eyebrow": card["eyebrow"],
             "bigText": ar["ar"] if ar else card.get("en", ""),
             "bigArabic": bool(ar),
             "translit": ar["translit"] if ar else "",
-            "line2": "" if ar else "",
+            "line2": "",
             "foot": (f"For {recipient}" if recipient else card.get("en", "")),
         }
     else:
-        word = card.get("word")
+        word = None if arabic_off else card.get("word")
         slots = {
             "eyebrow": card["eyebrow"],
             "bigText": word["ar"] if word else card.get("headlineEn", ""),
             "bigArabic": bool(word),
             "translit": word["translit"] if word else "",
-            "line2": card.get("headlineEn", ""),
+            "line2": card.get("headlineEn", "") if word else "",
             "foot": (f"For {recipient}" if recipient else card.get("sub", "")),
         }
 

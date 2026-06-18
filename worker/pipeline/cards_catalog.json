@@ -1,0 +1,121 @@
+{
+  "eid": {
+    "group": "occasion",
+    "color": "#1f6b5a",
+    "eyebrow": "Eid Mubarak",
+    "en": "Blessed Eid",
+    "words": [
+      { "ar": "عيد مبارك", "translit": "Eid Mubarak" },
+      { "ar": "عيد سعيد", "translit": "Eid Saeed" }
+    ],
+    "dua": "May Allah accept from us and from you.",
+    "msg": "Wishing you and your family a joyful and blessed Eid. May your home be filled with light, laughter and barakah."
+  },
+  "nikah": {
+    "group": "occasion",
+    "color": "#a85c63",
+    "eyebrow": "On your Nikah",
+    "en": "A blessed union",
+    "words": [{ "ar": "مبارك", "translit": "Mabrook" }],
+    "dua": "May Allah bless you both and unite you in goodness.",
+    "msg": "Congratulations on your Nikah. May Allah fill your marriage with love, mercy and tranquillity, and bless every year ahead."
+  },
+  "baby": {
+    "group": "occasion",
+    "color": "#5a86a8",
+    "eyebrow": "A new blessing",
+    "en": "Congratulations",
+    "words": [{ "ar": "مبارك", "translit": "Mabrook" }],
+    "dua": "May Allah make them among the righteous and a coolness to your eyes.",
+    "msg": "Mabrook on your beautiful new arrival! May Allah make them righteous, healthy and a coolness to your eyes."
+  },
+  "ramadan": {
+    "group": "occasion",
+    "color": "#1f3a54",
+    "eyebrow": "Ramadan Kareem",
+    "en": "A generous Ramadan",
+    "words": [
+      { "ar": "رمضان كريم", "translit": "Ramadan Kareem" },
+      { "ar": "رمضان مبارك", "translit": "Ramadan Mubarak" }
+    ],
+    "dua": "May this month bring you peace, mercy and barakah.",
+    "msg": "Ramadan Kareem. May this blessed month bring you closer to Allah, and fill your days with peace and your heart with barakah."
+  },
+  "birthday": {
+    "group": "occasion",
+    "color": "#b35c3c",
+    "eyebrow": "Birthday wishes",
+    "en": "Happy Birthday",
+    "words": [],
+    "dua": "May Allah bless your years with health and iman.",
+    "msg": "Happy Birthday! May Allah bless you with many more years of health, happiness and strong iman."
+  },
+  "thanks": {
+    "group": "occasion",
+    "color": "#a07f4a",
+    "eyebrow": "Thank you",
+    "en": "With gratitude",
+    "words": [{ "ar": "شكراً", "translit": "Shukran" }],
+    "dua": "May Allah reward you with all goodness.",
+    "msg": "Thank you, truly. Your kindness did not go unnoticed. May Allah reward you with all goodness."
+  },
+  "getwell": {
+    "group": "occasion",
+    "color": "#6f8a5c",
+    "eyebrow": "Shifa",
+    "en": "Wishing you healing",
+    "words": [{ "ar": "شفاء", "translit": "Shifa" }],
+    "dua": "May Allah grant you a swift and complete recovery.",
+    "msg": "Thinking of you and making du'a for you. May Allah grant you a swift and complete recovery, ameen."
+  },
+  "wife": {
+    "group": "relationship",
+    "color": "#a85c63",
+    "eyebrow": "To my wife",
+    "headlineEn": "You are my sakīnah",
+    "word": { "ar": "سكينة", "translit": "Sakeenah" },
+    "sub": "the calm Allah placed in my heart",
+    "dua": "May Allah preserve our home in love and mercy.",
+    "msg": "To the calm in my every storm, thank you for the home and peace you bring. I love you, today and always."
+  },
+  "husband": {
+    "group": "relationship",
+    "color": "#1f4f54",
+    "eyebrow": "To my husband",
+    "headlineEn": "My answered du'a",
+    "word": { "ar": "الحمد لله", "translit": "Alhamdulillah" },
+    "sub": "grateful for you, always",
+    "dua": "May Allah protect you and bless our years together.",
+    "msg": "Thank you for your patience, your strength and your kindness. Alhamdulillah for you, I am grateful every single day."
+  },
+  "mum": {
+    "group": "relationship",
+    "color": "#6e4257",
+    "eyebrow": "To my mother",
+    "headlineEn": "Heaven beneath her feet",
+    "word": { "ar": "أمي", "translit": "Ummī · my mother" },
+    "sub": "with love and endless du'a",
+    "dua": "May Allah grant you the highest gardens of Jannah.",
+    "msg": "Thank you for every du'a, every sacrifice and every kindness. May Allah reward you with Jannah, I love you, Mum."
+  },
+  "dad": {
+    "group": "relationship",
+    "color": "#2f5a40",
+    "eyebrow": "To my father",
+    "headlineEn": "My first hero",
+    "word": { "ar": "أبي", "translit": "Abī · my father" },
+    "sub": "with love and gratitude",
+    "dua": "May Allah preserve you and reward your every effort.",
+    "msg": "Thank you for your strength, your guidance and your quiet sacrifices. May Allah preserve you, I love you, Dad."
+  },
+  "friend": {
+    "group": "relationship",
+    "color": "#a87a3c",
+    "eyebrow": "To my friend",
+    "headlineEn": "A friend for the sake of Allah",
+    "word": { "ar": "أخي في الله", "translit": "For the sake of Allah" },
+    "sub": "grateful for you",
+    "dua": "May Allah keep us together in this life and the next.",
+    "msg": "Grateful for a friendship built on something lasting. May Allah keep us close in this life and reunite us in Jannah."
+  }
+}

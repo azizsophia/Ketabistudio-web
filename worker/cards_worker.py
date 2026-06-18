@@ -27,12 +27,19 @@ import json
 import os
 import time
 import traceback
-from urllib.parse import urlencode
+from pathlib import Path
+from urllib.parse import urlencode  # noqa: F401 (kept for legacy _print_url)
 
 import requests
 
 import emailer
-from pipeline import prodigi_client
+from pipeline import prodigi_client, card_pipeline
+
+# Vetted card catalog (content keyed by item_id) — mirrors lib/cards.ts, read by
+# the PIL renderer so the print asset is produced directly (no headless browser).
+CARDS_CATALOG = json.loads(
+    (Path(__file__).resolve().parent / "pipeline" / "cards_catalog.json")
+    .read_text("utf-8"))
 
 SB = "".join(os.environ["SUPABASE_URL"].split()).rstrip("/")
 KEY = "".join(os.environ["SUPABASE_SERVICE_KEY"].split())
@@ -135,27 +142,33 @@ def _recipient_from_shipping(order):
 
 # ── per-order processing ────────────────────────────────────────────
 def process_card(order):
-    """Render → upload → submit one paid card order to Prodigi."""
-    from playwright.sync_api import sync_playwright
+    """Render → upload → submit one paid card order to Prodigi.
 
+    The print spreads are rendered directly with PIL (card_pipeline) in the
+    premium house style — no headless browser — so what we preview is what
+    prints, and the cards match the keepsakes by construction."""
     oid = order["id"]
     try:
         set_card_status(oid, "rendering")
 
-        outside_url = _print_url(order, "outside")
-        inside_url = _print_url(order, "inside")
+        item_id = order.get("item_id") or "eid"
+        card = CARDS_CATALOG.get(item_id)
+        if not card:
+            raise RuntimeError(f"unknown card item_id: {item_id!r}")
 
-        with sync_playwright() as p:
-            browser = p.chromium.launch(headless=True)
-            try:
-                page = browser.new_page(
-                    viewport={"width": RENDER_W, "height": RENDER_H},
-                    device_scale_factor=1,
-                )
-                outside_png = _render_face(page, outside_url)
-                inside_png = _render_face(page, inside_url)
-            finally:
-                browser.close()
+        workdir = Path(f"/tmp/card-{oid}")
+        op, ip = card_pipeline.build(
+            card, workdir,
+            recipient=(order.get("recipient_name") or "")
+            if order.get("show_name") else "",
+            message=order.get("message") or card.get("msg", ""),
+            sign_off=order.get("sender") or "",
+            arabic_index=int(order.get("arabic_index") or 0),
+            arabic_off=bool(order.get("arabic_off")),
+            accent_hex=order.get("accent") or None,
+        )
+        outside_png = Path(op).read_bytes()
+        inside_png = Path(ip).read_bytes()
 
         outside_path = storage_upload(
             "card-assets", f"renders/{oid}-outside.png", outside_png, "image/png")
