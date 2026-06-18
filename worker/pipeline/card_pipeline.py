@@ -97,15 +97,20 @@ def _front_panel(d, img, x0, accent, slots):
         y += sz + 60
 
     _hairline(d, cx, y, 130, LGOLD, 2)
-    y += 70
+    y += 80
+    # English line directly under the hairline — present on EVERY card for a
+    # consistent rhythm (occasion: "Blessed Eid"; relationship: the headline).
     if slots.get("line2"):
         fo, sz = _fit_one(d, slots["line2"], lambda z: CG(z, 540, it=True),
                           w - 2 * inner - 40, 84, 48)
         ctext(d, slots["line2"], fo, cx, y, IVORY)
-        y += sz + 40
+        y += sz + 34
+    if slots.get("sub"):
+        ctext(d, slots["sub"], CG(46, 520, it=True), cx, y, LGOLD)
+    # the recipient line ("For ___"), only when the sender chose to show it
     if slots.get("foot"):
         ctext(d, slots["foot"], CG(46, 520, it=True), cx,
-              SPREAD_H - BLEED - inner - 130, LGOLD)
+              SPREAD_H - BLEED - inner - 120, LGOLD)
 
 
 def _back_panel(d, x0, accent):
@@ -195,8 +200,11 @@ def build(card, out_dir, recipient="", message=None, sign_off="",
             "bigText": ar["ar"] if ar else card.get("en", ""),
             "bigArabic": bool(ar),
             "translit": ar["translit"] if ar else "",
-            "line2": "",
-            "foot": (f"For {recipient}" if recipient else card.get("en", "")),
+            # show the English under the rule only when Arabic is the big text
+            # (otherwise it would repeat the big English headline)
+            "line2": card.get("en", "") if ar else "",
+            "sub": "",
+            "foot": (f"For {recipient}" if recipient else ""),
         }
     else:
         word = None if arabic_off else card.get("word")
@@ -206,7 +214,8 @@ def build(card, out_dir, recipient="", message=None, sign_off="",
             "bigArabic": bool(word),
             "translit": word["translit"] if word else "",
             "line2": card.get("headlineEn", "") if word else "",
-            "foot": (f"For {recipient}" if recipient else card.get("sub", "")),
+            "sub": card.get("sub", ""),
+            "foot": (f"For {recipient}" if recipient else ""),
         }
 
     outside = render_outside(accent, slots)
