@@ -40,7 +40,8 @@ HARDCOVER_POD = "0850X0850.FC.PRE.CW.080CW444.MXX"
 # from the customer's uploaded photos + captions via photobook_pipeline. These
 # are HARDCOVER-ONLY 8.5x8.5 keepsakes, 24pp casewrap (every interior page is a
 # customer photo).
-PHOTOBOOK_SLUGS = {"about-mama", "about-baba"}
+PHOTOBOOK_SLUGS = {"about-mama", "about-baba", "about-grandma", "about-grandpa",
+                   "about-spouse", "about-baby", "our-ramadan"}
 
 # Books that may be ordered in hardcover (personalized books + every photo-book
 # keepsake). Fixed books keep pre-made softcover cover art and are never
@@ -70,6 +71,11 @@ BOOK_SPECS = {
     # Photo-book keepsakes — hardcover-only, 24-page casewrap.
     "about-mama": {"page_count": 24, "pod": HARDCOVER_POD},
     "about-baba": {"page_count": 24, "pod": HARDCOVER_POD},
+    "about-grandma": {"page_count": 24, "pod": HARDCOVER_POD},
+    "about-grandpa": {"page_count": 24, "pod": HARDCOVER_POD},
+    "about-spouse": {"page_count": 24, "pod": HARDCOVER_POD},
+    "about-baby": {"page_count": 24, "pod": HARDCOVER_POD},
+    "our-ramadan": {"page_count": 24, "pod": HARDCOVER_POD},
 }
 
 

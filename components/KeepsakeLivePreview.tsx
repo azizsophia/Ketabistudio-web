@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import type { ReactNode, CSSProperties } from "react";
 import type { PhotobookTemplate } from "@/lib/photobook";
 import KeepsakeFlipbook from "./KeepsakeFlipbook";
 import s from "./KeepsakeLivePreview.module.css";
@@ -135,8 +135,14 @@ export default function KeepsakeLivePreview({
     "Closing",
   ];
 
+  const accentVars = {
+    "--kacc": template.accent.main,
+    "--kacc-deep": template.accent.deep,
+    "--kacc-dark": template.accent.dark,
+  } as CSSProperties;
+
   return (
-    <div className={s.frameWrap}>
+    <div className={s.frameWrap} style={accentVars}>
       <KeepsakeFlipbook pages={nodes} labels={labels} />
     </div>
   );

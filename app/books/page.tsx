@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { BOOKS } from "@/lib/books";
+import { PHOTOBOOK_ORDER, PHOTOBOOK_TEMPLATES } from "@/lib/photobook";
 import styles from "./books.module.css";
 
 export const metadata: Metadata = {
@@ -99,56 +100,49 @@ export default function BooksPage() {
       </section>
 
       {/* ── keepsake line (photo books) ── */}
-      <section className={`wrap ${styles.grid}`} aria-label="Keepsakes">
-        {[
-          { slug: "about-mama", who: "Mama" },
-          { slug: "about-baba", who: "Baba" },
-        ].map(({ slug, who }) => (
-          <Link
-            key={slug}
-            href={`/keepsakes/${slug}`}
-            className={`card ${styles.bookCard}`}
-          >
-            <span className={styles.cover}>
-              <span
-                className={styles.coverGlow}
-                style={{ background: "#c9a84c" }}
-                aria-hidden="true"
-              />
-              <Image
-                src={`/images/keepsake/${slug}/cover.jpg`}
-                alt={`Everything I Love About ${who} keepsake`}
-                width={700}
-                height={700}
-                sizes="(max-width: 720px) 90vw, 340px"
-                className={styles.coverImg}
-              />
-              <span className={styles.personalizeBadge}>
-                <span className={styles.badgeDiamond} aria-hidden="true" />
-                Your photos
+      <section className={`wrap ${styles.grid}`} aria-label="Photo keepsakes">
+        {PHOTOBOOK_ORDER.map((slug) => {
+          const t = PHOTOBOOK_TEMPLATES[slug];
+          return (
+            <Link
+              key={slug}
+              href={`/keepsakes/${slug}`}
+              className={`card ${styles.bookCard}`}
+            >
+              <span className={styles.cover}>
+                <span
+                  className={styles.coverGlow}
+                  style={{ background: t.accent.main }}
+                  aria-hidden="true"
+                />
+                <Image
+                  src={`/images/keepsake/${slug}/cover.jpg`}
+                  alt={`${t.title} keepsake`}
+                  width={700}
+                  height={700}
+                  sizes="(max-width: 720px) 90vw, 340px"
+                  className={styles.coverImg}
+                />
+                <span className={styles.personalizeBadge}>
+                  <span className={styles.badgeDiamond} aria-hidden="true" />
+                  Your photos
+                </span>
               </span>
-            </span>
-            <span className={styles.body}>
-              <span className={`${styles.tag} ${styles.tagPersonalized}`}>
-                Keepsake
+              <span className={styles.body}>
+                <span className={`${styles.tag} ${styles.tagPersonalized}`}>
+                  Keepsake
+                </span>
+                <span className={styles.title}>{t.title}</span>
+                <span className={styles.value}>{t.value}</span>
+                <span className={styles.blurb}>{t.blurb}</span>
+                <span className={styles.cta}>
+                  Make this keepsake
+                  <span aria-hidden="true"> &rarr;</span>
+                </span>
               </span>
-              <span className={styles.title}>
-                Everything I Love About {who}
-              </span>
-              <span className={styles.value}>
-                Your own photos &amp; words, sealed with the dua for parents
-              </span>
-              <span className={styles.blurb}>
-                Fill a beautiful hardcover keepsake with twenty things you love
-                about {who} — your photos, your words.
-              </span>
-              <span className={styles.cta}>
-                Make this keepsake
-                <span aria-hidden="true"> &rarr;</span>
-              </span>
-            </span>
-          </Link>
-        ))}
+            </Link>
+          );
+        })}
       </section>
     </div>
   );

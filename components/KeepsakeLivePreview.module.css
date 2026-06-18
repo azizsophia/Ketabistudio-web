@@ -28,7 +28,7 @@
 .frame {
   position: absolute;
   inset: 7.5cqw;
-  border: 1px solid #967a46;
+  border: 1px solid var(--kacc-deep, #967a46);
   pointer-events: none;
 }
 
@@ -37,7 +37,7 @@
   font-size: 2.7cqw;
   letter-spacing: 0.34em;
   text-transform: uppercase;
-  color: #b5975c;
+  color: var(--kacc, #b5975c);
   margin-bottom: 2cqw;
 }
 .kickerSm {
@@ -45,7 +45,7 @@
   font-size: 2.6cqw;
   letter-spacing: 0.4em;
   text-transform: uppercase;
-  color: #b5975c;
+  color: var(--kacc, #b5975c);
   margin-bottom: 3cqw;
 }
 
@@ -81,7 +81,7 @@
   font-size: 3cqw;
   letter-spacing: 0.34em;
   text-transform: uppercase;
-  color: #d0b678;
+  color: var(--kacc-dark, #d0b678);
   margin-bottom: 1.4cqw;
 }
 .coverTitle {
@@ -95,7 +95,7 @@
   display: block;
   width: 13cqw;
   height: 1px;
-  background: #d0b678;
+  background: var(--kacc-dark, #d0b678);
   margin: 3cqw 0 2cqw;
 }
 .coverBy {
@@ -109,7 +109,7 @@
   display: block;
   width: 14cqw;
   height: 1px;
-  background: #b5975c;
+  background: var(--kacc, #b5975c);
   margin: 3cqw 0;
 }
 
@@ -125,7 +125,7 @@
   width: 46cqw;
   height: 46cqw;
   object-fit: cover;
-  border: 1px solid #967a46;
+  border: 1px solid var(--kacc-deep, #967a46);
 }
 
 /* dedication */
@@ -180,7 +180,7 @@
 .heroTick {
   width: 7cqw;
   height: 1px;
-  background: #c9ad6a;
+  background: var(--kacc-dark, #c9ad6a);
 }
 .heroCap {
   font-style: italic;
@@ -203,7 +203,7 @@
   width: 56cqw;
   height: 70cqw; /* 4:5 portrait */
   object-fit: cover;
-  border: 1px solid #967a46;
+  border: 1px solid var(--kacc-deep, #967a46);
 }
 .galCap {
   font-style: italic;

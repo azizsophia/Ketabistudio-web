@@ -114,13 +114,134 @@ CAPTIONS = {
         "I pray we're together in Jannah, always.",
         "I love you more than all the stars, Baba.",
     ],
+    "about-grandma": [
+        "Allah blessed our family with you.",
+        "Your dua have wrapped around me my whole life.",
+        "You tell the best stories about our family.",
+        "Your hands have made a thousand meals with love.",
+        "I love the way you speak about our deen.",
+        "You always have room on your lap and in your heart.",
+        "Your home smells like every happy memory.",
+        "You slip me treats and a little extra love.",
+        "You make every visit feel like Eid.",
+        "You taught my parent everything good in them.",
+        "Your patience is softer than anyone I know.",
+        "You remember every name in every dua.",
+        "I love praying beside you.",
+        "You keep our family's stories alive.",
+        "You forgive before I can even ask.",
+        "Your hugs feel like coming home.",
+        "Being your grandchild is a gift from Allah.",
+        "I pray Allah grants you long life and good health.",
+        "I pray we're together in Jannah, always.",
+        "I love you more than all the stars, Grandma.",
+    ],
+    "about-grandpa": [
+        "Allah blessed our family with you.",
+        "Your dua are a shade over all of us.",
+        "You tell the stories no one else remembers.",
+        "I love sitting beside you after salah.",
+        "You taught my parent to be strong and kind.",
+        "Your hands have worked hard for all of us.",
+        "You answer my questions with patience.",
+        "You make me feel brave.",
+        "You remember the old days so beautifully.",
+        "I love hearing you recite Qur'an.",
+        "You always have wisdom and a little joke.",
+        "You taught me to give without being asked.",
+        "Your faith is a light passed down to me.",
+        "You never miss a chance to make dua for me.",
+        "You forgive before I can even ask.",
+        "Your blessing means the world to me.",
+        "Being your grandchild is a gift from Allah.",
+        "I pray Allah grants you long life and good health.",
+        "I pray we're together in Jannah, always.",
+        "I love you more than all the stars, Grandpa.",
+    ],
+    "about-spouse": [
+        "Alhamdulillah, Allah wrote you into my life.",
+        "You are the answer to a dua I made before I knew you.",
+        "I love praying Fajr beside you.",
+        "You make our house a home full of barakah.",
+        "Your patience makes me a better Muslim.",
+        "You hold my hand through every hard day.",
+        "I love hearing you make dua for us.",
+        "You forgive me, again and again.",
+        "You believe in me when I forget to.",
+        "Our laughter is one of Allah's gifts to me.",
+        "You are my comfort, the coolness of my eyes.",
+        "I love building this life and this deen with you.",
+        "You carry me in your dua wherever I go.",
+        "Every ordinary day with you feels like a blessing.",
+        "You are my home in this dunya.",
+        "I love growing closer to Allah alongside you.",
+        "Loving you is part of how I worship Allah.",
+        "I pray our love is a sadaqah that lasts.",
+        "I pray Allah keeps us together in Jannah.",
+        "I love you more, every single year.",
+    ],
+    "about-baby": [
+        "You are an answered dua, little one.",
+        "We whispered the adhan into your ear.",
+        "We made dua for you before we ever met you.",
+        "Allah chose us to be your family.",
+        "Your tiny hands hold our whole hearts.",
+        "We say bismillah over you every day.",
+        "You are an amanah from Allah we will protect.",
+        "We pray you grow to love Allah.",
+        "Every sleepless night is worth your smile.",
+        "We see Allah's mercy in your face.",
+        "You made us a family.",
+        "We can't wait to teach you your first dua.",
+        "You are the coolness of our eyes.",
+        "We pray you are of the righteous.",
+        "Your laugh is our favorite sound in the world.",
+        "We thank Allah for you in every salah.",
+        "May your heart always be full of iman.",
+        "We pray for Jannah for you, and for us with you.",
+        "You are loved beyond measure, by us and by Allah.",
+        "Welcome to the world, our little blessing.",
+    ],
+    "our-ramadan": [
+        "The first crescent moon of Ramadan.",
+        "Suhoor together before the sky turns light.",
+        "The adhan that means it's time to break our fast.",
+        "Dates and water, and a whispered alhamdulillah.",
+        "Standing together for taraweeh.",
+        "The smell of our kitchen at iftar.",
+        "Giving sadaqah with our own hands.",
+        "Reading Qur'an as a family.",
+        "Lanterns and lights around our home.",
+        "Making dua in the last ten nights.",
+        "Searching for Laylatul Qadr together.",
+        "Helping prepare the iftar table.",
+        "Forgiving each other and starting fresh.",
+        "The quiet of the masjid at night.",
+        "Learning a new surah this month.",
+        "Sharing food with our neighbors.",
+        "The excitement the night before Eid.",
+        "New clothes and Eid morning prayer.",
+        "Hugging everyone and saying Eid Mubarak.",
+        "A whole month that brought us closer to Allah.",
+    ],
 }
-RECIPIENTS = {"about-mama": ("Mama", "Yusuf"), "about-baba": ("Baba", "Layla")}
+RECIPIENTS = {
+    "about-mama": ("Mama", "Yusuf"),
+    "about-baba": ("Baba", "Layla"),
+    "about-grandma": ("Teta", "Maryam"),
+    "about-grandpa": ("Jiddo", "Yusuf"),
+    "about-spouse": ("Aisha", "Omar"),
+    "about-baby": ("Yusuf", "Mama & Baba"),
+    "our-ramadan": ("Ramadan", "The Aziz family"),
+}
+# distinct photo seeds per template so previews don't all look identical
+SEEDS = {s: i for i, s in enumerate(RECIPIENTS)}
 
 
 def render(slug):
     caps = CAPTIONS[slug]
     recipient, author = RECIPIENTS[slug]
+    base = SEEDS[slug] * 40
     work = Path(f"/tmp/keepsake_preview_{slug}")
     src = work / "_src"
     if work.exists():
@@ -130,10 +251,10 @@ def render(slug):
     urls = []
     for n in range(1, 21):
         p = src / f"p{n:02d}.jpg"
-        _photo(n if slug == "about-mama" else n + 40).save(p, "JPEG", quality=90)
+        _photo(base + n).save(p, "JPEG", quality=90)
         urls.append(p.as_uri())
     cover = src / "cover.jpg"
-    _photo(99 if slug == "about-mama" else 199).save(cover, "JPEG", quality=90)
+    _photo(base + 99).save(cover, "JPEG", quality=90)
 
     photo_data = {
         "recipient_name": recipient,
@@ -159,5 +280,7 @@ def render(slug):
 
 
 if __name__ == "__main__":
-    for s in ("about-mama", "about-baba"):
+    import sys
+    targets = sys.argv[1:] or list(RECIPIENTS.keys())
+    for s in targets:
         render(s)

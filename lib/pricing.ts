@@ -78,7 +78,15 @@ export const HARDCOVER_POD = "0850X0850.FC.PRE.CW.080CW444.MXX";
    are 8.5x8.5 HARDCOVER-ONLY keepsakes, 24pp casewrap (every interior page is a
    customer photo). Kept here (not imported) to avoid a server/client import
    cycle. */
-export const PHOTOBOOK_SLUGS = ["about-mama", "about-baba"];
+export const PHOTOBOOK_SLUGS = [
+  "about-mama",
+  "about-baba",
+  "about-grandma",
+  "about-grandpa",
+  "about-spouse",
+  "about-baby",
+  "our-ramadan",
+];
 
 export const BOOK_SHIP_SPEC: Record<string, { pageCount: number; pod: string }> = {
   "her-beautiful-hijab": { pageCount: 32, pod: POD_PACKAGE },
@@ -88,6 +96,11 @@ export const BOOK_SHIP_SPEC: Record<string, { pageCount: number; pod: string }> 
   // Photo-book keepsakes — hardcover-only, 24pp casewrap (see PHOTOBOOK note).
   "about-mama": { pageCount: 24, pod: HARDCOVER_POD },
   "about-baba": { pageCount: 24, pod: HARDCOVER_POD },
+  "about-grandma": { pageCount: 24, pod: HARDCOVER_POD },
+  "about-grandpa": { pageCount: 24, pod: HARDCOVER_POD },
+  "about-spouse": { pageCount: 24, pod: HARDCOVER_POD },
+  "about-baby": { pageCount: 24, pod: HARDCOVER_POD },
+  "our-ramadan": { pageCount: 24, pod: HARDCOVER_POD },
 };
 export const DEFAULT_SHIP_SPEC = { pageCount: 32, pod: POD_PACKAGE };
 
