@@ -150,6 +150,10 @@ export default function OrderSection({ slug, personalized }: Props) {
       setError("Please enter your state or province.");
       return;
     }
+    if (!phone.trim()) {
+      setError("A phone number is required for delivery.");
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -502,10 +506,11 @@ export default function OrderSection({ slug, personalized }: Props) {
 
             <div className={styles.fieldFull}>
               <label className={styles.label} htmlFor="phone">
-                Phone {isInternational ? "(required for customs)" : "(optional)"}
+                Phone (required for delivery)
               </label>
               <input id="phone" className={styles.input} type="tel"
-                placeholder=""
+                autoComplete="tel"
+                placeholder="So the courier can reach you"
                 value={phone} onChange={(e) => setPhone(e.target.value)} />
             </div>
           </div>

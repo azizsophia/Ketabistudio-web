@@ -134,6 +134,13 @@ export async function POST(req: NextRequest) {
       { status: 400 }
     );
   }
+  // Lulu requires a phone number on the shipping address for every print job.
+  if (!ship.phone?.trim() || ship.phone.replace(/[^\d]/g, "").length < 7) {
+    return NextResponse.json(
+      { error: "A valid phone number is required for delivery." },
+      { status: 400 }
+    );
+  }
 
   const shipping = {
     name: ship.name.trim(),
