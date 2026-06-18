@@ -164,9 +164,15 @@ def process(order):
     set_status(oid, "generating")
 
     # Payment is confirmed by the time an order reaches 'pending' (the
-    # Stripe webhook sets it). Send the confirmation as production begins.
+    # Stripe webhook sets it). Send the confirmation ONCE per order — a
+    # re-run (retry after a failure) must not re-email the customer.
     try:
-        emailer.send_order_confirmation(order)
+        already = db("GET", f"order_events?order_id=eq.{oid}"
+                            "&event=eq.confirmation_sent&select=order_id")
+        if not already:
+            emailer.send_order_confirmation(order)
+            db("POST", "order_events",
+               json={"order_id": oid, "event": "confirmation_sent"})
     except Exception as e:  # noqa: BLE001
         print(f"[{oid}] confirmation email error (non-fatal): {e}")
 
