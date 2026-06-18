@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Fraunces, Plus_Jakarta_Sans, Amiri } from "next/font/google";
+import { Fraunces, Plus_Jakarta_Sans, Amiri, Cormorant } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 import Header from "@/components/Header";
@@ -21,6 +21,15 @@ const amiri = Amiri({
   weight: ["400", "700"],
   subsets: ["arabic"],
   variable: "--font-arabic",
+});
+
+/* Matches the keepsake PRINT typography (the worker renders pages in
+   Cormorant) so the on-screen live preview reads like the printed book. */
+const cormorant = Cormorant({
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+  weight: ["400", "500", "600"],
+  variable: "--font-cormorant",
 });
 
 export const metadata: Metadata = {
@@ -47,7 +56,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${fraunces.variable} ${jakarta.variable} ${amiri.variable}`}
+        className={`${fraunces.variable} ${jakarta.variable} ${amiri.variable} ${cormorant.variable}`}
       >
         <Splash />
         <Header />

@@ -35,6 +35,9 @@ export type PhotobookTemplate = {
   authorLabel: string;
   /** Whether the cover has a small framed photo window. */
   coverPhoto: boolean;
+  /** Heartfelt dedication line (rendered under the recipient's name). Mirrors
+   *  worker/pipeline/photobook_pipeline.py DEDICATIONS — keep in sync. */
+  dedication: string;
   /** Editable default captions — one per photo page (20). */
   defaultCaptions: string[];
   /** Verified dua for the dua page. */
@@ -50,6 +53,8 @@ const ABOUT_MAMA: PhotobookTemplate = {
   recipientPlaceholder: "e.g. Mama, Ummi, Mom",
   authorLabel: "Your name",
   coverPhoto: true,
+  dedication:
+    "who taught my heart to say bismillah, and showed me the mercy of Allah long before I had the words for it.",
   defaultCaptions: [
     "Mama, Allah blessed me with you.",
     "You are the first dua Allah answered for me.",
@@ -92,6 +97,8 @@ const ABOUT_BABA: PhotobookTemplate = {
   recipientPlaceholder: "e.g. Baba, Abu, Papa",
   authorLabel: "Your name",
   coverPhoto: true,
+  dedication:
+    "whose strength and gentle faith first showed me how to walk through this life leaning on Allah.",
   defaultCaptions: [
     "Baba, Allah blessed me with you.",
     "You are an answer to a dua I never had to make.",

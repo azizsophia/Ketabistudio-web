@@ -1,7 +1,60 @@
-.section {
+/* ── builder shell: live preview + the step form ── */
+.shell {
   background: var(--cream);
+}
+.previewPane {
+  padding: 22px 16px 6px;
+}
+.previewLabel {
+  text-align: center;
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+  margin: 0 0 12px;
+}
+.formPane {
+  min-width: 0;
+}
+.layoutTag {
+  display: inline-block;
+  margin-left: 10px;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #968d80;
+  border: 1px solid #e3dccb;
+  border-radius: 999px;
+  padding: 2px 9px;
+  vertical-align: middle;
+}
+.layoutFull {
+  color: var(--gold-deep);
+  border-color: #ddcba0;
+  background: #fbf6ea;
+}
+@media (min-width: 920px) {
+  .shell {
+    display: grid;
+    grid-template-columns: minmax(0, 460px) 1fr;
+    gap: 28px;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 28px 24px 64px;
+    align-items: start;
+  }
+  .previewPane {
+    position: sticky;
+    top: 80px;
+    padding-top: 8px;
+  }
+}
+
+.section {
+  background: transparent;
   color: var(--ink);
-  padding: 48px 0 96px;
+  padding: 8px 0 48px;
 }
 .inner {
   max-width: 880px;

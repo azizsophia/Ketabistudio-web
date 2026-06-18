@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import styles from "./PhotobookBuilder.module.css";
 import type { PhotobookTemplate } from "@/lib/photobook";
 import { HARDCOVER_PRICE_DISPLAY } from "@/lib/pricing";
+import KeepsakeLivePreview from "./KeepsakeLivePreview";
 
 /* DPI guard thresholds, caught UPFRONT at upload (never after ordering).
    Many pages print full-bleed (8.75in = 2625px @ 300 DPI), so we hold photos
@@ -334,9 +335,31 @@ export default function PhotobookBuilder({
     );
   }
 
+  /* Live preview — reflects names, captions and uploaded photos in real time,
+     in the exact print layout. Persists across steps (same tree position). */
+  const preview = (
+    <KeepsakeLivePreview
+      template={template}
+      recipient={recipient}
+      author={author}
+      coverPhotoUrl={coverPhoto?.url || null}
+      pages={captions.map((c, i) => ({ caption: c, url: photos[i]?.url || null }))}
+    />
+  );
+
+  const shell = (content: ReactNode) => (
+    <div className={styles.shell}>
+      <aside className={styles.previewPane}>
+        <p className={styles.previewLabel}>Live preview</p>
+        {preview}
+      </aside>
+      <div className={styles.formPane}>{content}</div>
+    </div>
+  );
+
   /* ── step: names + cover photo ── */
   if (step === "names") {
-    return (
+    return shell(
       <section className={styles.section}>
         <div className={styles.inner}>
           <p className={styles.stepLabel}>Step 1 of 3</p>
@@ -389,19 +412,33 @@ export default function PhotobookBuilder({
 
   /* ── step: the 20 photo pages ── */
   if (step === "spreads") {
-    return (
+    return shell(
       <section className={styles.section}>
         <div className={styles.inner}>
           <p className={styles.stepLabel}>Step 2 of 3</p>
           <h2 className={styles.heading}>Your twenty pages</h2>
           <p className={styles.sub}>
-            Each page pairs one of your photos with a line. We&apos;ve filled in
-            beautiful words for you — edit any of them to make it yours.
+            Each page pairs one of your photos with a line — we&apos;ve filled in
+            beautiful words for you, edit any to make it yours. It&apos;s an
+            editorial layout: some photos fill the whole page, others sit framed,
+            for rhythm. Use a wide, high-quality photo for the{" "}
+            <em>full-page</em> spots.
           </p>
 
-          {captions.map((cap, i) => (
+          {captions.map((cap, i) => {
+            const fullPage = (i + 1) % 3 === 1;
+            return (
             <div className={styles.spread} key={i}>
-              <p className={styles.spreadNum}>Page {i + 1}</p>
+              <p className={styles.spreadNum}>
+                Page {i + 1}
+                <span
+                  className={`${styles.layoutTag} ${
+                    fullPage ? styles.layoutFull : ""
+                  }`}
+                >
+                  {fullPage ? "Full page" : "Framed"}
+                </span>
+              </p>
               <textarea
                 className={styles.captionInput}
                 value={cap}
@@ -421,7 +458,8 @@ export default function PhotobookBuilder({
                 label="Add photo"
               />
             </div>
-          ))}
+            );
+          })}
 
           {error && <p className={styles.error}>{error}</p>}
           <div className={styles.btnRow}>
@@ -442,7 +480,7 @@ export default function PhotobookBuilder({
   }
 
   /* ── step: shipping ── */
-  return (
+  return shell(
     <section className={styles.section}>
       <div className={styles.inner}>
         <p className={styles.stepLabel}>Step 3 of 3</p>

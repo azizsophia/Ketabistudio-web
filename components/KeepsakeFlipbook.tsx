@@ -1,25 +1,27 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import styles from "./KeepsakeFlipbook.module.css";
 
 /**
- * A lightweight, dependency-free flip-book for previewing a keepsake's pages.
+ * A lightweight, dependency-free flip-book.
+ * - pass an array of page NODES (images or live-rendered pages)
  * - click the right/left half of the page (or the arrows) to turn
  * - arrow keys ← →, and swipe on touch
  * - a soft page-turn fade so it feels like a book, not a slideshow
  */
 export default function KeepsakeFlipbook({
   pages,
-  startLabel = "Cover",
+  labels,
 }: {
-  pages: string[];
-  startLabel?: string;
+  pages: ReactNode[];
+  labels?: string[];
 }) {
   const [i, setI] = useState(0);
   const [turning, setTurning] = useState<"f" | "b" | null>(null);
   const touchX = useRef<number | null>(null);
   const total = pages.length;
+  const safe = Math.min(i, total - 1);
 
   const go = useCallback(
     (dir: 1 | -1) => {
@@ -48,7 +50,7 @@ export default function KeepsakeFlipbook({
     return () => clearTimeout(t);
   }, [turning, i]);
 
-  const label = i === 0 ? startLabel : `Page ${i} of ${total - 1}`;
+  const label = labels?.[safe] ?? `Page ${safe + 1} of ${total}`;
 
   return (
     <div className={styles.wrap}>
@@ -58,7 +60,7 @@ export default function KeepsakeFlipbook({
           aria-label="Previous page"
           className={`${styles.arrow} ${styles.left}`}
           onClick={() => go(-1)}
-          disabled={i === 0}
+          disabled={safe === 0}
         >
           ‹
         </button>
@@ -74,20 +76,14 @@ export default function KeepsakeFlipbook({
             touchX.current = null;
           }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            key={i}
-            src={pages[i]}
-            alt={label}
+          <div
+            key={safe}
             className={`${styles.page} ${
-              turning === "f"
-                ? styles.turnF
-                : turning === "b"
-                ? styles.turnB
-                : ""
+              turning === "f" ? styles.turnF : turning === "b" ? styles.turnB : ""
             }`}
-            draggable={false}
-          />
+          >
+            {pages[safe]}
+          </div>
           {/* invisible click zones: left = back, right = forward */}
           <button
             type="button"
@@ -108,7 +104,7 @@ export default function KeepsakeFlipbook({
           aria-label="Next page"
           className={`${styles.arrow} ${styles.right}`}
           onClick={() => go(1)}
-          disabled={i === total - 1}
+          disabled={safe === total - 1}
         >
           ›
         </button>
