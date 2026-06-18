@@ -7,7 +7,7 @@ import styles from "../../books/books.module.css";
 export const metadata: Metadata = {
   title: "Storybooks",
   description:
-    "Hand-illustrated Islamic storybooks for children — folktales, stories of values, and personalized books your child can star in. Printed to order.",
+    "Hand-illustrated Islamic storybooks for children: folktales, stories of values, and personalized books your child can star in. Printed to order.",
 };
 
 export default function StorybooksPage() {

@@ -4,9 +4,9 @@ import Link from "next/link";
 import styles from "./shop.module.css";
 
 export const metadata: Metadata = {
-  title: "Shop — books, keepsakes & cards",
+  title: "Shop: books, keepsakes and cards",
   description:
-    "Hand-illustrated Islamic storybooks, personalized photo keepsakes, and beautifully made greeting cards — printed to order with care.",
+    "Hand-illustrated Islamic storybooks, personalized photo keepsakes, and beautifully made greeting cards, printed to order with care.",
 };
 
 type Tile = {
@@ -25,15 +25,15 @@ const TILES: Tile[] = [
     href: "/shop/storybooks",
     tag: "For little hearts",
     title: "Storybooks",
-    sub: "Hand-illustrated Islamic stories — folktales, values, and books your child can star in.",
+    sub: "Hand-illustrated Islamic stories: folktales, values, and books your child can star in.",
     cta: "Browse storybooks →",
     img: "/images/book-amira.jpg",
   },
   {
     href: "/shop/keepsakes",
-    tag: "Your photos & words",
+    tag: "Your photos and words",
     title: "Keepsakes",
-    sub: "Hardcover photo books you fill yourself — for Mama, Baba, grandparents, your spouse, a new baby, and Ramadan.",
+    sub: "Hardcover photo books you fill yourself, for Mama, Baba, grandparents, your spouse, a new baby, and Ramadan.",
     cta: "Browse keepsakes →",
     img: "/images/keepsake/about-mama/cover.jpg",
   },
@@ -41,18 +41,9 @@ const TILES: Tile[] = [
     href: "/cards",
     tag: "Sent for you",
     title: "Greeting Cards",
-    sub: "Personalized Islamic cards with a vetted dua — Eid, Nikah, new baby, and for the people you love.",
+    sub: "Personalized Islamic cards with a vetted dua, for Eid, Nikah, a new baby, and the people you love.",
     cta: "Design a card →",
     img: "/images/cards/eid.jpg",
-  },
-  {
-    href: "/shop/play-mats",
-    tag: "For playtime",
-    title: "Children's Play Mats",
-    sub: "Beautiful, soft play mats for little ones — thoughtfully designed. Arriving soon, Inshallah.",
-    cta: "Coming soon",
-    color: "#2e4a3a",
-    soon: true,
   },
 ];
 
@@ -63,8 +54,8 @@ export default function ShopPage() {
         <p className="eyebrow">The Ketabi Shop</p>
         <h1 className={styles.h1}>Made with intention.</h1>
         <p className={`lede ${styles.lede}`}>
-          Everything we make — to read, to keep, and to give — printed to order
-          with care.
+          Everything we make to read, to keep, and to give. Printed to order with
+          care.
         </p>
       </header>
 

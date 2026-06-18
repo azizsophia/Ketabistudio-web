@@ -7,7 +7,7 @@ import styles from "../../books/books.module.css";
 export const metadata: Metadata = {
   title: "Keepsakes",
   description:
-    "Hardcover photo keepsakes you fill with your own photos and words — for Mama, Baba, grandparents, your spouse, a new baby, and Ramadan. Sealed with a dua.",
+    "Hardcover photo keepsakes you fill with your own photos and words, for Mama, Baba, grandparents, your spouse, a new baby, and Ramadan. Sealed with a dua.",
 };
 
 export default function KeepsakesPage() {
@@ -22,8 +22,8 @@ export default function KeepsakesPage() {
             <span className={styles.gold}>.</span>
           </h1>
           <p className={`lede ${styles.lede}`}>
-            Hardcover photo books you fill yourself — every page a photo and a
-            line, sealed with a dua. For the people you love most.
+            Hardcover photo books you fill yourself. Every page a photo and a
+            line, sealed with a dua, for the people you love most.
           </p>
           <span className={`divider ${styles.heroDivider}`} aria-hidden="true">
             <span />

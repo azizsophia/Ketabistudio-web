@@ -7,7 +7,7 @@ import WaitlistForm from "./WaitlistForm";
 export const metadata: Metadata = {
   title: "Coming soon",
   description:
-    "Ketabi Studio. Personalized Islamic storybooks, hardcover photo keepsakes, and beautifully made greeting cards — each sealed with a dua. Join the founding list and download the Ketabi app today.",
+    "Ketabi Studio. Personalized Islamic storybooks, hardcover photo keepsakes, and beautifully made greeting cards, each sealed with a dua. Join the founding list and download the Ketabi app today.",
 };
 
 const APP_STORE = "https://apps.apple.com/us/app/ketabi/id6768112231";
@@ -45,9 +45,9 @@ const CARDS = [
 ];
 
 const PERKS = [
-  "Shop first — early access before we open to everyone",
-  "First look at every new book, keepsake & card",
-  "A founding-member welcome when we open, Inshallah",
+  "Early access to shop before we open to everyone",
+  "First look at every new book, keepsake and card",
+  "A founding member welcome when we open, Inshallah",
 ];
 
 export default function ComingSoon() {
@@ -55,7 +55,7 @@ export default function ComingSoon() {
     <div className={styles.screen}>
       <div className={styles.inner}>
         {/* ── hero ── */}
-        <p className={styles.bismillah}>بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ</p>
+        <p className={styles.bismillah}>بِسۡمِ ٱللَّهِ ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ</p>
 
         <Image
           src="/images/logo-vertical.png"
@@ -73,9 +73,9 @@ export default function ComingSoon() {
         </h1>
 
         <p className={styles.lede}>
-          Beautiful, intentional Islamic gifts for the whole family —
-          personalized storybooks, hardcover photo keepsakes you fill with your
-          own photos, and beautifully made greeting cards. Each one sealed with a
+          Beautiful, intentional Islamic gifts for the whole family.
+          Personalized storybooks, hardcover photo keepsakes you fill with your
+          own photos, and beautifully made greeting cards, each one sealed with a
           dua. Opening soon, Inshallah.
         </p>
 
@@ -131,7 +131,7 @@ export default function ComingSoon() {
 
         <p className={styles.peekSub}>Personalized storybooks</p>
         <p className={styles.tourIntro}>
-          A whole shelf of children&apos;s books — some personalized so your
+          A whole shelf of children&apos;s books, some personalized so your
           little one becomes the star of their very own story.
         </p>
 
@@ -158,14 +158,14 @@ export default function ComingSoon() {
 
         <p className={styles.peekSub}>Photo keepsakes</p>
         <p className={styles.tourIntro}>
-          Hardcover books you fill with your own photos and words — for Mama,
+          Hardcover books you fill with your own photos and words, for Mama,
           Baba, grandparents, your spouse, a new baby, and Ramadan. Sealed with
           the dua for parents.
         </p>
 
         <p className={styles.peekSub}>Greeting cards</p>
         <p className={styles.tourIntro}>
-          Beautifully designed Islamic cards, each with a vetted dua —
+          Beautifully designed Islamic cards, each with a vetted dua,
           personalized and posted straight to your loved ones.
         </p>
 
@@ -176,11 +176,6 @@ export default function ComingSoon() {
             </span>
           ))}
         </div>
-
-        <p className={styles.tourFoot}>
-          And soon, Inshallah: soft children&apos;s play mats, thoughtfully
-          designed for little ones.
-        </p>
 
         {/* ── follow us ── */}
         <div className={styles.followWrap}>

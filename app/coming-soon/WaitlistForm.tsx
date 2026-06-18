@@ -42,8 +42,8 @@ export default function WaitlistForm() {
         <span className={styles.waitTick} aria-hidden="true">
           ✓
         </span>
-        Jazāk Allāhu khayran — you&apos;re on the founding list. You&apos;ll get
-        early access the moment we open, Inshallah.
+        Jazāk Allāhu khayran. You&apos;re on the founding list, and you&apos;ll
+        get early access the moment we open, Inshallah.
       </div>
     );
   }
