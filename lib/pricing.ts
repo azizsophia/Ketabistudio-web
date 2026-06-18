@@ -3,22 +3,28 @@
    Book price + flat shipping by zone. Reviewed 2026-06-11. */
 
 /* ⚠️ TEMPORARY TEST PRICING — set false before public launch to restore
-   the real $27.99 book price. While true, books cost $1 so the owner can
+   the real $34.99 book price. While true, books cost $1 so the owner can
    place real test orders cheaply. */
 export const TEST_DOLLAR_PRICING = true;
 
-export const BOOK_PRICE_CENTS = TEST_DOLLAR_PRICING ? 100 : 2799; // $1 test / $27.99 live (softcover, default)
+export const BOOK_PRICE_CENTS = TEST_DOLLAR_PRICING ? 100 : 3499; // $1 test / $34.99 live (softcover, free US shipping baked in)
 
 /* Hardcover upsell — offered ONLY for the two personalized books
    (her-beautiful-hijab, my-beautiful-duas). Softcover stays the default. */
-export const HARDCOVER_PRICE_CENTS = TEST_DOLLAR_PRICING ? 100 : 4299; // $1 test / $42.99 live
-export const HARDCOVER_PRICE_DISPLAY = TEST_DOLLAR_PRICING ? "$1.00" : "$42.99";
+export const HARDCOVER_PRICE_CENTS = TEST_DOLLAR_PRICING ? 100 : 4999; // $1 test / $49.99 live
+export const HARDCOVER_PRICE_DISPLAY = TEST_DOLLAR_PRICING ? "$1.00" : "$49.99";
 
 export type CoverType = "softcover" | "hardcover";
 
 /** Book price in cents for the chosen cover type (softcover is the default). */
 export function bookPriceCents(coverType?: string): number {
   return coverType === "hardcover" ? HARDCOVER_PRICE_CENTS : BOOK_PRICE_CENTS;
+}
+
+/* Shipping model: FREE for US (baked into the book price); real-time Lulu
+   shipping for international (so intl orders never lose money). */
+export function isFreeShippingCountry(countryCode: string): boolean {
+  return countryCode.toUpperCase() === "US";
 }
 
 /* Greeting cards are priced "delivered" — one flat price that includes
@@ -53,7 +59,7 @@ export const HIFZ_MONTHLY_DISPLAY = TEST_DOLLAR_PRICING ? "$1.00" : "$6.99";
 export const HIFZ_ANNUAL_DISPLAY = TEST_DOLLAR_PRICING ? "$1.00" : "$59";
 
 /* Human-readable for the storefront */
-export const BOOK_PRICE_DISPLAY = TEST_DOLLAR_PRICING ? "$1.00" : "$27.99";
+export const BOOK_PRICE_DISPLAY = TEST_DOLLAR_PRICING ? "$1.00" : "$34.99";
 export const SOFTCOVER_PRICE_DISPLAY = BOOK_PRICE_DISPLAY;
 export const SHIPPING_US_DISPLAY = "$4.99";
 export const SHIPPING_INTL_DISPLAY = "$14.99";

@@ -533,14 +533,14 @@ export default function OrderSection({ slug, personalized }: Props) {
             </div>
             <div className={styles.priceRow}>
               <span>Shipping</span>
-              <span>Calculated at checkout</span>
+              <span>{isInternational ? "Calculated at checkout" : "Free (US)"}</span>
             </div>
             <div className={`${styles.priceRow} ${styles.priceTotal}`}>
               <span>Total</span>
               <span>
                 {(personalized && coverType === "hardcover"
                   ? HARDCOVER_PRICE_DISPLAY
-                  : SOFTCOVER_PRICE_DISPLAY) + " + shipping"}
+                  : SOFTCOVER_PRICE_DISPLAY) + (isInternational ? " + shipping" : "")}
               </span>
             </div>
             <p className={styles.priceNote}>

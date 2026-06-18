@@ -6,6 +6,7 @@ import {
   shippingLabel,
   shipChargeFromLulu,
   shipSpecFor,
+  isFreeShippingCountry,
   CURRENCY,
 } from "@/lib/pricing";
 import { luluShippingCents } from "@/lib/lulu";
@@ -60,36 +61,40 @@ export async function POST(req: NextRequest) {
   const country = (order.shipping?.country_code || "US").toUpperCase();
   const coverType = order.cover_type === "hardcover" ? "hardcover" : "softcover";
 
-  /* Real-time Lulu shipping (Option B): quote the live cost for this address,
-     fall back to flat zone rates if Lulu is unavailable so checkout never
-     breaks. */
-  let ship = shippingCents(country);
-  let shipName = shippingLabel(country);
+  /* Shipping: FREE for the US (baked into the book price). International is
+     charged real-time Lulu shipping (Option B), with a flat fallback if Lulu
+     is unavailable so checkout never breaks. */
+  let ship = 0;
+  let shipName = "Free shipping";
   const addr = order.shipping;
-  if (addr?.street1 && addr?.city && addr?.postcode) {
-    const spec = shipSpecFor(order.book_slug, coverType);
-    const quote = await luluShippingCents(
-      {
-        name: addr.name,
-        street1: addr.street1,
-        street2: addr.street2,
-        city: addr.city,
-        state_code: addr.state_code,
-        postcode: addr.postcode,
-        country_code: country,
-        phone_number: addr.phone_number,
-      },
-      { pageCount: spec.pageCount, pod: spec.pod }
-    );
-    if (quote != null) {
-      ship = shipChargeFromLulu(quote);
-      shipName = "Shipping";
+  if (!isFreeShippingCountry(country)) {
+    ship = shippingCents(country); // intl flat fallback
+    shipName = shippingLabel(country);
+    if (addr?.street1 && addr?.city && addr?.postcode) {
+      const spec = shipSpecFor(order.book_slug, coverType);
+      const quote = await luluShippingCents(
+        {
+          name: addr.name,
+          street1: addr.street1,
+          street2: addr.street2,
+          city: addr.city,
+          state_code: addr.state_code,
+          postcode: addr.postcode,
+          country_code: country,
+          phone_number: addr.phone_number,
+        },
+        { pageCount: spec.pageCount, pod: spec.pod }
+      );
+      if (quote != null) {
+        ship = shipChargeFromLulu(quote);
+        shipName = "Shipping (International)";
+      }
+      console.log(
+        `[checkout] order=${order.id} country=${country} ship=${
+          quote != null ? "lulu" : "flat"
+        } luluQuote=${quote ?? "null"} charge=${ship}`
+      );
     }
-    console.log(
-      `[checkout] order=${order.id} country=${country} ship=${
-        quote != null ? "lulu" : "flat"
-      } luluQuote=${quote ?? "null"} charge=${ship}`
-    );
   }
 
   /* Product name shown on the Stripe page and the receipt */
@@ -129,14 +134,19 @@ export async function POST(req: NextRequest) {
             },
           },
         },
-        {
-          quantity: 1,
-          price_data: {
-            currency: CURRENCY,
-            unit_amount: ship,
-            product_data: { name: shipName },
-          },
-        },
+        // Shipping line only for non-free (international) orders.
+        ...(ship > 0
+          ? [
+              {
+                quantity: 1,
+                price_data: {
+                  currency: CURRENCY,
+                  unit_amount: ship,
+                  product_data: { name: shipName },
+                },
+              },
+            ]
+          : []),
       ],
       metadata: { orderId: order.id },
       payment_intent_data: { metadata: { orderId: order.id } },
