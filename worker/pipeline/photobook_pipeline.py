@@ -3,26 +3,25 @@
 Render engine for Ketabi Studio PHOTO-BOOK keepsakes.
 
 A photo book is built from the CUSTOMER's own uploaded photos + editable
-captions (orders.photo_data). It is the same physical spec as the existing
-books — 8.5x8.5in trim, 32 physical pages, full-bleed 8.75in, 300 DPI — and
-prints through the same Lulu rails (softcover perfect-bound or hardcover
-casewrap).
+captions (orders.photo_data). It is an 8.5x8.5in trim, 24-physical-page
+hardcover casewrap keepsake, full-bleed 8.75in, 300 DPI — printed through the
+same Lulu rails as the books (casewrap hardcover).
 
 DESIGN (premium keepsake, timeless not trendy):
   Palette — warm cream base, deep forest green, gold (two tones) + one soft
   terracotta accent used sparingly. 3-4 colours, cohesive.
-  Layout — generous whitespace; full-bleed reserved for ~5 hero photos so they
-  feel special; the rest are framed insets on cream with a thin gold keyline
-  and an italic caption beneath. Varied spreads, alternating photo side.
+  Layout — EVERY interior page carries one of the customer's photos with its
+  caption (no ornament versos, no quote filler). Full-bleed heroes are spaced
+  through the run so they feel special; the rest are framed insets on cream
+  with a thin gold keyline and an italic caption beneath, alternating side.
   Type — Cormorant / Cormorant Italic (English), Amiri (Arabic dua only).
   300 DPI throughout.
 
-Structure: exactly 32 physical pages, NO blank spacers:
-  p1  Title                p2  Dedication
-  p3..p28  12 photo layouts (alternating full-bleed hero / framed cream page)
-  p29 (filler quote)       p30 (filler quote)   [only if needed to reach 32]
-  p31 Dua (Qur'an 17:24)   p32 Closing
-  The count is computed precisely and asserted == 32.
+Structure: exactly 24 physical pages, every interior page a customer photo:
+  p1  Title                 p2  Dedication
+  p3..p22  20 photo pages   (each = one photo + its caption baked on)
+  p23 Dua (Qur'an 17:24)    p24 Closing
+  The count is computed precisely and asserted == 24 (page_count).
 
 Type system (worker/fonts):
   Cormorant Garamond + Cormorant Italic  — English display/serif
@@ -83,16 +82,6 @@ DUA = {
     },
 }
 TITLES = {"about-mama": "Everything I Love About Mama"}
-
-# Quiet filler lines (in the same Islamic, loving voice) used ONLY if the page
-# math needs a page or two to reach exactly 32. They are real, designed pages —
-# never blank spacers.
-FILLER_LINES = {
-    "about-mama": [
-        "May Allah keep you close, and keep us together — here and in Jannah.",
-        "Every duʿā you make for me is a light I carry.",
-    ],
-}
 
 
 def CG(sz, w=600, it=False):
@@ -279,52 +268,6 @@ def framed_photo_page(photo, caption, photo_left=True):
     return img
 
 
-def caption_verso_page(caption, ornament=False):
-    """The facing (verso) page of a framed-photo spread: the child's words set
-    large and centred on cream with generous whitespace, baseline-anchored.
-    When `ornament` is True (the facing page of a full-bleed hero) it renders a
-    quiet ornamental cream page instead, so the hero photo gets a calm
-    companion rather than competing text."""
-    img, d = _cream_page()
-    cx = TRIM // 2
-    if ornament:
-        # quiet companion for a hero spread — just breathing room + a star
-        star_n(d, cx, TRIM // 2 - 30, 26, 8, fill=GOLD)
-        _gold_rule(d, cx, TRIM // 2 + 90, half=150, color=GOLD_DEEP, width=2,
-                   dot=False)
-        return img
-    star_n(d, cx, 540, 20, 8, fill=GOLD)
-    cap = (caption or "").strip()
-    fo, s, lines, lh = _fit_lines(
-        d, cap, lambda z: CG(z, 500, it=True), TRIM - 2 * 360, 118, 56,
-        lh_factor=1.42, max_h=TRIM - 1180)
-    block_h = len(lines) * lh
-    y = (TRIM - block_h) // 2
-    for ln in lines:
-        ctext(d, ln, fo, cx, y, FOREST)
-        y += lh
-    _gold_rule(d, cx, TRIM - 540, half=170, color=GOLD_DEEP, width=2, dot=False)
-    return img
-
-
-def filler_quote_page(line):
-    """A designed quiet page carrying a short loving line — used only to make
-    the math reach exactly 32. Never a blank spacer."""
-    img, d = _cream_page()
-    cx = TRIM // 2
-    star_n(d, cx, 560, 20, 8, fill=GOLD)
-    fo, s, lines, lh = _fit_lines(
-        d, line, lambda z: CG(z, 520, it=True), TRIM - 2 * 360, 104, 56,
-        lh_factor=1.4, max_h=TRIM - 1100)
-    block_h = len(lines) * lh
-    y = (TRIM - block_h) // 2
-    for ln in lines:
-        ctext(d, ln, fo, cx, y, FOREST)
-        y += lh
-    _gold_rule(d, cx, TRIM - 520, half=170, color=GOLD_DEEP, width=2, dot=False)
-    return img
-
-
 def dua_page(template):
     """Calligraphic Arabic (17:24) + transliteration + English + reference.
     Arabic is shaped RTL via the duas_pipeline approach (AR/reshape) — DO NOT
@@ -421,7 +364,7 @@ def _back_cover(recipient, author):
     d.rectangle([FBM + 72, FBM + 72, FULLBLEED - FBM - 72, FULLBLEED - FBM - 72],
                 outline=GOLD_DEEP, width=1)
     star_n(d, cx, 720, 24, 8, fill=GOLD)
-    blurb = (f"Twelve things {author} loves about {recipient} — in {author}'s "
+    blurb = (f"Twenty things {author} loves about {recipient} — in {author}'s "
              "own photos and words, sealed with the dua for parents.")
     fo = CG(64, 520, it=True)
     y = 1020
@@ -492,65 +435,60 @@ def cover_wrap(recipient, author, cover_photo, cover_type="softcover",
 
 
 # ── page plan ───────────────────────────────────────────────────────
-# Each of the 12 photos occupies a 2-page SPREAD so the middle reads as
-# considered spreads (not 12 identical pages). ~5 of the 12 are full-bleed
-# heroes (they feel special); the rest are framed insets on cream. We MIX them
-# and alternate which side the framed photo sits.
+# EVERY interior page carries one of the customer's photos with its caption
+# baked on (no ornament versos, no quote filler). For rhythm we mix two
+# treatments and space the full-bleed heroes through the run so they feel
+# special rather than relentless:
 #
-#   hero spread   = quiet ornamental verso  +  full-bleed hero recto (caption
-#                   in a translucent forest band)
-#   framed spread = large-caption verso     +  framed photo recto (thin gold
-#                   keyline, caption beneath, photo offset to one side)
+#   hero page   = full-bleed photo (bleeds past trim) with the caption set in a
+#                 translucent forest band near the bottom.
+#   framed page = framed inset on a cream page (thin gold keyline + mat, photo
+#                 offset to one side), caption in Cormorant Italic beneath.
 #
-# Heroes are spaced through the run so spreads vary in rhythm.
-HERO_SLOTS = {1, 4, 7, 10, 12}  # ~5 of 12, well distributed
+# Roughly one in three pages is a hero (well distributed); the rest are framed,
+# alternating which side the photo hugs so facing pages feel composed.
+def _is_hero(index_1based):
+    """Heroes spaced ~1-in-3 through the run (pages 1, 4, 7, ...)."""
+    return index_1based % 3 == 1
 
 
-def _plan_photo_spreads(photos, captions):
-    """Build the photo section as 2-page spreads. Returns a flat list of render
-    thunks (verso, recto, verso, recto, ...)."""
+def _plan_photo_pages(photos, captions):
+    """Build the photo section as ONE page per photo (caption baked on).
+    Returns a flat list of render thunks."""
     thunks = []
     framed_index = 0
     for i, (photo, cap) in enumerate(zip(photos, captions), start=1):
-        if i in HERO_SLOTS:
-            # verso: quiet ornament; recto: full-bleed hero with caption band
-            thunks.append(lambda: caption_verso_page("", ornament=True))
+        if _is_hero(i):
             thunks.append(
                 lambda photo=photo, cap=cap: hero_photo_page(photo, cap))
         else:
             left = (framed_index % 2 == 0)
             framed_index += 1
-            # verso: the words large on cream; recto: the framed photo alone
-            # (caption lives on the verso, so the photo page stays clean)
             thunks.append(
-                lambda cap=cap: caption_verso_page(cap, ornament=False))
-            thunks.append(
-                lambda photo=photo, left=left:
-                framed_photo_page(photo, "", photo_left=left))
+                lambda photo=photo, cap=cap, left=left:
+                framed_photo_page(photo, cap, photo_left=left))
     return thunks
 
 
 # ── build ───────────────────────────────────────────────────────────
-def build(photo_data, out_dir, cover_type="softcover", client=None,
-          page_count=32, pod=None, template="about-mama"):
+def build(photo_data, out_dir, cover_type="hardcover", client=None,
+          page_count=24, pod=None, template="about-mama"):
     """Build the interior PDF + cover PDF from a customer's photo_data.
 
     Returns (interior_pdf_path, cover_pdf_path, page_count).
 
     photo_data = { recipient_name, author_name, cover_photo_url,
-                   pages: [ { photo_url, caption }, ... ] }  # 12 pages
+                   pages: [ { photo_url, caption }, ... ] }  # 20 pages
 
-    Precise 32-page composition (NO blank spacers):
-      front  = title + dedication ......................... 2
-      middle = 12 photo SPREADS (verso + recto each) ..... 24
-      filler = designed quiet quote pages (top-up) ........ 4
-      back   = dua + closing ............................... 2
-      total .............................................. 32
-    Heroes (~5) are full-bleed recto pages with a caption band and a quiet
-    ornamental verso; the rest are framed recto photos with the words set on
-    the verso. The four filler pages are designed loving-line pages (never
-    blank) distributed evenly through the middle so the rhythm varies. The
-    final total is asserted == page_count.
+    Precise 24-page composition — EVERY interior page is a customer photo:
+      front = title + dedication ......................... 2
+      body  = 20 photo pages (1 photo + caption each) ... 20
+      back  = dua + closing .............................. 2
+      total ............................................. 24
+    Heroes (~1-in-3) are full-bleed pages with a translucent caption band; the
+    rest are framed insets on cream with the caption beneath, alternating side.
+    There are NO ornament/quote/filler pages. The final total is asserted ==
+    page_count and the photo count is asserted to match exactly.
 
     Pages are streamed to disk (render -> JPEG -> free) and the interior is
     assembled with img2pdf for a low memory footprint, exactly like the books.
@@ -575,56 +513,23 @@ def build(photo_data, out_dir, cover_type="softcover", client=None,
         lambda: title_page(recipient, author),
         lambda: dedication_page(recipient, author),
     ]
-    spreads = _plan_photo_spreads(photos, captions)   # 2 pages per photo
+    photo_pages = _plan_photo_pages(photos, captions)   # 1 page per photo
     back = [
         lambda: dua_page(template),
         lambda: closing_page(author),
     ]
 
-    fixed = len(front) + len(back)              # 4
-    body = len(spreads)                          # 24 for 12 photos
-    need = page_count - fixed - body            # filler pages still required
-    if need < 0:
-        # Too many photo pages for the spec — clip whole spreads to fit.
-        spreads = spreads[: (page_count - fixed)]
-        body = len(spreads)
-        need = 0
+    # Every interior page is a customer photo: the photo count must EXACTLY fill
+    # the spec between the 4 designed pages (title/dedication/dua/closing). The
+    # order API enforces this; assert here so we never ship a wrong page count.
+    expected_photos = page_count - len(front) - len(back)
+    if len(photo_pages) != expected_photos:
+        raise RuntimeError(
+            f"photo book needs exactly {expected_photos} photos for a "
+            f"{page_count}-page book, got {len(photo_pages)}")
 
-    # Designed filler quote pages (never blank) — top up to exactly 32.
-    flines = FILLER_LINES.get(template) or ["With love, always."]
-    fillers = [
-        (lambda line=flines[k % len(flines)]: filler_quote_page(line))
-        for k in range(need)
-    ]
+    thunks = front + photo_pages + back
 
-    # Distribute fillers evenly between whole spreads so the rhythm varies and
-    # the book never has a block of quiet pages in a row.
-    middle = []
-    if fillers:
-        n_spreads = body // 2 if body else 0
-        if n_spreads == 0:
-            middle = list(fillers)
-        else:
-            step = (n_spreads + 1) / (len(fillers) + 1)
-            insert_after = {round(step * (j + 1)) for j in range(len(fillers))}
-            fi = 0
-            for s_idx in range(n_spreads):
-                middle.append(spreads[2 * s_idx])
-                middle.append(spreads[2 * s_idx + 1])
-                if (s_idx + 1) in insert_after and fi < len(fillers):
-                    middle.append(fillers[fi])
-                    fi += 1
-            while fi < len(fillers):      # any rounding remainder -> before back
-                middle.append(fillers[fi])
-                fi += 1
-    else:
-        middle = list(spreads)
-
-    thunks = front + middle + back
-
-    # Hard guarantee: exactly page_count pages (the Lulu spec). Assert/clip.
-    if len(thunks) > page_count:
-        thunks = thunks[:page_count]
     assert len(thunks) == page_count, (
         f"photo book page math is {len(thunks)}, must be exactly {page_count}")
 
@@ -676,17 +581,27 @@ if __name__ == "__main__":
         "pages": [{"photo_url": urls[1] or urls[0], "caption": c}
                   for c in [
                       "Mama, Allah blessed me with you.",
+                      "You are the first dua Allah answered for me.",
                       "You teach me to love Allah.",
                       "I love praying right beside you.",
                       "Thank you for every duʿā you make for me.",
                       "You fill our home with barakah.",
                       "Your hugs make everything better.",
+                      "You read to me until my eyes grow sleepy.",
                       "When I'm scared, you remind me Allah is near.",
                       "I love the way you say bismillah before everything.",
+                      "You wipe my tears and make a dua over me.",
                       "You're the first to make duʿā when I'm sick.",
+                      "You celebrate every little thing I learn.",
+                      "Your kitchen smells like love and good things.",
+                      "You forgive me before I even finish saying sorry.",
+                      "You are gentle with me on my hardest days.",
                       "Being your child is a gift from Allah.",
+                      "I want to make you proud, in this life and the next.",
                       "I pray we're together in Jannah, always.",
                       "I love you more than all the stars, Mama.",
                   ]],
     }
-    build(sample, "/tmp/photobook_sample")
+    # Standalone smoke test uses the fixed softcover wrap so no Lulu keys are
+    # needed; production orders build the hardcover casewrap via Lulu.
+    build(sample, "/tmp/photobook_sample", cover_type="softcover")

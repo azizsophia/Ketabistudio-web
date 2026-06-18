@@ -203,6 +203,13 @@
   background: #fbf7ec;
   text-align: center;
 }
+.duaIntro {
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+  margin: 0 0 14px;
+}
 .duaArabic {
   font-family: var(--font-arabic), serif;
   direction: rtl;

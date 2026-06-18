@@ -75,8 +75,9 @@ export const POD_PACKAGE = "0850X0850.FC.PRE.PB.080CW444.MXX";
 export const HARDCOVER_POD = "0850X0850.FC.PRE.CW.080CW444.MXX";
 
 /* Photo-book keepsake templates (orders with book_slug = template slug). They
-   are the same 8.5x8.5, 32pp spec as the books and are offered in softcover +
-   hardcover. Kept here (not imported) to avoid a server/client import cycle. */
+   are 8.5x8.5 HARDCOVER-ONLY keepsakes, 24pp casewrap (every interior page is a
+   customer photo). Kept here (not imported) to avoid a server/client import
+   cycle. */
 export const PHOTOBOOK_SLUGS = ["about-mama"];
 
 export const BOOK_SHIP_SPEC: Record<string, { pageCount: number; pod: string }> = {
@@ -84,7 +85,8 @@ export const BOOK_SHIP_SPEC: Record<string, { pageCount: number; pod: string }> 
   "my-beautiful-duas": { pageCount: 32, pod: POD_PACKAGE },
   "juha-and-the-enormous-pumpkin": { pageCount: 32, pod: POD_PACKAGE },
   "maryam-is-kind-to-her-parents": { pageCount: 32, pod: POD_PACKAGE },
-  "about-mama": { pageCount: 32, pod: POD_PACKAGE },
+  // Photo-book keepsake — hardcover-only, 24pp casewrap (see PHOTOBOOK note).
+  "about-mama": { pageCount: 24, pod: HARDCOVER_POD },
 };
 export const DEFAULT_SHIP_SPEC = { pageCount: 32, pod: POD_PACKAGE };
 

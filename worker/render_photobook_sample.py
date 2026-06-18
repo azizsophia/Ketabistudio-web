@@ -3,19 +3,22 @@
 Render a SAMPLE "About Mama" photo book with PLACEHOLDER photos so the design
 can be viewed in CI without any real customer photos or Lulu keys.
 
-It generates 12 tasteful placeholder images in-script with PIL (soft gradients
+It generates 20 tasteful placeholder images in-script with PIL (soft gradients
 in the keepsake palette, a centred "Photo N" label, ~2600px so they pass the
 DPI guard), then calls the REAL pipeline:
 
     photobook_pipeline.build(photo_data, out, cover_type="softcover")
 
-so what we see in the output IS what customers get (same layout, same cover).
-Softcover uses the fixed wrap geometry, so NO Lulu client is needed.
+so what we see in the output IS what customers get (same interior layout, same
+cover art). The keepsake SELLS as a 24pp hardcover casewrap, but the casewrap
+cover geometry needs Lulu; for this design-preview render we use the fixed
+softcover wrap (identical cover art, only the spine/turn-in geometry differs) so
+NO Lulu client is needed.
 
 Env (optional, only if any asset fetch is ever needed): SUPABASE_URL,
 SUPABASE_SERVICE_KEY. Nothing is printed from them.
 
-Output: page01..page32 JPGs + cover.jpg in /tmp/photobook_sample, copied by the
+Output: page01..page24 JPGs + cover.jpg in /tmp/photobook_sample, copied by the
 workflow to ./photobook_sample.
 """
 import shutil
@@ -93,28 +96,36 @@ def main():
     OUT.mkdir(parents=True, exist_ok=True)
     PLACEHOLDER_DIR.mkdir(parents=True, exist_ok=True)
 
-    # 12 placeholder spread photos + 1 cover photo, written to disk as files.
+    # 20 placeholder photo pages + 1 cover photo, written to disk as files.
     urls = []
-    for n in range(1, 13):
+    for n in range(1, 21):
         p = PLACEHOLDER_DIR / f"photo{n:02d}.jpg"
         _placeholder(n).save(p, "JPEG", quality=92)
         urls.append(p.as_uri())
     cover_p = PLACEHOLDER_DIR / "cover.jpg"
-    _placeholder(0 if False else 1).save(cover_p, "JPEG", quality=92)
+    _placeholder(1).save(cover_p, "JPEG", quality=92)
     cover_url = cover_p.as_uri()
 
-    # Mirror lib/photobook.ts default captions (12), same loving voice.
+    # Mirror lib/photobook.ts default captions (20), same loving voice.
     default_captions = [
         "Mama, Allah blessed me with you.",
+        "You are the first dua Allah answered for me.",
         "You teach me to love Allah.",
         "I love praying right beside you.",
         "Thank you for every duʿā you make for me.",
         "You fill our home with barakah.",
         "Your hugs make everything better.",
+        "You read to me until my eyes grow sleepy.",
         "When I'm scared, you remind me Allah is near.",
         "I love the way you say bismillah before everything.",
+        "You wipe my tears and make a dua over me.",
         "You're the first to make duʿā when I'm sick.",
+        "You celebrate every little thing I learn.",
+        "Your kitchen smells like love and good things.",
+        "You forgive me before I even finish saying sorry.",
+        "You are gentle with me on my hardest days.",
         "Being your child is a gift from Allah.",
+        "I want to make you proud, in this life and the next.",
         "I pray we're together in Jannah, always.",
         "I love you more than all the stars, Mama.",
     ]
@@ -125,7 +136,7 @@ def main():
         "cover_photo_url": cover_url,
         "pages": [
             {"photo_url": urls[i], "caption": default_captions[i]}
-            for i in range(12)
+            for i in range(20)
         ],
     }
 
@@ -134,7 +145,7 @@ def main():
     print(f"sample built: {n_pages} pages")
     print(f"interior: {interior}")
     print(f"cover:     {cover_pdf}")
-    assert n_pages == 32, f"expected 32 pages, got {n_pages}"
+    assert n_pages == 24, f"expected 24 pages, got {n_pages}"
 
     # Clean up the placeholder source files so only the book output is pushed.
     shutil.rmtree(PLACEHOLDER_DIR, ignore_errors=True)

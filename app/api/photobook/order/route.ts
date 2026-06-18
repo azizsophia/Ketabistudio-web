@@ -109,12 +109,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "valid email required" }, { status: 400 });
   }
 
-  /* cover type — photo books are offered in softcover + hardcover */
-  const coverTypeRaw = String(body.cover_type || "softcover").toLowerCase();
-  if (coverTypeRaw !== "softcover" && coverTypeRaw !== "hardcover") {
-    return NextResponse.json({ error: "invalid cover type" }, { status: 400 });
-  }
-  const coverType = coverTypeRaw;
+  /* Photo-book keepsakes are hardcover-only (24pp casewrap). Pin it server-side
+     so price + print spec are always the hardcover keepsake regardless of input. */
+  const coverType = "hardcover";
 
   /* shipping */
   const ship = body.shipping as Record<string, string> | undefined;

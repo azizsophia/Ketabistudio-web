@@ -132,8 +132,8 @@ export default function BooksPage() {
               Your own photos &amp; words, sealed with the dua for parents
             </span>
             <span className={styles.blurb}>
-              Fill a beautiful printed keepsake with ten things you love about
-              Mama — your photos, your words.
+              Fill a beautiful hardcover keepsake with twenty things you love
+              about Mama — your photos, your words.
             </span>
             <span className={styles.cta}>
               Make this keepsake

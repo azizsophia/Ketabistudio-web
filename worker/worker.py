@@ -37,8 +37,9 @@ POD = "0850X0850.FC.PRE.PB.080CW444.MXX"
 HARDCOVER_POD = "0850X0850.FC.PRE.CW.080CW444.MXX"
 
 # Photo-book keepsake templates (orders with book_slug = template slug). Built
-# from the customer's uploaded photos + captions via photobook_pipeline. Same
-# 8.5x8.5, 32pp spec as the books; offered in softcover + hardcover.
+# from the customer's uploaded photos + captions via photobook_pipeline. These
+# are HARDCOVER-ONLY 8.5x8.5 keepsakes, 24pp casewrap (every interior page is a
+# customer photo).
 PHOTOBOOK_SLUGS = {"about-mama"}
 
 # Books that may be ordered in hardcover (personalized books + every photo-book
@@ -66,7 +67,8 @@ BOOK_SPECS = {
     "my-beautiful-duas": {"page_count": 32, "pod": POD},
     "juha-and-the-enormous-pumpkin": {"page_count": 32, "pod": POD},
     "maryam-is-kind-to-her-parents": {"page_count": 32, "pod": POD},
-    "about-mama": {"page_count": 32, "pod": POD},
+    # Photo-book keepsake — hardcover-only, 24-page casewrap.
+    "about-mama": {"page_count": 24, "pod": HARDCOVER_POD},
 }
 
 
@@ -74,7 +76,8 @@ def spec_for(slug, cover_type="softcover"):
     """Per-book print spec. Returns the hardcover POD only when a hardcover
     order is placed for a personalized book; everything else (including fixed
     books, and any unexpected cover_type) falls back to the softcover POD so
-    existing behavior is unchanged."""
+    existing behavior is unchanged. Photo-book keepsakes are hardcover-only and
+    already carry the casewrap POD in BOOK_SPECS."""
     spec = dict(BOOK_SPECS.get(slug, DEFAULT_SPEC))
     if cover_type == "hardcover" and slug in HARDCOVER_SLUGS:
         spec["pod"] = HARDCOVER_POD
@@ -156,10 +159,10 @@ def generate_duas(order, workdir: Path, cover_type="softcover", client=None):
     return interior, cover
 
 
-def generate_photobook(order, workdir: Path, cover_type="softcover", client=None):
-    """Customer photo-book keepsake. Builds a 32pp interior + cover wrap from
-    the order's photo_data (uploaded photos + captions). Interior is identical
-    for both cover types; only the cover wrap geometry changes for hardcover."""
+def generate_photobook(order, workdir: Path, cover_type="hardcover", client=None):
+    """Customer photo-book keepsake. Builds a 24pp casewrap interior + cover
+    wrap from the order's photo_data (uploaded photos + captions). Keepsakes are
+    hardcover-only, so the casewrap cover geometry is queried from Lulu."""
     import photobook_pipeline
 
     photo_data = order.get("photo_data") or {}
@@ -183,6 +186,10 @@ def process(order):
     # so a stray value can never change a fixed book's binding.
     if cover_type == "hardcover" and slug not in HARDCOVER_SLUGS:
         cover_type = "softcover"
+    # Photo-book keepsakes are hardcover-only (24pp casewrap); pin it so a stray
+    # value can never select a binding/spec the keepsake doesn't print in.
+    if slug in PHOTOBOOK_SLUGS:
+        cover_type = "hardcover"
     workdir = Path(f"/tmp/order-{oid}")
     workdir.mkdir(exist_ok=True)
     set_status(oid, "generating")

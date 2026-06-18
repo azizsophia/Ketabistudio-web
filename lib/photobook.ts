@@ -33,7 +33,7 @@ export type PhotobookTemplate = {
   authorLabel: string;
   /** Whether the cover has a small framed photo window. */
   coverPhoto: boolean;
-  /** Editable default captions — one per spread (12). */
+  /** Editable default captions — one per photo page (20). */
   defaultCaptions: string[];
   /** Verified dua for the dua page. */
   dua: PhotobookDua;
@@ -49,15 +49,23 @@ const ABOUT_MAMA: PhotobookTemplate = {
   coverPhoto: true,
   defaultCaptions: [
     "Mama, Allah blessed me with you.",
+    "You are the first dua Allah answered for me.",
     "You teach me to love Allah.",
     "I love praying right beside you.",
     "Thank you for every duʿā you make for me.",
     "You fill our home with barakah.",
     "Your hugs make everything better.",
+    "You read to me until my eyes grow sleepy.",
     "When I'm scared, you remind me Allah is near.",
     "I love the way you say bismillah before everything.",
+    "You wipe my tears and make a dua over me.",
     "You're the first to make duʿā when I'm sick.",
+    "You celebrate every little thing I learn.",
+    "Your kitchen smells like love and good things.",
+    "You forgive me before I even finish saying sorry.",
+    "You are gentle with me on my hardest days.",
     "Being your child is a gift from Allah.",
+    "I want to make you proud, in this life and the next.",
     "I pray we're together in Jannah, always.",
     "I love you more than all the stars, Mama.",
   ],
@@ -71,7 +79,7 @@ const ABOUT_MAMA: PhotobookTemplate = {
     ref: "Qur'an 17:24",
   },
   blurb:
-    "A keepsake your child fills with their own photos and words — twelve things they love about Mama, sealed with the dua for parents.",
+    "A hardcover keepsake your child fills with their own photos and words — twenty things they love about Mama, sealed with the dua for parents.",
 };
 
 export const PHOTOBOOK_TEMPLATES: Record<PhotobookSlug, PhotobookTemplate> = {
@@ -84,7 +92,7 @@ export function getPhotobookTemplate(
   return isPhotobookSlug(slug) ? PHOTOBOOK_TEMPLATES[slug] : undefined;
 }
 
-/** Number of inner spreads (caption + photo) per template. */
+/** Number of customer photo pages (caption + photo) per template. */
 export function photobookSpreadCount(slug: PhotobookSlug): number {
   return PHOTOBOOK_TEMPLATES[slug].defaultCaptions.length;
 }

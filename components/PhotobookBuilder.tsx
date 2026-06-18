@@ -3,19 +3,17 @@
 import { useState } from "react";
 import styles from "./PhotobookBuilder.module.css";
 import type { PhotobookTemplate } from "@/lib/photobook";
-import {
-  SOFTCOVER_PRICE_DISPLAY,
-  HARDCOVER_PRICE_DISPLAY,
-} from "@/lib/pricing";
+import { HARDCOVER_PRICE_DISPLAY } from "@/lib/pricing";
 
 /* DPI guard thresholds, caught UPFRONT at upload (never after ordering).
-   The framed photo window prints ~2400px @ 300 DPI, so:
+   Many pages print full-bleed (8.75in = 2625px @ 300 DPI), so we hold photos
+   to a sharper bar than the framed window alone would need:
      short side < 2000  -> BLOCK (will print blurry)
-     2000–2400          -> allow, but "could be sharper"
-     >= 2400            -> looks great
+     2000–2625          -> allow, but "could be sharper"
+     >= 2625            -> looks great (full 300 DPI even full-bleed)
    Unknown/unreadable dimensions (e.g. HEIC) -> BLOCK (we can't verify). */
 const DPI_MIN = 2000;
-const DPI_GOOD = 2400;
+const DPI_GOOD = 2625;
 
 /* Countries the Lulu print network ships to (kept in sync with the API). */
 const COUNTRIES = [
@@ -62,7 +60,7 @@ type Photo = {
   uploading?: boolean;
 };
 
-type Step = "names" | "spreads" | "cover" | "shipping";
+type Step = "names" | "spreads" | "shipping";
 
 function classify(w: number | null, h: number | null): Photo["quality"] {
   if (!w || !h) return "unknown";
@@ -92,10 +90,8 @@ export default function PhotobookBuilder({
     template.defaultCaptions.map(() => null)
   );
 
-  /* cover + shipping */
-  const [coverType, setCoverType] = useState<"softcover" | "hardcover">(
-    "softcover"
-  );
+  /* The keepsake is hardcover-only (24pp casewrap). */
+  const coverType = "hardcover" as const;
   const [email, setEmail] = useState("");
   const [shipName, setShipName] = useState("");
   const [street1, setStreet1] = useState("");
@@ -228,7 +224,7 @@ export default function PhotobookBuilder({
       if (!usable(photos[i])) return setError(`Page ${i + 1} needs a photo that meets the resolution guide.`);
     }
     setError("");
-    setStep("cover");
+    setStep("shipping");
   }
 
   async function placeOrder() {
@@ -343,7 +339,7 @@ export default function PhotobookBuilder({
     return (
       <section className={styles.section}>
         <div className={styles.inner}>
-          <p className={styles.stepLabel}>Step 1 of 4</p>
+          <p className={styles.stepLabel}>Step 1 of 3</p>
           <h1 className={styles.heading}>{template.title}</h1>
           <p className={styles.sub}>{template.blurb}</p>
 
@@ -391,16 +387,16 @@ export default function PhotobookBuilder({
     );
   }
 
-  /* ── step: the 10 spreads ── */
+  /* ── step: the 20 photo pages ── */
   if (step === "spreads") {
     return (
       <section className={styles.section}>
         <div className={styles.inner}>
-          <p className={styles.stepLabel}>Step 2 of 4</p>
-          <h2 className={styles.heading}>Your twelve pages</h2>
+          <p className={styles.stepLabel}>Step 2 of 3</p>
+          <h2 className={styles.heading}>Your twenty pages</h2>
           <p className={styles.sub}>
-            Each page pairs a photo with a line. We&apos;ve filled in beautiful
-            words for you — edit any of them to make it yours.
+            Each page pairs one of your photos with a line. We&apos;ve filled in
+            beautiful words for you — edit any of them to make it yours.
           </p>
 
           {captions.map((cap, i) => (
@@ -445,75 +441,24 @@ export default function PhotobookBuilder({
     );
   }
 
-  /* ── step: cover choice + dua note ── */
-  if (step === "cover") {
-    return (
-      <section className={styles.section}>
-        <div className={styles.inner}>
-          <p className={styles.stepLabel}>Step 3 of 4</p>
-          <h2 className={styles.heading}>Choose your cover</h2>
-          <p className={styles.sub}>
-            Every keepsake ends with the dua for parents, beautifully set in
-            Arabic.
-          </p>
-
-          <div className={styles.coverGrid} role="group" aria-label="Cover">
-            {(
-              [
-                { key: "softcover", label: "Softcover", price: SOFTCOVER_PRICE_DISPLAY },
-                { key: "hardcover", label: "Hardcover", price: HARDCOVER_PRICE_DISPLAY },
-              ] as const
-            ).map((o) => (
-              <button
-                key={o.key}
-                type="button"
-                className={`${styles.coverOption} ${coverType === o.key ? styles.coverActive : ""}`}
-                aria-pressed={coverType === o.key}
-                onClick={() => setCoverType(o.key)}
-              >
-                <span className={styles.coverName}>{o.label}</span>
-                <span className={styles.coverPrice}>{o.price}</span>
-              </button>
-            ))}
-          </div>
-
-          <div className={styles.duaNote}>
-            <p className={styles.duaArabic}>{template.dua.arabic}</p>
-            <p className={styles.duaTranslit}>{template.dua.translit}</p>
-            <p className={styles.duaEnglish}>{template.dua.english}</p>
-            <p className={styles.duaRef}>{template.dua.ref}</p>
-          </div>
-
-          {error && <p className={styles.error}>{error}</p>}
-          <div className={styles.btnRow}>
-            <button className="btn btn-outline" onClick={() => setStep("spreads")}>
-              ← Back
-            </button>
-            <button
-              className={`btn btn-primary ${styles.nextBtn}`}
-              onClick={() => {
-                setError("");
-                setStep("shipping");
-              }}
-            >
-              Continue to shipping
-            </button>
-          </div>
-        </div>
-      </section>
-    );
-  }
-
   /* ── step: shipping ── */
   return (
     <section className={styles.section}>
       <div className={styles.inner}>
-        <p className={styles.stepLabel}>Step 4 of 4</p>
+        <p className={styles.stepLabel}>Step 3 of 3</p>
         <h2 className={styles.heading}>Where should we send it?</h2>
         <p className={styles.sub}>
-          We ship worldwide. Your keepsake is printed and shipped directly to
-          you{isInternational ? ". International shipping rates apply" : ""}.
+          A hardcover keepsake, printed to order and shipped worldwide directly
+          to you{isInternational ? ". International shipping rates apply" : ""}.
         </p>
+
+        <div className={styles.duaNote}>
+          <p className={styles.duaIntro}>Every keepsake ends with the dua for parents</p>
+          <p className={styles.duaArabic}>{template.dua.arabic}</p>
+          <p className={styles.duaTranslit}>{template.dua.translit}</p>
+          <p className={styles.duaEnglish}>{template.dua.english}</p>
+          <p className={styles.duaRef}>{template.dua.ref}</p>
+        </div>
 
         <div className={styles.formGrid}>
           <div className={styles.fieldFull}>
@@ -598,8 +543,8 @@ export default function PhotobookBuilder({
 
         <div className={styles.priceSummary}>
           <div className={styles.priceRow}>
-            <span>Keepsake ({coverType === "hardcover" ? "Hardcover" : "Softcover"})</span>
-            <span>{coverType === "hardcover" ? HARDCOVER_PRICE_DISPLAY : SOFTCOVER_PRICE_DISPLAY}</span>
+            <span>Hardcover keepsake</span>
+            <span>{HARDCOVER_PRICE_DISPLAY}</span>
           </div>
           <div className={styles.priceRow}>
             <span>Shipping</span>
@@ -608,8 +553,7 @@ export default function PhotobookBuilder({
           <div className={`${styles.priceRow} ${styles.priceTotal}`}>
             <span>Total</span>
             <span>
-              {(coverType === "hardcover" ? HARDCOVER_PRICE_DISPLAY : SOFTCOVER_PRICE_DISPLAY) +
-                (isInternational ? " + shipping" : "")}
+              {HARDCOVER_PRICE_DISPLAY + (isInternational ? " + shipping" : "")}
             </span>
           </div>
           <p className={styles.priceNote}>
@@ -619,7 +563,7 @@ export default function PhotobookBuilder({
 
         {error && <p className={styles.error}>{error}</p>}
         <div className={styles.btnRow}>
-          <button className="btn btn-outline" onClick={() => setStep("cover")}>
+          <button className="btn btn-outline" onClick={() => setStep("spreads")}>
             ← Back
           </button>
           <button
