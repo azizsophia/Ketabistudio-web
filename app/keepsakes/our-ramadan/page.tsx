@@ -3,7 +3,7 @@ import PhotobookBuilder from "@/components/PhotobookBuilder";
 import { PHOTOBOOK_TEMPLATES } from "@/lib/photobook";
 
 export const metadata: Metadata = {
-  title: "Everything I Love About Ramadan — a family keepsake",
+  title: "Thirty Beautiful Nights — a Ramadan & Eid keepsake",
   description:
     "A hardcover keepsake of your family's Ramadan & Eid — twenty things you love about the month, sealed with a dua for your family. Printed to order.",
 };

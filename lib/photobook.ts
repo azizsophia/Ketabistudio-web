@@ -244,7 +244,7 @@ const ABOUT_GRANDPA: PhotobookTemplate = {
 
 const ABOUT_SPOUSE: PhotobookTemplate = {
   slug: "about-spouse",
-  title: "Everything I Love About You",
+  title: "The Coolness of My Eyes",
   recipientLabel: "Their name",
   recipientPlaceholder: "e.g. your husband or wife's name",
   authorLabel: "Your name",
@@ -283,7 +283,7 @@ const ABOUT_SPOUSE: PhotobookTemplate = {
 
 const ABOUT_BABY: PhotobookTemplate = {
   slug: "about-baby",
-  title: "Everything We Love About You",
+  title: "Welcome, Little One",
   recipientLabel: "Baby's name",
   recipientPlaceholder: "e.g. Maryam, Yusuf",
   authorLabel: "From",
@@ -322,7 +322,7 @@ const ABOUT_BABY: PhotobookTemplate = {
 
 const OUR_RAMADAN: PhotobookTemplate = {
   slug: "our-ramadan",
-  title: "Everything I Love About Ramadan",
+  title: "Thirty Beautiful Nights",
   recipientLabel: "What you're celebrating",
   recipientPlaceholder: "e.g. Ramadan or Eid",
   authorLabel: "Your family",

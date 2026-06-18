@@ -3,7 +3,7 @@ import PhotobookBuilder from "@/components/PhotobookBuilder";
 import { PHOTOBOOK_TEMPLATES } from "@/lib/photobook";
 
 export const metadata: Metadata = {
-  title: "Everything We Love About You — a baby keepsake",
+  title: "Welcome, Little One — a baby keepsake",
   description:
     "A hardcover keepsake for your little one — twenty things you love about them, sealed with a dua for righteous children. Perfect for an Aqiqah or first year.",
 };
