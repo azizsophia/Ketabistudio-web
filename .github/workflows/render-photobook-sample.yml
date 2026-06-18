@@ -1,0 +1,38 @@
+name: Render Photobook Sample
+
+# Render a SAMPLE "About Mama" photo book with PLACEHOLDER photos so the design
+# can be viewed without real customer photos or Lulu keys. Softcover uses the
+# fixed wrap geometry (no cover-dimensions API call), so this runs with only
+# the Supabase secrets (kept for parity / any future asset fetch). The result
+# (page01..page32 + cover) is pushed to the 'photobook-sample-results' branch.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Deps
+        run: pip install pillow requests arabic-reshaper python-bidi img2pdf
+      - name: Render sample
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          python worker/render_photobook_sample.py
+          rm -rf photobook_sample && cp -r /tmp/photobook_sample photobook_sample
+      - name: Push results
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add photobook_sample
+          git commit -m "Photobook sample: About Mama (placeholder photos)" || { echo "nothing to commit"; exit 0; }
+          git push origin HEAD:photobook-sample-results --force

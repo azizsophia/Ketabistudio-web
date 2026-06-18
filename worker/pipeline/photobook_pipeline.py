@@ -8,15 +8,33 @@ books — 8.5x8.5in trim, 32 physical pages, full-bleed 8.75in, 300 DPI — and
 prints through the same Lulu rails (softcover perfect-bound or hardcover
 casewrap).
 
+DESIGN (premium keepsake, timeless not trendy):
+  Palette — warm cream base, deep forest green, gold (two tones) + one soft
+  terracotta accent used sparingly. 3-4 colours, cohesive.
+  Layout — generous whitespace; full-bleed reserved for ~5 hero photos so they
+  feel special; the rest are framed insets on cream with a thin gold keyline
+  and an italic caption beneath. Varied spreads, alternating photo side.
+  Type — Cormorant / Cormorant Italic (English), Amiri (Arabic dua only).
+  300 DPI throughout.
+
+Structure: exactly 32 physical pages, NO blank spacers:
+  p1  Title                p2  Dedication
+  p3..p28  12 photo layouts (alternating full-bleed hero / framed cream page)
+  p29 (filler quote)       p30 (filler quote)   [only if needed to reach 32]
+  p31 Dua (Qur'an 17:24)   p32 Closing
+  The count is computed precisely and asserted == 32.
+
 Type system (worker/fonts):
   Cormorant Garamond + Cormorant Italic  — English display/serif
   Amiri                                  — Arabic (the dua page)
 
-This module deliberately reuses the proven primitives from duas_pipeline:
-  - FULLBLEED (2625 px @ 300 DPI) + to_fb full-bleed padding
+This module reuses the proven primitives from duas_pipeline:
+  - FULLBLEED (2625 px @ 300 DPI), TRIM, FBM geometry + to_fb padding
   - the _RAQM / AR() / reshape() Arabic shaping (RTL, exact glyphs)
   - the img2pdf streaming build (render -> save JPEG -> free, per page)
   - the hardcover casewrap cover-wrap via Lulu calculate_cover_dimensions
+It defines its OWN colour palette (the premium keepsake palette) rather than
+inheriting the duas browns.
 
 Env: nothing extra (photos are downloaded from public URLs in photo_data).
 """
@@ -28,17 +46,30 @@ from pathlib import Path
 import requests
 from PIL import Image, ImageDraw, ImageFont
 
-# Reuse the verified Arabic shaping + full-bleed helpers from the duas engine so
-# the dua renders identically (exact glyphs, correct RTL) and the page geometry
-# matches the existing books exactly.
+# Reuse the verified Arabic shaping + full-bleed helpers + geometry from the
+# duas engine so the dua renders identically (exact glyphs, correct RTL) and
+# the page geometry matches the existing books exactly. We deliberately do NOT
+# reuse the duas colour constants — the keepsake palette is defined below.
 from duas_pipeline import (
-    FULLBLEED, TRIM, FBM, CREAM, GOLD, DARK, GRAY, BORD, BYL, ACCENT,
+    FULLBLEED, TRIM, FBM,
     AR, reshape, to_fb, wrap, ctext, ls, star_n, lerp,
 )
 
 FD = Path(__file__).resolve().parent.parent / "fonts"
 CORM = str(FD / "Cormorant.ttf")
 CORM_IT = str(FD / "Cormorant-Italic.ttf")
+
+# ── premium keepsake palette (2026-27 best practices) ───────────────
+# Warm cream base, deep forest green, gold (light + deep), one soft terracotta
+# accent used sparingly. 3-4 colours, cohesive and timeless.
+CREAM = (250, 246, 238)      # #FAF6EE  page base
+FOREST = (46, 74, 58)        # #2E4A3A  deep forest green (primary ink)
+GOLD = (201, 168, 76)        # #C9A84C  gold (rules / display)
+GOLD_DEEP = (160, 127, 74)   # #A07F4A  deep gold (fine keylines)
+TERRA = (200, 128, 106)      # #C8806A  soft terracotta/rose (accent, sparing)
+INK = (52, 58, 52)           # near-forest body ink for long captions
+GRAY = (122, 124, 116)       # muted secondary text
+PAPER = (255, 252, 246)      # photo-mat / inset paper (a touch brighter)
 
 # The dua printed on the dua page. VERIFIED — Qur'an 17:24. Mirrors
 # lib/photobook.ts; render EXACTLY (the Arabic is shaped RTL by AR/reshape).
@@ -53,6 +84,16 @@ DUA = {
 }
 TITLES = {"about-mama": "Everything I Love About Mama"}
 
+# Quiet filler lines (in the same Islamic, loving voice) used ONLY if the page
+# math needs a page or two to reach exactly 32. They are real, designed pages —
+# never blank spacers.
+FILLER_LINES = {
+    "about-mama": [
+        "May Allah keep you close, and keep us together — here and in Jannah.",
+        "Every duʿā you make for me is a light I carry.",
+    ],
+}
+
 
 def CG(sz, w=600, it=False):
     f = ImageFont.truetype(CORM_IT if it else CORM, sz)
@@ -66,9 +107,18 @@ def CG(sz, w=600, it=False):
 # ── photo download + fit ────────────────────────────────────────────
 def _download(url):
     """Download a customer photo. Raises on any failure so QC catches it and we
-    NEVER ship a blank page."""
+    NEVER ship a blank page.
+
+    Supports http(s) URLs (production) and local file paths / file:// URIs
+    (used by the CI sample render with placeholder images)."""
     if not url:
         raise RuntimeError("photo url missing")
+    if url.startswith("file://") or "://" not in url:
+        from urllib.parse import urlparse, unquote
+        path = unquote(urlparse(url).path) if url.startswith("file://") else url
+        img = Image.open(path)
+        img.load()
+        return img.convert("RGB")
     r = requests.get(url, timeout=300)
     r.raise_for_status()
     img = Image.open(io.BytesIO(r.content))
@@ -77,7 +127,7 @@ def _download(url):
 
 
 def _cover_fit(img, w, h):
-    """Cover-fit (fill + centre-crop) a photo into a w x h box."""
+    """Cover-fit (fill + centre-crop) a photo into a w x h box. No distortion."""
     sc = max(w / img.width, h / img.height)
     nw, nh = max(1, int(img.width * sc)), max(1, int(img.height * sc))
     r = img.resize((nw, nh), Image.LANCZOS)
@@ -86,143 +136,242 @@ def _cover_fit(img, w, h):
 
 
 # ── design helpers ──────────────────────────────────────────────────
-def _blank(frame=True, border=BORD):
+def _cream_page():
+    """A bare cream trim-size page with generous breathing room (no frame)."""
     img = Image.new("RGB", (TRIM, TRIM), CREAM)
-    d = ImageDraw.Draw(img)
-    if frame:
-        d.rectangle([54, 54, TRIM - 54, TRIM - 54], outline=GOLD, width=4)
-        d.rectangle([70, 70, TRIM - 70, TRIM - 70], outline=border, width=2)
-    return img, d
+    return img, ImageDraw.Draw(img)
 
 
-def _fit_title(d, text, maxw, start, minsz, it=True, w=700):
+def _gold_rule(d, cx, y, half=320, color=GOLD, width=3, dot=True):
+    """A centred gold hairline with an optional small star at its centre."""
+    d.line([cx - half, y, cx + half, y], fill=color, width=width)
+    if dot:
+        star_n(d, cx, y, 11, 8, fill=color)
+
+
+def _fit_lines(d, text, fo_maker, maxw, start, minsz, lh_factor=1.34,
+               max_h=None):
+    """Wrap `text` at the largest size (>= minsz) whose wrapped block fits
+    maxw wide and (optionally) max_h tall. Returns (font, size, lines, lh)."""
     s = start
-    while s > minsz and d.textlength(text, font=CG(s, w, it=it)) > maxw:
+    while True:
+        fo = fo_maker(s)
+        lines = wrap(d, text, fo, maxw)
+        lh = int(s * lh_factor)
+        if max_h is None or len(lines) * lh <= max_h or s <= minsz:
+            return fo, s, lines, lh
         s -= 4
-    return CG(s, w, it=it), s
+
+
+def _fit_one_line(d, text, fo_maker, maxw, start, minsz):
+    s = start
+    while s > minsz and d.textlength(text, font=fo_maker(s)) > maxw:
+        s -= 4
+    return fo_maker(s), s
 
 
 # ── interior pages (all trim-size; padded to full-bleed by to_fb) ────
 def title_page(recipient, author):
-    img, d = _blank(frame=True)
+    """Designed title: cream + forest, gold rule, gold display title."""
+    img, d = _cream_page()
     cx = TRIM // 2
-    star_n(d, cx, 360, 30, 8)
-    title = f"Everything I Love\nAbout {recipient}"
-    lines = title.split("\n")
-    y = 560
+    M = 300  # generous side margin
+    # slim double keyline frame, well inside the safe area
+    d.rectangle([M - 70, M - 70, TRIM - M + 70, TRIM - M + 70],
+                outline=GOLD, width=3)
+    d.rectangle([M - 54, M - 54, TRIM - M + 54, TRIM - M + 54],
+                outline=GOLD_DEEP, width=1)
+    star_n(d, cx, 460, 26, 8, fill=GOLD)
+    ls(d, "A KETABI STUDIO KEEPSAKE", CG(40, 600), cx, 560, GOLD_DEEP, 8)
+
+    lines = ["Everything I Love", f"About {recipient}"]
+    y = 760
     for ln in lines:
-        fo, s = _fit_title(d, ln, TRIM - 440, 150, 70)
-        ctext(d, ln, fo, cx, y, GOLD)
-        y += s + 30
-    d.line([cx - 320, y + 60, cx + 320, y + 60], fill=BORD, width=2)
-    star_n(d, cx, y + 60, 12, 8)
-    ctext(d, f"by {author}", CG(72, 600, it=True), cx, y + 150, DARK)
-    ls(d, "A KETABI STUDIO KEEPSAKE", CG(40, 600), cx, TRIM - 320, BYL, 8)
+        fo, s = _fit_one_line(d, ln, lambda z: CG(z, 660), TRIM - 2 * M, 158, 70)
+        ctext(d, ln, fo, cx, y, FOREST)
+        y += s + 18
+    y += 40
+    _gold_rule(d, cx, y, half=300, color=GOLD, width=3)
+    ctext(d, f"by {author}", CG(76, 560, it=True), cx, y + 70, TERRA)
     return img
 
 
 def dedication_page(recipient, author):
-    img, d = _blank(frame=True)
+    img, d = _cream_page()
     cx = TRIM // 2
-    star_n(d, cx, 560, 26, 8)
-    msg = f"For {recipient},\nwith love — {author}"
-    fo = CG(96, 600, it=True)
-    y = 980
-    for ln in msg.split("\n"):
-        for wl in wrap(d, ln, fo, TRIM - 520):
-            ctext(d, wl, fo, cx, y, DARK)
-            y += 130
-    star_n(d, cx, y + 120, 14, 8)
+    star_n(d, cx, 640, 22, 8, fill=GOLD)
+    msg = f"For {recipient},"
+    sub = f"with love — {author}"
+    ctext(d, msg, CG(120, 560, it=True), cx, 980, FOREST)
+    ctext(d, sub, CG(86, 560, it=True), cx, 1170, INK)
+    _gold_rule(d, cx, 1420, half=210, color=GOLD_DEEP, width=2, dot=False)
+    star_n(d, cx, 1420, 12, 8, fill=TERRA)
     return img
 
 
-def caption_page(caption):
-    """Verso: a luxury cream caption page (the child's words)."""
-    img, d = _blank(frame=True)
-    cx = TRIM // 2
-    star_n(d, cx, 470, 20, 8)
-    # Fit the caption to a generous serif, centred vertically.
-    s = 110
-    while s > 46:
-        fo = CG(s, 500, it=True)
-        lines = wrap(d, caption, fo, TRIM - 540)
-        lh = int(s * 1.42)
-        if len(lines) * lh <= TRIM - 1100:
-            break
-        s -= 4
-    fo = CG(s, 500, it=True)
-    lines = wrap(d, caption, fo, TRIM - 540)
-    lh = int(s * 1.42)
-    y = (TRIM - len(lines) * lh) // 2
-    for ln in lines:
-        ctext(d, ln, fo, cx, y, DARK)
-        y += lh
-    d.line([cx - 160, TRIM - 470, cx + 160, TRIM - 470], fill=BORD, width=2)
-    return img
-
-
-def photo_page(photo):
-    """Recto: the customer photo, cover-fit full-bleed with a subtle inset
-    frame. Returns a FULLBLEED image directly (already bled)."""
+def hero_photo_page(photo, caption):
+    """Full-bleed hero: photo bleeds past trim, caption sits in a small
+    translucent forest band near the bottom. Returns a FULLBLEED image."""
     base = _cover_fit(photo, FULLBLEED, FULLBLEED)
-    d = ImageDraw.Draw(base)
-    # subtle inset frame, kept inside the safe area
-    m = FBM + 40
-    d.rectangle([m, m, FULLBLEED - m, FULLBLEED - m], outline=(255, 250, 240),
-                width=5)
-    d.rectangle([m + 12, m + 12, FULLBLEED - m - 12, FULLBLEED - m - 12],
-                outline=GOLD, width=2)
+    cap = (caption or "").strip()
+    if cap:
+        d = ImageDraw.Draw(base, "RGBA")
+        # caption band — translucent forest, content kept inside the safe area
+        fo, s, lines, lh = _fit_lines(
+            d, cap, lambda z: CG(z, 540, it=True), FULLBLEED - 2 * (FBM + 220),
+            72, 56, lh_factor=1.3, max_h=420)
+        block_h = len(lines) * lh
+        band_h = block_h + 150
+        band_top = FULLBLEED - FBM - band_h - 90
+        d.rectangle([0, band_top, FULLBLEED, band_top + band_h],
+                    fill=(FOREST[0], FOREST[1], FOREST[2], 205))
+        # thin gold edge on the band
+        d.line([0, band_top, FULLBLEED, band_top], fill=GOLD + (235,), width=3)
+        cx = FULLBLEED // 2
+        y = band_top + 60
+        for ln in lines:
+            ctext(d, ln, fo, cx, y, (250, 246, 238))
+            y += lh
     return base
+
+
+def framed_photo_page(photo, caption, photo_left=True):
+    """Framed inset on a cream page: thin gold keyline + mat, generous margins,
+    a short baseline-anchored caption beneath in Cormorant Italic. The photo is
+    offset to one side (alternating across spreads) so the book feels composed
+    rather than 12 identical pages."""
+    img, d = _cream_page()
+    cx = TRIM // 2
+    # Asymmetric margins so the page breathes; the photo hugs one side.
+    near = 250   # margin on the side the photo hugs
+    far = 470    # larger margin on the far side -> generous whitespace
+    top = 360
+    win = TRIM - near - far
+    win_h = win
+    wx = near if photo_left else far
+    wy = top
+
+    # mat + keyline
+    mat = 28
+    d.rectangle([wx - mat, wy - mat, wx + win + mat, wy + win_h + mat],
+                fill=PAPER, outline=GOLD, width=4)
+    d.rectangle([wx - mat + 9, wy - mat + 9, wx + win + mat - 9,
+                 wy + win_h + mat - 9], outline=GOLD_DEEP, width=1)
+    photo_fit = _cover_fit(photo, win, win_h)
+    img.paste(photo_fit, (wx, wy))
+    d.rectangle([wx, wy, wx + win, wy + win_h], outline=GOLD_DEEP, width=2)
+
+    # short caption beneath, centred under the photo column
+    cap = (caption or "").strip()
+    if cap:
+        col_cx = wx + win // 2
+        cap_top = wy + win_h + mat + 90
+        cap_avail_h = TRIM - cap_top - 180
+        fo, s, lines, lh = _fit_lines(
+            d, cap, lambda z: CG(z, 520, it=True), win + 2 * mat + 40, 84, 48,
+            lh_factor=1.32, max_h=max(110, cap_avail_h))
+        block_h = len(lines) * lh
+        y = cap_top + max(0, (cap_avail_h - block_h) // 2)
+        for ln in lines:
+            ctext(d, ln, fo, col_cx, y, FOREST)
+            y += lh
+        star_n(d, col_cx, y + 44, 8, 8, fill=TERRA)
+    return img
+
+
+def caption_verso_page(caption, ornament=False):
+    """The facing (verso) page of a framed-photo spread: the child's words set
+    large and centred on cream with generous whitespace, baseline-anchored.
+    When `ornament` is True (the facing page of a full-bleed hero) it renders a
+    quiet ornamental cream page instead, so the hero photo gets a calm
+    companion rather than competing text."""
+    img, d = _cream_page()
+    cx = TRIM // 2
+    if ornament:
+        # quiet companion for a hero spread — just breathing room + a star
+        star_n(d, cx, TRIM // 2 - 30, 26, 8, fill=GOLD)
+        _gold_rule(d, cx, TRIM // 2 + 90, half=150, color=GOLD_DEEP, width=2,
+                   dot=False)
+        return img
+    star_n(d, cx, 540, 20, 8, fill=GOLD)
+    cap = (caption or "").strip()
+    fo, s, lines, lh = _fit_lines(
+        d, cap, lambda z: CG(z, 500, it=True), TRIM - 2 * 360, 118, 56,
+        lh_factor=1.42, max_h=TRIM - 1180)
+    block_h = len(lines) * lh
+    y = (TRIM - block_h) // 2
+    for ln in lines:
+        ctext(d, ln, fo, cx, y, FOREST)
+        y += lh
+    _gold_rule(d, cx, TRIM - 540, half=170, color=GOLD_DEEP, width=2, dot=False)
+    return img
+
+
+def filler_quote_page(line):
+    """A designed quiet page carrying a short loving line — used only to make
+    the math reach exactly 32. Never a blank spacer."""
+    img, d = _cream_page()
+    cx = TRIM // 2
+    star_n(d, cx, 560, 20, 8, fill=GOLD)
+    fo, s, lines, lh = _fit_lines(
+        d, line, lambda z: CG(z, 520, it=True), TRIM - 2 * 360, 104, 56,
+        lh_factor=1.4, max_h=TRIM - 1100)
+    block_h = len(lines) * lh
+    y = (TRIM - block_h) // 2
+    for ln in lines:
+        ctext(d, ln, fo, cx, y, FOREST)
+        y += lh
+    _gold_rule(d, cx, TRIM - 520, half=170, color=GOLD_DEEP, width=2, dot=False)
+    return img
 
 
 def dua_page(template):
     """Calligraphic Arabic (17:24) + transliteration + English + reference.
-    Arabic is shaped RTL via the duas_pipeline approach (AR/reshape)."""
+    Arabic is shaped RTL via the duas_pipeline approach (AR/reshape) — DO NOT
+    change the text or the shaping path."""
     dua = DUA[template]
-    img, d = _blank(frame=True)
+    img, d = _cream_page()
     cx = TRIM // 2
-    star_n(d, cx, 470, 22, 8)
-    ls(d, "A DUA FOR MAMA & BABA", CG(44, 600), cx, 620, ACCENT, 4)
-    # Arabic — shaped + fit to width.
+    M = 280
+    d.rectangle([M - 60, M - 60, TRIM - M + 60, TRIM - M + 60],
+                outline=GOLD, width=2)
+    star_n(d, cx, 470, 20, 8, fill=GOLD)
+    ls(d, "A DUA FOR MAMA & BABA", CG(44, 600), cx, 600, TERRA, 4)
+
+    # Arabic — shaped + fit to width (verified glyphs, RTL).
     rsh = reshape(dua["arabic"])
-    s = 120
-    while s > 50 and d.textlength(rsh, font=AR(s)) > TRIM - 460:
+    s = 124
+    while s > 50 and d.textlength(rsh, font=AR(s)) > TRIM - 2 * M:
         s -= 2
     afo = AR(s)
-    y = 1000
-    ctext(d, rsh, afo, cx, y, DARK)
-    y += s + 90
+    y = 960
+    ctext(d, rsh, afo, cx, y, FOREST)
+    y += s + 150
+    _gold_rule(d, cx, y - 30, half=180, color=GOLD, width=2)
     # transliteration
-    trf = CG(58, 500, it=True)
-    for ln in wrap(d, dua["translit"], trf, TRIM - 520):
+    trf = CG(60, 520, it=True)
+    for ln in wrap(d, dua["translit"], trf, TRIM - 2 * M):
         ctext(d, ln, trf, cx, y, GRAY)
-        y += 84
-    y += 50
+        y += 86
+    y += 46
     # english
-    enf = CG(54, 500)
-    for ln in wrap(d, dua["english"], enf, TRIM - 540):
-        ctext(d, ln, enf, cx, y, ACCENT)
-        y += 78
-    y += 40
-    ctext(d, dua["ref"], CG(42, 600), cx, y, BYL)
+    enf = CG(56, 520)
+    for ln in wrap(d, dua["english"], enf, TRIM - 2 * M):
+        ctext(d, ln, enf, cx, y, INK)
+        y += 80
+    y += 44
+    ctext(d, dua["ref"], CG(44, 600), cx, y, GOLD_DEEP)
     return img
 
 
 def closing_page(author):
-    img, d = _blank(frame=True)
+    img, d = _cream_page()
     cx = TRIM // 2
-    star_n(d, cx, 700, 30, 8)
-    ctext(d, "Made with love", CG(110, 600, it=True), cx, 1020, GOLD)
-    ctext(d, f"by {author}", CG(84, 500, it=True), cx, 1200, DARK)
-    d.line([cx - 280, 1430, cx + 280, 1430], fill=BORD, width=2)
-    ls(d, "KETABI STUDIO", CG(46, 600), cx, 1520, BYL, 8)
-    return img
-
-
-def spacer_page():
-    """A quiet cream page (gold star) used to pad to exactly 32 pages."""
-    img, d = _blank(frame=True)
-    star_n(d, TRIM // 2, TRIM // 2, 24, 8)
+    star_n(d, cx, 720, 26, 8, fill=GOLD)
+    ctext(d, "Made with love", CG(116, 560, it=True), cx, 1010, FOREST)
+    ctext(d, f"by {author}", CG(86, 520, it=True), cx, 1200, TERRA)
+    _gold_rule(d, cx, 1440, half=260, color=GOLD, width=2)
+    ls(d, "KETABI STUDIO", CG(46, 600), cx, 1540, GOLD_DEEP, 8)
     return img
 
 
@@ -232,32 +381,34 @@ def _front_cover(recipient, author, cover_photo):
     img = Image.new("RGB", (FULLBLEED, FULLBLEED), CREAM)
     d = ImageDraw.Draw(img)
     cx = FULLBLEED // 2
-    # outer gold rule
-    d.rectangle([FBM + 40, FBM + 40, FULLBLEED - FBM - 40, FULLBLEED - FBM - 40],
-                outline=GOLD, width=6)
-    d.rectangle([FBM + 64, FBM + 64, FULLBLEED - FBM - 64, FULLBLEED - FBM - 64],
-                outline=BORD, width=2)
-    star_n(d, cx, 470, 30, 8)
+    # outer gold rules
+    d.rectangle([FBM + 50, FBM + 50, FULLBLEED - FBM - 50, FULLBLEED - FBM - 50],
+                outline=GOLD, width=5)
+    d.rectangle([FBM + 72, FBM + 72, FULLBLEED - FBM - 72, FULLBLEED - FBM - 72],
+                outline=GOLD_DEEP, width=1)
+    star_n(d, cx, 470, 28, 8, fill=GOLD)
+    ls(d, "A KETABI STUDIO KEEPSAKE", CG(38, 600), cx, 560, GOLD_DEEP, 6)
     # title
-    y = 640
+    y = 660
     for ln in ["Everything I Love", f"About {recipient}"]:
-        fo, s = _fit_title(d, ln, FULLBLEED - 720, 150, 64)
-        ctext(d, ln, fo, cx, y, GOLD)
-        y += s + 24
+        fo, s = _fit_one_line(d, ln, lambda z: CG(z, 660), FULLBLEED - 760,
+                              150, 64)
+        ctext(d, ln, fo, cx, y, FOREST)
+        y += s + 18
     # small framed photo window
     win = 980
-    wx, wy = cx - win // 2, y + 90
+    wx, wy = cx - win // 2, y + 100
     frame_pad = 26
     d.rectangle([wx - frame_pad, wy - frame_pad, wx + win + frame_pad,
-                 wy + win + frame_pad], fill=(255, 250, 240), outline=GOLD,
-                width=6)
+                 wy + win + frame_pad], fill=PAPER, outline=GOLD, width=6)
+    d.rectangle([wx - frame_pad + 10, wy - frame_pad + 10,
+                 wx + win + frame_pad - 10, wy + win + frame_pad - 10],
+                outline=GOLD_DEEP, width=1)
     photo = _cover_fit(cover_photo, win, win)
     img.paste(photo, (wx, wy))
-    d.rectangle([wx, wy, wx + win, wy + win], outline=BORD, width=2)
+    d.rectangle([wx, wy, wx + win, wy + win], outline=GOLD_DEEP, width=2)
     # byline
-    ctext(d, f"by {author}", CG(70, 600, it=True), cx, wy + win + 110, DARK)
-    ls(d, "A KETABI STUDIO KEEPSAKE", CG(38, 600), cx, FULLBLEED - FBM - 150,
-       BYL, 6)
+    ctext(d, f"by {author}", CG(70, 560, it=True), cx, wy + win + 120, TERRA)
     return img
 
 
@@ -265,27 +416,33 @@ def _back_cover(recipient, author):
     img = Image.new("RGB", (FULLBLEED, FULLBLEED), CREAM)
     d = ImageDraw.Draw(img)
     cx = FULLBLEED // 2
-    d.rectangle([FBM + 40, FBM + 40, FULLBLEED - FBM - 40, FULLBLEED - FBM - 40],
-                outline=GOLD, width=6)
-    d.rectangle([FBM + 64, FBM + 64, FULLBLEED - FBM - 64, FULLBLEED - FBM - 64],
-                outline=BORD, width=2)
-    star_n(d, cx, 700, 26, 8)
-    blurb = (f"Ten things {author} loves about {recipient} — in {author}'s own "
-             "photos and words, sealed with the dua for parents.")
-    fo = CG(64, 500, it=True)
+    d.rectangle([FBM + 50, FBM + 50, FULLBLEED - FBM - 50, FULLBLEED - FBM - 50],
+                outline=GOLD, width=5)
+    d.rectangle([FBM + 72, FBM + 72, FULLBLEED - FBM - 72, FULLBLEED - FBM - 72],
+                outline=GOLD_DEEP, width=1)
+    star_n(d, cx, 720, 24, 8, fill=GOLD)
+    blurb = (f"Twelve things {author} loves about {recipient} — in {author}'s "
+             "own photos and words, sealed with the dua for parents.")
+    fo = CG(64, 520, it=True)
     y = 1020
-    for ln in wrap(d, blurb, fo, FULLBLEED - 900):
-        ctext(d, ln, fo, cx, y, DARK)
+    for ln in wrap(d, blurb, fo, FULLBLEED - 940):
+        ctext(d, ln, fo, cx, y, FOREST)
         y += 96
-    ls(d, "KETABI STUDIO", CG(42, 600), cx, FULLBLEED - FBM - 200, BYL, 8)
+    ls(d, "KETABI STUDIO", CG(42, 600), cx, FULLBLEED - FBM - 210, GOLD_DEEP, 8)
     return img
+
+
+# fixed softcover wrap geometry (17.39 x 8.75in @ 300 DPI) — no Lulu needed
+SOFTCOVER_WRAP_PX = (5217, 2625)
+SOFTCOVER_SPINE = 60
 
 
 def cover_wrap(recipient, author, cover_photo, cover_type="softcover",
                client=None, page_count=32, pod=None):
     """Full-bleed Lulu wrap: back + spine + front.
 
-    softcover: 17.39x8.75in perfect-bound wrap (same as the books).
+    softcover: 17.39x8.75in perfect-bound wrap (same as the books) — built from
+      the FIXED size, so the sample/CI render needs no Lulu keys.
     hardcover: casewrap sized EXACTLY from Lulu calculate_cover_dimensions for
       the hardcover POD + page count (reuses the duas hardcover approach). The
       casewrap spine/turn-in geometry is a first cut — flag for human review on
@@ -322,16 +479,55 @@ def cover_wrap(recipient, author, cover_photo, cover_type="softcover",
             wrap.paste(bot, (0, y_off + FULLBLEED))
         wrap = wrap.resize((total_w, total_h), Image.LANCZOS)
         return wrap, fc
-    # ── softcover (perfect bound) ────────────────────────────────────
-    spine = 60
+    # ── softcover (perfect bound) — fixed geometry, no Lulu call ──────
+    spine = SOFTCOVER_SPINE
     W, H = spine + 2 * FULLBLEED, FULLBLEED
     wrap = Image.new("RGB", (W, H), CREAM)
     wrap.paste(bc, (0, 0))
     wrap.paste(fc, (FULLBLEED + spine, 0))
     ImageDraw.Draw(wrap).rectangle([FULLBLEED, 0, FULLBLEED + spine, H],
                                    fill=lerp(CREAM, GOLD, 0.14))
-    wrap = wrap.resize((5217, 2625), Image.LANCZOS)  # 17.39 x 8.75 @ 300dpi
+    wrap = wrap.resize(SOFTCOVER_WRAP_PX, Image.LANCZOS)  # 17.39 x 8.75 @ 300
     return wrap, fc
+
+
+# ── page plan ───────────────────────────────────────────────────────
+# Each of the 12 photos occupies a 2-page SPREAD so the middle reads as
+# considered spreads (not 12 identical pages). ~5 of the 12 are full-bleed
+# heroes (they feel special); the rest are framed insets on cream. We MIX them
+# and alternate which side the framed photo sits.
+#
+#   hero spread   = quiet ornamental verso  +  full-bleed hero recto (caption
+#                   in a translucent forest band)
+#   framed spread = large-caption verso     +  framed photo recto (thin gold
+#                   keyline, caption beneath, photo offset to one side)
+#
+# Heroes are spaced through the run so spreads vary in rhythm.
+HERO_SLOTS = {1, 4, 7, 10, 12}  # ~5 of 12, well distributed
+
+
+def _plan_photo_spreads(photos, captions):
+    """Build the photo section as 2-page spreads. Returns a flat list of render
+    thunks (verso, recto, verso, recto, ...)."""
+    thunks = []
+    framed_index = 0
+    for i, (photo, cap) in enumerate(zip(photos, captions), start=1):
+        if i in HERO_SLOTS:
+            # verso: quiet ornament; recto: full-bleed hero with caption band
+            thunks.append(lambda: caption_verso_page("", ornament=True))
+            thunks.append(
+                lambda photo=photo, cap=cap: hero_photo_page(photo, cap))
+        else:
+            left = (framed_index % 2 == 0)
+            framed_index += 1
+            # verso: the words large on cream; recto: the framed photo alone
+            # (caption lives on the verso, so the photo page stays clean)
+            thunks.append(
+                lambda cap=cap: caption_verso_page(cap, ornament=False))
+            thunks.append(
+                lambda photo=photo, left=left:
+                framed_photo_page(photo, "", photo_left=left))
+    return thunks
 
 
 # ── build ───────────────────────────────────────────────────────────
@@ -342,7 +538,19 @@ def build(photo_data, out_dir, cover_type="softcover", client=None,
     Returns (interior_pdf_path, cover_pdf_path, page_count).
 
     photo_data = { recipient_name, author_name, cover_photo_url,
-                   pages: [ { photo_url, caption }, ... ] }
+                   pages: [ { photo_url, caption }, ... ] }  # 12 pages
+
+    Precise 32-page composition (NO blank spacers):
+      front  = title + dedication ......................... 2
+      middle = 12 photo SPREADS (verso + recto each) ..... 24
+      filler = designed quiet quote pages (top-up) ........ 4
+      back   = dua + closing ............................... 2
+      total .............................................. 32
+    Heroes (~5) are full-bleed recto pages with a caption band and a quiet
+    ornamental verso; the rest are framed recto photos with the words set on
+    the verso. The four filler pages are designed loving-line pages (never
+    blank) distributed evenly through the middle so the rhythm varies. The
+    final total is asserted == page_count.
 
     Pages are streamed to disk (render -> JPEG -> free) and the interior is
     assembled with img2pdf for a low memory footprint, exactly like the books.
@@ -360,36 +568,69 @@ def build(photo_data, out_dir, cover_type="softcover", client=None,
 
     # Download every photo up front; any failure raises (never ship a blank).
     cover_photo = _download(photo_data.get("cover_photo_url"))
+    photos = [_download(pg.get("photo_url")) for pg in pages]
+    captions = [(pg.get("caption") or "").strip() for pg in pages]
 
-    # Build the page sequence as lazy thunks so each is rendered, saved, freed.
-    # Front matter (2) + spreads (10*2=20) + dua + closing = 24 structural
-    # pages; the remaining 8 are quiet cream spacers placed BEFORE the closing
-    # pages so the book still ends on the dua + signature.
     front = [
         lambda: title_page(recipient, author),
         lambda: dedication_page(recipient, author),
     ]
-    spread_thunks = []
-    for pg in pages:
-        photo = _download(pg.get("photo_url"))
-        cap = (pg.get("caption") or "").strip()
-        spread_thunks.append(lambda cap=cap: caption_page(cap))      # verso
-        spread_thunks.append(lambda photo=photo: photo_page(photo))  # recto
+    spreads = _plan_photo_spreads(photos, captions)   # 2 pages per photo
     back = [
         lambda: dua_page(template),
         lambda: closing_page(author),
     ]
-    structural = len(front) + len(spread_thunks) + len(back)
-    if structural > page_count:
-        raise RuntimeError(
-            f"photo book would be {structural} pages, exceeds {page_count}")
-    pad = page_count - structural  # quiet spacer pages, in even pairs
-    spacers = [lambda: spacer_page() for _ in range(pad)]
-    thunks = front + spread_thunks + spacers + back
+
+    fixed = len(front) + len(back)              # 4
+    body = len(spreads)                          # 24 for 12 photos
+    need = page_count - fixed - body            # filler pages still required
+    if need < 0:
+        # Too many photo pages for the spec — clip whole spreads to fit.
+        spreads = spreads[: (page_count - fixed)]
+        body = len(spreads)
+        need = 0
+
+    # Designed filler quote pages (never blank) — top up to exactly 32.
+    flines = FILLER_LINES.get(template) or ["With love, always."]
+    fillers = [
+        (lambda line=flines[k % len(flines)]: filler_quote_page(line))
+        for k in range(need)
+    ]
+
+    # Distribute fillers evenly between whole spreads so the rhythm varies and
+    # the book never has a block of quiet pages in a row.
+    middle = []
+    if fillers:
+        n_spreads = body // 2 if body else 0
+        if n_spreads == 0:
+            middle = list(fillers)
+        else:
+            step = (n_spreads + 1) / (len(fillers) + 1)
+            insert_after = {round(step * (j + 1)) for j in range(len(fillers))}
+            fi = 0
+            for s_idx in range(n_spreads):
+                middle.append(spreads[2 * s_idx])
+                middle.append(spreads[2 * s_idx + 1])
+                if (s_idx + 1) in insert_after and fi < len(fillers):
+                    middle.append(fillers[fi])
+                    fi += 1
+            while fi < len(fillers):      # any rounding remainder -> before back
+                middle.append(fillers[fi])
+                fi += 1
+    else:
+        middle = list(spreads)
+
+    thunks = front + middle + back
+
+    # Hard guarantee: exactly page_count pages (the Lulu spec). Assert/clip.
+    if len(thunks) > page_count:
+        thunks = thunks[:page_count]
+    assert len(thunks) == page_count, (
+        f"photo book page math is {len(thunks)}, must be exactly {page_count}")
 
     jpgs = []
     for i, mk in enumerate(thunks):
-        img = to_fb(mk())  # full-bleed (8.75in) — photo_page already is
+        img = to_fb(mk())  # full-bleed (8.75in) — hero pages already are
         if img.mode != "RGB":
             img = img.convert("RGB")
         jp = out / f"page{i + 1:02d}.jpg"
@@ -442,6 +683,8 @@ if __name__ == "__main__":
                       "Your hugs make everything better.",
                       "When I'm scared, you remind me Allah is near.",
                       "I love the way you say bismillah before everything.",
+                      "You're the first to make duʿā when I'm sick.",
+                      "Being your child is a gift from Allah.",
                       "I pray we're together in Jannah, always.",
                       "I love you more than all the stars, Mama.",
                   ]],

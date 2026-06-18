@@ -5,7 +5,7 @@ import { PHOTOBOOK_TEMPLATES } from "@/lib/photobook";
 export const metadata: Metadata = {
   title: "Everything I Love About Mama — a photo keepsake",
   description:
-    "Fill a beautiful printed keepsake with your own photos and words — ten things you love about Mama, sealed with the dua for parents. Printed to order.",
+    "Fill a beautiful printed keepsake with your own photos and words — twelve things you love about Mama, sealed with the dua for parents. Printed to order.",
 };
 
 export default function AboutMamaPage() {

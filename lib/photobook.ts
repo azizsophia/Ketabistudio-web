@@ -33,7 +33,7 @@ export type PhotobookTemplate = {
   authorLabel: string;
   /** Whether the cover has a small framed photo window. */
   coverPhoto: boolean;
-  /** Editable default captions — one per spread (10). */
+  /** Editable default captions — one per spread (12). */
   defaultCaptions: string[];
   /** Verified dua for the dua page. */
   dua: PhotobookDua;
@@ -56,6 +56,8 @@ const ABOUT_MAMA: PhotobookTemplate = {
     "Your hugs make everything better.",
     "When I'm scared, you remind me Allah is near.",
     "I love the way you say bismillah before everything.",
+    "You're the first to make duʿā when I'm sick.",
+    "Being your child is a gift from Allah.",
     "I pray we're together in Jannah, always.",
     "I love you more than all the stars, Mama.",
   ],
@@ -69,7 +71,7 @@ const ABOUT_MAMA: PhotobookTemplate = {
     ref: "Qur'an 17:24",
   },
   blurb:
-    "A keepsake your child fills with their own photos and words — ten things they love about Mama, sealed with the dua for parents.",
+    "A keepsake your child fills with their own photos and words — twelve things they love about Mama, sealed with the dua for parents.",
 };
 
 export const PHOTOBOOK_TEMPLATES: Record<PhotobookSlug, PhotobookTemplate> = {

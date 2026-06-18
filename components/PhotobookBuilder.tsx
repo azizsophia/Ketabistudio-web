@@ -8,9 +8,13 @@ import {
   HARDCOVER_PRICE_DISPLAY,
 } from "@/lib/pricing";
 
-/* DPI guard thresholds (8.5in print at 300 DPI ≈ 2550px on the long edge).
-   Below MIN we BLOCK; between MIN and GOOD we warn but allow. */
-const DPI_MIN = 1600;
+/* DPI guard thresholds, caught UPFRONT at upload (never after ordering).
+   The framed photo window prints ~2400px @ 300 DPI, so:
+     short side < 2000  -> BLOCK (will print blurry)
+     2000–2400          -> allow, but "could be sharper"
+     >= 2400            -> looks great
+   Unknown/unreadable dimensions (e.g. HEIC) -> BLOCK (we can't verify). */
+const DPI_MIN = 2000;
 const DPI_GOOD = 2400;
 
 /* Countries the Lulu print network ships to (kept in sync with the API). */
@@ -165,32 +169,49 @@ export default function PhotobookBuilder({
     if (p.quality === "block") {
       return (
         <p className={styles.dpiBlock}>
-          This photo is too low-resolution to print sharply — please use one at
-          least {DPI_MIN}px, ideally {DPI_GOOD}px+.
+          This photo will print blurry — please use one at least {DPI_MIN}px on
+          the short side (ideally {DPI_GOOD}px+).
         </p>
       );
     }
     if (p.quality === "warn") {
       return (
         <p className={styles.dpiWarn}>
-          This will print, but a larger photo ({DPI_GOOD}px+) will look crisper.
+          This will print, but it could be sharper — a photo {DPI_GOOD}px+ on the
+          short side will look crisper.
         </p>
       );
     }
     if (p.quality === "ok") {
-      return <p className={styles.dpiOk}>Great resolution — this will print beautifully.</p>;
+      return <p className={styles.dpiOk}>Looks great — this will print beautifully.</p>;
     }
+    // unknown dimensions (e.g. HEIC) — block, but stay friendly
     return (
-      <p className={styles.dpiWarn}>
-        We couldn&apos;t read this photo&apos;s size — please use a large, clear
-        original for the best print.
+      <p className={styles.dpiBlock}>
+        We couldn&apos;t read this photo&apos;s size — please upload a JPG or PNG
+        so we can make sure it prints sharply.
       </p>
     );
   }
 
+  /* Usable = uploaded, has a URL, and is NOT blocked. "unknown" (unreadable /
+     HEIC) is treated as blocked, so the customer fixes quality themselves and
+     the order never gets cancelled later for DPI. */
   function usable(p: Photo | null): boolean {
-    return !!p && !p.uploading && !!p.url && p.quality !== "block";
+    return (
+      !!p &&
+      !p.uploading &&
+      !!p.url &&
+      (p.quality === "ok" || p.quality === "warn")
+    );
   }
+
+  /* ── derived validity (used to DISABLE continue, so it's impossible to reach
+        checkout with a blocked/missing photo) ── */
+  const namesValid =
+    !!recipient.trim() && !!author.trim() && usable(coverPhoto);
+  const spreadsValid =
+    captions.every((c) => !!c.trim()) && photos.every((p) => usable(p));
 
   /* ── step nav ── */
   function continueNames() {
@@ -357,7 +378,11 @@ export default function PhotobookBuilder({
 
           {error && <p className={styles.error}>{error}</p>}
           <div className={styles.btnRow}>
-            <button className={`btn btn-primary ${styles.nextBtn}`} onClick={continueNames}>
+            <button
+              className={`btn btn-primary ${styles.nextBtn}`}
+              onClick={continueNames}
+              disabled={!namesValid}
+            >
               Continue to your pages
             </button>
           </div>
@@ -372,7 +397,7 @@ export default function PhotobookBuilder({
       <section className={styles.section}>
         <div className={styles.inner}>
           <p className={styles.stepLabel}>Step 2 of 4</p>
-          <h2 className={styles.heading}>Your ten pages</h2>
+          <h2 className={styles.heading}>Your twelve pages</h2>
           <p className={styles.sub}>
             Each page pairs a photo with a line. We&apos;ve filled in beautiful
             words for you — edit any of them to make it yours.
@@ -407,7 +432,11 @@ export default function PhotobookBuilder({
             <button className="btn btn-outline" onClick={() => setStep("names")}>
               ← Back
             </button>
-            <button className={`btn btn-primary ${styles.nextBtn}`} onClick={continueSpreads}>
+            <button
+              className={`btn btn-primary ${styles.nextBtn}`}
+              onClick={continueSpreads}
+              disabled={!spreadsValid}
+            >
               Continue
             </button>
           </div>
