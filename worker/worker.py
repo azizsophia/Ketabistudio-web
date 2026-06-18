@@ -385,6 +385,17 @@ def poll_shipping(order):
 def main():
     poll = int(os.environ.get("POLL_SECONDS", "30"))
     print("ketabi worker up;", os.environ.get("LULU_ENV", "sandbox"))
+    # One-time Prodigi connectivity check on boot (a quote — no order placed).
+    try:
+        from pipeline import prodigi_client
+        pc = prodigi_client.check_connection()
+        if pc.get("ok"):
+            print(f"[prodigi] OK — key accepted (env={pc.get('env')})")
+        else:
+            print(f"[prodigi] NOT connected — {pc.get('reason')} "
+                  f"(env={pc.get('env')})")
+    except Exception as e:  # noqa: BLE001
+        print(f"[prodigi] startup check error: {e}")
     while True:
         try:
             for order in db("GET", "orders?status=eq.pending&order=created_at"):

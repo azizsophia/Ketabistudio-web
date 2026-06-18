@@ -53,6 +53,45 @@ def _request(method: str, path: str, json_body=None):
         return None
 
 
+def check_connection():
+    """Validate PRODIGI_API_KEY by requesting a QUOTE (no order is created).
+    Returns a dict {ok, status, env, base, key, reason}. A 200 means the key is
+    accepted and the card SKU is recognised."""
+    env = "".join(os.environ.get("PRODIGI_ENV", "").split()) or "sandbox"
+    key = "".join(os.environ.get("PRODIGI_API_KEY", "").split())
+    if not key:
+        return {"ok": False, "env": env, "reason": "PRODIGI_API_KEY is not set"}
+    masked = (key[:5] + "…" + key[-2:]) if len(key) > 8 else "set"
+    body = {
+        "shippingMethod": "Standard",
+        "destinationCountryCode": "US",
+        "items": [{
+            "sku": CARD_SKU,
+            "copies": 1,
+            "attributes": {},
+            "assets": [{"printArea": "outside"}, {"printArea": "inside"}],
+        }],
+    }
+    try:
+        res = requests.post(
+            f"{_base_url()}/quotes",
+            headers={"Content-Type": "application/json", "X-API-Key": key},
+            json=body, timeout=60)
+    except Exception as err:  # noqa: BLE001
+        return {"ok": False, "env": env, "key": masked,
+                "reason": f"network error: {err}"}
+    out = {"status": res.status_code, "env": env, "key": masked,
+           "base": _base_url()}
+    if res.status_code in (401, 403):
+        out.update(ok=False, reason="key rejected (401/403) — wrong key, or key "
+                                    "doesn't match PRODIGI_ENV")
+    elif not res.ok:
+        out.update(ok=False, reason=res.text[:300])
+    else:
+        out.update(ok=True)
+    return out
+
+
 def create_order(
     merchant_reference: str,
     recipient: dict,
