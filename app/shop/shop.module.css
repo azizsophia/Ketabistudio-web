@@ -52,6 +52,7 @@
 }
 
 .tileImg {
+  display: block;
   position: relative;
   aspect-ratio: 16 / 11;
   overflow: hidden;
@@ -86,9 +87,11 @@
 }
 
 .body {
+  display: block;
   padding: 20px 22px 24px;
 }
 .tag {
+  display: block;
   font-size: 0.72rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -96,18 +99,21 @@
   margin: 0 0 6px;
 }
 .title {
+  display: block;
   font-family: var(--font-display), Georgia, serif;
   font-size: 1.5rem;
   color: var(--forest);
   margin: 0 0 6px;
 }
 .sub {
+  display: block;
   color: #5d564d;
   line-height: 1.55;
   margin: 0 0 14px;
   font-size: 0.96rem;
 }
 .cta {
+  display: block;
   font-weight: 600;
   color: var(--forest);
   font-size: 0.95rem;
