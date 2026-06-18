@@ -245,35 +245,35 @@ def hero_photo_page(photo, caption):
 
 
 def gallery_photo_page(photo, caption, photo_left=True):
-    """Editorial gallery page: a single clean photo set large with generous
-    asymmetric whitespace and ONE fine gold hairline (no mat, no double frame,
-    no star). The caption sits beneath in espresso italic. Sides alternate so
-    the book feels composed rather than a stack of identical pages."""
+    """Editorial gallery page: a single clean photo, CENTRED on the page with
+    generous whitespace and ONE fine gold hairline (no mat, no double frame, no
+    star). A 4:5 portrait crop (kind to faces) leaves a clean band beneath for
+    the caption, which is centred on the page so it always aligns under the
+    photo. `photo_left` is accepted for call-site compatibility but the layout
+    is symmetric — variety comes from the hero/gallery rhythm, not from
+    shoving the photo to one edge."""
     img, d = _page()
-    # Asymmetric margins -> generous breathing room; photo hugs one side.
-    near = 220   # margin on the side the photo hugs
-    far = 430    # larger margin on the far side
+    cx = TRIM // 2
+    win_w, win_h = 1400, 1750          # 4:5 portrait, portrait-friendly crop
     top = 300
-    win = TRIM - near - far
-    wx = near if photo_left else far
+    wx = (TRIM - win_w) // 2           # centred horizontally
     wy = top
-    photo_fit = _cover_fit(photo, win, win)
+    photo_fit = _cover_fit(photo, win_w, win_h)
     img.paste(photo_fit, (wx, wy))
     # one fine gold hairline directly bordering the photo
-    d.rectangle([wx, wy, wx + win, wy + win], outline=GOLD_DEEP, width=2)
+    d.rectangle([wx, wy, wx + win_w, wy + win_h], outline=GOLD_DEEP, width=2)
 
     cap = (caption or "").strip()
     if cap:
-        col_cx = wx + win // 2
-        cap_top = wy + win + 104
-        cap_avail_h = TRIM - cap_top - 150
+        cap_top = wy + win_h + 116
+        cap_avail_h = TRIM - cap_top - 170
         fo, s, lines, lh = _fit_lines(
-            d, cap, lambda z: CG(z, 500, it=True), win + 80, 80, 44,
+            d, cap, lambda z: CG(z, 500, it=True), TRIM - 2 * 360, 78, 44,
             lh_factor=1.34, max_h=max(100, cap_avail_h))
         block_h = len(lines) * lh
         y = cap_top + max(0, (cap_avail_h - block_h) // 2)
         for ln in lines:
-            ctext(d, ln, fo, col_cx, y, ESPRESSO)
+            ctext(d, ln, fo, cx, y, ESPRESSO)
             y += lh
     return img
 
