@@ -85,8 +85,30 @@ DUA = {
             "My Lord, have mercy upon them as they raised me when I was small.",
         "ref": "Qur'an 17:24",
     },
+    # Baba keepsake — the same Qur'anic dua for parents (dual), same neutral
+    # label, so it reads cleanly on either book.
+    "about-baba": {
+        "label": "A DUA FOR THE ONES WHO RAISED ME",
+        "arabic": "رَّبِّ ٱرْحَمْهُمَا كَمَا رَبَّيَانِى صَغِيرًا",
+        "translit": "Rabbi-rḥamhumā kamā rabbayānī ṣaghīrā",
+        "english":
+            "My Lord, have mercy upon them as they raised me when I was small.",
+        "ref": "Qur'an 17:24",
+    },
 }
-TITLES = {"about-mama": "Everything I Love About Mama"}
+TITLES = {
+    "about-mama": "Everything I Love About Mama",
+    "about-baba": "Everything I Love About Baba",
+}
+
+# The heartfelt dedication line (set beneath the recipient's name). Kept warm
+# and faith-rooted; the recipient's and author's names frame it on the page.
+DEDICATIONS = {
+    "about-mama": ("who taught my heart to say bismillah, and showed me the "
+                   "mercy of Allah long before I had the words for it."),
+    "about-baba": ("whose strength and gentle faith first showed me how to "
+                   "walk through this life leaning on Allah."),
+}
 
 
 def CG(sz, w=600, it=False):
@@ -206,17 +228,30 @@ def title_page(recipient, author):
     return img
 
 
-def dedication_page(recipient, author):
-    """Gallery-quiet dedication: lots of air, a small-caps 'for', the name set
-    large in italic, a hairline, and a soft byline."""
+def dedication_page(recipient, author, template="about-mama"):
+    """Heartfelt dedication: a small-caps 'for', the name set large in italic, a
+    warm faith-rooted line, a hairline, and a tender sign-off. Composed with
+    generous air so it feels like the opening of a keepsake, not a label."""
     img, d = _page()
     cx = TRIM // 2
-    ls(d, "FOR", CG(38, 600), cx, 1000, GOLD, 16)
+    ls(d, "FOR", CG(38, 600), cx, 660, GOLD, 16)
     fo, _ = _fit_one_line(d, recipient, lambda z: CG(z, 540, it=True),
-                          TRIM - 700, 168, 80)
-    ctext(d, recipient, fo, cx, 1110, ESPRESSO)
-    _hairline(d, cx, 1430, half=160, color=GOLD, width=2)
-    ctext(d, f"with love, {author}", CG(70, 540, it=True), cx, 1500, STONE)
+                          TRIM - 760, 168, 76)
+    ctext(d, recipient, fo, cx, 770, ESPRESSO)
+
+    ded = DEDICATIONS.get(template, "")
+    if ded:
+        pf = CG(64, 520, it=True)
+        y = 1110
+        for ln in wrap(d, ded, pf, TRIM - 2 * 420):
+            ctext(d, ln, pf, cx, y, INK)
+            y += 96
+        y += 70
+    else:
+        y = 1430
+    _hairline(d, cx, y, half=170, color=GOLD, width=2)
+    ctext(d, f"with all my love, {author}", CG(62, 540, it=True),
+          cx, y + 70, STONE)
     return img
 
 
@@ -510,7 +545,7 @@ def build(photo_data, out_dir, cover_type="hardcover", client=None,
 
     front = [
         lambda: title_page(recipient, author),
-        lambda: dedication_page(recipient, author),
+        lambda: dedication_page(recipient, author, template),
     ]
     photo_pages = _plan_photo_pages(photos, captions)   # 1 page per photo
     back = [

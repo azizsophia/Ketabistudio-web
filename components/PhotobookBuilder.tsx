@@ -351,7 +351,7 @@ export default function PhotobookBuilder({
             className={styles.input}
             type="text"
             maxLength={30}
-            placeholder="e.g. Mama, Ummi, Mom"
+            placeholder={template.recipientPlaceholder}
             value={recipient}
             onChange={(e) => setRecipient(e.target.value)}
           />

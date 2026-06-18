@@ -22,6 +22,7 @@ const SLUG_TITLES: Record<string, string> = {
   "juha-and-the-enormous-pumpkin": "Juha and the Enormous Pumpkin",
   "maryam-is-kind-to-her-parents": "Maryam is Kind to Her Parents",
   "about-mama": "Everything I Love About Mama",
+  "about-baba": "Everything I Love About Baba",
 };
 
 export async function POST(req: NextRequest) {

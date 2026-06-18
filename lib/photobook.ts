@@ -8,7 +8,7 @@
  * dua) shared by the UI and the print worker's intent.
  */
 
-export const PHOTOBOOK_SLUGS = ["about-mama"] as const;
+export const PHOTOBOOK_SLUGS = ["about-mama", "about-baba"] as const;
 export type PhotobookSlug = (typeof PHOTOBOOK_SLUGS)[number];
 
 export function isPhotobookSlug(slug: string): slug is PhotobookSlug {
@@ -30,6 +30,8 @@ export type PhotobookTemplate = {
   title: string;
   /** Field labels shown in the builder. */
   recipientLabel: string;
+  /** Example placeholder for the recipient name field. */
+  recipientPlaceholder: string;
   authorLabel: string;
   /** Whether the cover has a small framed photo window. */
   coverPhoto: boolean;
@@ -45,6 +47,7 @@ const ABOUT_MAMA: PhotobookTemplate = {
   slug: "about-mama",
   title: "Everything I Love About Mama",
   recipientLabel: "Mama's name",
+  recipientPlaceholder: "e.g. Mama, Ummi, Mom",
   authorLabel: "Your name",
   coverPhoto: true,
   defaultCaptions: [
@@ -82,8 +85,50 @@ const ABOUT_MAMA: PhotobookTemplate = {
     "A hardcover keepsake your child fills with their own photos and words — twenty things they love about Mama, sealed with the dua for parents.",
 };
 
+const ABOUT_BABA: PhotobookTemplate = {
+  slug: "about-baba",
+  title: "Everything I Love About Baba",
+  recipientLabel: "Baba's name",
+  recipientPlaceholder: "e.g. Baba, Abu, Papa",
+  authorLabel: "Your name",
+  coverPhoto: true,
+  defaultCaptions: [
+    "Baba, Allah blessed me with you.",
+    "You are an answer to a dua I never had to make.",
+    "You teach me to love Allah.",
+    "I love standing beside you in salah.",
+    "Thank you for every duʿā you make for me.",
+    "You work hard so our home is full of barakah.",
+    "Your shoulders are the safest place in the world.",
+    "You answer my biggest questions about Allah.",
+    "When I'm scared, you remind me Allah is the strongest.",
+    "I love the way you say bismillah before everything.",
+    "You carry me when my legs are tired.",
+    "You're the first to make duʿā when I'm sick.",
+    "You're proud of me even when I make mistakes.",
+    "You make ordinary days feel like an adventure.",
+    "You forgive me before I even finish saying sorry.",
+    "You are patient with me on my hardest days.",
+    "Being your child is a gift from Allah.",
+    "I want to make you proud, in this life and the next.",
+    "I pray we're together in Jannah, always.",
+    "I love you more than all the stars, Baba.",
+  ],
+  // VERIFIED — Qur'an 17:24 (the dua for parents, dual). Render exactly.
+  dua: {
+    arabic: "رَّبِّ ٱرْحَمْهُمَا كَمَا رَبَّيَانِى صَغِيرًا",
+    translit: "Rabbi-rḥamhumā kamā rabbayānī ṣaghīrā",
+    english:
+      "My Lord, have mercy upon them as they raised me when I was small.",
+    ref: "Qur'an 17:24",
+  },
+  blurb:
+    "A hardcover keepsake your child fills with their own photos and words — twenty things they love about Baba, sealed with the dua for parents.",
+};
+
 export const PHOTOBOOK_TEMPLATES: Record<PhotobookSlug, PhotobookTemplate> = {
   "about-mama": ABOUT_MAMA,
+  "about-baba": ABOUT_BABA,
 };
 
 export function getPhotobookTemplate(
@@ -111,9 +156,10 @@ export function photobookOrderTitle(
   slug: string,
   recipientName?: string | null
 ): string {
-  if (slug === "about-mama") {
+  if (slug === "about-mama" || slug === "about-baba") {
     const r = (recipientName || "").trim();
-    return r ? `Everything I Love About ${r}` : "Everything I Love About Mama";
+    const fallback = slug === "about-baba" ? "Baba" : "Mama";
+    return `Everything I Love About ${r || fallback}`;
   }
   return getPhotobookTemplate(slug)?.title || "Ketabi Studio Keepsake";
 }
