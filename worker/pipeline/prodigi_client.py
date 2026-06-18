@@ -22,7 +22,8 @@ CARD_SKU = "GLOBAL-GRE-FAP-A6"
 
 def _base_url() -> str:
     env = "".join(os.environ.get("PRODIGI_ENV", "").split()).lower()
-    if env == "live":
+    # Accept live / production / prod so it can't silently stay in sandbox.
+    if env in ("live", "production", "prod"):
         return "https://api.prodigi.com/v4.0"
     return "https://api.sandbox.prodigi.com/v4.0"
 

@@ -21,7 +21,7 @@ services:
       - key: PRODIGI_API_KEY
         sync: false
       - key: PRODIGI_ENV
-        value: sandbox
+        value: sandbox   # 'sandbox' simulates (no print); set 'live' (or 'production') for real orders — must match the API key
       - key: SITE_URL
         sync: false
       - key: RESEND_API_KEY
