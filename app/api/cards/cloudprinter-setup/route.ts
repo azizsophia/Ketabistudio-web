@@ -39,15 +39,19 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  // ?quote=US&product=<ref> — live single-card delivered price (no order)
+  // ?quote=US&product=<ref>&state=NY — live single-card delivered price
   const quoteCC = req.nextUrl.searchParams.get("quote");
   if (quoteCC) {
     const product = req.nextUrl.searchParams.get("product") || "";
-    const q = await cp("/orders/quote/", {
+    const state =
+      req.nextUrl.searchParams.get("state") || (quoteCC === "US" ? "NY" : "");
+    const body: Record<string, unknown> = {
       country: quoteCC,
       items: [{ reference: "card", product, count: "1", options: [] }],
-    });
-    return NextResponse.json({ quotedProduct: product, status: q.status, quote: q.json });
+    };
+    if (state) body.state = state;
+    const q = await cp("/orders/quote/", body);
+    return NextResponse.json({ quotedProduct: product, state, status: q.status, quote: q.json });
   }
 
   // default: list products, then recursively pull every {reference,name} no

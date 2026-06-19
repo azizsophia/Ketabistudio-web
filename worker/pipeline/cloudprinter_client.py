@@ -18,8 +18,10 @@ import requests
 BASE = "https://api.cloudprinter.com/cloudcore/1.0"
 
 # The folded-card product reference (Cloudprinter's "product" code) + the
-# file type its template expects. Set once confirmed via cloudprinter_setup.
-CARD_PRODUCT = (os.environ.get("CLOUDPRINTER_CARD_PRODUCT") or "").strip()
+# file type its template expects. Default is the US 5x7 folded portrait card
+# (printed in the US); override via env if needed.
+CARD_PRODUCT = (os.environ.get("CLOUDPRINTER_CARD_PRODUCT")
+                or "card_folded_us_500x700_p_double_fc_tnr").strip()
 CARD_FILE_TYPE = (os.environ.get("CLOUDPRINTER_FILE_TYPE") or "product").strip()
 
 _LAST_ERROR = None
