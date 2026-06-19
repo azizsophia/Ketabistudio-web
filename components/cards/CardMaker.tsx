@@ -323,6 +323,11 @@ export default function CardMaker() {
               </label>
             )}
             {photoWarn && <p className={styles.warn}>{photoWarn}</p>}
+            <p className={styles.hint}>
+              For best results use a clear, high-resolution photo. Faces and key
+              details look best kept out of the very bottom, where the wording
+              sits.
+            </p>
 
             <p className={styles.note}>
               Add a photo and it becomes the front cover, with the {card.title}{" "}

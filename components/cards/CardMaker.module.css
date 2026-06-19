@@ -404,3 +404,10 @@
   outline: 2px solid var(--gold-deep);
   outline-offset: 2px;
 }
+
+.hint {
+  font-size: 0.82rem;
+  color: var(--gold-deep);
+  line-height: 1.5;
+  margin: 8px 0 0;
+}
