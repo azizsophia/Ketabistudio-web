@@ -51,7 +51,13 @@ export async function GET(req: NextRequest) {
 
   // 1) catalogs
   const cats = await gx("GET", `${PRODUCT}/v3/catalogs`);
-  const catList = Array.isArray(cats.json) ? (cats.json as Record<string, unknown>[]) : [];
+  // Gelato may return a bare array or { data: [...] }.
+  const catJson = cats.json as Record<string, unknown> | unknown[];
+  const catList: Record<string, unknown>[] = Array.isArray(catJson)
+    ? (catJson as Record<string, unknown>[])
+    : Array.isArray((catJson as Record<string, unknown>)?.data)
+    ? ((catJson as Record<string, unknown>).data as Record<string, unknown>[])
+    : [];
   const override = req.nextUrl.searchParams.get("catalog");
   const cardCat =
     override ||
@@ -64,8 +70,11 @@ export async function GET(req: NextRequest) {
   const prods = await gx("POST", `${PRODUCT}/v3/catalogs/${cardCat}/products:search`, {
     limit: 100,
   });
+  const prodJson = prods.json as Record<string, unknown>;
   const products =
-    ((prods.json as Record<string, unknown>)?.products as Record<string, unknown>[]) || [];
+    (prodJson?.products as Record<string, unknown>[]) ||
+    (prodJson?.data as Record<string, unknown>[]) ||
+    [];
   const uids = products.map((p) => String(p.productUid || ""));
   const folded = uids.filter((u) => /5x7|5r7|7x5|7r5|fold/i.test(u));
 
@@ -87,6 +96,13 @@ export async function GET(req: NextRequest) {
   }
 
   return NextResponse.json({
+    keyTail: key().slice(-4),
+    _debug: {
+      catalogsStatus: cats.status,
+      catalogsRaw: cats.json,
+      productsStatus: prods.status,
+      productsRaw: products.length ? `${products.length} products` : prods.json,
+    },
     catalogs: catList.map((c) => ({ uid: c.catalogUid, title: c.title })),
     cardCatalog: cardCat,
     productCount: uids.length,
