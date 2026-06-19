@@ -31,7 +31,9 @@ from pathlib import Path
 import requests
 
 import emailer
-from pipeline import prodigi_client, card_pipeline, gelato_client
+import hashlib
+
+from pipeline import prodigi_client, card_pipeline, gelato_client, cloudprinter_client
 
 # Vetted card catalog (content keyed by item_id) — mirrors lib/cards.ts, read by
 # the PIL renderer so the print asset is produced directly (no headless browser).
@@ -39,16 +41,23 @@ CARDS_CATALOG = json.loads(
     (Path(__file__).resolve().parent / "pipeline" / "cards_catalog.json")
     .read_text("utf-8"))
 
-# Destination routing: which countries fulfil via Gelato (local US printing
-# instead of Prodigi's pricey UK->US shipping). Everything else -> Prodigi.
-GELATO_COUNTRIES = set(
-    (os.environ.get("GELATO_COUNTRIES", "US") or "")
+# Destination routing: US (CLOUDPRINTER_COUNTRIES) prints locally in the US via
+# Cloudprinter (folded card, cheap domestic shipping) instead of Prodigi's
+# pricey UK->US shipping. Everything else -> Prodigi.
+CLOUDPRINTER_COUNTRIES = set(
+    (os.environ.get("CLOUDPRINTER_COUNTRIES", "US") or "")
     .upper().replace(" ", "").split(","))
+GELATO_COUNTRIES = set(
+    (os.environ.get("GELATO_COUNTRIES", "") or "")
+    .upper().replace(" ", "").split(",")) - {""}
 
 
 def _provider_for(country: str) -> str:
     """Pick the cheapest fulfiller for a destination."""
-    if (country or "").upper() in GELATO_COUNTRIES:
+    c = (country or "").upper()
+    if c in CLOUDPRINTER_COUNTRIES:
+        return "cloudprinter"
+    if c in GELATO_COUNTRIES:
         return "gelato"
     return "prodigi"
 
@@ -191,6 +200,89 @@ def _submit_gelato(oid, order, asset_url, country):
           f"({best['total']:.2f} {best['currency']})")
 
 
+def _cloudprinter_address(order):
+    """Map our shipping jsonb to the Cloudprinter delivery address shape."""
+    ship = order.get("shipping") or {}
+    name = (ship.get("name") or "").strip()
+    first, _, last = name.partition(" ")
+    return {
+        "firstname": first or name or "Friend",
+        "lastname": last or first or name or "Friend",
+        "street1": ship.get("line1") or "",
+        "street2": ship.get("line2") or "",
+        "zip": ship.get("postcode") or "",
+        "city": ship.get("city") or "",
+        "state": ship.get("state") or "",
+        "country": ship.get("country_code") or "",
+        "email": order.get("customer_email") or "",
+        "phone": ship.get("phone") or "",
+    }
+
+
+def _submit_cloudprinter(oid, order, card, workdir, common, country):
+    """Render the folded 2-page PDF, upload it, quote (cheapest shipment), cost-
+    guard, and place the Cloudprinter order. US prints locally + ships cheap."""
+    if not cloudprinter_client.configured():
+        note = (f"routed to Cloudprinter for {country} — finishing setup "
+                f"(CLOUDPRINTER_API_KEY in Render). Not charged.")
+        set_card_status(oid, "held", notes=json.dumps({"hold": note}))
+        print(f"[card {oid}] HELD (Cloudprinter pending) — {note}", flush=True)
+        return
+
+    pdf_path = card_pipeline.build_cloudprinter(card, workdir, **common)
+    pdf = Path(pdf_path).read_bytes()
+    md5 = hashlib.md5(pdf).hexdigest()
+    public = public_url("card-assets", storage_upload(
+        "card-assets", f"renders/{oid}-card.pdf", pdf, "application/pdf"))
+    db("PATCH", f"card_orders?id=eq.{oid}",
+       json={"outside_asset_url": public, "inside_asset_url": public})
+
+    addr = _cloudprinter_address(order)
+    q = cloudprinter_client.quote(country, count=1, options=[])
+    if not q:
+        raise RuntimeError(
+            f"Cloudprinter quote failed for {country}: "
+            f"{getattr(cloudprinter_client, '_LAST_ERROR', None)}")
+    prod_price = float(q.get("price") or 0)
+    best = None
+    for sh in (q.get("shipments") or []):
+        for qq in (sh.get("quotes") or []):
+            ship = float(qq.get("price") or 0)
+            total = prod_price + ship
+            if best is None or total < best["total"]:
+                best = {"hash": qq.get("quote"), "ship": ship, "total": total,
+                        "currency": qq.get("currency") or q.get("currency") or "EUR",
+                        "service": qq.get("service")}
+    if not best or not best["hash"]:
+        raise RuntimeError(f"no Cloudprinter shipping quote for {country}")
+
+    # cost guard (convert EUR->USD with a buffer; hold if above the cap)
+    fx = float(os.environ.get("CP_EUR_USD", "1.12") or 1.12)
+    cap = float(os.environ.get("CLOUDPRINTER_MAX_COST", "13.5") or 13.5)
+    total_usd = best["total"] * fx
+    if total_usd > cap:
+        note = (f"held: Cloudprinter ~${total_usd:.2f} "
+                f"({best['total']:.2f} {best['currency']}, cap ${cap:.2f}) "
+                f"to {country}")
+        set_card_status(oid, "held", notes=json.dumps({"hold": note, "quote": best}))
+        print(f"[card {oid}] HELD, NOT ordered — {note}", flush=True)
+        return
+
+    resp = cloudprinter_client.create_order(
+        reference=str(oid), email=order.get("customer_email") or "",
+        address=addr, file_url=public, quote_hash=best["hash"], md5sum=md5)
+    if resp is None:
+        detail = getattr(cloudprinter_client, "_LAST_ERROR", None) or "unknown"
+        raise RuntimeError(f"Cloudprinter order rejected: {detail}")
+
+    set_card_status(oid, "submitted", prodigi_order_id=f"cloudprinter:{oid}")
+    log_card_event(oid, "submitted",
+                   {"cloudprinter_reference": str(oid), "cost": best})
+    print(f"[card {oid}] submitted to Cloudprinter "
+          f"({best['total']:.2f} {best['currency']} ~${total_usd:.2f}, "
+          f"{best['service']})")
+
+
 # ── per-order processing ────────────────────────────────────────────
 def process_card(order):
     """Render → upload → submit one paid card order to Prodigi.
@@ -208,8 +300,7 @@ def process_card(order):
             raise RuntimeError(f"unknown card item_id: {item_id!r}")
 
         workdir = Path(f"/tmp/card-{oid}")
-        ap = card_pipeline.build(
-            card, workdir,
+        common = dict(
             recipient=(order.get("recipient_name") or "")
             if order.get("show_name") else "",
             message=order.get("message") or card.get("msg", ""),
@@ -219,24 +310,22 @@ def process_card(order):
             accent_hex=order.get("accent") or None,
             photo_url=order.get("photo_url") or None,
         )
-        artboard_png = Path(ap).read_bytes()
+        country = ((order.get("shipping") or {}).get("country_code") or "US")
 
-        artboard_path = storage_upload(
-            "card-assets", f"renders/{oid}-artboard.png", artboard_png,
-            "image/png")
-        artboard_public = public_url("card-assets", artboard_path)
+        # DESTINATION ROUTING: US (CLOUDPRINTER_COUNTRIES) prints locally in the
+        # US via Cloudprinter (folded 2-page PDF); everywhere else -> Prodigi.
+        if _provider_for(country) == "cloudprinter":
+            _submit_cloudprinter(oid, order, card, workdir, common, country)
+            return
 
+        # PRODIGI: render the stitched artboard PNG and upload it.
+        ap = card_pipeline.build(card, workdir, **common)
+        artboard_public = public_url("card-assets", storage_upload(
+            "card-assets", f"renders/{oid}-artboard.png",
+            Path(ap).read_bytes(), "image/png"))
         db("PATCH", f"card_orders?id=eq.{oid}",
            json={"outside_asset_url": artboard_public,
                  "inside_asset_url": artboard_public})
-
-        country = ((order.get("shipping") or {}).get("country_code") or "US")
-
-        # DESTINATION ROUTING: US (and any GELATO_COUNTRIES) -> Gelato (local
-        # printing, cheap domestic shipping); everywhere else -> Prodigi.
-        if _provider_for(country) == "gelato":
-            _submit_gelato(oid, order, artboard_public, country)
-            return
 
         # COST GUARD: quote the cheapest shipping first and refuse to place the
         # order if Prodigi's cost is above the cap (e.g. a pricey international
@@ -313,6 +402,9 @@ def poll_card_shipping():
             if str(prodigi_id).startswith("gelato:"):
                 _poll_gelato(order, str(prodigi_id).split(":", 1)[1])
                 continue
+            if str(prodigi_id).startswith("cloudprinter:"):
+                _poll_cloudprinter(order, str(prodigi_id).split(":", 1)[1])
+                continue
             info = prodigi_client.get_order_status(prodigi_id)
             prodigi_order = ((info or {}).get("order") or {})
             status = prodigi_order.get("status") or {}
@@ -335,6 +427,29 @@ def poll_card_shipping():
                 print(f"[card {oid}] Prodigi Cancelled")
         except Exception:  # noqa: BLE001
             traceback.print_exc()
+
+
+def _poll_cloudprinter(order, ref):
+    """Advance a Cloudprinter-fulfilled card toward shipped. Cloudprinter order
+    states include: ordered, inproduction, shipped, delivered, canceled, error."""
+    oid = order["id"]
+    info = cloudprinter_client.get_order(ref)
+    blob = json.dumps(info or {}).lower()
+    if ("shipped" in blob or "delivered" in blob) and order["status"] != "shipped":
+        set_card_status(oid, "shipped")
+        try:
+            if hasattr(emailer, "send_card_shipped"):
+                emailer.send_card_shipped(order)
+        except Exception as e:  # noqa: BLE001
+            print(f"[card {oid}] shipped email error (non-fatal): {e}")
+        print(f"[card {oid}] shipped (Cloudprinter)")
+    elif ("canceled" in blob or "cancelled" in blob or "error" in blob):
+        set_card_status(oid, "failed",
+                        notes=json.dumps({"failure": "Cloudprinter canceled/error"}))
+        print(f"[card {oid}] Cloudprinter canceled/error")
+    elif "inproduction" in blob and order["status"] != "printing":
+        set_card_status(oid, "printing")
+        print(f"[card {oid}] printing (Cloudprinter)")
 
 
 def _poll_gelato(order, gid):

@@ -4,48 +4,49 @@ Render engine for Ketabi Studio GREETING CARDS.
 
 One cohesive premium house style — the SAME language as the photo-book keepsakes
 (warm ivory, Playfair display, Cormorant text, Amiri Arabic, a single per-card
-accent + fine keylines). No more six clashing "collections".
+accent + fine keylines).
 
-PRINT FORMAT — Prodigi fine-art greeting card (GLOBAL-GRE-MOH-7X5):
-  Prodigi takes ONE flattened artboard that carries all four panels, bleed
-  included, exactly as their downloadable print template lays them out:
+Two print backends, ONE set of panel drawers (so a card looks identical either
+way):
+  • PRODIGI (international): one stitched artboard PNG, all four faces, ~3mm
+    bleed (6117 x 2161 px). printArea "default".
+  • CLOUDPRINTER (US): a 2-page PDF per their template — page 1 outside
+    (back | front), page 2 inside (blank | message+dua); each page the full
+    10 x 7" flat sheet with 3mm bleed @ 300 DPI.
 
-    |  outer rear  |  outer front  | (gutter) | inside front | inside back |
-        back cover     the design               (blank note)   message+dua
-
-  Artboard = 6117 x 2161 px @ 300 DPI (5 x 7" folded faces, ~0.12" bleed).
-  The card folds down the centre of each half (book / side fold), so every
-  panel is upright — verified against Prodigi's own logo placement on the
-  template. We render the whole sheet ourselves with PIL, so what we preview
-  IS what prints, and the cards match the keepsakes by construction.
+Panels are upright (left book-fold) in both, verified against each printer's
+own template.
 """
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFilter
 
-# Reuse the keepsake type system + Arabic shaping + palette so the cards are
-# the same family as the books.
 from photobook_pipeline import (
     PF, CG, AR, reshape, wrap, ctext, ls,
     BONE, ESPRESSO, STONE, INK,
     _download, _cover_fit, _bottom_scrim,
 )
 
-# ── Prodigi artboard geometry (from prodigi-greetings-card-landscape-7x5) ──
-ARTBOARD_W, ARTBOARD_H = 6117, 2161   # full sheet incl. bleed @ 300 DPI
+# ── Prodigi artboard geometry (6117 x 2161, four faces stitched) ─────
+ARTBOARD_W, ARTBOARD_H = 6117, 2161
+OUTER_REAR = (64, 65, 1529, 2096)     # back cover  (left of OUTSIDE half)
+OUTER_FRONT = (1529, 65, 2993, 2096)  # front cover (right of OUTSIDE half)
+INSIDE_RIGHT = (4587, 65, 6051, 2096)  # message + dua (right inside page)
+OUTSIDE_FOLD = 1529
+GUTTER_MID = 3058
+PRODIGI_FRONT_FILL = (OUTSIDE_FOLD, 0, GUTTER_MID, ARTBOARD_H)
 
-# Trim boxes for the four faces (x0, y0, x1, y1):
-OUTER_REAR = (64, 65, 1529, 2096)     # back cover  (left of the OUTSIDE half)
-OUTER_FRONT = (1529, 65, 2993, 2096)  # front cover (right of the OUTSIDE half)
-INSIDE_LEFT = (3123, 65, 4587, 2096)  # inside front (left page, blank for a note)
-INSIDE_RIGHT = (4587, 65, 6051, 2096)  # inside back  (right page, message + dua)
+# ── Cloudprinter geometry (2-page PDF, 10.236 x 7.236" = 3mm bleed) ──
+CP_W, CP_H = 3071, 2171               # 260 x 183.8 mm @ 300 DPI
+CP_BLEED = 35                         # ~3 mm
+CP_FOLD = CP_W // 2                   # centre fold (1535)
+CP_LEFT = (CP_BLEED, CP_BLEED, CP_FOLD, CP_H - CP_BLEED)
+CP_RIGHT = (CP_FOLD, CP_BLEED, CP_W - CP_BLEED, CP_H - CP_BLEED)
+CP_RIGHT_FILL = (CP_FOLD, 0, CP_W, CP_H)
 
-OUTSIDE_FOLD = 1529                   # spine of the outside half
-GUTTER_MID = 3058                     # dead space between the two printed sides
 SAFE = 130                            # keep content this far inside the trim
 SPINE = 150                           # extra inset on the fold (spine) side
 
-# Type colours for the colour-forward front (set over the accent panel).
 IVORY = (247, 242, 234)
 LGOLD = (214, 188, 130)
 
@@ -73,25 +74,16 @@ def _hairline(d, cx, y, half, color, w=2):
     d.line([cx - half, y, cx + half, y], fill=color, width=w)
 
 
-# ── outside: front cover + back cover ───────────────────────────────
-def _draw_front(img, d, accent, slots):
-    """Front cover (OUTER_FRONT) — COLOUR-FORWARD: the panel is filled with the
-    card's accent colour; kicker, big Arabic word, transliteration, English line
-    and foot are set in ivory + light gold inside a fine gold keyline."""
-    x0, y0, x1, y1 = OUTER_FRONT
+# ── front cover (solid accent) ──────────────────────────────────────
+def _draw_front_solid(img, d, box, fill_box, accent, slots):
+    x0, y0, x1, y1 = box
     cx = (x0 + x1) // 2
-    # accent fills the whole front face out to full bleed (top/bottom to the
-    # artboard edge, fold on the left, into the gutter on the right).
-    ImageDraw.Draw(img).rectangle([OUTSIDE_FOLD, 0, GUTTER_MID, ARTBOARD_H],
-                                  fill=accent)
-    # fine light-gold keyline frame inside the safe area
-    fx0 = x0 + SPINE
+    ImageDraw.Draw(img).rectangle(list(fill_box), fill=accent)
+    fx0 = x0 + SPINE     # spine/fold is the LEFT edge of the front face
     fx1 = x1 - SAFE
     d.rectangle([fx0, y0 + SAFE, fx1, y1 - SAFE], outline=LGOLD, width=2)
     maxw = fx1 - fx0 - 60
 
-    # Build the centred type block as (draw, height, gap_below) segments so the
-    # whole cover stays balanced instead of top-weighted with empty space below.
     segs = []
     segs.append((lambda yy: ls(d, slots["eyebrow"].upper(), PF(36, 500),
                                cx, yy, LGOLD, 8), 40, 150))
@@ -118,8 +110,6 @@ def _draw_front(img, d, accent, slots):
         segs.append((lambda yy: ctext(d, slots["sub"], CG(48, 520, it=True),
                      cx, yy, LGOLD), 48, 0))
 
-    # the "For ___" foot is pinned near the bottom (only when a name is shown);
-    # reserve room for it so centring stays balanced.
     foot = slots.get("foot")
     top = y0 + SAFE
     bottom = (y1 - SAFE - 150) if foot else (y1 - SAFE)
@@ -132,11 +122,10 @@ def _draw_front(img, d, accent, slots):
         ctext(d, foot, CG(48, 520, it=True), cx, y1 - SAFE - 110, LGOLD)
 
 
+# ── front cover (customer photo) ────────────────────────────────────
 def _shadowed_type(cover, draw_fns):
     """Draw the cover type onto `cover` with a soft dark halo behind every glyph
-    so the wording is ALWAYS legible, on any photo (light skies, snow, etc.).
-    draw_fns are callables(draw) that paint the type onto a transparent layer in
-    cover-local coordinates."""
+    so the wording is ALWAYS legible on any photo (light skies, snow, etc.)."""
     txt = Image.new("RGBA", cover.size, (0, 0, 0, 0))
     td = ImageDraw.Draw(txt)
     for fn in draw_fns:
@@ -146,28 +135,20 @@ def _shadowed_type(cover, draw_fns):
     shadow.putalpha(halo)
     base = cover.convert("RGBA")
     base.alpha_composite(shadow)
-    base.alpha_composite(shadow)   # deepen the halo for guaranteed contrast
+    base.alpha_composite(shadow)
     base.alpha_composite(txt)
     return base.convert("RGB")
 
 
-def _draw_front_photo(img, d, accent, slots, photo):
-    """Front cover with the customer's PHOTO full-bleed, the type set in ivory +
-    light gold over a soft bottom scrim + a soft halo — the same editorial
-    language as the keepsake book covers, so a photo card reads as one family
-    and the wording stays legible over any image."""
-    x0, y0, x1, y1 = OUTER_FRONT
+def _draw_front_photo(img, d, box, fill_box, accent, slots, photo):
+    x0, y0, x1, y1 = box
     cxg = (x0 + x1) // 2
-    cxl = cxg - OUTSIDE_FOLD     # centre x in the cover's local coordinates
-    # full-bleed photo box: fold (no bleed) -> into the gutter, top->bottom edge
-    bw, bh = GUTTER_MID - OUTSIDE_FOLD, ARTBOARD_H
-    cover = _cover_fit(photo, bw, bh)
-    # strong, tall bottom scrim so the type stays legible over any photo
+    fbx0, fby0, fbx1, fby1 = fill_box
+    cxl = cxg - fbx0                  # centre x in the cover's local coords
+    cover = _cover_fit(photo, fbx1 - fbx0, fby1 - fby0)
     cover = _bottom_scrim(cover, frac=0.66, max_alpha=215)
     maxw = (x1 - SAFE) - (x0 + SPINE) - 60
 
-    # Build the type stack as (draw(dd, yy), height, gap), then BOTTOM-anchor it
-    # so it sits in the dark zone of the scrim (not over the bright middle).
     ops = []
     ops.append((lambda dd, yy: ls(dd, slots["eyebrow"].upper(), PF(34, 500),
                                   cxl, yy, LGOLD, 8), 40, 86))
@@ -193,7 +174,7 @@ def _draw_front_photo(img, d, accent, slots, photo):
 
     foot = slots.get("foot")
     block_h = sum(h for _, h, _ in ops) + sum(g for *_, g in ops[:-1])
-    bottom = (y1 - SAFE - 130) if foot else (y1 - SAFE - 60)
+    bottom = ((y1 - SAFE - 130) if foot else (y1 - SAFE - 60)) - fby0
     yy = bottom - block_h
     draw_fns = []
     for fn, h, gap in ops:
@@ -201,34 +182,31 @@ def _draw_front_photo(img, d, accent, slots, photo):
         yy += h + gap
     if foot:
         draw_fns.append(lambda dd: ctext(dd, foot, CG(48, 520, it=True),
-                                         cxl, y1 - SAFE - 60, LGOLD))
+                                         cxl, (y1 - SAFE - 60) - fby0, LGOLD))
 
     cover = _shadowed_type(cover, draw_fns)
-    img.paste(cover, (OUTSIDE_FOLD, 0))
-    # fine light-gold keyline frame inside the visible safe area
+    img.paste(cover, (fbx0, fby0))
     d.rectangle([x0 + SPINE, y0 + SAFE, x1 - SAFE, y1 - SAFE],
                 outline=LGOLD, width=2)
 
 
-def _draw_back(d, accent):
-    """Back cover (OUTER_REAR): quiet ivory with the wordmark + a hairline."""
-    x0, y0, x1, y1 = OUTER_REAR
+def _draw_back(d, box, accent):
+    """Back cover: quiet ivory with the wordmark + a hairline."""
+    x0, y0, x1, y1 = box
     cx = (x0 + x1) // 2
     cy = (y0 + y1) // 2
     ls(d, "KETABI STUDIO", PF(38, 500), cx, cy - 28, accent, 12)
     _hairline(d, cx, cy + 64, 96, accent, 2)
 
 
-# ── inside: blank note page (left) + message/dua page (right) ───────
-def _draw_inside(d, accent, message, dua, sign_off=""):
-    # left page (INSIDE_LEFT) intentionally blank for a handwritten note.
-
-    x0, y0, x1, y1 = INSIDE_RIGHT
+def _draw_inside(d, box, accent, message, dua, sign_off=""):
+    """Right inside page: message + rule + dua, centred; sign-off at the foot.
+    (The left inside page is intentionally left blank for a handwritten note.)"""
+    x0, y0, x1, y1 = box
     cx = (x0 + x1) // 2
     inner = SAFE + 30
     maxw = (x1 - x0) - 2 * inner
 
-    # fit the message to a comfortable block
     msg = (message or "").strip()
     mfo, msz, lines, lh = None, 58, [], 0
     s = 66
@@ -238,8 +216,7 @@ def _draw_inside(d, accent, message, dua, sign_off=""):
         lines = wrap(d, msg, f, maxw)
         lh = int(s * 1.4)
         if len(lines) * lh <= budget or s <= 40:
-            mfo = f
-            msz = s
+            mfo, msz = f, s
             break
         s -= 2
     mfo = mfo or CG(msz, 520)
@@ -247,15 +224,11 @@ def _draw_inside(d, accent, message, dua, sign_off=""):
     dfo = CG(50, 520, it=True)
     dua_lines = wrap(d, dua, dfo, maxw) if dua else []
     dlh = 76
-
-    # total height of the centred block: message + rule + dua
     msg_h = len(lines) * lh
-    rule_gap_top, rule_gap_bot = 64, 78
-    dua_h = (rule_gap_top + 2 + rule_gap_bot + len(dua_lines) * dlh) if dua_lines \
-        else 0
+    rgap_t, rgap_b = 64, 78
+    dua_h = (rgap_t + 2 + rgap_b + len(dua_lines) * dlh) if dua_lines else 0
     block_h = msg_h + dua_h
 
-    # centre the block, reserving room at the bottom for the sign-off
     top = y0 + inner
     bottom = (y1 - inner - 150) if sign_off else (y1 - inner)
     y = top + max(0, (bottom - top - block_h) // 2)
@@ -263,79 +236,81 @@ def _draw_inside(d, accent, message, dua, sign_off=""):
         ctext(d, ln, mfo, cx, y, INK)
         y += lh
     if dua_lines:
-        y += rule_gap_top
+        y += rgap_t
         _hairline(d, cx, y, 130, accent, 2)
-        y += rule_gap_bot
+        y += rgap_b
         for ln in dua_lines:
             ctext(d, ln, dfo, cx, y, ESPRESSO)
             y += dlh
     if sign_off:
-        ctext(d, sign_off, CG(52, 520, it=True), cx,
-              y1 - inner - 110, STONE)
+        ctext(d, sign_off, CG(52, 520, it=True), cx, y1 - inner - 110, STONE)
 
 
-# ── public API ──────────────────────────────────────────────────────
-def render_artboard(accent, slots, message, dua, sign_off="", photo=None):
-    """Render the full Prodigi artboard (all four panels) as one image.
-
-    When `photo` (a PIL.Image) is given, the front cover becomes that photo with
-    the type over a scrim; otherwise the solid accent cover is used."""
-    img = Image.new("RGB", (ARTBOARD_W, ARTBOARD_H), BONE)
-    d = ImageDraw.Draw(img)
-    _draw_back(d, accent)
+def _front(img, d, box, fill_box, accent, slots, photo):
     if photo is not None:
-        _draw_front_photo(img, d, accent, slots, photo)
+        _draw_front_photo(img, d, box, fill_box, accent, slots, photo)
     else:
-        _draw_front(img, d, accent, slots)
-    _draw_inside(d, accent, message, dua, sign_off)
-    return img
+        _draw_front_solid(img, d, box, fill_box, accent, slots)
 
 
-def build(card, out_dir, recipient="", message=None, sign_off="",
-          arabic_index=0, arabic_off=False, accent_hex=None, photo_url=None):
-    """Render the single Prodigi artboard PNG for one card config.
-
-    card = {group, eyebrow, en/headlineEn, words/word(ar+translit), sub, dua,
-            msg, color}
-    arabic_index / arabic_off mirror the builder's Arabic choice; accent_hex
-    overrides the card's default colour when the customer picked an accent.
-    photo_url, when set, puts the customer's photo on the front cover.
-
-    Returns the path to artboard.png (one combined asset, printArea "default").
-    """
-    out = Path(out_dir)
-    out.mkdir(parents=True, exist_ok=True)
-    accent = _rgb(accent_hex or card.get("color", "#967A46"))
-    photo = _download(photo_url) if photo_url else None
-
-    # front slots (mirrors lib/cards.ts frontSlots, premium variant)
+# ── slots (mirrors lib/cards.ts frontSlots) ─────────────────────────
+def _slots(card, recipient="", arabic_index=0, arabic_off=False):
     if card["group"] == "occasion":
         words = card.get("words") or []
         idx = arabic_index if 0 <= arabic_index < len(words) else 0
         ar = None if (arabic_off or not words) else words[idx]
-        slots = {
+        return {
             "eyebrow": card["eyebrow"],
             "bigText": ar["ar"] if ar else card.get("en", ""),
             "bigArabic": bool(ar),
             "translit": ar["translit"] if ar else "",
-            # show the English under the rule only when Arabic is the big text
-            # (otherwise it would repeat the big English headline)
             "line2": card.get("en", "") if ar else "",
             "sub": "",
             "foot": (f"For {recipient}" if recipient else ""),
         }
-    else:
-        word = None if arabic_off else card.get("word")
-        slots = {
-            "eyebrow": card["eyebrow"],
-            "bigText": word["ar"] if word else card.get("headlineEn", ""),
-            "bigArabic": bool(word),
-            "translit": word["translit"] if word else "",
-            "line2": card.get("headlineEn", "") if word else "",
-            "sub": card.get("sub", ""),
-            "foot": (f"For {recipient}" if recipient else ""),
-        }
+    word = None if arabic_off else card.get("word")
+    return {
+        "eyebrow": card["eyebrow"],
+        "bigText": word["ar"] if word else card.get("headlineEn", ""),
+        "bigArabic": bool(word),
+        "translit": word["translit"] if word else "",
+        "line2": card.get("headlineEn", "") if word else "",
+        "sub": card.get("sub", ""),
+        "foot": (f"For {recipient}" if recipient else ""),
+    }
 
+
+# ── Prodigi: one stitched artboard PNG ──────────────────────────────
+def render_artboard(accent, slots, message, dua, sign_off="", photo=None):
+    img = Image.new("RGB", (ARTBOARD_W, ARTBOARD_H), BONE)
+    d = ImageDraw.Draw(img)
+    _draw_back(d, OUTER_REAR, accent)
+    _front(img, d, OUTER_FRONT, PRODIGI_FRONT_FILL, accent, slots, photo)
+    _draw_inside(d, INSIDE_RIGHT, accent, message, dua, sign_off)
+    return img
+
+
+# ── Cloudprinter: 2-page sheet (outside, inside) ────────────────────
+def render_cp_pages(accent, slots, message, dua, sign_off="", photo=None):
+    outside = Image.new("RGB", (CP_W, CP_H), BONE)
+    do = ImageDraw.Draw(outside)
+    _draw_back(do, CP_LEFT, accent)
+    _front(outside, do, CP_RIGHT, CP_RIGHT_FILL, accent, slots, photo)
+
+    inside = Image.new("RGB", (CP_W, CP_H), BONE)
+    di = ImageDraw.Draw(inside)
+    _draw_inside(di, CP_RIGHT, accent, message, dua, sign_off)
+    return [outside, inside]
+
+
+def build(card, out_dir, recipient="", message=None, sign_off="",
+          arabic_index=0, arabic_off=False, accent_hex=None, photo_url=None):
+    """Prodigi artboard PNG (printArea "default"). Returns the PNG path."""
+    out = Path(out_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    accent = _rgb(accent_hex or card.get("color", "#967A46"))
+    photo = _download(photo_url) if photo_url else None
+    slots = _slots(card, recipient, arabic_index, arabic_off)
     artboard = render_artboard(
         accent, slots,
         message if message is not None else card.get("msg", ""),
@@ -345,6 +320,26 @@ def build(card, out_dir, recipient="", message=None, sign_off="",
     return str(ap)
 
 
+def build_cloudprinter(card, out_dir, recipient="", message=None, sign_off="",
+                       arabic_index=0, arabic_off=False, accent_hex=None,
+                       photo_url=None):
+    """Cloudprinter 2-page print-ready PDF (page 1 outside, page 2 inside).
+    Returns the PDF path."""
+    out = Path(out_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    accent = _rgb(accent_hex or card.get("color", "#967A46"))
+    photo = _download(photo_url) if photo_url else None
+    slots = _slots(card, recipient, arabic_index, arabic_off)
+    pages = render_cp_pages(
+        accent, slots,
+        message if message is not None else card.get("msg", ""),
+        card.get("dua", ""), sign_off, photo=photo)
+    pp = out / "card.pdf"
+    pages[0].save(pp, "PDF", resolution=300.0, save_all=True,
+                  append_images=pages[1:])
+    return str(pp)
+
+
 if __name__ == "__main__":
     samples = {
         "eid": {
@@ -352,18 +347,10 @@ if __name__ == "__main__":
             "en": "Blessed Eid",
             "words": [{"ar": "عيد مبارك", "translit": "Eid Mubarak"}],
             "dua": "May Allah accept from us and from you.",
-            "msg": "Wishing you and your family a joyful and blessed Eid. May your home be filled with light, laughter and barakah.",
-        },
-        "wife": {
-            "group": "relationship", "color": "#a85c63", "eyebrow": "To my wife",
-            "headlineEn": "You are my sakīnah",
-            "word": {"ar": "سكينة", "translit": "Sakeenah"},
-            "sub": "the calm Allah placed in my heart",
-            "dua": "May Allah preserve our home in love and mercy.",
-            "msg": "To the calm in my every storm, thank you for the home and peace you bring. I love you, today and always.",
+            "msg": "Wishing you and your family a joyful and blessed Eid.",
         },
     }
     for cid, c in samples.items():
-        p = build(c, f"/tmp/card_{cid}",
-                  recipient="Amani" if cid == "wife" else "")
-        print("built", cid, p)
+        print("prodigi:", build(c, f"/tmp/card_{cid}"))
+        print("cloudprinter:", build_cloudprinter(c, f"/tmp/cpcard_{cid}",
+              message="Wishing you a blessed Eid.", sign_off="With love"))

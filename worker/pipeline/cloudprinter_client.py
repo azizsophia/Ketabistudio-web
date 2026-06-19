@@ -53,7 +53,7 @@ def _post(path: str, body: dict = None):
             _LAST_ERROR = f"{r.status_code} {r.reason}: {r.text[:400]}"
             print(f"[cloudprinter] POST {path} -> {_LAST_ERROR}", flush=True)
             return None
-        return r.json() if r.text else None
+        return r.json() if r.text else {}
     except Exception as err:  # noqa: BLE001
         _LAST_ERROR = f"request to {path} failed: {err}"
         print(f"[cloudprinter] {_LAST_ERROR}", flush=True)
@@ -85,8 +85,8 @@ def quote(country: str, count: int = 1, product: str = None, options=None):
 
 
 def create_order(reference: str, email: str, address: dict, file_url: str,
-                 quote_hash: str, count: int = 1, product: str = None,
-                 file_type: str = None):
+                 quote_hash: str, md5sum: str, count: int = 1,
+                 product: str = None, file_type: str = None):
     """POST /orders/add/ — place a fulfilment order for one folded card."""
     addr = dict(address)
     addr["type"] = "delivery"
@@ -98,7 +98,11 @@ def create_order(reference: str, email: str, address: dict, file_url: str,
             "reference": reference,
             "product": product or CARD_PRODUCT,
             "count": str(count),
-            "files": [{"type": file_type or CARD_FILE_TYPE, "url": file_url}],
+            "files": [{
+                "type": file_type or CARD_FILE_TYPE,
+                "url": file_url,
+                "md5sum": md5sum,
+            }],
             "options": [],
             "quote": quote_hash,
         }],
