@@ -3,9 +3,9 @@ import CardMaker from "@/components/cards/CardMaker";
 import { cardsFontVars } from "@/lib/cardsFonts";
 
 export const metadata: Metadata = {
-  title: "Card Studio — Personalised Islamic greeting cards",
+  title: "Card Studio: personalized Islamic greeting cards",
   description:
-    "Design a personalised, beautifully crafted Islamic greeting card. Choose a collection, personalise the wording, colour and message, and we post it directly to your recipient.",
+    "Design a personalized, beautifully crafted Islamic greeting card. Choose a card, personalize the wording and message, and we post it directly to your recipient.",
 };
 
 export default function CardsPage() {
