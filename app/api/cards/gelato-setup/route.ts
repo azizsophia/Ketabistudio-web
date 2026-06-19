@@ -97,16 +97,11 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json({
     keyTail: key().slice(-4),
-    _debug: {
-      catalogsStatus: cats.status,
-      catalogsRaw: cats.json,
-      productsStatus: prods.status,
-      productsRaw: products.length ? `${products.length} products` : prods.json,
-    },
-    catalogs: catList.map((c) => ({ uid: c.catalogUid, title: c.title })),
+    catalogsStatus: cats.status,
+    productsStatus: prods.status,
     cardCatalog: cardCat,
     productCount: uids.length,
-    foldedCandidates: folded,
+    fiveBySeven: folded,
     allProductUids: uids,
     inspected: target,
     detail,
