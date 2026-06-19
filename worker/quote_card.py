@@ -28,7 +28,7 @@ def quote(cc, method):
             "sku": pc.CARD_SKU,
             "copies": 1,
             "attributes": {},
-            "assets": [{"printArea": "outside"}, {"printArea": "inside"}],
+            "assets": [{"printArea": pc.first_print_area()}],
         }],
     }
     return pc._request("POST", "/quotes", body)

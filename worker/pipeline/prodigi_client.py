@@ -174,3 +174,11 @@ def create_order(
 def get_order_status(order_id: str):
     """GET /orders/{id} — fetch fulfillment status for a placed order."""
     return _request("GET", f"/orders/{requests.utils.quote(str(order_id))}")
+
+
+def cancel_order(order_id: str):
+    """POST /orders/{id}/actions/cancel — cancel an order that has not yet gone
+    to production. Returns the parsed outcome (or None). Prodigi only allows
+    this while the order is cancellable; once printing it must go to support."""
+    oid = requests.utils.quote(str(order_id))
+    return _request("POST", f"/orders/{oid}/actions/cancel")
