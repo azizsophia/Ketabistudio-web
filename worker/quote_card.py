@@ -15,7 +15,13 @@ from pipeline import prodigi_client as pc  # noqa: E402
 DESTS = [
     ("US", "United States"),
     ("GB", "United Kingdom"),
+    ("DE", "Germany"),
+    ("FR", "France"),
+    ("CA", "Canada"),
+    ("AU", "Australia"),
+    ("AE", "UAE (Dubai)"),
     ("SA", "Saudi Arabia (Riyadh)"),
+    ("MY", "Malaysia"),
 ]
 METHODS = ["Budget", "Standard", "Express"]
 
