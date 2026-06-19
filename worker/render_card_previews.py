@@ -24,10 +24,10 @@ def main():
     out.mkdir(parents=True, exist_ok=True)
     for cid, card in CATALOG.items():
         work = Path(f"/tmp/cardprev_{cid}")
-        op, _ = cp.build(card, work)            # default sample message/dua
-        spread = Image.open(op).convert("RGB")
-        # the front cover is the RIGHT panel of the outside spread
-        front = spread.crop((cp.PANEL_W, 0, cp.SPREAD_W, cp.SPREAD_H))
+        ap = cp.build(card, work)               # default sample message/dua
+        spread = Image.open(ap).convert("RGB")
+        # the front cover is the OUTER_FRONT face of the stitched artboard
+        front = spread.crop(cp.OUTER_FRONT)
         h = int(front.height * (WEB_W / front.width))
         front.resize((WEB_W, h), Image.LANCZOS).save(
             out / f"{cid}.jpg", "JPEG", quality=86, optimize=True)

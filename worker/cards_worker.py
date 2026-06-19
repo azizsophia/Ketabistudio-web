@@ -6,12 +6,11 @@ card_orders flow:
   pending → rendering → submitted (Prodigi) → printing → shipped | failed
 
 For each paid card order the worker:
-  1. Renders the outside + inside print spreads by driving the deployed
-     /cards/print route with headless Chromium (Playwright) at the exact
-     Prodigi artboard size (2551 x 1819 px).
-  2. Uploads both PNGs to the public "card-assets" bucket.
-  3. Places a Prodigi order (SKU GLOBAL-GRE-FAP-A6) with the two assets and a
-     white-label packing slip, so the parcel arrives blind, from the sender.
+  1. Renders the single stitched Prodigi artboard (all four panels) directly
+     with PIL (card_pipeline) at the exact template size (6117 x 2161 px).
+  2. Uploads the PNG to the public "card-assets" bucket.
+  3. Places a Prodigi order (SKU GLOBAL-GRE-MOH-7X5-DIR) with the one asset on
+     the "default" print area, white-label, so the parcel arrives blind.
   4. Polls Prodigi for shipping and emails the customer when shipped.
 
 Env:
@@ -28,7 +27,6 @@ import os
 import time
 import traceback
 from pathlib import Path
-from urllib.parse import urlencode  # noqa: F401 (kept for legacy _print_url)
 
 import requests
 
@@ -46,9 +44,9 @@ KEY = "".join(os.environ["SUPABASE_SERVICE_KEY"].split())
 HDRS = {"Authorization": f"Bearer {KEY}", "apikey": KEY,
         "Content-Type": "application/json"}
 
-# Prodigi artboard for GLOBAL-GRE-FAP-A6: 216 x 154 mm @ 300 DPI.
-RENDER_W = 2551
-RENDER_H = 1819
+# Prodigi artboard for GLOBAL-GRE-MOH-7X5: all four panels stitched, @ 300 DPI.
+RENDER_W = 6117
+RENDER_H = 2161
 
 
 # ── supabase helpers (match worker.py) ──────────────────────────────
@@ -87,40 +85,6 @@ def public_url(bucket, path):
 
 
 # ── render helpers ──────────────────────────────────────────────────
-def _print_url(order, face):
-    """Build a /cards/print URL for one face from the order's design fields,
-    using the EXACT query-param names app/cards/print/page.tsx reads."""
-    site = "".join(os.environ.get("SITE_URL", "").split()).rstrip("/")
-    params = {
-        "style": order.get("collection") or "arch",
-        "item": order.get("item_id") or "eid",
-        "name": order.get("recipient_name") or "",
-        "customFront": order.get("custom_front") or "",
-        "arabicIndex": str(order.get("arabic_index") or 0),
-        "accent": order.get("accent") or "#b35c3c",
-        "message": order.get("message") or "",
-        "sender": order.get("sender") or "",
-        "photo": order.get("photo_url") or "",
-        "face": face,
-    }
-    if order.get("show_name"):
-        params["showName"] = "1"
-    if order.get("arabic_off"):
-        params["arabicOff"] = "1"
-    return f"{site}/cards/print?{urlencode(params)}"
-
-
-def _render_face(page, url) -> bytes:
-    """Navigate to a /cards/print URL and screenshot the spread as PNG bytes."""
-    page.goto(url, wait_until="networkidle", timeout=60000)
-    try:
-        page.evaluate("document.fonts.ready")
-    except Exception:  # noqa: BLE001
-        pass
-    page.wait_for_timeout(500)
-    return page.screenshot(full_page=False)
-
-
 def _recipient_from_shipping(order):
     """Map our shipping jsonb to the Prodigi recipient shape."""
     ship = order.get("shipping") or {}
@@ -144,9 +108,9 @@ def _recipient_from_shipping(order):
 def process_card(order):
     """Render → upload → submit one paid card order to Prodigi.
 
-    The print spreads are rendered directly with PIL (card_pipeline) in the
-    premium house style — no headless browser — so what we preview is what
-    prints, and the cards match the keepsakes by construction."""
+    The single stitched artboard is rendered directly with PIL (card_pipeline)
+    in the premium house style — no headless browser — so what we preview is
+    what prints, and the cards match the keepsakes by construction."""
     oid = order["id"]
     try:
         set_card_status(oid, "rendering")
@@ -157,7 +121,7 @@ def process_card(order):
             raise RuntimeError(f"unknown card item_id: {item_id!r}")
 
         workdir = Path(f"/tmp/card-{oid}")
-        op, ip = card_pipeline.build(
+        ap = card_pipeline.build(
             card, workdir,
             recipient=(order.get("recipient_name") or "")
             if order.get("show_name") else "",
@@ -167,35 +131,30 @@ def process_card(order):
             arabic_off=bool(order.get("arabic_off")),
             accent_hex=order.get("accent") or None,
         )
-        outside_png = Path(op).read_bytes()
-        inside_png = Path(ip).read_bytes()
+        artboard_png = Path(ap).read_bytes()
 
-        outside_path = storage_upload(
-            "card-assets", f"renders/{oid}-outside.png", outside_png, "image/png")
-        inside_path = storage_upload(
-            "card-assets", f"renders/{oid}-inside.png", inside_png, "image/png")
-        outside_public = public_url("card-assets", outside_path)
-        inside_public = public_url("card-assets", inside_path)
+        artboard_path = storage_upload(
+            "card-assets", f"renders/{oid}-artboard.png", artboard_png,
+            "image/png")
+        artboard_public = public_url("card-assets", artboard_path)
 
         db("PATCH", f"card_orders?id=eq.{oid}",
-           json={"outside_asset_url": outside_public,
-                 "inside_asset_url": inside_public})
+           json={"outside_asset_url": artboard_public,
+                 "inside_asset_url": artboard_public})
 
+        print_area = prodigi_client.first_print_area()
         resp = prodigi_client.create_order(
             merchant_reference=str(oid),
             recipient=_recipient_from_shipping(order),
             copies=1,
-            assets=[
-                {"printArea": "outside", "url": outside_public},
-                {"printArea": "inside", "url": inside_public},
-            ],
+            assets=[{"printArea": print_area, "url": artboard_public}],
         )
         prodigi_order = ((resp or {}).get("order") or {})
         prodigi_order_id = prodigi_order.get("id")
         if not resp or not prodigi_order_id:
             detail = getattr(prodigi_client, "_LAST_ERROR", None) or json.dumps(resp)[:500]
-            print(f"[card {oid}] Prodigi rejected. assets: outside={outside_public} "
-                  f"inside={inside_public}", flush=True)
+            print(f"[card {oid}] Prodigi rejected (printArea={print_area}). "
+                  f"asset={artboard_public}", flush=True)
             raise RuntimeError(f"Prodigi order rejected: {detail}")
 
         set_card_status(oid, "submitted",

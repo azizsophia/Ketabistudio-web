@@ -2,11 +2,12 @@
 Prodigi Print API client for greeting-card fulfillment (Python port of
 lib/prodigi.ts).
 
-Cards are fulfilled as A6 folded greeting cards via Prodigi
-(SKU GLOBAL-GRE-FAP-A6). Each card needs two print assets:
-  - "outside" print area: back panel | front face
-  - "inside"  print area: blank panel | inside face
-Those assets are produced by the headless render of /cards/print.
+Cards are fulfilled as fine-art folded greeting cards via Prodigi
+(SKU GLOBAL-GRE-MOH-7X5-DIR). Prodigi takes ONE flattened artboard that
+carries all four panels (outer rear | outer front | inside front | inside
+back), bleed included, uploaded to the single "default" print area. That
+artboard is produced directly by card_pipeline.render_artboard at the exact
+template size (6117 x 2161 px @ 300 DPI).
 
 Auth: X-API-Key header read from PRODIGI_API_KEY (never hardcoded). Base URL
 is selected by PRODIGI_ENV ("live" vs sandbox). Every helper returns parsed
@@ -17,10 +18,14 @@ import os
 
 import requests
 
-# The greeting-card product SKU. Override via PRODIGI_CARD_SKU once you copy the
-# exact SKU from your Prodigi product catalogue (the default below is a
-# placeholder and will fail with SkuNotFound until set).
+# The greeting-card product SKU. Override via PRODIGI_CARD_SKU if you switch
+# product (e.g. -BLA self-send vs -DIR direct-to-recipient).
 CARD_SKU = (os.environ.get("PRODIGI_CARD_SKU") or "GLOBAL-GRE-MOH-7X5-DIR").strip()
+
+# Fine-art greeting cards take ONE stitched artboard on a single print area.
+# Override via PRODIGI_CARD_PRINT_AREA only if the product reports a different
+# name; first_print_area() below confirms it from the live product at runtime.
+CARD_PRINT_AREA = (os.environ.get("PRODIGI_CARD_PRINT_AREA") or "default").strip()
 
 
 def _base_url() -> str:
@@ -61,6 +66,28 @@ def _request(method: str, path: str, json_body=None):
         return None
 
 
+def get_product(sku: str = None):
+    """GET /products/{sku} — returns the parsed product dict (or None)."""
+    sku = (sku or CARD_SKU).strip()
+    res = _request("GET", f"/products/{requests.utils.quote(sku)}")
+    return (res or {}).get("product") if isinstance(res, dict) else None
+
+
+def first_print_area(sku: str = None) -> str:
+    """Resolve the print-area name to upload the stitched artboard under.
+
+    Asks the live product for its printAreas and returns the single key (fine-
+    art cards expose one). Falls back to CARD_PRINT_AREA ("default") if the
+    lookup fails so an order can still be attempted."""
+    product = get_product(sku)
+    areas = list((product or {}).get("printAreas", {}).keys())
+    if len(areas) == 1:
+        return areas[0]
+    if CARD_PRINT_AREA in areas:
+        return CARD_PRINT_AREA
+    return areas[0] if areas else CARD_PRINT_AREA
+
+
 def check_connection():
     """Validate PRODIGI_API_KEY by requesting a QUOTE (no order is created).
     Returns a dict {ok, status, env, base, key, reason}. A 200 means the key is
@@ -77,7 +104,7 @@ def check_connection():
             "sku": CARD_SKU,
             "copies": 1,
             "attributes": {},
-            "assets": [{"printArea": "outside"}, {"printArea": "inside"}],
+            "assets": [{"printArea": first_print_area()}],
         }],
     }
     try:
@@ -110,13 +137,14 @@ def create_order(
 ):
     """POST /orders — place a fulfillment order for one personalised card.
 
-    The line item carries the outside + inside print assets and a white-label
-    (no branding) packing slip so the parcel arrives blind, from the sender.
+    The line item carries the single stitched artboard asset (printArea
+    "default") and ships white-label (blind, from the sender) since no custom
+    packing slip is attached.
 
     recipient shape (per Prodigi):
       { name, email?, address: { line1, line2?, postalOrZipCode,
         countryCode, townOrCity, stateOrCounty? } }
-    assets: list of { "printArea": "outside"|"inside", "url": <public url> }
+    assets: list of { "printArea": <name>, "url": <public url> }
     """
     body = {
         "merchantReference": merchant_reference,
