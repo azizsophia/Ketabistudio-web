@@ -14,6 +14,7 @@ import { NextRequest, NextResponse } from "next/server";
 export const runtime = "nodejs";
 
 const PRODUCT = "https://product.gelatoapis.com";
+const ORDER = "https://order.gelatoapis.com";
 
 function key() {
   return (process.env.GELATO_API_KEY || "").replace(/\s/g, "");
@@ -45,6 +46,39 @@ export async function GET(req: NextRequest) {
       { error: "GELATO_API_KEY is not set in this environment" },
       { status: 500 }
     );
+  }
+
+  // ?quote=US&uid=<productUid>&qty=1 — live single-card delivered price (no
+  // order created). Confirms qty 1 is allowed and the real US shipping cost.
+  const quoteCC = req.nextUrl.searchParams.get("quote");
+  if (quoteCC) {
+    const uid =
+      req.nextUrl.searchParams.get("uid") ||
+      "cards_pf_5r_pt_350-gsm-coated-silk_cl_4-4_ver";
+    const qty = Number(req.nextUrl.searchParams.get("qty") || "1") || 1;
+    const recipients: Record<string, Record<string, string>> = {
+      US: {
+        country: "US", firstName: "Test", lastName: "Order",
+        addressLine1: "108 Patina Run", city: "Starkville",
+        state: "MS", postCode: "39759", email: "test@example.com",
+      },
+    };
+    const body = {
+      orderReferenceId: "quote-test",
+      customerReferenceId: "ketabi",
+      currency: "USD",
+      recipient: recipients[quoteCC] || recipients.US,
+      products: [
+        {
+          itemReferenceId: "card",
+          productUid: uid,
+          fileUrl: "https://ketabistudio.com/images/cards/eid.jpg",
+          quantity: qty,
+        },
+      ],
+    };
+    const q = await gx("POST", `${ORDER}/v4/orders:quote`, body);
+    return NextResponse.json({ quotedProduct: uid, qty, status: q.status, quote: q.json });
   }
 
   // 1) catalogs
