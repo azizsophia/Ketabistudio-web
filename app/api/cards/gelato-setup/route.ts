@@ -37,14 +37,9 @@ async function gx(method: string, url: string, body?: unknown) {
 }
 
 export async function GET(req: NextRequest) {
-  // Optional gate: if GELATO_SETUP_TOKEN is set it must match; if it's not set,
-  // the route is open (it only READS Gelato catalog/prices — no orders). Delete
-  // this route once setup is done.
-  const token = req.nextUrl.searchParams.get("token") || "";
-  const expected = process.env.GELATO_SETUP_TOKEN || "";
-  if (expected && token !== expected) {
-    return NextResponse.json({ error: "not found" }, { status: 404 });
-  }
+  // No token gate — this temporary route only READS Gelato catalog/prices (no
+  // orders, no secrets returned beyond the key's last 4 chars). Delete the
+  // route once setup is done.
   if (!key()) {
     return NextResponse.json(
       { error: "GELATO_API_KEY is not set in this environment" },
