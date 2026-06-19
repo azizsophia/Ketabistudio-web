@@ -130,6 +130,7 @@ def process_card(order):
             arabic_index=int(order.get("arabic_index") or 0),
             arabic_off=bool(order.get("arabic_off")),
             accent_hex=order.get("accent") or None,
+            photo_url=order.get("photo_url") or None,
         )
         artboard_png = Path(ap).read_bytes()
 

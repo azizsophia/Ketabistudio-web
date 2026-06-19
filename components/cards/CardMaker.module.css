@@ -253,3 +253,121 @@
 .nextBtn {
   min-width: 200px;
 }
+
+/* ── front cover photo upload + live photo preview ── */
+.photoUpload {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 22px 14px;
+  border: 1px dashed #c7bda4;
+  border-radius: 10px;
+  background: #fffdf9;
+  color: var(--gold-deep);
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+}
+.photoUpload:hover {
+  border-color: var(--gold);
+  background: #fffaf0;
+}
+.photoRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.photoOk {
+  color: var(--forest);
+  font-weight: 600;
+}
+.photoRemove,
+.photoReplace {
+  border: 1px solid #d9d1bf;
+  border-radius: 8px;
+  padding: 8px 14px;
+  background: #fffdf9;
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+.photoReplace:hover,
+.photoRemove:hover {
+  border-color: var(--gold);
+}
+.warn {
+  color: #9a6b1f;
+  font-size: 0.86rem;
+  margin: 8px 0 0;
+}
+
+.photoFront {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1464 / 2031;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: flex-end;
+}
+.photoFront::after {
+  content: "";
+  position: absolute;
+  inset: 7% 6%;
+  border: 1px solid rgba(214, 188, 130, 0.7);
+  pointer-events: none;
+}
+.photoScrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(20, 17, 14, 0.78) 0%,
+    rgba(20, 17, 14, 0.42) 28%,
+    rgba(20, 17, 14, 0) 52%
+  );
+}
+.photoType {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding: 0 12% 13%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.pfEyebrow {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 0.66rem;
+  letter-spacing: 0.34em;
+  color: #d6bc82;
+  margin-bottom: 10px;
+}
+.pfBig {
+  font-family: var(--font-arabic), serif;
+  font-size: 2.1rem;
+  line-height: 1.15;
+  color: #f7f2ea;
+}
+.pfTranslit {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-style: italic;
+  font-size: 0.95rem;
+  color: #d6bc82;
+  margin-top: 4px;
+}
+.pfRule {
+  width: 46px;
+  height: 1px;
+  background: #d6bc82;
+  margin: 12px 0;
+}
+.pfLine2 {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-style: italic;
+  font-size: 1.15rem;
+  color: #f7f2ea;
+}

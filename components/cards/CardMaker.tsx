@@ -48,6 +48,10 @@ export default function CardMaker() {
   const [message, setMessage] = useState("");
   const [sender, setSender] = useState("");
 
+  const [photoUrl, setPhotoUrl] = useState("");
+  const [photoBusy, setPhotoBusy] = useState(false);
+  const [photoWarn, setPhotoWarn] = useState("");
+
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [line1, setLine1] = useState("");
@@ -63,8 +67,50 @@ export default function CardMaker() {
   function pick(id: string) {
     setItemId(id);
     setMessage(findCard(id).msg); // start from the suggestion; fully editable
+    setPhotoUrl("");
+    setPhotoWarn("");
     setStep("personalise");
     setError("");
+  }
+
+  async function uploadPhoto(file: File) {
+    setError("");
+    setPhotoWarn("");
+    if (!file.type.startsWith("image/")) {
+      return setError("Please choose an image file.");
+    }
+    // gently warn on a low-resolution photo (the front prints ~5x7 inches)
+    try {
+      const dims = await new Promise<{ w: number; h: number }>((res, rej) => {
+        const im = new window.Image();
+        im.onload = () => res({ w: im.naturalWidth, h: im.naturalHeight });
+        im.onerror = rej;
+        im.src = URL.createObjectURL(file);
+      });
+      if (Math.min(dims.w, dims.h) < 1200) {
+        setPhotoWarn(
+          "This photo is a little low-resolution, it may look soft in print. A larger, high quality photo prints best."
+        );
+      }
+    } catch {
+      /* non-fatal: still allow the upload */
+    }
+    setPhotoBusy(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const r = await fetch("/api/cards/photo", { method: "POST", body: fd });
+      const data = await r.json();
+      if (r.ok && data.url) {
+        setPhotoUrl(data.url);
+      } else {
+        setError(data.error || "Could not upload that photo. Please try again.");
+      }
+    } catch {
+      setError("Network error uploading the photo. Please try again.");
+    } finally {
+      setPhotoBusy(false);
+    }
   }
 
   async function placeOrder() {
@@ -84,6 +130,7 @@ export default function CardMaker() {
           item_id: itemId,
           message: message.trim(),
           sender: sender.trim(),
+          photo_url: photoUrl || undefined,
           email: email.trim(),
           shipping: {
             name: name.trim(),
@@ -157,13 +204,17 @@ export default function CardMaker() {
           <aside className={styles.previewPane}>
             <p className={styles.previewLabel}>Front</p>
             <div className={styles.frontPreview}>
-              <Image
-                src={`/images/cards/${card.id}.jpg`}
-                alt={`${card.title} card`}
-                width={760}
-                height={1075}
-                className={styles.frontImg}
-              />
+              {photoUrl ? (
+                <PhotoFront card={card} photoUrl={photoUrl} />
+              ) : (
+                <Image
+                  src={`/images/cards/${card.id}.jpg`}
+                  alt={`${card.title} card`}
+                  width={760}
+                  height={1075}
+                  className={styles.frontImg}
+                />
+              )}
             </div>
             <p className={styles.previewLabel}>Inside</p>
             <div className={styles.insidePreview}>
@@ -213,9 +264,54 @@ export default function CardMaker() {
               onChange={(e) => setSender(e.target.value)}
             />
 
+            <label className={styles.label} htmlFor="photo">
+              Front cover photo (optional)
+            </label>
+            {photoUrl ? (
+              <div className={styles.photoRow}>
+                <span className={styles.photoOk}>Photo added ✓</span>
+                <button
+                  type="button"
+                  className={styles.photoRemove}
+                  onClick={() => {
+                    setPhotoUrl("");
+                    setPhotoWarn("");
+                  }}
+                >
+                  Remove
+                </button>
+                <label className={styles.photoReplace}>
+                  Replace
+                  <input
+                    type="file"
+                    accept="image/*"
+                    hidden
+                    onChange={(e) =>
+                      e.target.files?.[0] && uploadPhoto(e.target.files[0])
+                    }
+                  />
+                </label>
+              </div>
+            ) : (
+              <label className={styles.photoUpload}>
+                <input
+                  id="photo"
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  onChange={(e) =>
+                    e.target.files?.[0] && uploadPhoto(e.target.files[0])
+                  }
+                />
+                {photoBusy ? "Uploading…" : "Tap to add your photo"}
+              </label>
+            )}
+            {photoWarn && <p className={styles.warn}>{photoWarn}</p>}
+
             <p className={styles.note}>
-              The dua is printed beneath your message, and the inside-left is left
-              blank for a handwritten note if you like.
+              Add a photo and it becomes the front cover, with the {card.title}{" "}
+              wording set over it. The dua is printed beneath your message inside,
+              and the inside-left is left blank for a handwritten note if you like.
             </p>
 
             {error && <p className={styles.error}>{error}</p>}
@@ -328,6 +424,32 @@ export default function CardMaker() {
         </div>
       </div>
     </section>
+  );
+}
+
+/* The live front preview when a photo is used — mirrors the print renderer:
+   photo full-bleed, a soft bottom scrim, type set over it in ivory + gold. */
+function PhotoFront({ card, photoUrl }: { card: CardItem; photoUrl: string }) {
+  const big = card.group === "occasion" ? card.words[0]?.ar : card.word.ar;
+  const translit =
+    card.group === "occasion" ? card.words[0]?.translit : card.word.translit;
+  const line2 = card.group === "occasion" ? card.en : card.headlineEn;
+  return (
+    <div
+      className={styles.photoFront}
+      style={{ backgroundImage: `url(${photoUrl})` }}
+    >
+      <div className={styles.photoScrim} />
+      <div className={styles.photoType}>
+        <span className={styles.pfEyebrow}>{card.eyebrow.toUpperCase()}</span>
+        <span className={styles.pfBig} dir="rtl" lang="ar">
+          {big}
+        </span>
+        {translit && <span className={styles.pfTranslit}>{translit}</span>}
+        <span className={styles.pfRule} aria-hidden="true" />
+        <span className={styles.pfLine2}>{line2}</span>
+      </div>
+    </div>
   );
 }
 
