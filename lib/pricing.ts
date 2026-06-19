@@ -27,10 +27,13 @@ export function isFreeShippingCountry(countryCode: string): boolean {
   return countryCode.toUpperCase() === "US";
 }
 
-/* Greeting cards are priced "delivered" — one flat price that includes
-   Prodigi printing + shipping, so there is no separate shipping line. */
-export const CARD_PRICE_CENTS = TEST_DOLLAR_PRICING ? 100 : 900; // $1 test / $9 delivered
-export const CARD_PRICE_DISPLAY = TEST_DOLLAR_PRICING ? "$1.00" : "$9.00";
+/* Greeting cards are priced "delivered" — ONE flat worldwide price that
+   includes printing + shipping (no separate shipping line). The price must
+   cover the most expensive route (US: ~$11.40 printed+shipped via Cloudprinter)
+   and still profit, while international (Prodigi: ~$3-7) profits more.
+   At $14.99: US nets ~$2-3 after fees, UK/Gulf net ~$7-11. */
+export const CARD_PRICE_CENTS = TEST_DOLLAR_PRICING ? 100 : 1499; // $1 test / $14.99 delivered worldwide
+export const CARD_PRICE_DISPLAY = TEST_DOLLAR_PRICING ? "$1.00" : "$14.99";
 
 export const SHIPPING_US_CENTS = 499; // $4.99 domestic
 export const SHIPPING_INTL_CENTS = 1499; // $14.99 international
