@@ -143,12 +143,34 @@ def process_card(order):
            json={"outside_asset_url": artboard_public,
                  "inside_asset_url": artboard_public})
 
+        # COST GUARD: quote the cheapest shipping first and refuse to place the
+        # order if Prodigi's cost is above the cap (e.g. a pricey international
+        # courier). This makes a runaway charge impossible — we never submit a
+        # too-expensive order, so no charge happens. Tune via PRODIGI_MAX_COST.
+        country = ((order.get("shipping") or {}).get("country_code") or "US")
+        cap = float(os.environ.get("PRODIGI_MAX_COST", "12") or 12)
+        best = prodigi_client.cheapest_shipping(country)
+        if not best:
+            raise RuntimeError(
+                f"could not get a Prodigi shipping quote for {country}: "
+                f"{getattr(prodigi_client, '_LAST_ERROR', None)}")
+        if best["total"] > cap:
+            note = (f"held: Prodigi cost {best['total']:.2f} {best['currency']} "
+                    f"via {best['method']} (cap {cap:.2f}); "
+                    f"print {best['items']:.2f} + shipping {best['shipping']:.2f} "
+                    f"to {country}")
+            set_card_status(oid, "held",
+                            notes=json.dumps({"hold": note, "quote": best}))
+            print(f"[card {oid}] HELD, NOT ordered — {note}", flush=True)
+            return
+
         print_area = prodigi_client.first_print_area()
         resp = prodigi_client.create_order(
             merchant_reference=str(oid),
             recipient=_recipient_from_shipping(order),
             copies=1,
             assets=[{"printArea": print_area, "url": artboard_public}],
+            shipping_method=best["method"],
         )
         prodigi_order = ((resp or {}).get("order") or {})
         prodigi_order_id = prodigi_order.get("id")
@@ -161,8 +183,10 @@ def process_card(order):
         set_card_status(oid, "submitted",
                         prodigi_order_id=str(prodigi_order_id))
         log_card_event(oid, "submitted",
-                       {"prodigi_order_id": str(prodigi_order_id)})
-        print(f"[card {oid}] submitted to Prodigi as {prodigi_order_id}")
+                       {"prodigi_order_id": str(prodigi_order_id),
+                        "cost": best})
+        print(f"[card {oid}] submitted to Prodigi as {prodigi_order_id} "
+              f"({best['method']} {best['total']:.2f} {best['currency']})")
     except Exception:  # noqa: BLE001
         err = traceback.format_exc()[-800:]
         try:

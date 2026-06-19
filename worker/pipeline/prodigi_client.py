@@ -127,12 +127,55 @@ def check_connection():
     return out
 
 
+def quote_cost(country_code: str, shipping_method: str, copies: int = 1):
+    """Return {method, items, shipping, total, currency} for one card to a
+    destination, or None. No order is created (no charge)."""
+    body = {
+        "shippingMethod": shipping_method,
+        "destinationCountryCode": country_code,
+        "items": [{
+            "sku": CARD_SKU,
+            "copies": copies,
+            "attributes": {},
+            "assets": [{"printArea": first_print_area()}],
+        }],
+    }
+    r = _request("POST", "/quotes", body)
+    quotes = (r or {}).get("quotes") or []
+    if not quotes:
+        return None
+    cs = quotes[0].get("costSummary", {}) or {}
+    items = cs.get("items", {}) or {}
+    ship = cs.get("shipping", {}) or {}
+    ia = float(items.get("amount", 0) or 0)
+    sa = float(ship.get("amount", 0) or 0)
+    return {
+        "method": shipping_method,
+        "items": ia,
+        "shipping": sa,
+        "total": ia + sa,
+        "currency": items.get("currency") or ship.get("currency") or "USD",
+    }
+
+
+def cheapest_shipping(country_code: str, copies: int = 1,
+                      methods=("Budget", "Standard", "Express")):
+    """Quote each shipping method and return the CHEAPEST valid one (a dict from
+    quote_cost), or None. Used to avoid ever defaulting to pricey couriers."""
+    best = None
+    for m in methods:
+        q = quote_cost(country_code, m, copies)
+        if q and (best is None or q["total"] < best["total"]):
+            best = q
+    return best
+
+
 def create_order(
     merchant_reference: str,
     recipient: dict,
     copies: int,
     assets: list,
-    shipping_method: str = "Standard",
+    shipping_method: str = "Budget",
     sizing: str = "fillPrintArea",
 ):
     """POST /orders — place a fulfillment order for one personalised card.
