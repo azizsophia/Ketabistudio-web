@@ -20,7 +20,7 @@ import requests
 # The greeting-card product SKU. Override via PRODIGI_CARD_SKU once you copy the
 # exact SKU from your Prodigi product catalogue (the default below is a
 # placeholder and will fail with SkuNotFound until set).
-CARD_SKU = (os.environ.get("PRODIGI_CARD_SKU") or "GLOBAL-GRE-MOH-7X5-BLA").strip()
+CARD_SKU = (os.environ.get("PRODIGI_CARD_SKU") or "GLOBAL-GRE-MOH-7X5-DIR").strip()
 
 
 def _base_url() -> str:
