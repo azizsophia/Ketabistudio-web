@@ -31,13 +31,26 @@ from pathlib import Path
 import requests
 
 import emailer
-from pipeline import prodigi_client, card_pipeline
+from pipeline import prodigi_client, card_pipeline, gelato_client
 
 # Vetted card catalog (content keyed by item_id) — mirrors lib/cards.ts, read by
 # the PIL renderer so the print asset is produced directly (no headless browser).
 CARDS_CATALOG = json.loads(
     (Path(__file__).resolve().parent / "pipeline" / "cards_catalog.json")
     .read_text("utf-8"))
+
+# Destination routing: which countries fulfil via Gelato (local US printing
+# instead of Prodigi's pricey UK->US shipping). Everything else -> Prodigi.
+GELATO_COUNTRIES = set(
+    (os.environ.get("GELATO_COUNTRIES", "US") or "")
+    .upper().replace(" ", "").split(","))
+
+
+def _provider_for(country: str) -> str:
+    """Pick the cheapest fulfiller for a destination."""
+    if (country or "").upper() in GELATO_COUNTRIES:
+        return "gelato"
+    return "prodigi"
 
 SB = "".join(os.environ["SUPABASE_URL"].split()).rstrip("/")
 KEY = "".join(os.environ["SUPABASE_SERVICE_KEY"].split())
@@ -104,6 +117,80 @@ def _recipient_from_shipping(order):
     return recipient
 
 
+def _gelato_address(order):
+    """Map our shipping jsonb to the Gelato shippingAddress shape."""
+    ship = order.get("shipping") or {}
+    name = (ship.get("name") or "").strip()
+    first, _, last = name.partition(" ")
+    return {
+        "firstName": first or name or "Friend",
+        "lastName": last or first or name or "Friend",
+        "addressLine1": ship.get("line1") or "",
+        "addressLine2": ship.get("line2") or "",
+        "city": ship.get("city") or "",
+        "postCode": ship.get("postcode") or "",
+        "state": ship.get("state") or "",
+        "country": ship.get("country_code") or "",
+        "email": order.get("customer_email") or "",
+    }
+
+
+def _submit_gelato(oid, order, asset_url, country):
+    """Place a US (or GELATO_COUNTRIES) order via Gelato — local printing, cheap
+    domestic shipping. Gated: until the Gelato product + renderer are confirmed
+    (GELATO_ENABLED=1 and a product uid), the order is HELD, not sent, so no
+    wrong-format order or charge can happen."""
+    if not (gelato_client.configured() and os.environ.get("GELATO_ENABLED") == "1"):
+        note = (f"routed to Gelato for {country} — finishing Gelato setup "
+                f"(API key / product / renderer). Not charged.")
+        set_card_status(oid, "held", notes=json.dumps({"hold": note}))
+        print(f"[card {oid}] HELD (Gelato pending) — {note}", flush=True)
+        return
+
+    addr = _gelato_address(order)
+    cap = float(os.environ.get("PRODIGI_MAX_COST", "12") or 12)
+
+    # cost guard via a Gelato quote (no charge); pick the cheapest shipment
+    q = gelato_client.quote(addr, asset_url, 1)
+    quotes = ((q or {}).get("quotes") or [])
+    best = None
+    for qu in quotes:
+        prod_total = sum(float(p.get("price", 0) or 0)
+                         for p in (qu.get("products") or []))
+        for sm in (qu.get("shipmentMethods") or [{}]):
+            ship_cost = float(sm.get("price", 0) or 0)
+            total = prod_total + ship_cost
+            cand = {"method": sm.get("shipmentMethodUid"),
+                    "total": total, "items": prod_total,
+                    "shipping": ship_cost,
+                    "currency": (qu.get("currency") or "USD")}
+            if best is None or total < best["total"]:
+                best = cand
+    if not best:
+        raise RuntimeError(
+            f"could not get a Gelato quote for {country}: "
+            f"{getattr(gelato_client, '_LAST_ERROR', None)}")
+    if best["total"] > cap:
+        note = (f"held: Gelato cost {best['total']:.2f} {best['currency']} "
+                f"(cap {cap:.2f}) to {country}")
+        set_card_status(oid, "held", notes=json.dumps({"hold": note, "quote": best}))
+        print(f"[card {oid}] HELD, NOT ordered — {note}", flush=True)
+        return
+
+    resp = gelato_client.create_order(
+        order_reference_id=str(oid), shipping_address=addr, file_url=asset_url,
+        quantity=1, shipment_method_uid=best["method"])
+    gid = (resp or {}).get("id") or (resp or {}).get("orderReferenceId")
+    if not resp or not gid:
+        detail = getattr(gelato_client, "_LAST_ERROR", None) or json.dumps(resp)[:500]
+        raise RuntimeError(f"Gelato order rejected: {detail}")
+    set_card_status(oid, "submitted", prodigi_order_id=f"gelato:{gid}")
+    log_card_event(oid, "submitted",
+                   {"gelato_order_id": str(gid), "cost": best})
+    print(f"[card {oid}] submitted to Gelato as {gid} "
+          f"({best['total']:.2f} {best['currency']})")
+
+
 # ── per-order processing ────────────────────────────────────────────
 def process_card(order):
     """Render → upload → submit one paid card order to Prodigi.
@@ -143,11 +230,18 @@ def process_card(order):
            json={"outside_asset_url": artboard_public,
                  "inside_asset_url": artboard_public})
 
+        country = ((order.get("shipping") or {}).get("country_code") or "US")
+
+        # DESTINATION ROUTING: US (and any GELATO_COUNTRIES) -> Gelato (local
+        # printing, cheap domestic shipping); everywhere else -> Prodigi.
+        if _provider_for(country) == "gelato":
+            _submit_gelato(oid, order, artboard_public, country)
+            return
+
         # COST GUARD: quote the cheapest shipping first and refuse to place the
         # order if Prodigi's cost is above the cap (e.g. a pricey international
         # courier). This makes a runaway charge impossible — we never submit a
         # too-expensive order, so no charge happens. Tune via PRODIGI_MAX_COST.
-        country = ((order.get("shipping") or {}).get("country_code") or "US")
         cap = float(os.environ.get("PRODIGI_MAX_COST", "12") or 12)
         best = prodigi_client.cheapest_shipping(country)
         if not best:
@@ -216,6 +310,9 @@ def poll_card_shipping():
         if not prodigi_id:
             continue
         try:
+            if str(prodigi_id).startswith("gelato:"):
+                _poll_gelato(order, str(prodigi_id).split(":", 1)[1])
+                continue
             info = prodigi_client.get_order_status(prodigi_id)
             prodigi_order = ((info or {}).get("order") or {})
             status = prodigi_order.get("status") or {}
@@ -238,6 +335,31 @@ def poll_card_shipping():
                 print(f"[card {oid}] Prodigi Cancelled")
         except Exception:  # noqa: BLE001
             traceback.print_exc()
+
+
+def _poll_gelato(order, gid):
+    """Advance a Gelato-fulfilled card toward shipped. Gelato fulfilmentStatus
+    values include: created, passed, in_production, shipped, delivered,
+    canceled, failed."""
+    oid = order["id"]
+    info = gelato_client.get_order(gid)
+    stage = ((info or {}).get("fulfillmentStatus")
+             or (info or {}).get("orderStatus") or "").lower()
+    if stage in ("in_production", "printing", "passed") and order["status"] != "printing":
+        set_card_status(oid, "printing")
+        print(f"[card {oid}] printing (Gelato)")
+    elif stage in ("shipped", "delivered"):
+        set_card_status(oid, "shipped")
+        try:
+            if hasattr(emailer, "send_card_shipped"):
+                emailer.send_card_shipped(order)
+        except Exception as e:  # noqa: BLE001
+            print(f"[card {oid}] shipped email error (non-fatal): {e}")
+        print(f"[card {oid}] shipped (Gelato)")
+    elif stage in ("canceled", "cancelled", "failed"):
+        set_card_status(oid, "failed",
+                        notes=json.dumps({"failure": f"Gelato {stage}"}))
+        print(f"[card {oid}] Gelato {stage}")
 
 
 if __name__ == "__main__":
