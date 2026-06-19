@@ -28,10 +28,16 @@ def _base_url() -> str:
     return "https://api.sandbox.prodigi.com/v4.0"
 
 
+_LAST_ERROR = None
+
+
 def _request(method: str, path: str, json_body=None):
+    global _LAST_ERROR
+    _LAST_ERROR = None
     api_key = "".join(os.environ.get("PRODIGI_API_KEY", "").split())
     if not api_key:
-        print("[prodigi] PRODIGI_API_KEY is not set")
+        _LAST_ERROR = "PRODIGI_API_KEY is not set"
+        print("[prodigi] PRODIGI_API_KEY is not set", flush=True)
         return None
     try:
         res = requests.request(
@@ -42,14 +48,13 @@ def _request(method: str, path: str, json_body=None):
             timeout=60,
         )
         if not res.ok:
-            print(
-                f"[prodigi] {method} {path} -> {res.status_code} "
-                f"{res.reason} {res.text[:500]}"
-            )
+            _LAST_ERROR = f"{res.status_code} {res.reason}: {res.text[:400]}"
+            print(f"[prodigi] {method} {path} -> {_LAST_ERROR}", flush=True)
             return None
         return res.json() if res.text else None
     except Exception as err:  # noqa: BLE001
-        print(f"[prodigi] request to {path} failed: {err}")
+        _LAST_ERROR = f"request to {path} failed: {err}"
+        print(f"[prodigi] {_LAST_ERROR}", flush=True)
         return None
 
 

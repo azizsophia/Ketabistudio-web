@@ -193,7 +193,10 @@ def process_card(order):
         prodigi_order = ((resp or {}).get("order") or {})
         prodigi_order_id = prodigi_order.get("id")
         if not resp or not prodigi_order_id:
-            raise RuntimeError(f"Prodigi order rejected: {json.dumps(resp)[:500]}")
+            detail = getattr(prodigi_client, "_LAST_ERROR", None) or json.dumps(resp)[:500]
+            print(f"[card {oid}] Prodigi rejected. assets: outside={outside_public} "
+                  f"inside={inside_public}", flush=True)
+            raise RuntimeError(f"Prodigi order rejected: {detail}")
 
         set_card_status(oid, "submitted",
                         prodigi_order_id=str(prodigi_order_id))
