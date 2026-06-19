@@ -50,27 +50,44 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ quotedProduct: product, status: q.status, quote: q.json });
   }
 
-  // default: list products, surface folded greeting-card candidates
+  // default: list products, then recursively pull every {reference,name} no
+  // matter how Cloudprinter nests them, and keep only the card/folded ones.
   const list = await cp("/products/");
-  const j = list.json as Record<string, unknown>;
-  const products =
-    (j?.products as Record<string, unknown>[]) ||
-    (j?.data as Record<string, unknown>[]) ||
-    [];
-  const simplified = products.map((p) => ({
-    reference: p.reference ?? p.product ?? p.code,
-    name: p.name ?? p.title,
-  }));
-  const cards = simplified.filter((p) =>
-    /card|fold|greet|5x7|5r7|a5/i.test(`${p.reference ?? ""} ${p.name ?? ""}`)
+  const found: { reference?: string; name?: string }[] = [];
+  const walk = (node: unknown) => {
+    if (Array.isArray(node)) {
+      node.forEach(walk);
+      return;
+    }
+    if (node && typeof node === "object") {
+      const o = node as Record<string, unknown>;
+      const reference = (o.reference ?? o.product ?? o.code ?? o.sku) as string | undefined;
+      const name = (o.name ?? o.title ?? o.label) as string | undefined;
+      if (reference || name) found.push({ reference, name });
+      Object.values(o).forEach(walk);
+    }
+  };
+  walk(list.json);
+
+  const seen = new Set<string>();
+  const all = found.filter((p) => {
+    const k = p.reference || p.name || "";
+    if (!k || seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+  const cards = all.filter((p) =>
+    /card|fold|greet/i.test(`${p.reference ?? ""} ${p.name ?? ""}`)
+  );
+  const folded = cards.filter((p) =>
+    /fold/i.test(`${p.reference ?? ""} ${p.name ?? ""}`)
   );
 
   return NextResponse.json({
     keyTail: key().slice(-4),
     productsStatus: list.status,
-    productCount: simplified.length,
-    cardCandidates: cards,
-    allProducts: simplified,
-    raw: list.json,
+    totalProducts: all.length,
+    foldedCardCandidates: folded,
+    allCardCandidates: cards,
   });
 }
