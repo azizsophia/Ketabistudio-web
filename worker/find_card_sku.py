@@ -35,9 +35,11 @@ def main():
     if not key:
         print("PRODIGI_API_KEY not set")
         return
+    # If a SKU is passed as an argument, look up just that one (full details).
+    skus = sys.argv[1:] or CANDIDATES
     print(f"checking catalogue at {base}\n")
     found = []
-    for sku in CANDIDATES:
+    for sku in skus:
         try:
             r = requests.get(f"{base}/products/{sku}",
                              headers={"X-API-Key": key}, timeout=30)
