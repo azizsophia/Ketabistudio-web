@@ -71,5 +71,6 @@ export async function GET(req: NextRequest) {
     productCount: simplified.length,
     cardCandidates: cards,
     allProducts: simplified,
+    raw: list.json,
   });
 }
