@@ -6,6 +6,7 @@ import {
   OCCASIONS,
   RELATIONSHIPS,
   findCard,
+  cardColors,
   CARD_MESSAGE_MAX,
   type CardItem,
 } from "@/lib/cards";
@@ -47,6 +48,7 @@ export default function CardMaker() {
 
   const [message, setMessage] = useState("");
   const [sender, setSender] = useState("");
+  const [accent, setAccent] = useState("");
 
   const [photoUrl, setPhotoUrl] = useState("");
   const [photoBusy, setPhotoBusy] = useState(false);
@@ -67,6 +69,7 @@ export default function CardMaker() {
   function pick(id: string) {
     setItemId(id);
     setMessage(findCard(id).msg); // start from the suggestion; fully editable
+    setAccent(cardColors(id)[0].hex); // default to the card's first colour
     setPhotoUrl("");
     setPhotoWarn("");
     setStep("personalise");
@@ -130,6 +133,7 @@ export default function CardMaker() {
           item_id: itemId,
           message: message.trim(),
           sender: sender.trim(),
+          accent,
           photo_url: photoUrl || undefined,
           email: email.trim(),
           shipping: {
@@ -204,24 +208,18 @@ export default function CardMaker() {
           <aside className={styles.previewPane}>
             <p className={styles.previewLabel}>Front</p>
             <div className={styles.frontPreview}>
-              {photoUrl ? (
-                <PhotoFront card={card} photoUrl={photoUrl} />
-              ) : (
-                <Image
-                  src={`/images/cards/${card.id}.jpg`}
-                  alt={`${card.title} card`}
-                  width={760}
-                  height={1075}
-                  className={styles.frontImg}
-                />
-              )}
+              <Front card={card} accent={accent} photoUrl={photoUrl} />
             </div>
             <p className={styles.previewLabel}>Inside</p>
             <div className={styles.insidePreview}>
               <p className={styles.insideMsg}>
                 {message.trim() || "Your message will appear here…"}
               </p>
-              <span className={styles.insideRule} aria-hidden="true" />
+              <span
+                className={styles.insideRule}
+                style={{ backgroundColor: accent || undefined }}
+                aria-hidden="true"
+              />
               <p className={styles.insideDua}>{card.dua}</p>
               {sender.trim() && (
                 <p className={styles.insideSender}>{sender.trim()}</p>
@@ -263,6 +261,24 @@ export default function CardMaker() {
               value={sender}
               onChange={(e) => setSender(e.target.value)}
             />
+
+            <span className={styles.label}>Cover colour</span>
+            <div className={styles.swatchRow}>
+              {cardColors(card.id).map((c) => (
+                <button
+                  key={c.hex}
+                  type="button"
+                  className={`${styles.swatch} ${
+                    accent === c.hex ? styles.swatchOn : ""
+                  }`}
+                  style={{ backgroundColor: c.hex }}
+                  aria-label={c.name}
+                  aria-pressed={accent === c.hex}
+                  title={c.name}
+                  onClick={() => setAccent(c.hex)}
+                />
+              ))}
+            </div>
 
             <label className={styles.label} htmlFor="photo">
               Front cover photo (optional)
@@ -427,28 +443,51 @@ export default function CardMaker() {
   );
 }
 
-/* The live front preview when a photo is used — mirrors the print renderer:
-   photo full-bleed, a soft bottom scrim, type set over it in ivory + gold. */
-function PhotoFront({ card, photoUrl }: { card: CardItem; photoUrl: string }) {
+/* The live front preview — mirrors the print renderer. With a photo: full-bleed
+   photo, a soft bottom scrim, type bottom-anchored in ivory + gold. Without a
+   photo: the chosen accent fills the cover, type centred. Either way the type
+   is gold + ivory so it stays legible. */
+function Front({
+  card,
+  accent,
+  photoUrl,
+}: {
+  card: CardItem;
+  accent: string;
+  photoUrl: string;
+}) {
   const big = card.group === "occasion" ? card.words[0]?.ar : card.word.ar;
   const translit =
     card.group === "occasion" ? card.words[0]?.translit : card.word.translit;
   const line2 = card.group === "occasion" ? card.en : card.headlineEn;
+  const type = (
+    <div className={styles.pfType}>
+      <span className={styles.pfEyebrow}>{card.eyebrow.toUpperCase()}</span>
+      <span className={styles.pfBig} dir="rtl" lang="ar">
+        {big}
+      </span>
+      {translit && <span className={styles.pfTranslit}>{translit}</span>}
+      <span className={styles.pfRule} aria-hidden="true" />
+      <span className={styles.pfLine2}>{line2}</span>
+    </div>
+  );
+  if (photoUrl) {
+    return (
+      <div
+        className={`${styles.coverFront} ${styles.coverPhoto}`}
+        style={{ backgroundImage: `url(${photoUrl})` }}
+      >
+        <div className={styles.photoScrim} />
+        {type}
+      </div>
+    );
+  }
   return (
     <div
-      className={styles.photoFront}
-      style={{ backgroundImage: `url(${photoUrl})` }}
+      className={`${styles.coverFront} ${styles.coverSolid}`}
+      style={{ backgroundColor: accent || "#1f6b5a" }}
     >
-      <div className={styles.photoScrim} />
-      <div className={styles.photoType}>
-        <span className={styles.pfEyebrow}>{card.eyebrow.toUpperCase()}</span>
-        <span className={styles.pfBig} dir="rtl" lang="ar">
-          {big}
-        </span>
-        {translit && <span className={styles.pfTranslit}>{translit}</span>}
-        <span className={styles.pfRule} aria-hidden="true" />
-        <span className={styles.pfLine2}>{line2}</span>
-      </div>
+      {type}
     </div>
   );
 }

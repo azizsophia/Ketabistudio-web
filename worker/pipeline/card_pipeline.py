@@ -21,7 +21,7 @@ PRINT FORMAT — Prodigi fine-art greeting card (GLOBAL-GRE-MOH-7X5):
 """
 from pathlib import Path
 
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFilter
 
 # Reuse the keepsake type system + Arabic shaping + palette so the cards are
 # the same family as the books.
@@ -132,58 +132,82 @@ def _draw_front(img, d, accent, slots):
         ctext(d, foot, CG(48, 520, it=True), cx, y1 - SAFE - 110, LGOLD)
 
 
+def _shadowed_type(cover, draw_fns):
+    """Draw the cover type onto `cover` with a soft dark halo behind every glyph
+    so the wording is ALWAYS legible, on any photo (light skies, snow, etc.).
+    draw_fns are callables(draw) that paint the type onto a transparent layer in
+    cover-local coordinates."""
+    txt = Image.new("RGBA", cover.size, (0, 0, 0, 0))
+    td = ImageDraw.Draw(txt)
+    for fn in draw_fns:
+        fn(td)
+    halo = txt.split()[3].filter(ImageFilter.GaussianBlur(9))
+    shadow = Image.new("RGBA", cover.size, (8, 6, 4, 0))
+    shadow.putalpha(halo)
+    base = cover.convert("RGBA")
+    base.alpha_composite(shadow)
+    base.alpha_composite(shadow)   # deepen the halo for guaranteed contrast
+    base.alpha_composite(txt)
+    return base.convert("RGB")
+
+
 def _draw_front_photo(img, d, accent, slots, photo):
     """Front cover with the customer's PHOTO full-bleed, the type set in ivory +
-    light gold over a soft bottom scrim — the same editorial language as the
-    keepsake book covers, so a photo card still reads as one family."""
+    light gold over a soft bottom scrim + a soft halo — the same editorial
+    language as the keepsake book covers, so a photo card reads as one family
+    and the wording stays legible over any image."""
     x0, y0, x1, y1 = OUTER_FRONT
-    cx = (x0 + x1) // 2
+    cxg = (x0 + x1) // 2
+    cxl = cxg - OUTSIDE_FOLD     # centre x in the cover's local coordinates
     # full-bleed photo box: fold (no bleed) -> into the gutter, top->bottom edge
     bw, bh = GUTTER_MID - OUTSIDE_FOLD, ARTBOARD_H
     cover = _cover_fit(photo, bw, bh)
     # strong, tall bottom scrim so the type stays legible over any photo
     cover = _bottom_scrim(cover, frac=0.66, max_alpha=215)
-    img.paste(cover, (OUTSIDE_FOLD, 0))
-    # fine light-gold keyline frame inside the visible safe area
-    fx0 = x0 + SPINE
-    fx1 = x1 - SAFE
-    d.rectangle([fx0, y0 + SAFE, fx1, y1 - SAFE], outline=LGOLD, width=2)
-    maxw = fx1 - fx0 - 60
+    maxw = (x1 - SAFE) - (x0 + SPINE) - 60
 
-    # Build the type stack, then BOTTOM-anchor it so it sits in the dark zone of
-    # the scrim (not over the bright middle of the photo).
-    segs = []
-    segs.append((lambda yy: ls(d, slots["eyebrow"].upper(), PF(34, 500),
-                               cx, yy, LGOLD, 8), 40, 86))
+    # Build the type stack as (draw(dd, yy), height, gap), then BOTTOM-anchor it
+    # so it sits in the dark zone of the scrim (not over the bright middle).
+    ops = []
+    ops.append((lambda dd, yy: ls(dd, slots["eyebrow"].upper(), PF(34, 500),
+                                  cxl, yy, LGOLD, 8), 40, 86))
     if slots["bigArabic"]:
         shaped = reshape(slots["bigText"])
         afo, asz = _fit_ar(d, shaped, maxw, 140)
-        segs.append((lambda yy, f=afo, t=shaped: ctext(d, t, f, cx, yy, IVORY),
-                     int(asz * 1.1), 48))
+        ops.append((lambda dd, yy, f=afo, t=shaped:
+                    ctext(dd, t, f, cxl, yy, IVORY), int(asz * 1.1), 48))
         if slots["translit"]:
-            segs.append((lambda yy: ctext(d, slots["translit"],
-                         CG(50, 520, it=True), cx, yy, LGOLD), 56, 70))
+            ops.append((lambda dd, yy: ctext(dd, slots["translit"],
+                        CG(50, 520, it=True), cxl, yy, LGOLD), 56, 70))
     else:
         fo, sz = _fit_one(d, slots["bigText"], lambda z: PF(z, 500),
                           maxw, 124, 60)
-        segs.append((lambda yy, f=fo, t=slots["bigText"]:
-                     ctext(d, t, f, cx, yy, IVORY), sz, 56))
-    segs.append((lambda yy: _hairline(d, cx, yy, 130, LGOLD, 2), 2, 70))
+        ops.append((lambda dd, yy, f=fo, t=slots["bigText"]:
+                    ctext(dd, t, f, cxl, yy, IVORY), sz, 56))
+    ops.append((lambda dd, yy: _hairline(dd, cxl, yy, 130, LGOLD, 2), 2, 70))
     if slots.get("line2"):
         fo, sz = _fit_one(d, slots["line2"], lambda z: CG(z, 540, it=True),
                           maxw + 20, 80, 46)
-        segs.append((lambda yy, f=fo, t=slots["line2"]:
-                     ctext(d, t, f, cx, yy, IVORY), sz, 0))
+        ops.append((lambda dd, yy, f=fo, t=slots["line2"]:
+                    ctext(dd, t, f, cxl, yy, IVORY), sz, 0))
 
     foot = slots.get("foot")
-    block_h = sum(h for _, h, _ in segs) + sum(g for *_, g in segs[:-1])
+    block_h = sum(h for _, h, _ in ops) + sum(g for *_, g in ops[:-1])
     bottom = (y1 - SAFE - 130) if foot else (y1 - SAFE - 60)
-    y = bottom - block_h
-    for draw, h, gap in segs:
-        draw(y)
-        y += h + gap
+    yy = bottom - block_h
+    draw_fns = []
+    for fn, h, gap in ops:
+        draw_fns.append(lambda dd, fn=fn, y=yy: fn(dd, y))
+        yy += h + gap
     if foot:
-        ctext(d, foot, CG(48, 520, it=True), cx, y1 - SAFE - 60, LGOLD)
+        draw_fns.append(lambda dd: ctext(dd, foot, CG(48, 520, it=True),
+                                         cxl, y1 - SAFE - 60, LGOLD))
+
+    cover = _shadowed_type(cover, draw_fns)
+    img.paste(cover, (OUTSIDE_FOLD, 0))
+    # fine light-gold keyline frame inside the visible safe area
+    d.rectangle([x0 + SPINE, y0 + SAFE, x1 - SAFE, y1 - SAFE],
+                outline=LGOLD, width=2)
 
 
 def _draw_back(d, accent):

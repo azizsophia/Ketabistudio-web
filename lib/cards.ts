@@ -247,6 +247,37 @@ export const RELATIONSHIPS: RelationshipCard[] = [
 
 export const CARD_ITEMS: CardItem[] = [...OCCASIONS, ...RELATIONSHIPS];
 
+// Per-card colour options. The FIRST hex of each list is the card's default
+// (matches `color` above and the rendered gallery preview). Every value is a
+// muted, print-safe sRGB tone that holds in CMYK, so it always prints true and
+// keeps the ivory + gold type legible. Baby offers Sky / Rose / Sage so it
+// suits a boy, a girl, or neither.
+export interface ColorOption {
+  name: string;
+  hex: string;
+}
+export const CARD_COLORS: Record<string, ColorOption[]> = {
+  eid: [{ name: "Emerald", hex: "#1f6b5a" }, { name: "Midnight", hex: "#1f3a54" }],
+  nikah: [{ name: "Rose", hex: "#a85c63" }, { name: "Plum", hex: "#6e4257" }],
+  baby: [
+    { name: "Sky", hex: "#5a86a8" },
+    { name: "Rose", hex: "#b07084" },
+    { name: "Sage", hex: "#6f8a5c" },
+  ],
+  ramadan: [{ name: "Midnight", hex: "#1f3a54" }, { name: "Amethyst", hex: "#3c3461" }],
+  birthday: [{ name: "Terracotta", hex: "#b35c3c" }, { name: "Teal", hex: "#2f6f63" }],
+  thanks: [{ name: "Brass", hex: "#a07f4a" }, { name: "Eucalyptus", hex: "#4f6b5e" }],
+  getwell: [{ name: "Sage", hex: "#6f8a5c" }, { name: "Teal", hex: "#3f6e74" }],
+  wife: [{ name: "Rose", hex: "#a85c63" }, { name: "Plum", hex: "#6e4257" }],
+  husband: [{ name: "Teal", hex: "#1f4f54" }, { name: "Forest", hex: "#2f4a3a" }],
+  mum: [{ name: "Plum", hex: "#6e4257" }, { name: "Chestnut", hex: "#7a4a3a" }],
+  dad: [{ name: "Forest", hex: "#2f5a40" }, { name: "Slate", hex: "#2f4a5a" }],
+  friend: [{ name: "Amber", hex: "#a87a3c" }, { name: "Eucalyptus", hex: "#4f6b5e" }],
+};
+export function cardColors(id: string): ColorOption[] {
+  return CARD_COLORS[id] || [{ name: "Default", hex: findCard(id).color }];
+}
+
 export const PAPERS: Paper[] = [
   {
     id: "mohawk",

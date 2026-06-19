@@ -1,5 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { COLLECTIONS, PAPERS, CARD_ITEMS, CARD_MESSAGE_MAX } from "@/lib/cards";
+import {
+  COLLECTIONS,
+  PAPERS,
+  CARD_ITEMS,
+  CARD_MESSAGE_MAX,
+  cardColors,
+  findCard,
+} from "@/lib/cards";
 
 const SB = process.env.SUPABASE_URL?.replace(/\s/g, "").replace(/\/$/, "");
 const KEY = process.env.SUPABASE_SERVICE_KEY?.replace(/\s/g, "");
@@ -85,11 +92,17 @@ export async function POST(req: NextRequest) {
     state: (ship.state || "").trim().toUpperCase() || undefined,
   };
 
+  /* accent must be one of the card's vetted, print-safe colours (never an
+     arbitrary hex), so it always prints true. Fall back to the card default. */
+  const accentRaw = String(body.accent || "").trim().toLowerCase();
+  const allowed = new Set(cardColors(itemId).map((c) => c.hex.toLowerCase()));
+  const accent = allowed.has(accentRaw) ? accentRaw : findCard(itemId).color;
+
   /* design fields */
   const row = {
     collection,
     item_id: itemId,
-    accent: String(body.accent || "").trim() || null,
+    accent,
     recipient_name: String(body.recipient_name || "").trim() || null,
     show_name: !!body.show_name,
     custom_front: String(body.custom_front || "").trim() || null,
