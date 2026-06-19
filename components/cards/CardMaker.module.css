@@ -324,9 +324,9 @@
   inset: 0;
   background: linear-gradient(
     to top,
-    rgba(20, 17, 14, 0.78) 0%,
-    rgba(20, 17, 14, 0.42) 28%,
-    rgba(20, 17, 14, 0) 52%
+    rgba(20, 17, 14, 0.85) 0%,
+    rgba(20, 17, 14, 0.55) 30%,
+    rgba(20, 17, 14, 0) 60%
   );
 }
 .photoType {

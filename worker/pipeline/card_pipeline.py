@@ -141,7 +141,8 @@ def _draw_front_photo(img, d, accent, slots, photo):
     # full-bleed photo box: fold (no bleed) -> into the gutter, top->bottom edge
     bw, bh = GUTTER_MID - OUTSIDE_FOLD, ARTBOARD_H
     cover = _cover_fit(photo, bw, bh)
-    cover = _bottom_scrim(cover, frac=0.58, max_alpha=180)
+    # strong, tall bottom scrim so the type stays legible over any photo
+    cover = _bottom_scrim(cover, frac=0.66, max_alpha=215)
     img.paste(cover, (OUTSIDE_FOLD, 0))
     # fine light-gold keyline frame inside the visible safe area
     fx0 = x0 + SPINE
@@ -149,34 +150,40 @@ def _draw_front_photo(img, d, accent, slots, photo):
     d.rectangle([fx0, y0 + SAFE, fx1, y1 - SAFE], outline=LGOLD, width=2)
     maxw = fx1 - fx0 - 60
 
-    # type stack, bottom-anchored over the scrim
-    foot = slots.get("foot")
-    yfoot = y1 - SAFE - 96
-    if foot:
-        ctext(d, foot, CG(48, 520, it=True), cx, yfoot, LGOLD)
-
-    y = y0 + int((y1 - y0) * 0.50)
-    ls(d, slots["eyebrow"].upper(), PF(34, 500), cx, y, LGOLD, 8)
-    y += 96
+    # Build the type stack, then BOTTOM-anchor it so it sits in the dark zone of
+    # the scrim (not over the bright middle of the photo).
+    segs = []
+    segs.append((lambda yy: ls(d, slots["eyebrow"].upper(), PF(34, 500),
+                               cx, yy, LGOLD, 8), 40, 86))
     if slots["bigArabic"]:
         shaped = reshape(slots["bigText"])
         afo, asz = _fit_ar(d, shaped, maxw, 140)
-        ctext(d, shaped, afo, cx, y, IVORY)
-        y += asz + 70
+        segs.append((lambda yy, f=afo, t=shaped: ctext(d, t, f, cx, yy, IVORY),
+                     int(asz * 1.1), 48))
         if slots["translit"]:
-            ctext(d, slots["translit"], CG(50, 520, it=True), cx, y, LGOLD)
-            y += 96
+            segs.append((lambda yy: ctext(d, slots["translit"],
+                         CG(50, 520, it=True), cx, yy, LGOLD), 56, 70))
     else:
         fo, sz = _fit_one(d, slots["bigText"], lambda z: PF(z, 500),
                           maxw, 124, 60)
-        ctext(d, slots["bigText"], fo, cx, y, IVORY)
-        y += sz + 56
-    _hairline(d, cx, y, 130, LGOLD, 2)
-    y += 78
+        segs.append((lambda yy, f=fo, t=slots["bigText"]:
+                     ctext(d, t, f, cx, yy, IVORY), sz, 56))
+    segs.append((lambda yy: _hairline(d, cx, yy, 130, LGOLD, 2), 2, 70))
     if slots.get("line2"):
         fo, sz = _fit_one(d, slots["line2"], lambda z: CG(z, 540, it=True),
                           maxw + 20, 80, 46)
-        ctext(d, slots["line2"], fo, cx, y, IVORY)
+        segs.append((lambda yy, f=fo, t=slots["line2"]:
+                     ctext(d, t, f, cx, yy, IVORY), sz, 0))
+
+    foot = slots.get("foot")
+    block_h = sum(h for _, h, _ in segs) + sum(g for *_, g in segs[:-1])
+    bottom = (y1 - SAFE - 130) if foot else (y1 - SAFE - 60)
+    y = bottom - block_h
+    for draw, h, gap in segs:
+        draw(y)
+        y += h + gap
+    if foot:
+        ctext(d, foot, CG(48, 520, it=True), cx, y1 - SAFE - 60, LGOLD)
 
 
 def _draw_back(d, accent):
