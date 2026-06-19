@@ -57,12 +57,12 @@ export async function GET(req: NextRequest) {
     ? ((catJson as Record<string, unknown>).data as Record<string, unknown>[])
     : [];
   const override = req.nextUrl.searchParams.get("catalog");
+  // Prefer the folded greeting-card catalogs (NOT business-cards).
+  const preferred = ["folded-cards", "cards-us", "cards", "cards-eu"];
   const cardCat =
     override ||
-    (catList.find((c) =>
-      `${c.catalogUid ?? ""}${c.title ?? ""}`.toLowerCase().includes("card")
-    )?.catalogUid as string) ||
-    "cards";
+    preferred.find((p) => catList.some((c) => c.catalogUid === p)) ||
+    "folded-cards";
 
   // 2) products in that catalog
   const prods = await gx("POST", `${PRODUCT}/v3/catalogs/${cardCat}/products:search`, {
@@ -74,9 +74,10 @@ export async function GET(req: NextRequest) {
     (prodJson?.data as Record<string, unknown>[]) ||
     [];
   const uids = products.map((p) => String(p.productUid || ""));
-  const folded = uids.filter((u) => /5x7|5r7|7x5|7r5|fold/i.test(u));
+  // 5x7" tokens Gelato uses can be 5r7 / 5x7 / 130x180mm etc.
+  const folded = uids.filter((u) => /5r7|5x7|7r5|7x5|130x180|180x130/i.test(u));
 
-  // 3) inspect a target product (query uid, else first folded, else first)
+  // 3) inspect a target product (query uid, else first 5x7, else first)
   const target =
     req.nextUrl.searchParams.get("uid") || folded[0] || uids[0] || null;
 
