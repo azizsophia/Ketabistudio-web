@@ -66,7 +66,7 @@ def list_products():
 
 
 def product_info(product_ref: str):
-    return _post("/products/info/", {"product": product_ref})
+    return _post("/products/info/", {"reference": product_ref})
 
 
 # ── quotes & orders ─────────────────────────────────────────────────

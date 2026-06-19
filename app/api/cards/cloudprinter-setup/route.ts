@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
   // ?info=<product> — product detail (dimensions, file/template requirements)
   const infoRef = req.nextUrl.searchParams.get("info");
   if (infoRef) {
-    const info = await cp("/products/info/", { product: infoRef });
+    const info = await cp("/products/info/", { reference: infoRef });
     return NextResponse.json({ product: infoRef, status: info.status, info: info.json });
   }
 
