@@ -57,8 +57,9 @@ export async function GET(req: NextRequest) {
     ? ((catJson as Record<string, unknown>).data as Record<string, unknown>[])
     : [];
   const override = req.nextUrl.searchParams.get("catalog");
-  // Prefer the folded greeting-card catalogs (NOT business-cards).
-  const preferred = ["folded-cards", "cards-us", "cards", "cards-eu"];
+  // Greeting cards live in the cards-us / cards-eu / cards catalogs.
+  // (folded-cards = brochures; business-cards = business cards — both wrong.)
+  const preferred = ["cards-us", "cards", "cards-eu"];
   const cardCat =
     override ||
     preferred.find((p) => catList.some((c) => c.catalogUid === p)) ||
