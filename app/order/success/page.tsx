@@ -30,7 +30,7 @@ export default async function SuccessPage({
         ✓
       </div>
       <h1 style={{ fontFamily: "var(--font-display), Georgia, serif", color: "var(--forest)", fontSize: "1.9rem", marginBottom: 12 }}>
-        Payment received — thank you
+        Payment received, thank you
       </h1>
       <p style={{ color: "var(--muted)", fontSize: "1rem", lineHeight: 1.6, marginBottom: 8 }}>
         Your book is being made now. We review every single book by hand
@@ -38,7 +38,7 @@ export default async function SuccessPage({
         get an email when it ships.
       </p>
       <p style={{ color: "var(--sage)", fontWeight: 600, fontSize: "0.9rem", marginBottom: 28 }}>
-        Checked by hand before it ships — guaranteed right.
+        Checked by hand before it ships, guaranteed right.
       </p>
       {shortId && (
         <p style={{ fontFamily: "monospace", color: "var(--muted)", fontSize: "0.85rem", marginBottom: 28 }}>

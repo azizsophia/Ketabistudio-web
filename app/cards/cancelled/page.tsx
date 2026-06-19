@@ -34,7 +34,7 @@ export default async function CardCancelledPage({
         Payment cancelled
       </h1>
       <p style={{ color: "var(--muted)", fontSize: "1rem", lineHeight: 1.6, marginBottom: 28 }}>
-        No worries — your card wasn&rsquo;t charged. Your design is safe; you
+        No worries, your card wasn&rsquo;t charged. Your design is safe, and you
         can pick up right where you left off whenever you&rsquo;re ready.
       </p>
       {shortId && (

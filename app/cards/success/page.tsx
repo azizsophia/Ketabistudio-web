@@ -30,16 +30,11 @@ export default async function CardSuccessPage({
         ✓
       </div>
       <h1 style={{ fontFamily: "var(--font-display), Georgia, serif", color: "var(--forest)", fontSize: "1.9rem", marginBottom: 12 }}>
-        Payment received — thank you
+        Payment received, thank you
       </h1>
-      <p style={{ color: "var(--muted)", fontSize: "1rem", lineHeight: 1.6, marginBottom: 8 }}>
-        Your card is being printed and will be posted directly to your
-        recipient in a kraft envelope — blind and white-label, with no Ketabi
-        invoice and zero printer branding. It simply arrives, beautifully,
-        from you.
-      </p>
-      <p style={{ color: "var(--sage)", fontWeight: 600, fontSize: "0.9rem", marginBottom: 28 }}>
-        Printed to order and delivered direct.
+      <p style={{ color: "var(--muted)", fontSize: "1rem", lineHeight: 1.6, marginBottom: 28 }}>
+        Your card is being printed and posted straight to your recipient. It
+        arrives beautifully, from you, Inshallah.
       </p>
       {shortId && (
         <p style={{ fontFamily: "monospace", color: "var(--muted)", fontSize: "0.85rem", marginBottom: 28 }}>

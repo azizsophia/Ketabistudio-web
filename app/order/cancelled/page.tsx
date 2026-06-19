@@ -9,8 +9,8 @@ export default function CancelledPage() {
         Checkout cancelled
       </h1>
       <p style={{ color: "var(--muted)", fontSize: "1rem", lineHeight: 1.6, marginBottom: 28 }}>
-        No payment was taken. Your book design is safe — head back to
-        the book and you can pick up right where you left off.
+        No payment was taken. Your book design is safe. Head back to the
+        book and you can pick up right where you left off.
       </p>
       <Link href="/books/her-beautiful-hijab" className="btn btn-primary">
         Return to the book
