@@ -37,14 +37,19 @@ async function px(method: string, path: string, body?: unknown) {
 }
 
 async function quoteSku(sku: string) {
-  // try a couple of print-area shapes so a quote isn't rejected outright
-  const attempts = [
-    [{ printArea: "default" }],
-    [{ printArea: "outside" }, { printArea: "inside" }],
-  ];
-  for (const assets of attempts) {
+  // 1) validate the SKU + read its real print areas
+  const prod = await px("GET", `/products/${encodeURIComponent(sku)}`);
+  if (!prod.ok) {
+    return { sku, valid: false, productLookup: prod.status, detail: prod.json };
+  }
+  const product = (prod.json as Record<string, unknown>)?.product as Record<string, unknown>;
+  const areas = Object.keys((product?.printAreas as Record<string, unknown>) || {});
+  const assets = areas.length ? areas.map((a) => ({ printArea: a })) : [{ printArea: "default" }];
+
+  // 2) quote to the US, trying real shipping methods; return the first success
+  for (const m of ["Standard", "Budget", "Express", "Overnight"]) {
     const q = await px("POST", "/quotes", {
-      shippingMethod: "Budget",
+      shippingMethod: m,
       destinationCountryCode: "US",
       items: [{ sku, copies: 1, attributes: {}, assets }],
     });
@@ -58,17 +63,17 @@ async function quoteSku(sku: string) {
         (shipments[0]?.fulfillmentLocation as Record<string, string>) || null;
       return {
         sku,
+        valid: true,
+        method: m,
+        printAreas: areas,
         items: cs.items?.amount,
         shipping: cs.shipping?.amount,
         currency: cs.items?.currency || cs.shipping?.currency,
         madeIn: loc?.countryCode || loc?.labCode || "unknown",
       };
     }
-    if (q.status !== 400) {
-      return { sku, error: `${q.status}`, detail: q.json };
-    }
   }
-  return { sku, error: "could not quote (400 on both asset shapes)" };
+  return { sku, valid: true, printAreas: areas, note: "valid SKU but no US quote returned (NotAvailable)" };
 }
 
 export async function GET(req: NextRequest) {
