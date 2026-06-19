@@ -17,7 +17,10 @@ import os
 
 import requests
 
-CARD_SKU = "GLOBAL-GRE-FAP-A6"
+# The greeting-card product SKU. Override via PRODIGI_CARD_SKU once you copy the
+# exact SKU from your Prodigi product catalogue (the default below is a
+# placeholder and will fail with SkuNotFound until set).
+CARD_SKU = (os.environ.get("PRODIGI_CARD_SKU") or "GLOBAL-GRE-FAP-A6").strip()
 
 
 def _base_url() -> str:
@@ -115,17 +118,10 @@ def create_order(
         countryCode, townOrCity, stateOrCounty? } }
     assets: list of { "printArea": "outside"|"inside", "url": <public url> }
     """
-    # Branded packing slip (PDF hosted on the site). Falls back to white-label
-    # (no slip) if neither PACKING_SLIP_URL nor SITE_URL is configured.
-    site = "".join(os.environ.get("SITE_URL", "").split()).rstrip("/")
-    slip_url = os.environ.get("PACKING_SLIP_URL") or (
-        f"{site}/packing-slip.pdf" if site else None
-    )
     body = {
         "merchantReference": merchant_reference,
         "shippingMethod": shipping_method,
         "recipient": recipient,
-        "packingSlip": {"url": slip_url},
         "items": [
             {
                 "merchantReference": merchant_reference,
@@ -138,6 +134,12 @@ def create_order(
             }
         ],
     }
+    # Optional custom packing slip. Only include it if a real URL is set —
+    # Prodigi rejects packingSlip.url=null. With it omitted, the parcel ships
+    # white-label (blind) by default, which is what we want.
+    slip_url = "".join(os.environ.get("PACKING_SLIP_URL", "").split())
+    if slip_url:
+        body["packingSlip"] = {"url": slip_url}
     return _request("POST", "/orders", body)
 
 
