@@ -111,7 +111,7 @@ def create_order(reference: str, email: str, address: dict, file_url: str,
         "email": email,
         "addresses": [addr],
         "items": [{
-            "reference": reference,
+            "reference": "card",  # MUST match the quote item reference
             "product": product or CARD_PRODUCT,
             "count": str(count),
             "files": [{
