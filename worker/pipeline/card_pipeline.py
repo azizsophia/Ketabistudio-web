@@ -224,13 +224,17 @@ def _draw_inside(d, box, accent, message, dua, sign_off=""):
     dfo = CG(50, 520, it=True)
     dua_lines = wrap(d, dua, dfo, maxw) if dua else []
     dlh = 76
+    sign = (sign_off or "").strip()
+    sign_gap, sign_h = (96, 56) if sign else (0, 0)
     msg_h = len(lines) * lh
     rgap_t, rgap_b = 64, 78
     dua_h = (rgap_t + 2 + rgap_b + len(dua_lines) * dlh) if dua_lines else 0
-    block_h = msg_h + dua_h
+    block_h = msg_h + dua_h + sign_gap + sign_h
 
+    # centre the WHOLE block (message + dua + signature) so the signature sits
+    # just below the dua, not stranded at the bottom with empty space above it.
     top = y0 + inner
-    bottom = (y1 - inner - 150) if sign_off else (y1 - inner)
+    bottom = y1 - inner
     y = top + max(0, (bottom - top - block_h) // 2)
     for ln in lines:
         ctext(d, ln, mfo, cx, y, INK)
@@ -242,8 +246,9 @@ def _draw_inside(d, box, accent, message, dua, sign_off=""):
         for ln in dua_lines:
             ctext(d, ln, dfo, cx, y, ESPRESSO)
             y += dlh
-    if sign_off:
-        ctext(d, sign_off, CG(52, 520, it=True), cx, y1 - inner - 110, STONE)
+    if sign:
+        y += sign_gap
+        ctext(d, sign, CG(52, 520, it=True), cx, y, STONE)
 
 
 def _front(img, d, box, fill_box, accent, slots, photo):
