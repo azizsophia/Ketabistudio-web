@@ -30,9 +30,9 @@ CARD_ENVELOPE = (os.environ.get("CLOUDPRINTER_ENVELOPE")
                  or "envelope_standard").strip()
 
 
-def _card_options():
+def _card_options(count: int = 1):
     if CARD_ENVELOPE and CARD_ENVELOPE.lower() not in ("none", "envelope_none", ""):
-        return [{"option_reference": CARD_ENVELOPE}]
+        return [{"option_reference": CARD_ENVELOPE, "count": str(count)}]
     return []
 
 _LAST_ERROR = None
@@ -92,7 +92,7 @@ def quote(country: str, count: int = 1, product: str = None, options=None,
             "reference": "card",
             "product": product or CARD_PRODUCT,
             "count": str(count),
-            "options": _card_options() if options is None else options,
+            "options": _card_options(count) if options is None else options,
         }],
     }
     if state:
@@ -119,7 +119,7 @@ def create_order(reference: str, email: str, address: dict, file_url: str,
                 "url": file_url,
                 "md5sum": md5sum,
             }],
-            "options": _card_options(),
+            "options": _card_options(count),
             "quote": quote_hash,
         }],
     }
