@@ -62,6 +62,7 @@ export default function CardMaker() {
   const [state, setState] = useState("");
   const [postcode, setPostcode] = useState("");
   const [country, setCountry] = useState("US");
+  const [phone, setPhone] = useState("");
 
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -124,6 +125,9 @@ export default function CardMaker() {
     if (!name.trim() || !line1.trim() || !city.trim() || !postcode.trim()) {
       return setError("Please complete the delivery address.");
     }
+    if (!phone.trim() || phone.replace(/\D/g, "").length < 7) {
+      return setError("Please enter a phone number (the courier requires one for delivery).");
+    }
     setSubmitting(true);
     try {
       const r = await fetch("/api/cards/order", {
@@ -144,6 +148,7 @@ export default function CardMaker() {
             state: state.trim(),
             postcode: postcode.trim(),
             country_code: country,
+            phone: phone.trim(),
           },
         }),
       });
@@ -381,6 +386,12 @@ export default function CardMaker() {
                 <option key={c.code} value={c.code}>{c.name}</option>
               ))}
             </select>
+          </div>
+          <div className={styles.fieldFull}>
+            <label className={styles.label} htmlFor="phone">Phone (required by the courier)</label>
+            <input id="phone" className={styles.input} type="tel"
+              placeholder="e.g. 650 555 0123" autoComplete="tel"
+              value={phone} onChange={(e) => setPhone(e.target.value)} />
           </div>
           <div className={styles.fieldFull}>
             <label className={styles.label} htmlFor="rname">Recipient&apos;s name</label>

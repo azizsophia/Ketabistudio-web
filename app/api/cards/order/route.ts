@@ -81,6 +81,13 @@ export async function POST(req: NextRequest) {
       { status: 400 }
     );
   }
+  // The US printer (Cloudprinter) requires a phone for delivery.
+  if (!ship.phone?.trim() || ship.phone.replace(/\D/g, "").length < 7) {
+    return NextResponse.json(
+      { error: "a valid phone number is required" },
+      { status: 400 }
+    );
+  }
 
   const shipping = {
     name: ship.name.trim(),
@@ -90,6 +97,7 @@ export async function POST(req: NextRequest) {
     postcode: ship.postcode.trim(),
     country_code: country,
     state: (ship.state || "").trim().toUpperCase() || undefined,
+    phone: ship.phone.trim(),
   };
 
   /* accent must be one of the card's vetted, print-safe colours (never an
