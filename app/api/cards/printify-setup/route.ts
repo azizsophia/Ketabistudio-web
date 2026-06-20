@@ -57,17 +57,17 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ step: "blueprints", status: bpReq.status, body: bpReq.json });
   }
   const blueprints = (bpReq.json as Record<string, unknown>[]) || [];
+  const allCards = blueprints
+    .filter((b) => /card|greeting|fold/i.test(String(b.title)))
+    .map((b) => ({ id: b.id, title: b.title }));
   const wantId = req.nextUrl.searchParams.get("blueprint");
   const card = wantId
     ? blueprints.find((b) => String(b.id) === wantId)
     : blueprints.find((b) =>
-        /fold/i.test(String(b.title)) && /card|greeting/i.test(String(b.title))
+        /fold/i.test(String(b.title))
       ) || blueprints.find((b) => /greeting card/i.test(String(b.title)));
   if (!card) {
-    const cards = blueprints
-      .filter((b) => /card|greeting/i.test(String(b.title)))
-      .map((b) => ({ id: b.id, title: b.title }));
-    return NextResponse.json({ note: "no folded card auto-found; pick one with ?blueprint=", cardCandidates: cards });
+    return NextResponse.json({ note: "pick one with ?blueprint=<id>", allCards });
   }
 
   // 2) print providers + 3) US shipping for each
@@ -96,5 +96,6 @@ export async function GET(req: NextRequest) {
     blueprint: { id: card.id, title: card.title },
     providers: out,
     samplePlaceholders: placeholders,
+    allCards,
   });
 }
