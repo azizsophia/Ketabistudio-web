@@ -183,8 +183,8 @@ export default function CardMaker() {
           <p className={styles.stepLabel}>Step 1 of 3</p>
           <h1 className={styles.heading}>Choose a card</h1>
           <p className={styles.sub}>
-            Each card carries a vetted Arabic word and a dua, printed on thick
-            324gsm fine paper and posted directly to whoever you choose.
+            Personalize it in a minute. We print it on premium matte card and
+            mail it straight to your loved one, anywhere in the world.
           </p>
 
           <h2 className={styles.groupTitle}>For an occasion</h2>
@@ -368,7 +368,8 @@ export default function CardMaker() {
         <p className={styles.stepLabel}>Step 3 of 3</p>
         <h1 className={styles.heading}>Where should we send it?</h1>
         <p className={styles.sub}>
-          We print your card and post it directly to the recipient, worldwide.
+          We print and post it directly to them, worldwide. You never touch a
+          printer or a stamp.
         </p>
 
         <div className={styles.formGrid}>
@@ -437,7 +438,7 @@ export default function CardMaker() {
             <span>{CARD_PRICE_DISPLAY}</span>
           </div>
           <p className={styles.priceNote}>
-            Thick 324gsm fine paper · posted directly to the recipient.
+            Premium matte card · printed to order · delivery included.
           </p>
         </div>
 
