@@ -65,6 +65,41 @@ SB = "".join(os.environ["SUPABASE_URL"].split()).rstrip("/")
 KEY = "".join(os.environ["SUPABASE_SERVICE_KEY"].split())
 HDRS = {"Authorization": f"Bearer {KEY}", "apikey": KEY,
         "Content-Type": "application/json"}
+STRIPE_KEY = "".join(os.environ.get("STRIPE_SECRET_KEY", "").split())
+
+
+def _refund_card(order, reason=""):
+    """Refund the customer's Stripe payment for a card order that can't be
+    fulfilled, so a failed print never charges them. Idempotent enough: a
+    second attempt on an already-refunded intent just logs Stripe's error."""
+    oid = order.get("id")
+    pi = (order.get("stripe_payment_intent") or "").strip()
+    if not pi:
+        try:
+            pi = (json.loads(order.get("notes") or "{}")
+                  .get("stripe_payment_intent") or "").strip()
+        except Exception:  # noqa: BLE001
+            pi = ""
+    if not STRIPE_KEY or not pi:
+        print(f"[card {oid}] refund skipped (no Stripe key or payment intent)",
+              flush=True)
+        return False
+    try:
+        r = requests.post(
+            "https://api.stripe.com/v1/refunds",
+            auth=(STRIPE_KEY, ""),
+            data={"payment_intent": pi, "reason": "requested_by_customer"},
+            timeout=30)
+    except Exception as e:  # noqa: BLE001
+        print(f"[card {oid}] refund error: {e}", flush=True)
+        return False
+    if r.ok:
+        log_card_event(oid, "refunded", {"payment_intent": pi, "why": reason})
+        print(f"[card {oid}] refunded {pi}", flush=True)
+        return True
+    print(f"[card {oid}] refund failed: {r.status_code} {r.text[:200]}",
+          flush=True)
+    return False
 
 # Prodigi artboard for GLOBAL-GRE-MOH-7X5: all four panels stitched, @ 300 DPI.
 RENDER_W = 6117
@@ -266,6 +301,7 @@ def _submit_cloudprinter(oid, order, card, workdir, common, country):
                 f"to {country}")
         set_card_status(oid, "held", notes=json.dumps({"hold": note, "quote": best}))
         print(f"[card {oid}] HELD, NOT ordered — {note}", flush=True)
+        _refund_card(order, "cost over cap")
         return
 
     resp = cloudprinter_client.create_order(
@@ -345,6 +381,7 @@ def process_card(order):
             set_card_status(oid, "held",
                             notes=json.dumps({"hold": note, "quote": best}))
             print(f"[card {oid}] HELD, NOT ordered — {note}", flush=True)
+            _refund_card(order, "cost over cap")
             return
 
         print_area = prodigi_client.first_print_area()
@@ -377,6 +414,12 @@ def process_card(order):
                             notes=json.dumps({"failure": err}))
         except Exception:  # noqa: BLE001
             pass
+        # the customer already paid — refund automatically so a failed print
+        # never charges them for a card they won't receive.
+        try:
+            _refund_card(order, "card print failed")
+        except Exception:  # noqa: BLE001
+            traceback.print_exc()
         traceback.print_exc()
 
 
