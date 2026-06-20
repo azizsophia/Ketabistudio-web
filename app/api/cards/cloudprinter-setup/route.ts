@@ -39,6 +39,56 @@ export async function GET(req: NextRequest) {
     );
   }
 
+  // ?compare=US — price several paper/finish upgrades at once (with envelope),
+  // and reveal which are available at the US facility.
+  const compareCC = req.nextUrl.searchParams.get("compare");
+  if (compareCC) {
+    const product = "card_folded_us_500x700_p_double_fc_tnr";
+    const state = req.nextUrl.searchParams.get("state") || "NY";
+    const combos: { label: string; refs: string[] }[] = [
+      { label: "250gsm gloss board (current default)", refs: [] },
+      { label: "270gsm smooth white + no finish", refs: ["paper_smooth_white_270", "product_finish_none"] },
+      { label: "300gsm silk + matte", refs: ["paper_300mcs", "product_finish_matte"] },
+      { label: "330gsm silk + matte", refs: ["paper_330mcs", "product_finish_matte"] },
+      { label: "350gsm silk + matte", refs: ["paper_350scb", "product_finish_matte"] },
+      { label: "350gsm silk + soft touch", refs: ["paper_350scb", "product_finish_soft_touch_front"] },
+      { label: "400gsm silk + matte", refs: ["paper_400scb", "product_finish_matte"] },
+    ];
+    const results: Record<string, unknown>[] = [];
+    for (const c of combos) {
+      const options = [
+        { option_reference: "envelope_standard", count: "1" },
+        ...c.refs.map((r) => ({ option_reference: r, count: "1" })),
+      ];
+      const q = await cp("/orders/quote/", {
+        country: compareCC, state,
+        items: [{ reference: "card", product, count: "1", options }],
+      });
+      const j = (q.json || {}) as Record<string, unknown>;
+      if (!q.ok) {
+        const err = (j.error as Record<string, string>) || {};
+        results.push({ label: c.label, available: false, reason: err.info || err.type || `HTTP ${q.status}` });
+        continue;
+      }
+      const prod = parseFloat(String(j.price || "0"));
+      let ship = Infinity;
+      for (const s of ((j.shipments as Record<string, unknown>[]) || [])) {
+        for (const qq of ((s.quotes as Record<string, string>[]) || [])) {
+          ship = Math.min(ship, parseFloat(String(qq.price || "0")));
+        }
+      }
+      if (!isFinite(ship)) ship = 0;
+      const total = prod + ship;
+      results.push({
+        label: c.label, available: true,
+        currency: j.currency || "EUR",
+        card: prod.toFixed(2), shipping: ship.toFixed(2),
+        total: total.toFixed(2), approxUSD: (total * 1.1).toFixed(2),
+      });
+    }
+    return NextResponse.json({ destination: compareCC, results });
+  }
+
   // ?info=<product> — product detail (dimensions, file/template requirements)
   const infoRef = req.nextUrl.searchParams.get("info");
   if (infoRef) {
