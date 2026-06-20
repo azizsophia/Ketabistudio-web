@@ -26,14 +26,23 @@ CARD_FILE_TYPE = (os.environ.get("CLOUDPRINTER_FILE_TYPE") or "product").strip()
 
 # Include an envelope by default (a greeting card should ship with one). Set
 # CLOUDPRINTER_ENVELOPE="none" to drop it.
+# Premium card build (US): heavier 330gsm matte silk + standard envelope.
+# All confirmed available at the US facility. Override any via env; set to
+# "none" to drop. The quote AND the order use these same options (or the
+# Cloudprinter quote hash won't validate).
 CARD_ENVELOPE = (os.environ.get("CLOUDPRINTER_ENVELOPE")
                  or "envelope_standard").strip()
+CARD_PAPER = (os.environ.get("CLOUDPRINTER_PAPER") or "paper_330mcs").strip()
+CARD_FINISH = (os.environ.get("CLOUDPRINTER_FINISH")
+               or "product_finish_matte").strip()
 
 
 def _card_options(count: int = 1):
-    if CARD_ENVELOPE and CARD_ENVELOPE.lower() not in ("none", "envelope_none", ""):
-        return [{"option_reference": CARD_ENVELOPE, "count": str(count)}]
-    return []
+    opts = []
+    for ref in (CARD_ENVELOPE, CARD_PAPER, CARD_FINISH):
+        if ref and ref.lower() not in ("none", "", "envelope_none"):
+            opts.append({"option_reference": ref, "count": str(count)})
+    return opts
 
 _LAST_ERROR = None
 
