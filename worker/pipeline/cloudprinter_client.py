@@ -24,6 +24,17 @@ CARD_PRODUCT = (os.environ.get("CLOUDPRINTER_CARD_PRODUCT")
                 or "card_folded_us_500x700_p_double_fc_tnr").strip()
 CARD_FILE_TYPE = (os.environ.get("CLOUDPRINTER_FILE_TYPE") or "product").strip()
 
+# Include an envelope by default (a greeting card should ship with one). Set
+# CLOUDPRINTER_ENVELOPE="none" to drop it.
+CARD_ENVELOPE = (os.environ.get("CLOUDPRINTER_ENVELOPE")
+                 or "envelope_standard").strip()
+
+
+def _card_options():
+    if CARD_ENVELOPE and CARD_ENVELOPE.lower() not in ("none", "envelope_none", ""):
+        return [{"reference": CARD_ENVELOPE}]
+    return []
+
 _LAST_ERROR = None
 
 
@@ -70,18 +81,23 @@ def product_info(product_ref: str):
 
 
 # ── quotes & orders ─────────────────────────────────────────────────
-def quote(country: str, count: int = 1, product: str = None, options=None):
+def quote(country: str, count: int = 1, product: str = None, options=None,
+          state: str = None):
     """POST /orders/quote/ — product + shipping prices for a destination.
-    Returns shipments[].quotes[] each with a `hash` to use on the order."""
-    return _post("/orders/quote/", {
+    Returns shipments[].quotes[] each with a `hash` to use on the order. The
+    item options (envelope) MUST match the order, or the quote hash is invalid."""
+    body = {
         "country": country,
         "items": [{
             "reference": "card",
             "product": product or CARD_PRODUCT,
             "count": str(count),
-            "options": options or [],
+            "options": _card_options() if options is None else options,
         }],
-    })
+    }
+    if state:
+        body["state"] = state
+    return _post("/orders/quote/", body)
 
 
 def create_order(reference: str, email: str, address: dict, file_url: str,
@@ -103,7 +119,7 @@ def create_order(reference: str, email: str, address: dict, file_url: str,
                 "url": file_url,
                 "md5sum": md5sum,
             }],
-            "options": [],
+            "options": _card_options(),
             "quote": quote_hash,
         }],
     }

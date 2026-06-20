@@ -52,13 +52,19 @@ export async function GET(req: NextRequest) {
     const product = req.nextUrl.searchParams.get("product") || "";
     const state =
       req.nextUrl.searchParams.get("state") || (quoteCC === "US" ? "NY" : "");
+    // include the envelope add-on by default so the price matches real orders
+    const env = req.nextUrl.searchParams.get("envelope");
+    const options =
+      env === "0" || env === "none"
+        ? []
+        : [{ reference: env || "envelope_standard" }];
     const body: Record<string, unknown> = {
       country: quoteCC,
-      items: [{ reference: "card", product, count: "1", options: [] }],
+      items: [{ reference: "card", product, count: "1", options }],
     };
     if (state) body.state = state;
     const q = await cp("/orders/quote/", body);
-    return NextResponse.json({ quotedProduct: product, state, status: q.status, quote: q.json });
+    return NextResponse.json({ quotedProduct: product, state, options, status: q.status, quote: q.json });
   }
 
   // default: list products, then recursively pull every {reference,name} no

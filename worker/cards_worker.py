@@ -238,7 +238,7 @@ def _submit_cloudprinter(oid, order, card, workdir, common, country):
        json={"outside_asset_url": public, "inside_asset_url": public})
 
     addr = _cloudprinter_address(order)
-    q = cloudprinter_client.quote(country, count=1, options=[])
+    q = cloudprinter_client.quote(country, count=1, state=addr.get("state") or None)
     if not q:
         raise RuntimeError(
             f"Cloudprinter quote failed for {country}: "
