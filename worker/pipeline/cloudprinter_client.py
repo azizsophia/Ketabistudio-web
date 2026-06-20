@@ -32,7 +32,7 @@ CARD_ENVELOPE = (os.environ.get("CLOUDPRINTER_ENVELOPE")
 
 def _card_options():
     if CARD_ENVELOPE and CARD_ENVELOPE.lower() not in ("none", "envelope_none", ""):
-        return [{"reference": CARD_ENVELOPE}]
+        return [{"option_reference": CARD_ENVELOPE}]
     return []
 
 _LAST_ERROR = None

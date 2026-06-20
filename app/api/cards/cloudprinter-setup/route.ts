@@ -57,7 +57,7 @@ export async function GET(req: NextRequest) {
     const options =
       env === "0" || env === "none"
         ? []
-        : [{ reference: env || "envelope_standard" }];
+        : [{ option_reference: env || "envelope_standard" }];
     const body: Record<string, unknown> = {
       country: quoteCC,
       items: [{ reference: "card", product, count: "1", options }],
