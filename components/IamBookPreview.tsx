@@ -18,7 +18,7 @@ export default function IamBookPreview({
     (async () => {
       try {
         if (!_tplCache) {
-          const r = await fetch("/iam/book-template.html", { cache: "force-cache" });
+          const r = await fetch("/api/iam/template", { cache: "no-store" });
           if (!r.ok) throw new Error("load failed");
           _tplCache = await r.text();
         }

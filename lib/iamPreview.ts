@@ -1,5 +1,5 @@
 // Build the live "this is exactly what you'll get" preview for the I Am book by
-// filling the SAME print template the worker renders (public/iam/book-template.html),
+// filling the SAME print template the worker renders (iam-templates/book-template.html,
 // so the on-screen flip-through matches the printed book. Token names, the rose
 // colourway swap, and the per-photo crop styles all mirror worker/pipeline/iam_book.py.
 

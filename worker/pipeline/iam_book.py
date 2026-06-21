@@ -22,15 +22,16 @@ from pathlib import Path
 
 DIR = None
 for _cand in (
-    "/public/iam",  # container: COPY public/iam /public/iam
-    str(Path(__file__).resolve().parents[2] / "public" / "iam"),  # local repo
-    str(Path(__file__).resolve().parent / "iam_book"),  # legacy fallback
+    "/iam-templates",  # container: COPY iam-templates /iam-templates
+    str(Path(__file__).resolve().parents[2] / "iam-templates"),  # local repo
+    "/public/iam",  # legacy
+    str(Path(__file__).resolve().parents[2] / "public" / "iam"),  # legacy
 ):
     if os.path.isdir(_cand):
         DIR = Path(_cand)
         break
 if DIR is None:  # last resort so import never crashes; render will error clearly
-    DIR = Path("/public/iam")
+    DIR = Path("/iam-templates")
 
 PRONOUNS = {
     "boy":  {"Subject": "He",  "subject": "he",  "object": "him", "possessive": "his"},
