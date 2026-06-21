@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ketabi · I Am [Child] · wraparound cover</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Baloo+Bhaijaan+2:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!--
+  ============================================================================
+  KETABI — "I Am [Child]"  ·  WRAPAROUND COVER (back + spine + front), one piece
+  ============================================================================
+  Lulu cover is a SINGLE file = back cover (left) + spine (centre) + front (right).
+
+  Square 8.5 x 8.5 in book, 32 pages:
+    Height (with bleed) .. 8.75 in
+    Front / back panels .. 8.5 in each (trim) ; full-bleed art runs to 8.75 in tall
+    Bleed ................ 0.125 in on top, bottom, and the two OUTER edges
+    Spine width .......... SET BY LULU from final page count + paper/binding.
+                           Placeholder here = {{SPINE_IN}} in (token). Get the exact
+                           value from Lulu's cover template for your binding, then
+                           replace --spine below. Keep spine text clear of the
+                           fold by ~0.0625 in each side.
+    Safe margin .......... keep text 0.5 in inside each panel's trim.
+    300 PPI, sRGB, fonts embedded.
+
+  Tokens: {{CHILD_NAME}}, {{CHILD_NAME_ARABIC}}, {{PHOTO_COVER}}, {{SPINE_IN}}
+  This preview scales 1 in = 80 px. For the real file, render each panel at 300 PPI.
+  ============================================================================
+-->
+<style>
+  :root{
+    --in:80px;                 /* preview scale: 1 inch = 80px */
+    --bleed:calc(0.125 * var(--in));
+    --panel:calc(8.5 * var(--in));
+    --tall:calc(8.75 * var(--in));
+    --spine:calc(0.25 * var(--in));   /* {{SPINE_IN}} — replace with Lulu's value */
+    --cream:#f7efe6; --teal:#a8596a; --teal-dk:#7e3f4e; --gold:#e6b94e; --terra:#9c6f7a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:#e7e2d8;font-family:'Plus Jakarta Sans',sans-serif;
+       min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px}
+  .cap{font:700 11px 'Plus Jakarta Sans';letter-spacing:.18em;text-transform:uppercase;color:#9a7b52;margin-bottom:14px;text-align:center}
+  .wrap{display:flex;height:var(--tall);box-shadow:0 30px 70px rgba(60,40,20,.30);background:var(--teal)}
+
+  .panel{height:100%;position:relative;overflow:hidden;container-type:inline-size}
+  .back{width:calc(var(--panel) + var(--bleed))}
+  .front{width:calc(var(--panel) + var(--bleed))}
+  .spine{width:var(--spine);background:var(--teal-dk);position:relative;display:flex;align-items:center;justify-content:center}
+
+  /* fold guide lines (screen only) */
+  .fold{position:absolute;top:0;bottom:0;width:0;border-left:1px dashed rgba(255,255,255,.28);z-index:5;pointer-events:none}
+
+  /* FRONT */
+  .front .inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;padding:7cqw 8cqw 6cqw;padding-right:calc(8cqw + var(--bleed))}
+  .arch{width:54%;aspect-ratio:3/4;border:0.7cqw solid var(--gold);border-radius:50% 50% 7% 7%/40% 40% 5% 5%;overflow:hidden;position:relative;background:var(--teal-dk)}
+  .arch img{width:100%;height:100%;object-fit:cover;display:block;background:#cdd4cf}
+  .kick{font:500 3cqw 'Plus Jakarta Sans';letter-spacing:.5cqw;text-transform:uppercase;white-space:nowrap;color:#e7c98c}
+
+  /* BACK */
+  .back .inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+               padding:12cqw 11cqw;padding-left:calc(11cqw + var(--bleed))}
+
+  /* SPINE */
+  .spine .txt{writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;display:flex;align-items:center;gap:18px;
+              font:600 9px 'Plus Jakarta Sans';letter-spacing:.18em;text-transform:uppercase;color:#fbf2dd}
+</style>
+</head>
+<body>
+  <div class="cap">Wraparound cover &nbsp;·&nbsp; back + spine + front &nbsp;·&nbsp; one Lulu cover file</div>
+  <div class="wrap">
+
+    <!-- ===== BACK COVER (left) ===== -->
+    <div class="panel back">
+      <div class="inner">
+        <svg width="11%" viewBox="0 0 40 40" style="margin-bottom:5cqw"><path d="M26,8 a14,14 0 1 0 6,28 a11,11 0 1 1 -6,-28 z" fill="#e6b94e"></path></svg>
+        <div style="font:400 4cqw 'Fraunces',serif;color:#fbf2dd;line-height:1.45">Twelve gentle reminders of the good character Allah placed in every child.</div>
+        <div style="font:400 2.7cqw 'Fraunces',serif;font-style:italic;color:#e7c6cd;line-height:1.5;margin-top:5cqw">A keepsake to read together, one page at a time.</div>
+        <div style="margin-top:auto;display:flex;flex-direction:column;align-items:center;gap:1.2cqw">
+          <div style="font:600 4.4cqw 'Baloo Bhaijaan 2',sans-serif;color:#fbf2dd">كِتابي</div>
+          <div style="font:600 2.1cqw 'Plus Jakarta Sans';letter-spacing:.5cqw;text-transform:uppercase;color:#bfae8a">Ketabi Studio</div>
+        </div>
+      </div>
+      <div class="fold" style="right:0"></div>
+    </div>
+
+    <!-- ===== SPINE ===== -->
+    <div class="panel spine">
+      <div class="txt"><span>I am {{CHILD_NAME}}</span><span style="color:#e6b94e">Ketabi</span></div>
+    </div>
+
+    <!-- ===== FRONT COVER (right) ===== -->
+    <div class="panel front">
+      <div class="fold" style="left:0"></div>
+      <div class="inner">
+        <div class="kick" style="margin-bottom:2.4cqw">A book about good character</div>
+        <div class="arch">
+          <img src="{{PHOTO_COVER}}" alt="">
+        </div>
+        <div class="kick" style="margin-top:5cqw">I am</div>
+        <div style="font:600 13cqw 'Fraunces',serif;line-height:.92;color:#fbf2dd;text-align:center;margin-top:.4cqw">{{CHILD_NAME}}</div>
+        <div style="font:600 5cqw 'Baloo Bhaijaan 2',sans-serif;color:var(--gold);margin-top:1.4cqw">{{CHILD_NAME_ARABIC}}</div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
