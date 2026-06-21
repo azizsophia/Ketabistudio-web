@@ -56,6 +56,19 @@ export function cropToBackground(crop: Crop): { size: string; position: string }
   return { size, position };
 }
 
+/** Inline <img> style that frames a Crop inside its (positioned) container —
+ *  MUST match the worker's _crop_style so the live preview equals the print. */
+export function cropToImageStyle(crop: Crop | null | undefined): string {
+  if (!crop) return "";
+  const { x, y, w, h } = crop;
+  if (!(w > 0) || !(h > 0)) return "";
+  const wp = 100 / w, hp = 100 / h, lp = -(x / w) * 100, tp = -(y / h) * 100;
+  return (
+    `position:absolute;left:${lp.toFixed(4)}%;top:${tp.toFixed(4)}%;` +
+    `width:${wp.toFixed(4)}%;height:${hp.toFixed(4)}%;max-width:none;object-fit:cover`
+  );
+}
+
 /** Shortest visible source edge in pixels — the resolution actually printed. */
 export function effectiveShortPx(crop: Crop, natW: number, natH: number): number {
   return Math.min(crop.w * natW, crop.h * natH);

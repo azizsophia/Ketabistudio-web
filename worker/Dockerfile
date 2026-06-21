@@ -9,4 +9,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN python -m playwright install --with-deps chromium
 COPY worker/ /app/
 COPY public/images /public/images
+# The "I Am [Child]" print templates are the SAME files the website renders for
+# the live preview (single source of truth), served from public/iam.
+COPY public/iam /public/iam
 CMD ["python", "worker.py"]

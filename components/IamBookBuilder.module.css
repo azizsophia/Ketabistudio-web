@@ -396,6 +396,10 @@
   line-height: 1.55;
   margin: 16px 0 0;
 }
+.previewBtn {
+  width: 100%;
+  margin-top: 18px;
+}
 
 /* ── delivery step ── */
 .formGrid {

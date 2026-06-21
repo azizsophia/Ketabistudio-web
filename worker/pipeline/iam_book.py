@@ -20,7 +20,17 @@ import os
 import re
 from pathlib import Path
 
-DIR = Path(__file__).resolve().parent / "iam_book"
+DIR = None
+for _cand in (
+    "/public/iam",  # container: COPY public/iam /public/iam
+    str(Path(__file__).resolve().parents[2] / "public" / "iam"),  # local repo
+    str(Path(__file__).resolve().parent / "iam_book"),  # legacy fallback
+):
+    if os.path.isdir(_cand):
+        DIR = Path(_cand)
+        break
+if DIR is None:  # last resort so import never crashes; render will error clearly
+    DIR = Path("/public/iam")
 
 PRONOUNS = {
     "boy":  {"Subject": "He",  "subject": "he",  "object": "him", "possessive": "his"},

@@ -3,7 +3,9 @@
 import { useMemo, useState, type CSSProperties } from "react";
 import styles from "./IamBookBuilder.module.css";
 import PhotoCropper from "./PhotoCropper";
+import IamBookPreview from "./IamBookPreview";
 import { type Crop, cropToBackground } from "@/lib/photoCrop";
+import { type PreviewState } from "@/lib/iamPreview";
 import {
   COLORWAYS, BINDINGS, NAME_MAX, DEDICATION_MAX, PHOTO_SLOTS, TRAITS,
   suggestArabicSmart, hasArabic, bindingCents,
@@ -77,8 +79,15 @@ export default function IamBookBuilder() {
 
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
 
   const priceCents = useMemo(() => bindingCents(binding), [binding]);
+
+  const previewState: PreviewState = {
+    name, nameAr, gender, dedication, colorway,
+    cover: cover?.url ? { url: cover.url, crop: coverCrop } : null,
+    photos: photos.map((p, i) => (p?.url ? { url: p.url, crop: photoCrops[i] } : null)),
+  };
 
   async function upload(file: File): Promise<Photo> {
     const fd = new FormData();
@@ -356,6 +365,10 @@ export default function IamBookBuilder() {
               short side, the zoom is limited so nothing ever prints blurry.
             </p>
 
+            <button type="button" className={`btn btn-outline ${styles.previewBtn}`} onClick={() => setShowPreview(true)}>
+              Preview the whole book
+            </button>
+
             {error && <p className={styles.error}>{error}</p>}
             <div className={styles.btnRow}>
               <button className="btn btn-outline" onClick={() => setStep("details")}>← Details</button>
@@ -365,6 +378,7 @@ export default function IamBookBuilder() {
             </div>
           </div>
         </div>
+        {showPreview && <IamBookPreview state={previewState} onClose={() => setShowPreview(false)} />}
       </section>
     );
   }
@@ -425,6 +439,10 @@ export default function IamBookBuilder() {
           <p className={styles.note}>Printed to order. Shipping calculated at checkout.</p>
         </div>
 
+        <button type="button" className={`btn btn-outline ${styles.previewBtn}`} onClick={() => setShowPreview(true)}>
+          Preview the whole book before you pay
+        </button>
+
         {error && <p className={styles.error}>{error}</p>}
         <div className={styles.btnRow}>
           <button className="btn btn-outline" onClick={() => setStep("photos")}>← Photos</button>
@@ -433,6 +451,7 @@ export default function IamBookBuilder() {
           </button>
         </div>
       </div>
+      {showPreview && <IamBookPreview state={previewState} onClose={() => setShowPreview(false)} />}
     </section>
   );
 }
