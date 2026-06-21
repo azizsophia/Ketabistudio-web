@@ -14,9 +14,52 @@
   /* keep the page from scrolling while the customer drags on touch */
   touch-action: none;
   user-select: none;
+  /* so the in-context guides scale with the frame, matching print proportions */
+  container-type: inline-size;
 }
 .frame:active {
   cursor: grabbing;
+}
+
+/* ── in-context guides (match the printed page; never block dragging) ── */
+.grad {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 34%;
+  background: linear-gradient(180deg, rgba(20, 14, 6, 0), rgba(20, 14, 6, 0.55));
+  pointer-events: none;
+}
+.safe {
+  position: absolute;
+  inset: 6%;
+  border: 1px dashed rgba(255, 255, 255, 0.4);
+  border-radius: 2px;
+  pointer-events: none;
+}
+.cap {
+  position: absolute;
+  left: 7%;
+  bottom: 6%;
+  display: flex;
+  align-items: baseline;
+  gap: 2cqw;
+  pointer-events: none;
+  z-index: 1;
+}
+.capAr {
+  font-family: var(--font-baloo), var(--font-arabic), serif;
+  font-weight: 600;
+  font-size: 8cqw;
+  line-height: 1;
+  color: #fbf2dd;
+}
+.capTr {
+  font-size: 3cqw;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #f0d9b0;
 }
 .hint {
   position: absolute;

@@ -24,10 +24,16 @@ type Props = {
   value?: Crop | null;
   onChange: (c: Crop) => void;
   onClear?: () => void;
+  /** in-context guides so the photo is positioned against what actually prints */
+  captionAr?: string;
+  captionTr?: string;
+  showGradient?: boolean;
+  showSafe?: boolean;
 };
 
 export default function PhotoCropper({
   src, frameAspect, minShortPx, rounded, value, onChange, onClear,
+  captionAr, captionTr, showGradient, showSafe,
 }: Props) {
   const frameRef = useRef<HTMLDivElement>(null);
   const [nat, setNat] = useState<{ w: number; h: number } | null>(null);
@@ -112,6 +118,14 @@ export default function PhotoCropper({
         role="application"
         aria-label="Drag to position the photo"
       >
+        {showGradient && <span className={styles.grad} />}
+        {showSafe && <span className={styles.safe} />}
+        {(captionAr || captionTr) && (
+          <span className={styles.cap}>
+            {captionAr && <span className={styles.capAr} dir="rtl" lang="ar">{captionAr}</span>}
+            {captionTr && <span className={styles.capTr}>{captionTr}</span>}
+          </span>
+        )}
         {onClear && (
           <button type="button" className={styles.clear} onClick={onClear} aria-label="Remove photo">×</button>
         )}

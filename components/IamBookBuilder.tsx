@@ -340,6 +340,7 @@ export default function IamBookBuilder() {
               {photos.map((p, i) => (
                 <PhotoSlot key={i} photo={p} crop={photoCrops[i]} label={TRAITS[i]?.trait}
                   frameAspect={INSIDE_ASPECT} minShortPx={INSIDE_MIN_PX}
+                  captionAr={TRAITS[i]?.arabic} captionTr={TRAITS[i]?.translit}
                   onPick={(f) => onPhoto(i, f)}
                   onCrop={(c) => setPhotoCrops((arr) => arr.map((x, j) => (j === i ? c : x)))}
                   onClear={() => {
@@ -438,6 +439,7 @@ export default function IamBookBuilder() {
 
 function PhotoSlot({
   photo, crop, onPick, onCrop, onClear, label, big, frameAspect, minShortPx, rounded,
+  captionAr, captionTr,
 }: {
   photo: Photo | null;
   crop: Crop | null;
@@ -449,6 +451,8 @@ function PhotoSlot({
   frameAspect: number;
   minShortPx: number;
   rounded?: string;
+  captionAr?: string;
+  captionTr?: string;
 }) {
   if (photo?.busy) {
     return <div className={`${styles.tile} ${big ? styles.tileBig : ""}`}><span className={styles.tileMsg}>Uploading…</span></div>;
@@ -464,6 +468,10 @@ function PhotoSlot({
           value={crop}
           onChange={onCrop}
           onClear={onClear}
+          captionAr={captionAr}
+          captionTr={captionTr}
+          showGradient={!big}
+          showSafe={!big}
         />
       </div>
     );
