@@ -124,6 +124,35 @@ export default function Gateway() {
         </div>
       </section>
 
+      {/* ── featured: the personalized "I Am [Child]" book ── */}
+      <section className={styles.featured}>
+        <div className={`wrap ${styles.featuredInner}`}>
+          <Link href="/books/i-am" className={styles.featuredCover} aria-hidden="true" tabIndex={-1}>
+            <span className={styles.fcKick}>A book about good character</span>
+            <span className={styles.fcArch}>Your photo</span>
+            <span className={styles.fcIam}>I am</span>
+            <span className={styles.fcName}>Your child</span>
+            <span className={styles.fcNameAr} dir="rtl" lang="ar">اسم طفلك</span>
+          </Link>
+          <div className={styles.featuredCopy}>
+            <p className="eyebrow">New · Personalized</p>
+            <h2 className={styles.featuredTitle}>
+              I Am <span className={styles.gold}>[Your Child]</span>
+            </h2>
+            <p className={styles.featuredDesc}>
+              A keepsake where your child is the hero of every page: twelve
+              beautiful traits in English and Arabic, with their name, your
+              dedication, and your own photos.
+            </p>
+            <div className={styles.featuredCta}>
+              <Link href="/books/i-am" className="btn btn-primary">
+                Personalize the book
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── the three worlds ── */}
       <section className={`wrap ${styles.worlds}`} id="worlds">
         <div className={styles.grid}>
