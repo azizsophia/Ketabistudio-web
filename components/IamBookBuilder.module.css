@@ -46,39 +46,59 @@
   color: var(--gold-deep);
   margin: 0 0 12px;
 }
+/* Rendered to mirror the real printed cover: teal board, gold-keyline arch,
+   Fraunces display + Baloo Arabic, a spine edge and a book-like shadow. */
 .cover {
   position: relative;
   width: 100%;
-  max-width: 360px;
+  max-width: 340px;
   margin: 0 auto;
   aspect-ratio: 1 / 1;
-  border-radius: 10px;
-  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.22);
-  color: #f6efe0;
+  container-type: inline-size;
+  border-radius: 3px 12px 12px 3px;
+  /* darker spine edge on the left, like a real book */
+  border-left: 10px solid var(--cover-dk, #21443f);
+  color: #f7efdc;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 30px 26px 34px;
+  justify-content: flex-start;
+  padding: 9% 9% 8%;
   overflow: hidden;
   text-align: center;
+  box-shadow:
+    -3px 0 0 rgba(0, 0, 0, 0.08),
+    0 28px 50px -22px rgba(33, 68, 63, 0.6);
+}
+/* a fine gold keyline framing the cover */
+.cover::after {
+  content: "";
+  position: absolute;
+  inset: 5.5%;
+  border: 1px solid rgba(230, 185, 78, 0.55);
+  border-radius: 4px;
+  pointer-events: none;
 }
 .cKick {
-  font-size: 0.62rem;
-  letter-spacing: 0.22em;
+  font-size: 0.6rem;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
-  color: rgba(246, 239, 224, 0.72);
-  margin-bottom: 14px;
+  color: rgba(231, 201, 140, 0.92);
+  margin-bottom: 7%;
 }
 .arch {
-  width: 60%;
+  width: 54%;
   aspect-ratio: 3 / 4;
-  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  /* dome top, gently rounded base — matches the print cover arch */
+  border-radius: 50% 50% 7% 7% / 40% 40% 5% 5%;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: inset 0 0 0 3px rgba(246, 239, 224, 0.5);
-  margin-bottom: 18px;
+  background: var(--cover-dk, #21443f);
+  border: 2.5px solid var(--gold);
+  box-shadow: 0 8px 20px -10px rgba(0, 0, 0, 0.5);
+  margin-bottom: 6%;
 }
 .arch img {
   width: 100%;
@@ -86,33 +106,37 @@
   object-fit: cover;
 }
 .archEmpty {
-  font-size: 0.74rem;
-  color: rgba(246, 239, 224, 0.7);
-  letter-spacing: 0.06em;
+  font-size: 0.72rem;
+  color: rgba(247, 239, 220, 0.6);
+  letter-spacing: 0.04em;
 }
 .cIam {
   font-family: var(--font-display), Georgia, serif;
   font-style: italic;
-  font-size: 1.5rem;
+  font-weight: 500;
+  font-size: clamp(1.3rem, 5cqw, 1.7rem);
   color: var(--gold);
   line-height: 1;
 }
 .cName {
   font-family: var(--font-display), Georgia, serif;
-  font-size: 2.1rem;
-  line-height: 1.05;
-  margin-top: 2px;
+  font-weight: 600;
+  font-size: clamp(1.9rem, 9cqw, 2.6rem);
+  line-height: 1.02;
+  margin-top: 1%;
+  color: #fbf4e2;
   word-break: break-word;
 }
 .cNameAr {
-  font-family: var(--font-arabic), serif;
-  font-size: 1.5rem;
-  color: rgba(246, 239, 224, 0.9);
-  margin-top: 8px;
-  min-height: 1.5em;
+  font-family: var(--font-baloo), var(--font-arabic), serif;
+  font-weight: 600;
+  font-size: clamp(1.2rem, 6cqw, 1.6rem);
+  color: var(--gold);
+  margin-top: 4%;
+  min-height: 1.4em;
 }
 .previewNote {
-  max-width: 360px;
+  max-width: 340px;
   margin: 18px auto 0;
   text-align: center;
   font-size: 0.84rem;
@@ -187,6 +211,16 @@
   border-radius: 10px;
   font-weight: 600;
   font-size: 0.9rem;
+}
+.arHint {
+  margin: 8px 0 0;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: var(--gold-deep);
+  background: #fbf6ea;
+  border: 1px solid #ecdcb0;
+  border-radius: 8px;
+  padding: 8px 11px;
 }
 .check {
   display: flex;

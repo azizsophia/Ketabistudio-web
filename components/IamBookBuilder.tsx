@@ -1,10 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
 import styles from "./IamBookBuilder.module.css";
 import {
   COLORWAYS, BINDINGS, NAME_MAX, DEDICATION_MAX, PHOTO_SLOTS, TRAITS,
-  suggestArabic, hasArabic, bindingCents,
+  suggestArabicSmart, hasArabic, bindingCents,
   type Gender, type Colorway, type Binding,
 } from "@/lib/iamBook";
 
@@ -42,6 +42,7 @@ export default function IamBookBuilder() {
   const [name, setName] = useState("");
   const [nameAr, setNameAr] = useState("");
   const [arConfirmed, setArConfirmed] = useState(false);
+  const [arRough, setArRough] = useState(false); // suggestion was an approximate transliteration
   const [gender, setGender] = useState<Gender>("boy");
   const [dedication, setDedication] = useState("");
   const [colorway, setColorway] = useState<Colorway>("teal");
@@ -162,9 +163,12 @@ export default function IamBookBuilder() {
   const Preview = (
     <div className={styles.previewPane}>
       <p className={styles.previewLabel}>Front cover</p>
-      <div className={styles.cover} style={{ background: cw.bg }}>
+      <div
+        className={styles.cover}
+        style={{ background: cw.bg, ["--cover-dk" as string]: cw.dk } as CSSProperties}
+      >
         <span className={styles.cKick}>A book about good character</span>
-        <span className={styles.arch} style={{ background: cw.dk }}>
+        <span className={styles.arch}>
           {cover?.url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={cover.url} alt="" />
@@ -202,19 +206,34 @@ export default function IamBookBuilder() {
               value={name} placeholder="e.g. Yusuf"
               onChange={(e) => {
                 setName(e.target.value);
-                if (!nameAr) { const s = suggestArabic(e.target.value); if (s) { setNameAr(s); setArConfirmed(false); } }
+                // auto-fill only on a confident (curated) match while the field is empty
+                if (!nameAr) {
+                  const r = suggestArabicSmart(e.target.value);
+                  if (r.exact) { setNameAr(r.arabic); setArConfirmed(false); setArRough(false); }
+                }
               }} />
 
             <label className={styles.label} htmlFor="nmar">Name in Arabic</label>
             <div className={styles.arRow}>
               <input id="nmar" className={`${styles.input} ${styles.arInput}`} dir="rtl" lang="ar"
                 value={nameAr} placeholder="الاسم بالعربية"
-                onChange={(e) => { setNameAr(e.target.value); setArConfirmed(false); }} />
+                onChange={(e) => { setNameAr(e.target.value); setArConfirmed(false); setArRough(false); }} />
               <button type="button" className={styles.suggest}
-                onClick={() => { const s = suggestArabic(name); if (s) { setNameAr(s); setArConfirmed(false); } else setError("No suggestion for that name, please type the Arabic spelling."); }}>
+                onClick={() => {
+                  if (!name.trim()) { setError("Please enter your child's name first."); return; }
+                  const r = suggestArabicSmart(name);
+                  if (r.arabic) { setNameAr(r.arabic); setArConfirmed(false); setArRough(!r.exact); }
+                  else setError("Please type your child's name in Arabic.");
+                }}>
                 Suggest
               </button>
             </div>
+            {arRough && (
+              <p className={styles.arHint}>
+                This is an approximate spelling. Please check it carefully and
+                edit if needed, we print exactly what you confirm.
+              </p>
+            )}
             <label className={styles.check}>
               <input type="checkbox" checked={arConfirmed} onChange={(e) => setArConfirmed(e.target.checked)} />
               I confirm the Arabic spelling is correct.
