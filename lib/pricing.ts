@@ -94,6 +94,7 @@ export const PHOTOBOOK_SLUGS = [
 export const BOOK_SHIP_SPEC: Record<string, { pageCount: number; pod: string }> = {
   "her-beautiful-hijab": { pageCount: 32, pod: POD_PACKAGE },
   "my-beautiful-duas": { pageCount: 32, pod: POD_PACKAGE },
+  "i-am": { pageCount: 32, pod: POD_PACKAGE },
   "juha-and-the-enormous-pumpkin": { pageCount: 32, pod: POD_PACKAGE },
   "maryam-is-kind-to-her-parents": { pageCount: 32, pod: POD_PACKAGE },
   // Photo-book keepsakes — hardcover-only, 24pp casewrap (see PHOTOBOOK note).
@@ -112,6 +113,7 @@ export const DEFAULT_SHIP_SPEC = { pageCount: 32, pod: POD_PACKAGE };
 export const HARDCOVER_SLUGS = [
   "her-beautiful-hijab",
   "my-beautiful-duas",
+  "i-am",
   ...PHOTOBOOK_SLUGS,
 ];
 

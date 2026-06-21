@@ -43,10 +43,14 @@ HARDCOVER_POD = "0850X0850.FC.PRE.CW.080CW444.MXX"
 PHOTOBOOK_SLUGS = {"about-mama", "about-baba", "about-grandma", "about-grandpa",
                    "about-spouse", "about-baby", "our-ramadan"}
 
+# The "I Am [Child]" personalized book (HTML-rendered, 32pp 8.5x8.5). Offered in
+# BOTH bindings, so it lives in HARDCOVER_SLUGS but is not photo-book-only.
+IAM_SLUG = "i-am"
+
 # Books that may be ordered in hardcover (personalized books + every photo-book
 # keepsake). Fixed books keep pre-made softcover cover art and are never
 # offered in hardcover.
-HARDCOVER_SLUGS = {"her-beautiful-hijab", "my-beautiful-duas"} | PHOTOBOOK_SLUGS
+HARDCOVER_SLUGS = {"her-beautiful-hijab", "my-beautiful-duas", IAM_SLUG} | PHOTOBOOK_SLUGS
 
 SKIN_TO_PSD = {"light": "Blonde light", "medium": "Blonde dark", "dark": "Dark"}
 HAIR_TO_PSD = {"black": "Black", "brown": "Brown", "blonde": "Blonde", "red": "Red"}
@@ -66,6 +70,9 @@ DEFAULT_SPEC = {"page_count": 32, "pod": POD}
 BOOK_SPECS = {
     "her-beautiful-hijab": {"page_count": 32, "pod": POD},
     "my-beautiful-duas": {"page_count": 32, "pod": POD},
+    # "I Am [Child]" — 32pp 8.5x8.5, softcover POD by default; spec_for swaps to
+    # the casewrap HARDCOVER_POD when a hardcover order is placed.
+    "i-am": {"page_count": 32, "pod": POD},
     "juha-and-the-enormous-pumpkin": {"page_count": 32, "pod": POD},
     "maryam-is-kind-to-her-parents": {"page_count": 32, "pod": POD},
     # Photo-book keepsakes — hardcover-only, 24-page casewrap.
@@ -204,6 +211,59 @@ def generate_photobook(order, workdir: Path, cover_type="hardcover", client=None
     return interior, cover
 
 
+def generate_iam(order, workdir: Path, cover_type="hardcover", client=None):
+    """"I Am [Child]" book. Renders the HTML template to print PDFs with headless
+    Chromium (see pipeline/iam_book.py). The interior is identical for both
+    bindings; only the cover geometry differs. The cover spine (and casewrap
+    turn-in) is taken from Lulu's exact cover dimensions for THIS order's POD, so
+    the wrap is never hardcoded."""
+    import iam_book
+    from lulu_client import cover_dims_to_px
+
+    opt = order.get("options") or {}
+    photos = order.get("photo_data") or {}
+    name = (order.get("child_name") or "").strip()
+    qc.gate_name(name)
+    name_ar = (opt.get("name_arabic") or "").strip()
+    if not name_ar:
+        raise qc.QCFailure("I Am book is missing the Arabic name")
+
+    spec = spec_for(order["book_slug"], cover_type)
+    book_order = {
+        "name": name,
+        "name_arabic": name_ar,
+        "gender": opt.get("gender") or "boy",
+        "colorway": opt.get("colorway") or "teal",
+        "binding": "hardcover" if cover_type == "hardcover" else "paperback",
+        "dedication": opt.get("dedication") or "",
+        "photos": {
+            "cover": photos.get("cover_photo_url") or "",
+            **{str(i + 1): (photos.get("photos") or [])[i]
+               for i in range(len(photos.get("photos") or []))
+               if (photos.get("photos") or [])[i]},
+        },
+    }
+
+    # Cover wrap geometry from Lulu's exact dimensions (px @ 300 DPI → inches).
+    dims = client.calculate_cover_dimensions(spec["pod"], spec["page_count"])
+    total_w_in = cover_dims_to_px(dims)[0] / 300.0
+    total_h_in = cover_dims_to_px(dims)[1] / 300.0
+    if cover_type == "hardcover":
+        wrap_in = max(0.0, (total_h_in - 8.5) / 2.0)
+        spine_in = max(0.0, total_w_in - 17.0 - 2 * wrap_in)
+        cover = iam_book.render_cover(book_order, spine_in=spine_in, wrap_in=wrap_in)
+    else:
+        spine_in = max(0.0, total_w_in - 17.25)  # (8.5+0.125)*2
+        cover = iam_book.render_cover(book_order, spine_in=spine_in)
+
+    interior = iam_book.render_interior(book_order)
+    ipath = workdir / "interior.pdf"
+    cpath = workdir / "cover.pdf"
+    ipath.write_bytes(interior)
+    cpath.write_bytes(cover)
+    return str(ipath), str(cpath)
+
+
 # ── per-order processing ────────────────────────────────────────────
 def process(order):
     import lulu_client
@@ -261,6 +321,12 @@ def process(order):
                                              client=client)
         ref_report = {"photo_book": True, "template": slug,
                       "cover_type": cover_type}
+    elif slug == IAM_SLUG:
+        # "I Am [Child]" — HTML book rendered with headless Chromium.
+        interior, cover = generate_iam(order, workdir, cover_type=cover_type,
+                                       client=client)
+        ref_report = {"iam_book": True, "cover_type": cover_type,
+                      "colorway": (order.get("options") or {}).get("colorway")}
     elif slug == "my-beautiful-duas":
         interior, cover = generate_duas(order, workdir, cover_type=cover_type,
                                         client=client)

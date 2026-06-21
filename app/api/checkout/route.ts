@@ -109,6 +109,8 @@ export async function POST(req: NextRequest) {
       order.book_slug,
       order.photo_data?.recipient_name
     );
+  } else if (order.book_slug === "i-am" && childName) {
+    bookName = `I Am ${childName}`;
   } else if (order.book_slug === "her-beautiful-hijab" && childName) {
     bookName = `${childName} and Her Beautiful Hijab`;
   } else if (order.book_slug === "my-beautiful-duas" && childName) {

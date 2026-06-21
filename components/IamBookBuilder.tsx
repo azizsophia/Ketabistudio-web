@@ -1,0 +1,407 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import styles from "./IamBookBuilder.module.css";
+import {
+  COLORWAYS, BINDINGS, NAME_MAX, DEDICATION_MAX, PHOTO_SLOTS, TRAITS,
+  suggestArabic, hasArabic, bindingCents,
+  type Gender, type Colorway, type Binding,
+} from "@/lib/iamBook";
+
+const COUNTRIES = [
+  { code: "US", name: "United States" }, { code: "GB", name: "United Kingdom" },
+  { code: "CA", name: "Canada" }, { code: "AU", name: "Australia" },
+  { code: "AT", name: "Austria" }, { code: "BH", name: "Bahrain" },
+  { code: "BE", name: "Belgium" }, { code: "DK", name: "Denmark" },
+  { code: "EG", name: "Egypt" }, { code: "FI", name: "Finland" },
+  { code: "FR", name: "France" }, { code: "DE", name: "Germany" },
+  { code: "IE", name: "Ireland" }, { code: "IT", name: "Italy" },
+  { code: "JO", name: "Jordan" }, { code: "KW", name: "Kuwait" },
+  { code: "MY", name: "Malaysia" }, { code: "NL", name: "Netherlands" },
+  { code: "NZ", name: "New Zealand" }, { code: "NO", name: "Norway" },
+  { code: "OM", name: "Oman" }, { code: "QA", name: "Qatar" },
+  { code: "SA", name: "Saudi Arabia" }, { code: "SG", name: "Singapore" },
+  { code: "ZA", name: "South Africa" }, { code: "ES", name: "Spain" },
+  { code: "SE", name: "Sweden" }, { code: "CH", name: "Switzerland" },
+  { code: "TR", name: "Turkey" }, { code: "AE", name: "United Arab Emirates" },
+] as const;
+const STATE_REQUIRED = new Set(["US", "CA", "AU"]);
+const DPI_MIN = 2000;
+
+type Photo = { url: string; w: number | null; h: number | null; busy?: boolean };
+type Step = "details" | "photos" | "deliver";
+
+const COVER_BG: Record<Colorway, { bg: string; dk: string }> = {
+  teal: { bg: "#2f5d57", dk: "#21443f" },
+  rose: { bg: "#a8596a", dk: "#7e3f4e" },
+};
+
+export default function IamBookBuilder() {
+  const [step, setStep] = useState<Step>("details");
+
+  const [name, setName] = useState("");
+  const [nameAr, setNameAr] = useState("");
+  const [arConfirmed, setArConfirmed] = useState(false);
+  const [gender, setGender] = useState<Gender>("boy");
+  const [dedication, setDedication] = useState("");
+  const [colorway, setColorway] = useState<Colorway>("teal");
+  const [binding, setBinding] = useState<Binding>("hardcover");
+
+  const [cover, setCover] = useState<Photo | null>(null);
+  const [photos, setPhotos] = useState<(Photo | null)[]>(
+    Array(PHOTO_SLOTS).fill(null)
+  );
+
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [sName, setSName] = useState("");
+  const [line1, setLine1] = useState("");
+  const [line2, setLine2] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
+  const [postcode, setPostcode] = useState("");
+  const [country, setCountry] = useState("US");
+
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  const priceCents = useMemo(() => bindingCents(binding), [binding]);
+
+  async function upload(file: File): Promise<Photo> {
+    const fd = new FormData();
+    fd.append("file", file);
+    const r = await fetch("/api/photobook/photo", { method: "POST", body: fd });
+    const d = await r.json();
+    if (!r.ok || !d.url) throw new Error(d.error || "Upload failed");
+    return { url: d.url, w: d.width ?? null, h: d.height ?? null };
+  }
+
+  async function onCover(file: File) {
+    setError("");
+    setCover({ url: "", w: null, h: null, busy: true });
+    try { setCover(await upload(file)); }
+    catch (e) { setCover(null); setError((e as Error).message); }
+  }
+  async function onPhoto(i: number, file: File) {
+    setError("");
+    setPhotos((p) => p.map((x, j) => (j === i ? { url: "", w: null, h: null, busy: true } : x)));
+    try {
+      const ph = await upload(file);
+      setPhotos((p) => p.map((x, j) => (j === i ? ph : x)));
+    } catch (e) {
+      setPhotos((p) => p.map((x, j) => (j === i ? null : x)));
+      setError((e as Error).message);
+    }
+  }
+
+  const lowRes = (p: Photo | null) =>
+    !!p && !p.busy && p.w !== null && Math.min(p.w, p.h || 0) < DPI_MIN;
+  const anyLowRes =
+    lowRes(cover) || photos.some(lowRes);
+
+  function goPhotos() {
+    setError("");
+    if (!name.trim()) return setError("Please enter your child's name.");
+    if (!nameAr.trim() || !hasArabic(nameAr))
+      return setError("Please enter the child's name in Arabic.");
+    if (!arConfirmed)
+      return setError("Please confirm the Arabic spelling is correct.");
+    if (dedication.length > DEDICATION_MAX)
+      return setError(`Dedication must be ${DEDICATION_MAX} characters or fewer.`);
+    setStep("photos");
+  }
+  function goDeliver() {
+    setError("");
+    if (anyLowRes) return setError("Some photos are low resolution and will print blurry. Please replace them or remove them.");
+    setStep("deliver");
+  }
+
+  async function placeOrder() {
+    setError("");
+    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()))
+      return setError("Please enter a valid email address.");
+    if (!sName.trim() || !line1.trim() || !city.trim() || !postcode.trim())
+      return setError("Please complete the delivery address.");
+    if (STATE_REQUIRED.has(country) && !state.trim())
+      return setError("Please enter the state or province.");
+    if (phone.replace(/[^\d]/g, "").length < 7)
+      return setError("Please enter a valid phone number for delivery.");
+    setSubmitting(true);
+    try {
+      const r = await fetch("/api/iam/order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: name.trim(), name_arabic: nameAr.trim(), gender,
+          dedication: dedication.trim(), colorway, binding,
+          cover_photo_url: cover?.url || null,
+          photos: photos.map((p) => p?.url || null),
+          email: email.trim(),
+          shipping: {
+            name: sName.trim(), line1: line1.trim(), line2: line2.trim(),
+            city: city.trim(), state: state.trim(), postcode: postcode.trim(),
+            country_code: country, phone: phone.trim(),
+          },
+        }),
+      });
+      const d = await r.json();
+      if (r.ok && d.ok && d.orderId) {
+        const c = await fetch("/api/checkout", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ orderId: d.orderId }),
+        });
+        const cd = await c.json();
+        if (c.ok && cd.url) { window.location.href = cd.url; return; }
+        setError(cd.error || "Could not start checkout.");
+      } else setError(d.error || "Something went wrong. Please try again.");
+    } catch { setError("Network error. Please try again."); }
+    finally { setSubmitting(false); }
+  }
+
+  const cw = COVER_BG[colorway];
+  const Preview = (
+    <div className={styles.previewPane}>
+      <p className={styles.previewLabel}>Front cover</p>
+      <div className={styles.cover} style={{ background: cw.bg }}>
+        <span className={styles.cKick}>A book about good character</span>
+        <span className={styles.arch} style={{ background: cw.dk }}>
+          {cover?.url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={cover.url} alt="" />
+          ) : (
+            <span className={styles.archEmpty}>Your photo</span>
+          )}
+        </span>
+        <span className={styles.cIam}>I am</span>
+        <span className={styles.cName}>{name.trim() || "Your child"}</span>
+        <span className={styles.cNameAr} dir="rtl" lang="ar">{nameAr.trim()}</span>
+      </div>
+      <p className={styles.previewNote}>
+        Inside: twelve “I am” affirmations in English and Arabic, plus a dua. Every
+        empty photo becomes a designed page, so the book is always complete.
+      </p>
+    </div>
+  );
+
+  /* ── step: details ── */
+  if (step === "details") {
+    return (
+      <section className={styles.section}>
+        <div className={styles.grid}>
+          {Preview}
+          <div className={styles.form}>
+            <p className={styles.stepLabel}>Step 1 of 3</p>
+            <h1 className={styles.heading}>Make their book</h1>
+            <p className={styles.sub}>
+              A keepsake where your child is the hero of every page, twelve
+              beautiful traits, in English and Arabic.
+            </p>
+
+            <label className={styles.label} htmlFor="nm">Child&apos;s name</label>
+            <input id="nm" className={styles.input} maxLength={NAME_MAX}
+              value={name} placeholder="e.g. Yusuf"
+              onChange={(e) => {
+                setName(e.target.value);
+                if (!nameAr) { const s = suggestArabic(e.target.value); if (s) { setNameAr(s); setArConfirmed(false); } }
+              }} />
+
+            <label className={styles.label} htmlFor="nmar">Name in Arabic</label>
+            <div className={styles.arRow}>
+              <input id="nmar" className={`${styles.input} ${styles.arInput}`} dir="rtl" lang="ar"
+                value={nameAr} placeholder="الاسم بالعربية"
+                onChange={(e) => { setNameAr(e.target.value); setArConfirmed(false); }} />
+              <button type="button" className={styles.suggest}
+                onClick={() => { const s = suggestArabic(name); if (s) { setNameAr(s); setArConfirmed(false); } else setError("No suggestion for that name, please type the Arabic spelling."); }}>
+                Suggest
+              </button>
+            </div>
+            <label className={styles.check}>
+              <input type="checkbox" checked={arConfirmed} onChange={(e) => setArConfirmed(e.target.checked)} />
+              I confirm the Arabic spelling is correct.
+            </label>
+
+            <span className={styles.label}>Gender (sets he/she in the text)</span>
+            <div className={styles.pills}>
+              {(["boy", "girl"] as Gender[]).map((g) => (
+                <button key={g} type="button"
+                  className={`${styles.pill} ${gender === g ? styles.pillOn : ""}`}
+                  onClick={() => setGender(g)}>{g === "boy" ? "Boy" : "Girl"}</button>
+              ))}
+            </div>
+
+            <span className={styles.label}>Cover colour</span>
+            <div className={styles.swatchRow}>
+              {COLORWAYS.map((c) => (
+                <button key={c.id} type="button" title={c.name} aria-label={c.name}
+                  className={`${styles.swatch} ${colorway === c.id ? styles.swatchOn : ""}`}
+                  style={{ background: c.hex }} onClick={() => setColorway(c.id)} />
+              ))}
+            </div>
+
+            <span className={styles.label}>Binding</span>
+            <div className={styles.pills}>
+              {BINDINGS.map((b) => (
+                <button key={b.id} type="button"
+                  className={`${styles.pill} ${binding === b.id ? styles.pillOn : ""}`}
+                  onClick={() => setBinding(b.id)}>
+                  {b.name} · {b.display}
+                </button>
+              ))}
+            </div>
+
+            <label className={styles.label} htmlFor="ded">Dedication (optional)</label>
+            <textarea id="ded" className={styles.textarea} rows={3} maxLength={DEDICATION_MAX}
+              placeholder="A short message, e.g. To Yusuf, with all our love, Mama and Baba."
+              value={dedication} onChange={(e) => setDedication(e.target.value)} />
+            <span className={styles.count}>{dedication.length}/{DEDICATION_MAX}</span>
+
+            {error && <p className={styles.error}>{error}</p>}
+            <div className={styles.btnRow}>
+              <button className={`btn btn-primary ${styles.next}`} onClick={goPhotos}>
+                Continue to photos
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  /* ── step: photos ── */
+  if (step === "photos") {
+    return (
+      <section className={styles.section}>
+        <div className={styles.grid}>
+          {Preview}
+          <div className={styles.form}>
+            <p className={styles.stepLabel}>Step 2 of 3</p>
+            <h1 className={styles.heading}>Add photos (all optional)</h1>
+            <p className={styles.sub}>
+              Add a cover photo and up to twelve. Any you skip become a beautiful
+              designed page, so you can do one photo or all twelve.
+            </p>
+
+            <span className={styles.label}>Cover photo</span>
+            <PhotoTile photo={cover} onPick={onCover} onClear={() => setCover(null)} big />
+
+            <span className={styles.label}>Inside photos</span>
+            <div className={styles.photoGrid}>
+              {photos.map((p, i) => (
+                <PhotoTile key={i} photo={p} label={TRAITS[i]?.trait}
+                  onPick={(f) => onPhoto(i, f)}
+                  onClear={() => setPhotos((arr) => arr.map((x, j) => (j === i ? null : x)))} />
+              ))}
+            </div>
+
+            <p className={styles.note}>
+              For the sharpest print, use clear photos at least 2000 pixels on the
+              short side. Faces look best kept away from the very edges.
+            </p>
+
+            {error && <p className={styles.error}>{error}</p>}
+            <div className={styles.btnRow}>
+              <button className="btn btn-outline" onClick={() => setStep("details")}>← Details</button>
+              <button className={`btn btn-primary ${styles.next}`} onClick={goDeliver}>
+                Continue to delivery
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  /* ── step: deliver ── */
+  return (
+    <section className={styles.section}>
+      <div className={styles.inner}>
+        <p className={styles.stepLabel}>Step 3 of 3</p>
+        <h1 className={styles.heading}>Where should we send it?</h1>
+        <p className={styles.sub}>Printed to order and shipped worldwide.</p>
+
+        <div className={styles.formGrid}>
+          <div className={styles.full}>
+            <label className={styles.label} htmlFor="em">Your email (for the receipt)</label>
+            <input id="em" className={styles.input} type="email" autoComplete="email"
+              placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+          </div>
+          <div className={styles.full}>
+            <label className={styles.label} htmlFor="ph">Phone (for the courier)</label>
+            <input id="ph" className={styles.input} type="tel" autoComplete="tel"
+              placeholder="For delivery updates" value={phone} onChange={(e) => setPhone(e.target.value)} />
+          </div>
+          <div className={styles.full}>
+            <label className={styles.label} htmlFor="co">Country</label>
+            <select id="co" className={styles.input} value={country} onChange={(e) => setCountry(e.target.value)}>
+              {COUNTRIES.map((c) => <option key={c.code} value={c.code}>{c.name}</option>)}
+            </select>
+          </div>
+          <div className={styles.full}>
+            <label className={styles.label} htmlFor="rn">Recipient&apos;s name</label>
+            <input id="rn" className={styles.input} autoComplete="name"
+              value={sName} onChange={(e) => setSName(e.target.value)} />
+          </div>
+          <div className={styles.full}>
+            <label className={styles.label} htmlFor="l1">Address line 1</label>
+            <input id="l1" className={styles.input} autoComplete="address-line1"
+              value={line1} onChange={(e) => setLine1(e.target.value)} />
+          </div>
+          <div className={styles.full}>
+            <label className={styles.label} htmlFor="l2">Address line 2 (optional)</label>
+            <input id="l2" className={styles.input} autoComplete="address-line2"
+              value={line2} onChange={(e) => setLine2(e.target.value)} />
+          </div>
+          <div><label className={styles.label} htmlFor="ci">City</label>
+            <input id="ci" className={styles.input} value={city} onChange={(e) => setCity(e.target.value)} /></div>
+          <div><label className={styles.label} htmlFor="st">State / Region</label>
+            <input id="st" className={styles.input} value={state} onChange={(e) => setState(e.target.value)} /></div>
+          <div><label className={styles.label} htmlFor="zp">Postcode</label>
+            <input id="zp" className={styles.input} value={postcode} onChange={(e) => setPostcode(e.target.value)} /></div>
+        </div>
+
+        <div className={styles.summary}>
+          <div className={styles.sumRow}>
+            <span>“I am {name.trim() || "…"}” · {binding === "hardcover" ? "Hardcover" : "Paperback"}</span>
+            <span>${(priceCents / 100).toFixed(2)}</span>
+          </div>
+          <p className={styles.note}>Printed to order. Shipping calculated at checkout.</p>
+        </div>
+
+        {error && <p className={styles.error}>{error}</p>}
+        <div className={styles.btnRow}>
+          <button className="btn btn-outline" onClick={() => setStep("photos")}>← Photos</button>
+          <button className={`btn btn-primary ${styles.next}`} onClick={placeOrder} disabled={submitting}>
+            {submitting ? "Starting checkout…" : "Continue to payment"}
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function PhotoTile({ photo, onPick, onClear, label, big }: {
+  photo: Photo | null; onPick: (f: File) => void; onClear: () => void;
+  label?: string; big?: boolean;
+}) {
+  const low = !!photo && !photo.busy && photo.w !== null && Math.min(photo.w, photo.h || 0) < DPI_MIN;
+  return (
+    <div className={`${styles.tile} ${big ? styles.tileBig : ""}`}>
+      {photo?.busy ? (
+        <span className={styles.tileMsg}>Uploading…</span>
+      ) : photo?.url ? (
+        <>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={photo.url} alt="" className={styles.tileImg} />
+          <button type="button" className={styles.tileX} onClick={onClear} aria-label="Remove">×</button>
+          {low && <span className={styles.tileLow}>Low res</span>}
+        </>
+      ) : (
+        <label className={styles.tileAdd}>
+          <input type="file" accept="image/*" hidden
+            onChange={(e) => e.target.files?.[0] && onPick(e.target.files[0])} />
+          <span>{label || "Add"}</span>
+        </label>
+      )}
+    </div>
+  );
+}
