@@ -24,6 +24,31 @@ CREAM = "#F6F4EF"
 GOLD = "#C9A84C"
 
 
+def config_status() -> dict:
+    """Report the email configuration so the worker can log, at boot, whether
+    transactional email will actually send. Helps diagnose 'no emails' without
+    leaking the key."""
+    return {
+        "resend_key_set": bool(RESEND_API_KEY),
+        "from": EMAIL_FROM,
+        "admin": ADMIN_EMAIL,
+    }
+
+
+def send_test_email(to: str = "") -> bool:
+    """Send a one-off test email (used by the boot self-check / manual run) to
+    confirm Resend + the verified sender domain are working end to end."""
+    dest = (to or ADMIN_EMAIL).strip()
+    inner = (
+        f'<h1 style="margin:0 0 12px;font-size:20px;color:{FOREST};">'
+        'Email is working</h1>'
+        '<p style="margin:0;font-size:15px;line-height:1.6;">'
+        'If you are reading this, Resend and your verified sender are set up '
+        'correctly. Order confirmation, approval, and shipping emails will '
+        'send.</p>')
+    return send_email(dest, "Ketabi email test", _shell(inner))
+
+
 def _shell(inner_html: str) -> str:
     """Wrap content in the branded email shell."""
     return f"""\
@@ -93,6 +118,22 @@ def _book_label(order: dict) -> str:
         return f"{child} and Her Beautiful Hijab" if child else "Her Beautiful Hijab"
     if slug == "my-beautiful-duas":
         return f"{child}'s Beautiful Duas" if child else "My Beautiful Duas"
+    if slug == "i-am":
+        return f"I Am {child}" if child else "I Am (personalized book)"
+    pd = order.get("photo_data") or {}
+    recipient = (pd.get("recipient_name") or "").strip()
+    photobook_titles = {
+        "about-mama": "Everything I Love About Mama",
+        "about-baba": "Everything I Love About Baba",
+        "about-grandma": "Everything I Love About Grandma",
+        "about-grandpa": "Everything I Love About Grandpa",
+        "about-spouse": "About You (keepsake)",
+        "about-baby": "About Our Baby (keepsake)",
+        "our-ramadan": "Our Ramadan (keepsake)",
+    }
+    if slug in photobook_titles:
+        base = photobook_titles[slug]
+        return f"{base} for {recipient}" if recipient else base
     return {
         "juha-and-the-enormous-pumpkin": "Juha and the Enormous Pumpkin",
         "maryam-is-kind-to-her-parents": "Maryam is Kind to Her Parents",
@@ -186,9 +227,12 @@ def send_card_shipped(order: dict) -> bool:
 
 def send_admin_review(order: dict, digest_url: str = "",
                       approve_url: str = "", reject_url: str = "",
-                      dashboard_url: str = "") -> bool:
+                      dashboard_url: str = "", interior_url: str = "",
+                      cover_url: str = "") -> bool:
     """Notify the owner that an order is generated and awaiting approval, with
-    the preview digest + one-tap approve/reject links + a dashboard link."""
+    the preview digest, direct links to the interior + cover print PDFs, and
+    one-tap approve/reject links — so the order can be checked and approved
+    straight from the inbox, no dashboard or Supabase needed."""
     book = html.escape(_book_label(order))
     oid = str(order.get("id", ""))[:8]
     ship = order.get("shipping") or {}
@@ -199,6 +243,25 @@ def send_admin_review(order: dict, digest_url: str = "",
         f'<img src="{html.escape(digest_url, quote=True)}" alt="preview" '
         f'style="width:100%;border-radius:12px;border:1px solid #e7e2d8;margin:14px 0;">'
         if digest_url else "")
+    # Direct "open the PDF" buttons for the two print files.
+    def _pdf_btn(url: str, label: str) -> str:
+        return (
+            f'<td style="padding-right:10px;"><a href="{html.escape(url, quote=True)}" '
+            f'style="display:inline-block;background:#ffffff;color:{FOREST};text-decoration:none;'
+            f'padding:10px 18px;border-radius:10px;font-weight:700;font-size:14px;'
+            f'border:1px solid #d9d3c6;">{label} &rarr;</a></td>')
+    pdf_links = ""
+    if interior_url or cover_url:
+        cells = ""
+        if interior_url:
+            cells += _pdf_btn(interior_url, "View interior PDF")
+        if cover_url:
+            cells += _pdf_btn(cover_url, "View cover PDF")
+        pdf_links = (
+            '<p style="margin:14px 0 4px;font-size:13px;color:#6f6a5f;">'
+            'Open the print files:</p>'
+            '<table role="presentation" cellpadding="0" cellspacing="0" '
+            f'style="margin:0 0 4px;"><tr>{cells}</tr></table>')
     dash_block = (
         f'<p style="margin:0 0 16px;font-size:14px;line-height:1.6;">'
         f'<a href="{html.escape(dashboard_url, quote=True)}" '
@@ -209,8 +272,10 @@ def send_admin_review(order: dict, digest_url: str = "",
 <p style="margin:0 0 4px;font-size:15px;line-height:1.6;"><strong>{book}</strong> ({cover})</p>
 <p style="margin:0 0 6px;font-size:13px;color:#8a847a;">Order {oid}{(' &middot; ' + where) if where else ''}</p>
 {digest_img}
-<p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#6f6a5f;">
-  Check the name, look and pages above. Approve to send it to print, or reject to cancel.
+{pdf_links}
+<p style="margin:14px 0 16px;font-size:14px;line-height:1.6;color:#6f6a5f;">
+  Check the name, look and pages above. Open the interior and cover PDFs to
+  review the full files, then approve to send it to print, or reject to cancel.
 </p>
 <table role="presentation" cellpadding="0" cellspacing="0"><tr>
   <td style="padding-right:10px;">

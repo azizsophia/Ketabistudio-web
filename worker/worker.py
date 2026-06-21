@@ -371,11 +371,17 @@ def process(order):
                 or "https://www.ketabistudio.com")
         tok = order.get("approval_token", "")
         digest_url = signed_url("orders", f"{oid}/digest.jpg")
+        # Signed links to the actual print files so the owner can open the
+        # interior + cover PDFs straight from the email (no Supabase needed).
+        # 7-day expiry so the links stay valid while the order waits.
+        interior_url = signed_url("orders", ikey, expires=604800)
+        cover_url = signed_url("orders", ckey, expires=604800)
         approve_url = f"{site}/api/approve?order={oid}&token={tok}&action=approve"
         reject_url = f"{site}/api/approve?order={oid}&token={tok}&action=reject"
         dashboard_url = f"{site}/admin"
         emailer.send_admin_review(order, digest_url, approve_url, reject_url,
-                                  dashboard_url)
+                                  dashboard_url, interior_url=interior_url,
+                                  cover_url=cover_url)
     except Exception as e:  # noqa: BLE001
         print(f"[{oid}] admin review email error (non-fatal): {e}")
 
@@ -429,13 +435,23 @@ def poll_shipping(order):
         set_status(oid, "printing")
         print(f"[{oid}] in production")
     elif name == "SHIPPED":
-        # Pull tracking if Lulu exposes it on the status payload
+        # Tracking lives on the full print-job's line items (not the status
+        # payload), so fetch the job and pull the first tracking URL/carrier.
         tracking_url = ""
         carrier = ""
-        msg = (info or {}).get("messages") or {}
-        if isinstance(msg, dict):
-            tracking_url = msg.get("tracking_url") or msg.get("tracking_id") or ""
-            carrier = msg.get("carrier_name", "") or ""
+        try:
+            job = client.get_print_job(job_id)
+            for li in (job or {}).get("line_items", []) or []:
+                urls = li.get("tracking_urls") or []
+                if urls and not tracking_url:
+                    tracking_url = urls[0]
+                if not tracking_url and li.get("tracking_id"):
+                    tracking_url = str(li["tracking_id"])
+                carrier = carrier or li.get("carrier_name", "") or ""
+                if tracking_url:
+                    break
+        except Exception as e:  # noqa: BLE001
+            print(f"[{oid}] tracking lookup error (non-fatal): {e}")
         set_status(oid, "shipped")
         try:
             emailer.send_shipped(order, tracking_url=tracking_url, carrier=carrier)
@@ -451,6 +467,24 @@ def poll_shipping(order):
 def main():
     poll = int(os.environ.get("POLL_SECONDS", "30"))
     print("ketabi worker up;", os.environ.get("LULU_ENV", "sandbox"))
+    # Email config check on boot — surfaces 'no emails' problems immediately.
+    try:
+        cfg = emailer.config_status()
+        if cfg["resend_key_set"]:
+            print(f"[email] OK — RESEND_API_KEY set; from={cfg['from']}; "
+                  f"admin={cfg['admin']}")
+        else:
+            print("[email] DISABLED — RESEND_API_KEY is NOT set; no order "
+                  "confirmation, approval, or shipping emails will send. "
+                  f"(from={cfg['from']}, admin={cfg['admin']})")
+        # Opt-in one-off test email at boot: set EMAIL_BOOT_TEST=1 once to
+        # verify Resend + the verified sender, then remove it.
+        if os.environ.get("EMAIL_BOOT_TEST", "").strip() in ("1", "true", "yes"):
+            ok = emailer.send_test_email()
+            print(f"[email] boot test email -> {'sent' if ok else 'FAILED'} "
+                  f"(to {cfg['admin']})")
+    except Exception as e:  # noqa: BLE001
+        print(f"[email] startup check error: {e}")
     # One-time Prodigi connectivity check on boot (a quote — no order placed).
     try:
         from pipeline import prodigi_client
