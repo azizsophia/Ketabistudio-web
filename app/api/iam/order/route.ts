@@ -79,31 +79,33 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  /* photos — all optional, but any provided must be ours and in-range. Each
-     photo may carry a crop {x,y,w,h} (the customer's drag/zoom positioning). */
+  /* photos — REQUIRED: a cover photo plus all twelve inside photos (one per
+     trait). Each photo may carry a crop {x,y,w,h} (the drag/zoom positioning). */
   const cropOrNull = (c: unknown): Crop | null =>
     isValidCrop(c) ? { x: c.x, y: c.y, w: c.w, h: c.h } : null;
 
   const coverPhoto = body.cover_photo_url;
-  if (coverPhoto != null && coverPhoto !== "" && !isAcceptablePhotoUrl(coverPhoto)) {
-    return NextResponse.json({ error: "invalid cover photo" }, { status: 400 });
+  if (!isAcceptablePhotoUrl(coverPhoto)) {
+    return NextResponse.json({ error: "A cover photo is required." }, { status: 400 });
   }
-  const coverCrop = coverPhoto ? cropOrNull(body.cover_crop) : null;
+  const coverCrop = cropOrNull(body.cover_crop);
 
   const rawPhotos = Array.isArray(body.photos) ? body.photos : [];
-  if (rawPhotos.length > PHOTO_SLOTS) {
-    return NextResponse.json({ error: "too many photos" }, { status: 400 });
+  if (rawPhotos.length !== PHOTO_SLOTS) {
+    return NextResponse.json(
+      { error: `Please add all ${PHOTO_SLOTS} inside photos.` },
+      { status: 400 }
+    );
   }
-  const photos: ({ url: string; crop: Crop | null } | null)[] = [];
+  const photos: { url: string; crop: Crop | null }[] = [];
   for (const p of rawPhotos) {
-    if (p == null || p === "") {
-      photos.push(null);
-      continue;
-    }
     // accept either a bare url (legacy) or { url, crop }
-    const url = typeof p === "string" ? p : (p as { url?: unknown }).url;
+    const url = typeof p === "string" ? p : (p as { url?: unknown } | null)?.url;
     if (!isAcceptablePhotoUrl(url)) {
-      return NextResponse.json({ error: "invalid photo" }, { status: 400 });
+      return NextResponse.json(
+        { error: `Please add all ${PHOTO_SLOTS} inside photos.` },
+        { status: 400 }
+      );
     }
     const crop = typeof p === "string" ? null : cropOrNull((p as { crop?: unknown }).crop);
     photos.push({ url, crop });

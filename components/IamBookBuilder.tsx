@@ -138,7 +138,12 @@ export default function IamBookBuilder() {
   }
   function goDeliver() {
     setError("");
-    if (anyLowRes) return setError("Some photos are low resolution and will print blurry. Please replace them or remove them.");
+    if (cover?.busy || photos.some((p) => p?.busy))
+      return setError("Please wait for your photos to finish uploading.");
+    if (!cover?.url) return setError("Please add a cover photo.");
+    if (photos.some((p) => !p?.url))
+      return setError("Please add all twelve inside photos, one for each trait.");
+    if (anyLowRes) return setError("Some photos are low resolution and will print blurry. Please replace them.");
     setStep("deliver");
   }
 
@@ -216,8 +221,8 @@ export default function IamBookBuilder() {
         <span className={styles.cNameAr} dir="rtl" lang="ar">{nameAr.trim()}</span>
       </div>
       <p className={styles.previewNote}>
-        Inside: twelve “I am” affirmations in English and Arabic, plus a dua. Every
-        empty photo becomes a designed page, so the book is always complete.
+        Inside: twelve “I am” affirmations in English and Arabic, plus a dua, each
+        with your own photo of your child.
       </p>
     </div>
   );
@@ -329,10 +334,10 @@ export default function IamBookBuilder() {
           {Preview}
           <div className={styles.form}>
             <p className={styles.stepLabel}>Step 2 of 3</p>
-            <h1 className={styles.heading}>Add photos (all optional)</h1>
+            <h1 className={styles.heading}>Add your photos</h1>
             <p className={styles.sub}>
-              Add a cover photo and up to twelve. Any you skip become a beautiful
-              designed page, so you can do one photo or all twelve.
+              A cover photo plus one for each of the twelve traits, so your child
+              is on every page. Drag to position and zoom each one.
             </p>
 
             <span className={styles.label}>Cover photo</span>
@@ -361,8 +366,8 @@ export default function IamBookBuilder() {
 
             <p className={styles.note}>
               Drag any photo to position it, and pinch or use the slider to zoom.
-              For the sharpest print, use clear photos at least 2000 pixels on the
-              short side, the zoom is limited so nothing ever prints blurry.
+              Use clear photos for the sharpest print, the zoom is limited so
+              nothing ever prints blurry.
             </p>
 
             <button type="button" className={`btn btn-outline ${styles.previewBtn}`} onClick={() => setShowPreview(true)}>

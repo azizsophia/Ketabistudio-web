@@ -55,7 +55,7 @@ export default function IamBookPreview({
         ) : (
           <p className={styles.msg}>Building your preview…</p>
         )}
-        <p className={styles.foot}>Scroll to flip through every page. Empty photo slots become designed pages.</p>
+        <p className={styles.foot}>Scroll to flip through every page, exactly as it will print.</p>
       </div>
     </div>
   );
