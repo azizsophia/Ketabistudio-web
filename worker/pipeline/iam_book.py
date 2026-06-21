@@ -112,7 +112,7 @@ def render_interior(order) -> bytes:
 _PRINT_CSS = """
 <style>@media print{
   body{margin:0!important;padding:0!important;display:block!important;background:#fff!important}
-  .cap{display:none!important}.g,.gh{display:none!important}
+  .cap{display:none!important}.g,.gh,.fold{display:none!important}
   .case,.wrap{box-shadow:none!important;transform:none!important}.fitme{transform:none!important}
 }</style>"""
 

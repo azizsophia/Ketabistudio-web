@@ -68,6 +68,8 @@
   .kick{font:500 3cqw 'Plus Jakarta Sans';letter-spacing:.5cqw;text-transform:uppercase;white-space:nowrap;color:#e7c98c}
   .arch{width:52%;aspect-ratio:3/4;border:0.7cqw solid var(--gold);border-radius:50% 50% 7% 7%/40% 40% 5% 5%;overflow:hidden;background:var(--teal-dk);margin-top:2cqw}
   .arch img{width:100%;height:100%;object-fit:cover;display:block;background:#cdd4cf}
+  /* no cover photo: hide the arch so the cover reads as intentional, not empty */
+  .arch:has(img[src=""]),.arch:has(img:not([src])){display:none}
   .name{font:600 13cqw 'Fraunces',serif;line-height:.92;color:#fbf2dd;text-align:center;margin-top:1cqw}
   .name-ar{font:600 5cqw 'Baloo Bhaijaan 2',sans-serif;color:var(--gold);margin-top:1.2cqw}
 
