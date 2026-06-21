@@ -158,6 +158,10 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
 }
 .heroCapWrap {
   position: absolute;
@@ -209,6 +213,10 @@
   height: 70cqw; /* 4:5 portrait */
   object-fit: cover;
   border: 1px solid var(--kacc-deep, #967a46);
+  display: block;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
 }
 .galCap {
   font-style: italic;

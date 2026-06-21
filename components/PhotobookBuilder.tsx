@@ -1,11 +1,18 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import styles from "./PhotobookBuilder.module.css";
 import type { PhotobookTemplate } from "@/lib/photobook";
 import { CAPTION_MAX } from "@/lib/photobook";
 import { HARDCOVER_PRICE_DISPLAY } from "@/lib/pricing";
 import KeepsakeLivePreview from "./KeepsakeLivePreview";
+import PhotoCropper from "./PhotoCropper";
+import { type Crop } from "@/lib/photoCrop";
+
+// Frame shapes the photos print into (see photobook_pipeline.py): full-bleed
+// hero & cover are square; framed gallery pages are 4:5 portrait (1400x1750).
+const HERO_ASPECT = 1, HERO_MIN_PX = 1500;
+const GAL_ASPECT = 1400 / 1750, GAL_MIN_PX = 1100;
 
 /* DPI guard thresholds, caught UPFRONT at upload (never after ordering).
    Many pages print full-bleed (8.75in = 2625px @ 300 DPI), so we hold photos
@@ -83,6 +90,7 @@ export default function PhotobookBuilder({
   const [recipient, setRecipient] = useState("");
   const [author, setAuthor] = useState("");
   const [coverPhoto, setCoverPhoto] = useState<Photo | null>(null);
+  const [coverCrop, setCoverCrop] = useState<Crop | null>(null);
 
   /* spreads */
   const [captions, setCaptions] = useState<string[]>([
@@ -91,6 +99,10 @@ export default function PhotobookBuilder({
   const [photos, setPhotos] = useState<(Photo | null)[]>(
     template.defaultCaptions.map(() => null)
   );
+  const [pageCrops, setPageCrops] = useState<(Crop | null)[]>(
+    template.defaultCaptions.map(() => null)
+  );
+  const [reuseFor, setReuseFor] = useState<number | null>(null);
 
   /* The keepsake is hardcover-only (24pp casewrap). */
   const coverType = "hardcover" as const;
@@ -128,6 +140,7 @@ export default function PhotobookBuilder({
 
   async function onCoverFile(file: File) {
     setError("");
+    setCoverCrop(null);
     setCoverPhoto({ url: "", width: null, height: null, quality: "unknown", uploading: true });
     try {
       const p = await uploadPhoto(file);
@@ -140,6 +153,7 @@ export default function PhotobookBuilder({
 
   async function onSpreadFile(i: number, file: File) {
     setError("");
+    setPageCrops((prev) => prev.map((x, j) => (j === i ? null : x)));
     setPhotos((prev) => {
       const next = [...prev];
       next[i] = { url: "", width: null, height: null, quality: "unknown", uploading: true };
@@ -206,6 +220,24 @@ export default function PhotobookBuilder({
     );
   }
 
+  /* distinct usable photos already added, offered for one-tap reuse */
+  const usedPhotos = useMemo(() => {
+    const seen = new Set<string>();
+    const out: Photo[] = [];
+    for (const p of [coverPhoto, ...photos]) {
+      if (p?.url && !p.uploading && !seen.has(p.url)) { seen.add(p.url); out.push(p); }
+    }
+    return out;
+  }, [coverPhoto, photos]);
+
+  function assignReuse(src: Photo) {
+    if (reuseFor === null) return;
+    const i = reuseFor;
+    setPhotos((prev) => prev.map((x, j) => (j === i ? { ...src, uploading: false } : x)));
+    setPageCrops((prev) => prev.map((x, j) => (j === i ? null : x)));
+    setReuseFor(null);
+  }
+
   /* ── derived validity (used to DISABLE continue, so it's impossible to reach
         checkout with a blocked/missing photo) ── */
   const namesValid =
@@ -256,9 +288,11 @@ export default function PhotobookBuilder({
           recipient_name: recipient.trim(),
           author_name: author.trim(),
           cover_photo_url: coverPhoto!.url,
+          cover_crop: coverCrop,
           pages: captions.map((c, i) => ({
             caption: c.trim(),
             photo_url: photos[i]!.url,
+            crop: pageCrops[i] || null,
           })),
           cover_type: coverType,
           email: email.trim(),
@@ -297,44 +331,72 @@ export default function PhotobookBuilder({
     }
   }
 
-  /* ── render: an uploader widget ── */
+  /* ── render: an uploader widget with drag/zoom positioning ── */
   function Uploader({
-    photo,
-    onFile,
-    label,
+    photo, onFile, label, crop, onCrop, frameAspect, minShortPx,
+    canReuse, onReuseRequest,
   }: {
     photo: Photo | null;
     onFile: (f: File) => void;
     label: string;
+    crop?: Crop | null;
+    onCrop?: (c: Crop) => void;
+    frameAspect: number;
+    minShortPx: number;
+    canReuse?: boolean;
+    onReuseRequest?: () => void;
   }) {
-    return (
-      <>
+    const fileInput = (text: string) => (
+      <label className={styles.fileBtn}>
+        {text}
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) onFile(f);
+            e.currentTarget.value = "";
+          }}
+        />
+      </label>
+    );
+
+    if (photo && photo.url && !photo.uploading) {
+      return (
         <div className={styles.uploader}>
-          {photo && photo.url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={photo.url} alt="" className={styles.thumb} />
-          ) : (
-            <div className={styles.thumbEmpty}>
-              {photo?.uploading ? "Uploading…" : "No photo"}
-            </div>
-          )}
+          <div className={styles.cropHost}>
+            <PhotoCropper
+              src={photo.url}
+              frameAspect={frameAspect}
+              minShortPx={minShortPx}
+              value={crop}
+              onChange={(c) => onCrop?.(c)}
+              showSafe
+            />
+          </div>
           <div className={styles.uploadBody}>
-            <label className={styles.fileBtn}>
-              {photo && photo.url ? "Change photo" : label}
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  const f = e.target.files?.[0];
-                  if (f) onFile(f);
-                  e.currentTarget.value = "";
-                }}
-              />
-            </label>
+            {fileInput("Change photo")}
             {dpiMessage(photo)}
           </div>
         </div>
-      </>
+      );
+    }
+
+    return (
+      <div className={styles.uploader}>
+        <div className={styles.thumbEmpty}>
+          {photo?.uploading ? "Uploading…" : "No photo"}
+        </div>
+        <div className={styles.uploadBody}>
+          {fileInput(label)}
+          {canReuse && onReuseRequest && (
+            <button type="button" className={styles.reuseInline} onClick={onReuseRequest}>
+              or reuse a photo you added
+            </button>
+          )}
+          {dpiMessage(photo)}
+        </div>
+      </div>
     );
   }
 
@@ -346,7 +408,8 @@ export default function PhotobookBuilder({
       recipient={recipient}
       author={author}
       coverPhotoUrl={coverPhoto?.url || null}
-      pages={captions.map((c, i) => ({ caption: c, url: photos[i]?.url || null }))}
+      coverCrop={coverCrop}
+      pages={captions.map((c, i) => ({ caption: c, url: photos[i]?.url || null, crop: pageCrops[i] }))}
     />
   );
 
@@ -357,6 +420,9 @@ export default function PhotobookBuilder({
         {preview}
       </aside>
       <div className={styles.formPane}>{content}</div>
+      {reuseFor !== null && (
+        <ReusePicker photos={usedPhotos} onPick={assignReuse} onClose={() => setReuseFor(null)} />
+      )}
     </div>
   );
 
@@ -400,7 +466,9 @@ export default function PhotobookBuilder({
           </p>
 
           <p className={styles.label}>Cover photo</p>
-          <Uploader photo={coverPhoto} onFile={onCoverFile} label="Add cover photo" />
+          <Uploader photo={coverPhoto} onFile={onCoverFile} label="Add cover photo"
+            crop={coverCrop} onCrop={setCoverCrop}
+            frameAspect={HERO_ASPECT} minShortPx={HERO_MIN_PX} />
 
           {error && <p className={styles.error}>{error}</p>}
           <div className={styles.btnRow}>
@@ -470,6 +538,12 @@ export default function PhotobookBuilder({
                 photo={photos[i]}
                 onFile={(f) => onSpreadFile(i, f)}
                 label="Add photo"
+                crop={pageCrops[i]}
+                onCrop={(c) => setPageCrops((prev) => prev.map((x, j) => (j === i ? c : x)))}
+                frameAspect={fullPage ? HERO_ASPECT : GAL_ASPECT}
+                minShortPx={fullPage ? HERO_MIN_PX : GAL_MIN_PX}
+                canReuse={usedPhotos.length > 0}
+                onReuseRequest={() => setReuseFor(i)}
               />
             </div>
             );
@@ -628,5 +702,26 @@ export default function PhotobookBuilder({
         </div>
       </div>
     </section>
+  );
+}
+
+function ReusePicker({ photos, onPick, onClose }: {
+  photos: Photo[]; onPick: (p: Photo) => void; onClose: () => void;
+}) {
+  return (
+    <div className={styles.reuseBackdrop} onClick={onClose} role="dialog" aria-modal="true">
+      <div className={styles.reusePanel} onClick={(e) => e.stopPropagation()}>
+        <p className={styles.reuseTitle}>Reuse one of your photos</p>
+        <div className={styles.reuseGrid}>
+          {photos.map((p, idx) => (
+            <button key={idx} type="button" className={styles.reuseThumb} onClick={() => onPick(p)}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={p.url} alt="" />
+            </button>
+          ))}
+        </div>
+        <button type="button" className="btn btn-outline" onClick={onClose}>Cancel</button>
+      </div>
+    </div>
   );
 }

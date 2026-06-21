@@ -2,6 +2,7 @@
 
 import type { ReactNode, CSSProperties } from "react";
 import type { PhotobookTemplate } from "@/lib/photobook";
+import { type Crop, cropToBackground } from "@/lib/photoCrop";
 import KeepsakeFlipbook from "./KeepsakeFlipbook";
 import s from "./KeepsakeLivePreview.module.css";
 
@@ -20,16 +21,23 @@ import s from "./KeepsakeLivePreview.module.css";
 // Mirrors photobook_pipeline._is_hero (1-indexed photo position).
 const isHero = (n: number) => n % 3 === 1;
 
-type Page = { url: string | null; caption: string };
+type Page = { url: string | null; caption: string; crop?: Crop | null };
 
 function Frame() {
   return <span className={s.frame} aria-hidden="true" />;
 }
 
-function PhotoOrEmpty({ url, className }: { url: string | null; className: string }) {
+function PhotoOrEmpty({ url, crop, className }: {
+  url: string | null; crop?: Crop | null; className: string;
+}) {
   if (url) {
-    // eslint-disable-next-line @next/next/no-img-element
-    return <img src={url} alt="" className={className} />;
+    const bg = crop ? cropToBackground(crop) : { size: "cover", position: "center" };
+    return (
+      <span
+        className={className}
+        style={{ backgroundImage: `url("${url}")`, backgroundSize: bg.size, backgroundPosition: bg.position }}
+      />
+    );
   }
   return (
     <span className={`${className} ${s.empty}`}>
@@ -43,12 +51,14 @@ export default function KeepsakeLivePreview({
   recipient,
   author,
   coverPhotoUrl,
+  coverCrop,
   pages,
 }: {
   template: PhotobookTemplate;
   recipient: string;
   author: string;
   coverPhotoUrl: string | null;
+  coverCrop?: Crop | null;
   pages: Page[];
 }) {
   const who = recipient.trim() || template.recipientLabel.replace(/'s name$/, "");
@@ -63,7 +73,7 @@ export default function KeepsakeLivePreview({
 
   const cover: ReactNode = (
     <div className={s.pg}>
-      <PhotoOrEmpty url={coverPhotoUrl} className={s.heroPhoto} />
+      <PhotoOrEmpty url={coverPhotoUrl} crop={coverCrop} className={s.heroPhoto} />
       <span className={s.coverOverlay}>
         <span className={s.coverKicker}>A Keepsake</span>
         {customCover ? (
@@ -112,7 +122,7 @@ export default function KeepsakeLivePreview({
     if (isHero(n)) {
       return (
         <div className={s.pg} key={n}>
-          <PhotoOrEmpty url={p.url} className={s.heroPhoto} />
+          <PhotoOrEmpty url={p.url} crop={p.crop} className={s.heroPhoto} />
           {p.caption.trim() && (
             <span className={s.heroCapWrap}>
               <span className={s.heroTick} aria-hidden="true" />
@@ -124,7 +134,7 @@ export default function KeepsakeLivePreview({
     }
     return (
       <div className={`${s.pg} ${s.galPage}`} key={n}>
-        <PhotoOrEmpty url={p.url} className={s.galPhoto} />
+        <PhotoOrEmpty url={p.url} crop={p.crop} className={s.galPhoto} />
         {p.caption.trim() && <span className={s.galCap}>{p.caption}</span>}
       </div>
     );

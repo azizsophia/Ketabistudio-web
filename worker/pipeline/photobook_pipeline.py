@@ -196,6 +196,28 @@ def _cover_fit(img, w, h):
     return r.crop((x0, y0, x0 + w, y0 + h))
 
 
+def _cropped_fit(img, w, h, crop=None):
+    """Place a photo in a w x h box honouring the customer's crop/zoom. `crop`
+    is the visible source rectangle in fractions {x,y,w,h}; we crop the original
+    to it then resize to the box (its aspect matches the box, so no distortion).
+    No crop -> centred cover-fit, exactly as before."""
+    if crop:
+        try:
+            x, y = float(crop["x"]), float(crop["y"])
+            cw, ch = float(crop["w"]), float(crop["h"])
+        except (KeyError, TypeError, ValueError):
+            return _cover_fit(img, w, h)
+        if cw > 0 and ch > 0:
+            W, H = img.size
+            box = (
+                max(0, int(round(x * W))), max(0, int(round(y * H))),
+                min(W, int(round((x + cw) * W))), min(H, int(round((y + ch) * H))),
+            )
+            if box[2] - box[0] >= 2 and box[3] - box[1] >= 2:
+                return img.crop(box).resize((w, h), Image.LANCZOS)
+    return _cover_fit(img, w, h)
+
+
 # ── design helpers ──────────────────────────────────────────────────
 def _page():
     """A bare ivory trim-size page with generous breathing room (no frame)."""
@@ -319,11 +341,11 @@ def dedication_page(recipient, author, template="about-mama"):
     return img
 
 
-def hero_photo_page(photo, caption):
+def hero_photo_page(photo, caption, crop=None):
     """Full-bleed hero: the photo reads edge to edge; the caption sits over a
     soft gradient scrim (no hard band), in ivory italic with a fine gold tick.
     Returns a FULLBLEED image."""
-    base = _cover_fit(photo, FULLBLEED, FULLBLEED)
+    base = _cropped_fit(photo, FULLBLEED, FULLBLEED, crop)
     cap = (caption or "").strip()
     if not cap:
         return base
@@ -343,7 +365,7 @@ def hero_photo_page(photo, caption):
     return base
 
 
-def gallery_photo_page(photo, caption, photo_left=True):
+def gallery_photo_page(photo, caption, photo_left=True, crop=None):
     """Editorial gallery page: a single clean photo, CENTRED on the page with
     generous whitespace and ONE fine gold hairline (no mat, no double frame, no
     star). A 4:5 portrait crop (kind to faces) leaves a clean band beneath for
@@ -357,7 +379,7 @@ def gallery_photo_page(photo, caption, photo_left=True):
     top = 300
     wx = (TRIM - win_w) // 2           # centred horizontally
     wy = top
-    photo_fit = _cover_fit(photo, win_w, win_h)
+    photo_fit = _cropped_fit(photo, win_w, win_h, crop)
     img.paste(photo_fit, (wx, wy))
     # one fine gold hairline directly bordering the photo
     d.rectangle([wx, wy, wx + win_w, wy + win_h], outline=ACCENT_DEEP, width=2)
@@ -425,11 +447,11 @@ def closing_page(author):
 
 
 # ── cover ───────────────────────────────────────────────────────────
-def _front_cover(recipient, author, cover_photo, template="about-mama"):
+def _front_cover(recipient, author, cover_photo, template="about-mama", crop=None):
     """Premium full-bleed cover: the photo runs edge to edge; the title is set
     over a soft bottom scrim in ivory Playfair with a small-caps kicker, a fine
     gold rule, and an italic byline — a coffee-table / fine-art book feel."""
-    base = _cover_fit(cover_photo, FULLBLEED, FULLBLEED)
+    base = _cropped_fit(cover_photo, FULLBLEED, FULLBLEED, crop)
     base = _bottom_scrim(base, frac=0.62, max_alpha=195)
     d = ImageDraw.Draw(base, "RGBA")
     cx = FULLBLEED // 2
@@ -473,7 +495,8 @@ SOFTCOVER_SPINE = 60
 
 
 def cover_wrap(recipient, author, cover_photo, cover_type="softcover",
-               client=None, page_count=32, pod=None, template="about-mama"):
+               client=None, page_count=32, pod=None, template="about-mama",
+               cover_crop=None):
     """Full-bleed Lulu wrap: back + spine + front.
 
     softcover: 17.39x8.75in perfect-bound wrap (same as the books) — built from
@@ -483,7 +506,7 @@ def cover_wrap(recipient, author, cover_photo, cover_type="softcover",
       casewrap spine/turn-in geometry is a first cut — flag for human review on
       the first real hardcover proof; the Lulu validate-cover gate protects it.
     """
-    fc = _front_cover(recipient, author, cover_photo, template)
+    fc = _front_cover(recipient, author, cover_photo, template, crop=cover_crop)
     bc = _back_cover(recipient, author)
     if cover_type == "hardcover":
         from lulu_client import HARDCOVER_POD, cover_dims_to_px
@@ -544,21 +567,24 @@ def _is_hero(index_1based):
     return index_1based % 3 == 1
 
 
-def _plan_photo_pages(photos, captions):
+def _plan_photo_pages(photos, captions, crops=None):
     """Build the photo section as ONE page per photo (caption baked on).
-    Returns a flat list of render thunks."""
+    Returns a flat list of render thunks. `crops` is a parallel list of the
+    customer's crop/zoom per photo (or None)."""
+    crops = crops or [None] * len(photos)
     thunks = []
     framed_index = 0
-    for i, (photo, cap) in enumerate(zip(photos, captions), start=1):
+    for i, (photo, cap, crop) in enumerate(zip(photos, captions, crops), start=1):
         if _is_hero(i):
             thunks.append(
-                lambda photo=photo, cap=cap: hero_photo_page(photo, cap))
+                lambda photo=photo, cap=cap, crop=crop:
+                hero_photo_page(photo, cap, crop=crop))
         else:
             left = (framed_index % 2 == 0)
             framed_index += 1
             thunks.append(
-                lambda photo=photo, cap=cap, left=left:
-                gallery_photo_page(photo, cap, photo_left=left))
+                lambda photo=photo, cap=cap, left=left, crop=crop:
+                gallery_photo_page(photo, cap, photo_left=left, crop=crop))
     return thunks
 
 
@@ -600,14 +626,16 @@ def build(photo_data, out_dir, cover_type="hardcover", client=None,
 
     # Download every photo up front; any failure raises (never ship a blank).
     cover_photo = _download(photo_data.get("cover_photo_url"))
+    cover_crop = photo_data.get("cover_crop")
     photos = [_download(pg.get("photo_url")) for pg in pages]
     captions = [(pg.get("caption") or "").strip() for pg in pages]
+    crops = [pg.get("crop") for pg in pages]
 
     front = [
         lambda: title_page(recipient, author, template),
         lambda: dedication_page(recipient, author, template),
     ]
-    photo_pages = _plan_photo_pages(photos, captions)   # 1 page per photo
+    photo_pages = _plan_photo_pages(photos, captions, crops)   # 1 page per photo
     back = [
         lambda: dua_page(template),
         lambda: closing_page(author),
@@ -654,7 +682,8 @@ def build(photo_data, out_dir, cover_type="hardcover", client=None,
 
     wrap, fc = cover_wrap(recipient, author, cover_photo,
                           cover_type=cover_type, client=client,
-                          page_count=page_count, pod=pod, template=template)
+                          page_count=page_count, pod=pod, template=template,
+                          cover_crop=cover_crop)
     fc.save(out / "cover_front.jpg", "JPEG", quality=90)
     wrap.save(out / "cover.jpg", "JPEG", quality=90)
     wrap.save(out / "cover.pdf", "PDF", resolution=300.0)

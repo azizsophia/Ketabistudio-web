@@ -6,6 +6,10 @@ import {
   isPhotobookSlug,
   CAPTION_MAX,
 } from "@/lib/photobook";
+import { type Crop, isValidCrop } from "@/lib/photoCrop";
+
+const cropOrNull = (c: unknown): Crop | null =>
+  isValidCrop(c) ? { x: c.x, y: c.y, w: c.w, h: c.h } : null;
 
 const SB = process.env.SUPABASE_URL?.replace(/\s/g, "").replace(/\/$/, "");
 const KEY = process.env.SUPABASE_SERVICE_KEY?.replace(/\s/g, "");
@@ -78,7 +82,7 @@ export async function POST(req: NextRequest) {
       { status: 400 }
     );
   }
-  const pages: { photo_url: string; caption: string }[] = [];
+  const pages: { photo_url: string; caption: string; crop: Crop | null }[] = [];
   for (let i = 0; i < rawPages.length; i++) {
     const p = rawPages[i] as Record<string, unknown> | null;
     const caption = String(p?.caption || "").trim();
@@ -101,7 +105,7 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-    pages.push({ photo_url: photoUrl, caption });
+    pages.push({ photo_url: photoUrl, caption, crop: cropOrNull(p?.crop) });
   }
 
   /* email */
@@ -164,6 +168,7 @@ export async function POST(req: NextRequest) {
       recipient_name: recipientName,
       author_name: authorName,
       cover_photo_url: coverPhotoUrl,
+      cover_crop: cropOrNull(body.cover_crop),
       pages,
     },
     status: "awaiting_payment",
