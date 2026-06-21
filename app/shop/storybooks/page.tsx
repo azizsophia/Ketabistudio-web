@@ -33,6 +33,48 @@ export default function StorybooksPage() {
       </header>
 
       <section className={`wrap ${styles.grid}`} aria-label="All storybooks">
+        {/* Flagship personalized title — rendered "I am ___" cover so the
+            personalization reads at a glance (no fixed cover photo). */}
+        <Link href="/books/i-am" className={`card ${styles.bookCard}`}>
+          <span className={styles.cover}>
+            <span
+              className={styles.coverGlow}
+              style={{ background: "#2f5d57" }}
+              aria-hidden="true"
+            />
+            <span className={styles.iamCover}>
+              <span className={styles.iamKick}>A book about good character</span>
+              <span className={styles.iamArch}>Your photo</span>
+              <span className={styles.iamIam}>I am</span>
+              <span className={styles.iamName}>Your child</span>
+              <span className={styles.iamNameAr} dir="rtl" lang="ar">
+                اسم طفلك
+              </span>
+            </span>
+            <span className={styles.personalizeBadge}>
+              <span className={styles.badgeDiamond} aria-hidden="true" />
+              Personalize
+            </span>
+          </span>
+          <span className={styles.body}>
+            <span className={`${styles.tag} ${styles.tagPersonalized}`}>
+              Personalized
+            </span>
+            <span className={styles.title}>I Am [Your Child]</span>
+            <span className={styles.value}>
+              Twelve beautiful traits, in English and Arabic
+            </span>
+            <span className={styles.blurb}>
+              A keepsake where your child is the hero of every page, with their
+              name, your dedication, and your own photos.
+            </span>
+            <span className={styles.cta}>
+              Personalize this book
+              <span aria-hidden="true"> &rarr;</span>
+            </span>
+          </span>
+        </Link>
+
         {[...BOOKS]
           .sort((a, b) => Number(!!a.comingSoon) - Number(!!b.comingSoon))
           .map((b, i) => {

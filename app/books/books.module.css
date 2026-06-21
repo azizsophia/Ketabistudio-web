@@ -207,6 +207,71 @@
 
 .bookCard:hover .cta { color: var(--gold-deep); }
 
+/* ── personalized "I am ___" mini-cover (rendered, no photo) ── */
+.iamCover {
+  position: relative;
+  z-index: 1;
+  width: min(280px, 80%);
+  aspect-ratio: 1 / 1;
+  border-radius: 4px 12px 12px 4px;
+  background: #2f5d57;
+  color: #f6efe0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 7% 8%;
+  text-align: center;
+  box-shadow:
+    -3px 0 0 rgba(0, 0, 0, 0.06),
+    0 26px 44px -26px rgba(46, 74, 58, 0.5);
+  transition: transform 0.32s ease, box-shadow 0.32s ease;
+}
+.bookCard:hover .iamCover {
+  transform: translateY(-8px) rotate(-1deg);
+  box-shadow:
+    -3px 0 0 rgba(0, 0, 0, 0.06),
+    0 36px 60px -28px rgba(46, 74, 58, 0.55);
+}
+.iamKick {
+  font-size: 0.5rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(246, 239, 224, 0.72);
+  margin-bottom: 9%;
+}
+.iamArch {
+  width: 52%;
+  aspect-ratio: 3 / 4;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  background: #21443f;
+  box-shadow: inset 0 0 0 2px rgba(246, 239, 224, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+  color: rgba(246, 239, 224, 0.7);
+  margin-bottom: 8%;
+}
+.iamIam {
+  font-family: var(--font-display), Georgia, serif;
+  font-style: italic;
+  font-size: 1.2rem;
+  color: var(--gold);
+  line-height: 1;
+}
+.iamName {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.7rem;
+  line-height: 1.05;
+}
+.iamNameAr {
+  font-family: var(--font-arabic), serif;
+  font-size: 1.05rem;
+  color: rgba(246, 239, 224, 0.9);
+  margin-top: 5%;
+}
+
 /* ── trust strip ────────────────────────────────────── */
 .trust {
   margin: clamp(48px, 8vw, 84px) auto var(--space-section);
