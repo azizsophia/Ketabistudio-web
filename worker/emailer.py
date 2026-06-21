@@ -16,8 +16,9 @@ RESEND_API_KEY = "".join(os.environ.get("RESEND_API_KEY", "").split())
 EMAIL_FROM = os.environ.get(
     "EMAIL_FROM", "Ketabi Studio <orders@ketabistudio.com>"
 ).strip()
-# Where owner approval requests go. Falls back to the studio inbox.
-ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "ketabistudio@gmail.com").strip()
+# Where owner approval requests go. Falls back to the orders inbox on the
+# verified domain (an inbox the studio actually monitors).
+ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "orders@ketabistudio.com").strip()
 
 FOREST = "#2E4A3A"
 CREAM = "#F6F4EF"
