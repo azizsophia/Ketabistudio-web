@@ -2,11 +2,20 @@
 
 import { useMemo, useState, type CSSProperties } from "react";
 import styles from "./IamBookBuilder.module.css";
+import PhotoCropper from "./PhotoCropper";
+import { type Crop, cropToBackground } from "@/lib/photoCrop";
 import {
   COLORWAYS, BINDINGS, NAME_MAX, DEDICATION_MAX, PHOTO_SLOTS, TRAITS,
   suggestArabicSmart, hasArabic, bindingCents,
   type Gender, type Colorway, type Binding,
 } from "@/lib/iamBook";
+
+// Frame shapes the photos print into, so the on-screen crop matches the page.
+const COVER_ASPECT = 4 / 5;   // the cover photo arch
+const COVER_MIN_PX = 900;     // keep the cover crop ≥ ~210 ppi
+const INSIDE_ASPECT = 1;      // full-bleed square page
+const INSIDE_MIN_PX = 1400;   // keep an inside crop ≥ ~160 ppi
+const ARCH_RADIUS = "50% 50% 9% 9% / 36% 36% 6% 6%";
 
 const COUNTRIES = [
   { code: "US", name: "United States" }, { code: "GB", name: "United Kingdom" },
@@ -26,7 +35,6 @@ const COUNTRIES = [
   { code: "TR", name: "Turkey" }, { code: "AE", name: "United Arab Emirates" },
 ] as const;
 const STATE_REQUIRED = new Set(["US", "CA", "AU"]);
-const DPI_MIN = 2000;
 
 type Photo = { url: string; w: number | null; h: number | null; busy?: boolean };
 type Step = "details" | "photos" | "deliver";
@@ -49,7 +57,11 @@ export default function IamBookBuilder() {
   const [binding, setBinding] = useState<Binding>("hardcover");
 
   const [cover, setCover] = useState<Photo | null>(null);
+  const [coverCrop, setCoverCrop] = useState<Crop | null>(null);
   const [photos, setPhotos] = useState<(Photo | null)[]>(
+    Array(PHOTO_SLOTS).fill(null)
+  );
+  const [photoCrops, setPhotoCrops] = useState<(Crop | null)[]>(
     Array(PHOTO_SLOTS).fill(null)
   );
 
@@ -79,12 +91,14 @@ export default function IamBookBuilder() {
 
   async function onCover(file: File) {
     setError("");
+    setCoverCrop(null); // new photo → re-centre the crop
     setCover({ url: "", w: null, h: null, busy: true });
     try { setCover(await upload(file)); }
     catch (e) { setCover(null); setError((e as Error).message); }
   }
   async function onPhoto(i: number, file: File) {
     setError("");
+    setPhotoCrops((c) => c.map((x, j) => (j === i ? null : x)));
     setPhotos((p) => p.map((x, j) => (j === i ? { url: "", w: null, h: null, busy: true } : x)));
     try {
       const ph = await upload(file);
@@ -95,10 +109,12 @@ export default function IamBookBuilder() {
     }
   }
 
-  const lowRes = (p: Photo | null) =>
-    !!p && !p.busy && p.w !== null && Math.min(p.w, p.h || 0) < DPI_MIN;
+  // A photo is too small only if its native short edge is under the floor for
+  // the frame it goes in (so even un-zoomed it can't print sharply).
+  const tooSmall = (p: Photo | null, floor: number) =>
+    !!p && !p.busy && p.w !== null && Math.min(p.w, p.h || 0) < floor;
   const anyLowRes =
-    lowRes(cover) || photos.some(lowRes);
+    tooSmall(cover, COVER_MIN_PX) || photos.some((p) => tooSmall(p, INSIDE_MIN_PX));
 
   function goPhotos() {
     setError("");
@@ -136,7 +152,10 @@ export default function IamBookBuilder() {
           name: name.trim(), name_arabic: nameAr.trim(), gender,
           dedication: dedication.trim(), colorway, binding,
           cover_photo_url: cover?.url || null,
-          photos: photos.map((p) => p?.url || null),
+          cover_crop: cover?.url ? coverCrop : null,
+          photos: photos.map((p, i) =>
+            p?.url ? { url: p.url, crop: photoCrops[i] || null } : null
+          ),
           email: email.trim(),
           shipping: {
             name: sName.trim(), line1: line1.trim(), line2: line2.trim(),
@@ -168,13 +187,20 @@ export default function IamBookBuilder() {
         style={{ background: cw.bg, ["--cover-dk" as string]: cw.dk } as CSSProperties}
       >
         <span className={styles.cKick}>A book about good character</span>
-        <span className={styles.arch}>
-          {cover?.url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={cover.url} alt="" />
-          ) : (
-            <span className={styles.archEmpty}>Your photo</span>
-          )}
+        <span
+          className={styles.arch}
+          style={
+            cover?.url
+              ? {
+                  backgroundImage: `url("${cover.url}")`,
+                  backgroundRepeat: "no-repeat",
+                  backgroundSize: coverCrop ? cropToBackground(coverCrop).size : "cover",
+                  backgroundPosition: coverCrop ? cropToBackground(coverCrop).position : "center",
+                }
+              : undefined
+          }
+        >
+          {!cover?.url && <span className={styles.archEmpty}>Your photo</span>}
         </span>
         <span className={styles.cIam}>I am</span>
         <span className={styles.cName}>{name.trim() || "Your child"}</span>
@@ -301,20 +327,32 @@ export default function IamBookBuilder() {
             </p>
 
             <span className={styles.label}>Cover photo</span>
-            <PhotoTile photo={cover} onPick={onCover} onClear={() => setCover(null)} big />
+            <PhotoSlot
+              photo={cover} crop={coverCrop} big
+              frameAspect={COVER_ASPECT} minShortPx={COVER_MIN_PX} rounded={ARCH_RADIUS}
+              onPick={onCover}
+              onCrop={setCoverCrop}
+              onClear={() => { setCover(null); setCoverCrop(null); }}
+            />
 
             <span className={styles.label}>Inside photos</span>
             <div className={styles.photoGrid}>
               {photos.map((p, i) => (
-                <PhotoTile key={i} photo={p} label={TRAITS[i]?.trait}
+                <PhotoSlot key={i} photo={p} crop={photoCrops[i]} label={TRAITS[i]?.trait}
+                  frameAspect={INSIDE_ASPECT} minShortPx={INSIDE_MIN_PX}
                   onPick={(f) => onPhoto(i, f)}
-                  onClear={() => setPhotos((arr) => arr.map((x, j) => (j === i ? null : x)))} />
+                  onCrop={(c) => setPhotoCrops((arr) => arr.map((x, j) => (j === i ? c : x)))}
+                  onClear={() => {
+                    setPhotos((arr) => arr.map((x, j) => (j === i ? null : x)));
+                    setPhotoCrops((arr) => arr.map((x, j) => (j === i ? null : x)));
+                  }} />
               ))}
             </div>
 
             <p className={styles.note}>
+              Drag any photo to position it, and pinch or use the slider to zoom.
               For the sharpest print, use clear photos at least 2000 pixels on the
-              short side. Faces look best kept away from the very edges.
+              short side, the zoom is limited so nothing ever prints blurry.
             </p>
 
             {error && <p className={styles.error}>{error}</p>}
@@ -398,29 +436,45 @@ export default function IamBookBuilder() {
   );
 }
 
-function PhotoTile({ photo, onPick, onClear, label, big }: {
-  photo: Photo | null; onPick: (f: File) => void; onClear: () => void;
-  label?: string; big?: boolean;
+function PhotoSlot({
+  photo, crop, onPick, onCrop, onClear, label, big, frameAspect, minShortPx, rounded,
+}: {
+  photo: Photo | null;
+  crop: Crop | null;
+  onPick: (f: File) => void;
+  onCrop: (c: Crop) => void;
+  onClear: () => void;
+  label?: string;
+  big?: boolean;
+  frameAspect: number;
+  minShortPx: number;
+  rounded?: string;
 }) {
-  const low = !!photo && !photo.busy && photo.w !== null && Math.min(photo.w, photo.h || 0) < DPI_MIN;
+  if (photo?.busy) {
+    return <div className={`${styles.tile} ${big ? styles.tileBig : ""}`}><span className={styles.tileMsg}>Uploading…</span></div>;
+  }
+  if (photo?.url) {
+    return (
+      <div className={big ? styles.coverSlot : undefined}>
+        <PhotoCropper
+          src={photo.url}
+          frameAspect={frameAspect}
+          minShortPx={minShortPx}
+          rounded={rounded}
+          value={crop}
+          onChange={onCrop}
+          onClear={onClear}
+        />
+      </div>
+    );
+  }
   return (
     <div className={`${styles.tile} ${big ? styles.tileBig : ""}`}>
-      {photo?.busy ? (
-        <span className={styles.tileMsg}>Uploading…</span>
-      ) : photo?.url ? (
-        <>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={photo.url} alt="" className={styles.tileImg} />
-          <button type="button" className={styles.tileX} onClick={onClear} aria-label="Remove">×</button>
-          {low && <span className={styles.tileLow}>Low res</span>}
-        </>
-      ) : (
-        <label className={styles.tileAdd}>
-          <input type="file" accept="image/*" hidden
-            onChange={(e) => e.target.files?.[0] && onPick(e.target.files[0])} />
-          <span>{label || "Add"}</span>
-        </label>
-      )}
+      <label className={styles.tileAdd}>
+        <input type="file" accept="image/*" hidden
+          onChange={(e) => e.target.files?.[0] && onPick(e.target.files[0])} />
+        <span>{label || "Add"}</span>
+      </label>
     </div>
   );
 }

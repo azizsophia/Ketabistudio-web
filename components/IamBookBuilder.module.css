@@ -306,15 +306,19 @@
 }
 
 /* ── photos ── */
+.coverSlot {
+  max-width: 240px;
+  margin-top: 8px;
+}
 .photoGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px 12px;
   margin-top: 8px;
 }
 @media (max-width: 620px) {
   .photoGrid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 .tile {

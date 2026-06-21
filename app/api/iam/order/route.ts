@@ -7,6 +7,7 @@ import {
   PHOTO_SLOTS,
   hasArabic,
 } from "@/lib/iamBook";
+import { type Crop, isValidCrop } from "@/lib/photoCrop";
 
 const SB = process.env.SUPABASE_URL?.replace(/\s/g, "").replace(/\/$/, "");
 const KEY = process.env.SUPABASE_SERVICE_KEY?.replace(/\s/g, "");
@@ -78,24 +79,34 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  /* photos — all optional, but any provided must be ours and in-range */
+  /* photos — all optional, but any provided must be ours and in-range. Each
+     photo may carry a crop {x,y,w,h} (the customer's drag/zoom positioning). */
+  const cropOrNull = (c: unknown): Crop | null =>
+    isValidCrop(c) ? { x: c.x, y: c.y, w: c.w, h: c.h } : null;
+
   const coverPhoto = body.cover_photo_url;
   if (coverPhoto != null && coverPhoto !== "" && !isAcceptablePhotoUrl(coverPhoto)) {
     return NextResponse.json({ error: "invalid cover photo" }, { status: 400 });
   }
+  const coverCrop = coverPhoto ? cropOrNull(body.cover_crop) : null;
+
   const rawPhotos = Array.isArray(body.photos) ? body.photos : [];
   if (rawPhotos.length > PHOTO_SLOTS) {
     return NextResponse.json({ error: "too many photos" }, { status: 400 });
   }
-  const photos: (string | null)[] = [];
+  const photos: ({ url: string; crop: Crop | null } | null)[] = [];
   for (const p of rawPhotos) {
     if (p == null || p === "") {
       photos.push(null);
-    } else if (isAcceptablePhotoUrl(p)) {
-      photos.push(p);
-    } else {
+      continue;
+    }
+    // accept either a bare url (legacy) or { url, crop }
+    const url = typeof p === "string" ? p : (p as { url?: unknown }).url;
+    if (!isAcceptablePhotoUrl(url)) {
       return NextResponse.json({ error: "invalid photo" }, { status: 400 });
     }
+    const crop = typeof p === "string" ? null : cropOrNull((p as { crop?: unknown }).crop);
+    photos.push({ url, crop });
   }
 
   /* email */
@@ -152,6 +163,7 @@ export async function POST(req: NextRequest) {
     options: { name_arabic: nameArabic, gender, colorway, dedication },
     photo_data: {
       cover_photo_url: (typeof coverPhoto === "string" && coverPhoto) || null,
+      cover_crop: coverCrop,
       photos,
     },
     customer_email: email,

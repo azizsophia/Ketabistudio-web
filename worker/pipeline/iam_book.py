@@ -45,6 +45,26 @@ def _logo_data_uri():
     return ""
 
 
+def _crop_style(crop):
+    """Inline style that positions a photo so the customer's chosen crop/zoom is
+    exactly what prints. `crop` is the visible source rectangle in fractions
+    {x,y,w,h}; we scale the image so that rectangle fills the frame. Empty crop
+    -> "" (the CSS default object-fit:cover, centred)."""
+    if not crop:
+        return ""
+    try:
+        x, y = float(crop["x"]), float(crop["y"])
+        w, h = float(crop["w"]), float(crop["h"])
+    except (KeyError, TypeError, ValueError):
+        return ""
+    if w <= 0 or h <= 0:
+        return ""
+    wp, hp = 100.0 / w, 100.0 / h
+    lp, tp = -(x / w) * 100.0, -(y / h) * 100.0
+    return (f"position:absolute;left:{lp:.4f}%;top:{tp:.4f}%;"
+            f"width:{wp:.4f}%;height:{hp:.4f}%;max-width:none;object-fit:cover")
+
+
 def _tokens(order):
     g = (order.get("gender") or "boy").lower()
     pr = PRONOUNS.get(g, PRONOUNS["boy"])
@@ -58,9 +78,12 @@ def _tokens(order):
         **pr,
     }
     photos = order.get("photos") or {}
+    crops = order.get("crops") or {}
     t["PHOTO_COVER"] = photos.get("cover") or photos.get("PHOTO_COVER") or ""
+    t["PHOTO_COVER_STYLE"] = _crop_style(crops.get("cover"))
     for i in range(1, 13):
         t[f"PHOTO_{i}"] = photos.get(str(i)) or photos.get(f"PHOTO_{i}") or ""
+        t[f"PHOTO_{i}_STYLE"] = _crop_style(crops.get(str(i)))
     return t
 
 

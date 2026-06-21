@@ -229,6 +229,22 @@ def generate_iam(order, workdir: Path, cover_type="hardcover", client=None):
         raise qc.QCFailure("I Am book is missing the Arabic name")
 
     spec = spec_for(order["book_slug"], cover_type)
+
+    # photos may be a list of {"url","crop"} (current) or bare url strings
+    # (legacy); build url + crop maps the renderer consumes.
+    photos_map = {"cover": photos.get("cover_photo_url") or ""}
+    crops_map = {"cover": photos.get("cover_crop")}
+    for i, item in enumerate(photos.get("photos") or []):
+        if not item:
+            continue
+        if isinstance(item, str):
+            url, crop = item, None
+        else:
+            url, crop = item.get("url"), item.get("crop")
+        if url:
+            photos_map[str(i + 1)] = url
+            crops_map[str(i + 1)] = crop
+
     book_order = {
         "name": name,
         "name_arabic": name_ar,
@@ -236,12 +252,8 @@ def generate_iam(order, workdir: Path, cover_type="hardcover", client=None):
         "colorway": opt.get("colorway") or "teal",
         "binding": "hardcover" if cover_type == "hardcover" else "paperback",
         "dedication": opt.get("dedication") or "",
-        "photos": {
-            "cover": photos.get("cover_photo_url") or "",
-            **{str(i + 1): (photos.get("photos") or [])[i]
-               for i in range(len(photos.get("photos") or []))
-               if (photos.get("photos") or [])[i]},
-        },
+        "photos": photos_map,
+        "crops": crops_map,
     }
 
     # Cover wrap geometry from Lulu's exact dimensions (px @ 300 DPI → inches).
