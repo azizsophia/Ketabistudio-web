@@ -116,6 +116,13 @@ def _html_to_pdf(html, width_in=None, height_in=None, prefer_css=False) -> bytes
         browser = p.chromium.launch(args=["--no-sandbox"])
         page = browser.new_page()
         page.set_content(html, wait_until="networkidle")
+        # Fit the child's name to one line at any length — wait for the web
+        # fonts to load (so the measurement is exact), then shrink as needed.
+        try:
+            page.evaluate("document.fonts ? document.fonts.ready : true")
+            page.evaluate("window.__fitNames && window.__fitNames()")
+        except Exception:  # noqa: BLE001 — never let fitting break the render
+            pass
         page.emulate_media(media="print")
         kw = dict(print_background=True, margin={"top": "0", "right": "0",
                                                  "bottom": "0", "left": "0"})

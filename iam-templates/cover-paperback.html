@@ -59,6 +59,7 @@
   /* no cover photo: hide the arch so the cover reads as intentional, not empty */
   .arch:has(img[src=""]),.arch:has(img:not([src])){display:none}
   .kick{font:500 3cqw 'Plus Jakarta Sans';letter-spacing:.5cqw;text-transform:uppercase;white-space:nowrap;color:#e7c98c}
+  .fitname{white-space:nowrap}
 
   /* BACK */
   .back .inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
@@ -101,11 +102,17 @@
           <img src="{{PHOTO_COVER}}" style="{{PHOTO_COVER_STYLE}}" alt="">
         </div>
         <div class="kick" style="margin-top:5cqw">I am</div>
-        <div style="font:600 13cqw 'Fraunces',serif;line-height:.92;color:#fbf2dd;text-align:center;margin-top:.4cqw">{{CHILD_NAME}}</div>
+        <div class="fitname" style="font:600 13cqw 'Fraunces',serif;line-height:.92;color:#fbf2dd;text-align:center;margin-top:.4cqw">{{CHILD_NAME}}</div>
         <div style="font:600 5cqw 'Baloo Bhaijaan 2',sans-serif;color:var(--gold);margin-top:1.4cqw">{{CHILD_NAME_ARABIC}}</div>
       </div>
     </div>
 
   </div>
+<script>
+function _fitName(el){el.style.fontSize='';var g=0;while(el.scrollWidth>el.clientWidth+0.5&&g<40){var s=parseFloat(getComputedStyle(el).fontSize);if(s<=6)break;el.style.fontSize=(s*0.95)+'px';g++;}}
+function _fitNames(){document.querySelectorAll('.fitname').forEach(_fitName);}
+window.__fitNames=_fitNames;
+(document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(_fitNames);
+</script>
 </body>
 </html>
