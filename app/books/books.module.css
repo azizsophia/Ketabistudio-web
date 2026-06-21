@@ -241,9 +241,9 @@
   margin-bottom: 9%;
 }
 .iamArch {
-  width: 52%;
-  aspect-ratio: 3 / 4;
-  border-radius: 50% 50% 7% 7% / 40% 40% 5% 5%;
+  width: 50%;
+  aspect-ratio: 4 / 5;
+  border-radius: 50% 50% 9% 9% / 36% 36% 6% 6%;
   background: #21443f;
   border: 2.5px solid var(--gold);
   box-shadow: 0 8px 18px -10px rgba(0, 0, 0, 0.5);
