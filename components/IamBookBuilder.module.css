@@ -464,6 +464,16 @@
   width: 100%;
   margin-top: 18px;
 }
+.replaceBtn {
+  display: block;
+  margin-top: 8px;
+  text-align: center;
+  color: var(--gold-deep);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
 
 /* ── delivery step ── */
 .formGrid {

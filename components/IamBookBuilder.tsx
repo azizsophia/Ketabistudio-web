@@ -523,6 +523,11 @@ function PhotoSlot({
           showGradient={false}
           showSafe={!big}
         />
+        <label className={styles.replaceBtn}>
+          Replace photo
+          <input type="file" accept="image/*" hidden
+            onChange={(e) => e.target.files?.[0] && onPick(e.target.files[0])} />
+        </label>
       </div>
     );
   }
