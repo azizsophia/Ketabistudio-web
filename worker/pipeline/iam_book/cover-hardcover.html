@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ketabi · I Am [Child] · HARDCOVER casewrap cover</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Baloo+Bhaijaan+2:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!--
+  ============================================================================
+  KETABI — "I Am [Child]"  ·  HARDCOVER (casewrap) one-piece cover
+  ============================================================================
+  Casewrap wraps around the boards, so the file is BIGGER than the trim:
+  it adds a WRAP all around that folds over the board edges (art only, no text).
+
+  Square 8.5 x 8.5 in book, 32 pages, casewrap:
+    Cover panels ..... 8.5 x 8.5 in each (the visible front/back)
+    Wrap ............. {{WRAP_IN}} in on every outer edge (folds around the board).
+                       Lulu's casewrap wrap is ~0.75 in. Put Lulu's exact value
+                       in --wrap below. Full-bleed art must run into the wrap.
+    Spine ............ {{SPINE_IN}} in. Lulu sets this from the final page count +
+                       paper/board. Put the exact value in --spine. Keep spine
+                       text clear of the folds by ~0.0625 in each side.
+    Safe margin ...... keep ALL text/logos 0.5 in inside each panel's trim AND
+                       well away from the wrap and the spine folds.
+    Total file ....... width  = wrap + panel + spine + panel + wrap
+                       height = wrap + panel + wrap
+    300 PPI, sRGB, fonts embedded.
+
+  Tokens: {{CHILD_NAME}}, {{CHILD_NAME_ARABIC}}, {{PHOTO_COVER}}, {{SPINE_IN}}, {{WRAP_IN}}
+  Preview scale: 1 in = 70 px. For the real file, render at 300 PPI.
+  Boy palette shown; for the girl edition swap --teal / --teal-dk to the rose tones.
+  ============================================================================
+-->
+<style>
+  :root{
+    --in:70px;                          /* preview scale */
+    --panel:calc(8.5 * var(--in));
+    --wrap:calc(0.75 * var(--in));      /* {{WRAP_IN}} — Lulu casewrap wrap */
+    --spine:calc(0.25 * var(--in));     /* {{SPINE_IN}} — Lulu from page count */
+    --safe:calc(0.5 * var(--in));
+    --cream:#f6efdd; --teal:#2f5d57; --teal-dk:#21443f; --gold:#e6b94e; --terra:#cd7e58;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:#e7e2d8;font-family:'Plus Jakarta Sans',sans-serif;
+       min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 16px}
+  .cap{font:700 11px 'Plus Jakarta Sans';letter-spacing:.16em;text-transform:uppercase;color:#9a7b52;margin-bottom:14px;text-align:center}
+
+  /* full casewrap file: teal art runs edge to edge (it wraps the boards) */
+  .case{position:relative;background:var(--teal);
+        width:calc(var(--wrap)*2 + var(--panel)*2 + var(--spine));
+        height:calc(var(--wrap)*2 + var(--panel));
+        box-shadow:0 30px 70px rgba(60,40,20,.30)}
+  /* the visible trim region (front+spine+back), inset by the wrap on all sides */
+  .trim{position:absolute;inset:var(--wrap);display:flex}
+  .panel{height:100%;position:relative;overflow:hidden;container-type:inline-size}
+  .back{width:var(--panel)}
+  .front{width:var(--panel)}
+  .spine{width:var(--spine);background:var(--teal-dk);display:flex;align-items:center;justify-content:center}
+
+  /* guide lines (screen only): trim fold = where art wraps the board; spine folds */
+  .g{position:absolute;top:0;bottom:0;border-left:1px dashed rgba(255,255,255,.30);z-index:9;pointer-events:none}
+  .gh{position:absolute;left:0;right:0;border-top:1px dashed rgba(255,255,255,.30);z-index:9;pointer-events:none}
+
+  /* FRONT */
+  .front .inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;padding:var(--safe)}
+  .kick{font:500 3cqw 'Plus Jakarta Sans';letter-spacing:.5cqw;text-transform:uppercase;white-space:nowrap;color:#e7c98c}
+  .arch{width:52%;aspect-ratio:3/4;border:0.7cqw solid var(--gold);border-radius:50% 50% 7% 7%/40% 40% 5% 5%;overflow:hidden;background:var(--teal-dk);margin-top:2cqw}
+  .arch img{width:100%;height:100%;object-fit:cover;display:block;background:#cdd4cf}
+  .name{font:600 13cqw 'Fraunces',serif;line-height:.92;color:#fbf2dd;text-align:center;margin-top:1cqw}
+  .name-ar{font:600 5cqw 'Baloo Bhaijaan 2',sans-serif;color:var(--gold);margin-top:1.2cqw}
+
+  /* BACK */
+  .back .inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:var(--safe)}
+
+  /* SPINE */
+  .spine .txt{writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;display:flex;align-items:center;gap:16px;
+              font:600 9px 'Plus Jakarta Sans';letter-spacing:.16em;text-transform:uppercase;color:#fbf2dd}
+</style>
+</head>
+<body>
+  <div class="cap">Hardcover casewrap &nbsp;·&nbsp; wrap + back + spine + front + wrap &nbsp;·&nbsp; one Lulu cover file</div>
+  <div class="case fitme">
+    <!-- guide lines: wrap/trim folds + spine folds (screen only) -->
+    <div class="g" style="left:var(--wrap)"></div>
+    <div class="g" style="right:var(--wrap)"></div>
+    <div class="g" style="left:calc(var(--wrap) + var(--panel))"></div>
+    <div class="g" style="left:calc(var(--wrap) + var(--panel) + var(--spine))"></div>
+    <div class="gh" style="top:var(--wrap)"></div>
+    <div class="gh" style="bottom:var(--wrap)"></div>
+
+    <div class="trim">
+      <!-- BACK -->
+      <div class="panel back">
+        <div class="inner">
+          <div style="font:400 4cqw 'Fraunces',serif;color:#fbf2dd;line-height:1.45">Twelve gentle reminders of the good character Allah placed in every child.</div>
+          <div style="font:400 2.7cqw 'Fraunces',serif;font-style:italic;color:#bcd0c9;line-height:1.5;margin-top:4cqw">In English and Arabic, starring your child.</div>
+          <img src="{{LOGO}}" alt="Ketabi Studio" style="width:26%;margin-top:auto;opacity:.95">
+        </div>
+      </div>
+
+      <!-- SPINE -->
+      <div class="panel spine">
+        <div class="txt"><span>I am {{CHILD_NAME}}</span><span style="color:#e6b94e">Ketabi</span></div>
+      </div>
+
+      <!-- FRONT -->
+      <div class="panel front">
+        <div class="inner">
+          <div class="kick">A book about good character</div>
+          <div class="arch"><img src="{{PHOTO_COVER}}" alt=""></div>
+          <div style="font:500 italic 7cqw 'Fraunces',serif;color:#e7c98c;margin-top:3cqw">I am</div>
+          <div class="name">{{CHILD_NAME}}</div>
+          <div class="name-ar">{{CHILD_NAME_ARABIC}}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<script>
+function _fit(){document.querySelectorAll('.fitme').forEach(function(el){el.style.transform='none';var w=el.offsetWidth;var s=Math.min(1,(window.innerWidth-16)/w);el.style.transform='scale('+s+')';el.style.transformOrigin='top center';});}
+addEventListener('resize',_fit);addEventListener('load',_fit);
+</script>
+</body>
+</html>

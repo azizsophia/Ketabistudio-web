@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ketabi · I Am [Child] · personalized book template</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Baloo+Bhaijaan+2:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!--
+  ============================================================================
+  KETABI STUDIO — "I Am [Child]" personalized children's book
+  Developer handoff template
+  ============================================================================
+  PRINTER: Lulu  ·  Product: Square 8.5 x 8.5 in, full-colour, 32 interior pages
+    Trim ............ 8.5 x 8.5 in
+    Bleed ........... +0.125 in every edge  ->  file 8.75 x 8.75 in
+    Safe margin ..... 0.5 in inside trim     ->  keep text inside 7.5 x 7.5 in
+    Resolution ...... 300 PPI  ->  2625 x 2625 px per page
+    Colour .......... sRGB, fonts embedded
+    Interior ........ single-page PDF, 32 pages, first printed page is a right-hand page
+    Cover ........... separate one-piece PDF (back + spine + front); spine width depends on page count
+
+  PERSONALIZATION TOKENS (replace server-side per order):
+    {{CHILD_NAME}}          e.g. Muadh
+    {{CHILD_NAME_ARABIC}}   e.g. مُعَاذ
+    Pronouns (drive from a single "gender" field):
+      boy  ->  {{Subject}}=He  {{subject}}=he  {{object}}=him  {{possessive}}=his
+      girl ->  {{Subject}}=She {{subject}}=she {{object}}=her  {{possessive}}=her
+    Photos (customer-supplied, 300 PPI, ~2625px square recommended):
+      {{PHOTO_COVER}}, {{PHOTO_1}} … {{PHOTO_12}}   -> set as <img src>
+
+  See README.md for the full page map and rendering notes.
+  ============================================================================
+-->
+<style>
+  :root{
+    --cream:#f6efdd; --teal:#2f5d57; --teal-dk:#21443f; --gold:#e6b94e;
+    --terra:#cd7e58; --ink:#2a2118; --body:#5a4a36;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:#e7e2d8;font-family:'Plus Jakarta Sans',sans-serif;padding:40px 20px 70px}
+  .book{display:flex;flex-direction:column;align-items:center;gap:34px}
+  .label{font:700 11px 'Plus Jakarta Sans';letter-spacing:.18em;text-transform:uppercase;color:#9a7b52;margin-bottom:-20px}
+
+  /* one physical page = one .sheet (8.5in square; full file 8.75in with bleed) */
+  .sheet{width:480px;height:480px;border-radius:8px;overflow:hidden;position:relative;
+         container-type:inline-size;box-shadow:0 16px 40px rgba(60,40,20,.20)}
+  .spread{display:flex;gap:0;width:760px;border-radius:10px;overflow:hidden;
+          box-shadow:0 26px 56px rgba(60,40,20,.26);position:relative}
+  .spread .sheet{width:380px;height:380px;border-radius:0;box-shadow:none}
+  .spread .gutter{position:absolute;left:50%;top:0;width:5%;height:100%;transform:translateX(-50%);
+    background:linear-gradient(90deg,rgba(60,40,18,0),rgba(60,40,18,.18),rgba(60,40,18,0));pointer-events:none;z-index:2}
+
+  .pad{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:11cqw}
+  .photo{width:100%;height:100%;object-fit:cover;display:block;background:#ddd}
+  .cap{position:absolute;left:7cqw;bottom:6cqw;display:flex;align-items:baseline;gap:2cqw;z-index:2}
+  .cap .ar{font:600 8cqw 'Baloo Bhaijaan 2',sans-serif;color:#fbf2dd}
+  .cap .tr{font:500 3cqw 'Plus Jakarta Sans';letter-spacing:.2cqw;text-transform:uppercase;color:#f0d9b0}
+  .photo-grad{position:absolute;left:0;right:0;bottom:0;height:34%;background:linear-gradient(180deg,rgba(20,14,6,0),rgba(20,14,6,.6));z-index:1}
+
+  /* ---- PHOTO-OPTIONAL: an empty photo slot ({{PHOTO_n}} -> "") becomes a
+     designed page automatically, so the book is always 32 pages and never
+     shows a broken image. Pure CSS (:has), so no per-page edits needed. ---- */
+  .photo[src=""],.photo:not([src]){display:none}
+  .sheet:has(.photo[src=""]),.sheet:has(.photo:not([src])){background:var(--cream)!important}
+  .sheet:has(.photo[src=""]) .photo-grad,.sheet:has(.photo:not([src])) .photo-grad{display:none}
+  .sheet:has(.photo[src=""])::before,.sheet:has(.photo:not([src]))::before{
+    content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+    background:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpolygon points='50,6 57,43 94,50 57,57 50,94 43,57 6,50 43,43' fill='%23e6b94e'/%3E%3C/svg%3E") no-repeat center 31% / 16%,
+      radial-gradient(circle at 50% 35%, rgba(230,185,78,.16), rgba(230,185,78,0) 46%) no-repeat;
+  }
+  .sheet:has(.photo[src=""]) .cap,.sheet:has(.photo:not([src])) .cap{
+    left:0;right:0;bottom:auto;top:54%;justify-content:center;text-align:center}
+  .sheet:has(.photo[src=""]) .cap .ar,.sheet:has(.photo:not([src])) .cap .ar{color:var(--teal);font-size:17cqw}
+  .sheet:has(.photo[src=""]) .cap .tr,.sheet:has(.photo:not([src])) .cap .tr{color:var(--terra);font-size:4cqw}
+
+  .words{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:11cqw 9cqw}
+  .kicker{font:500 3.2cqw 'Plus Jakarta Sans';letter-spacing:.45cqw;text-transform:uppercase;white-space:nowrap}
+  .trait{font:600 15cqw 'Fraunces',serif;line-height:1.02;margin-top:.6cqw}
+  .btext{font:400 3.7cqw 'Fraunces',serif;line-height:1.6;margin-top:3.2cqw;max-width:92%}
+  .wordar{font:600 7cqw 'Baloo Bhaijaan 2',sans-serif;line-height:1.4;margin-top:3.2cqw}
+  .wordtr{font:500 2.5cqw 'Plus Jakarta Sans';letter-spacing:.34cqw;text-transform:uppercase;margin-top:.7cqw}
+  .rule{width:9cqw;height:2px;border-radius:2px;margin-top:3.2cqw;opacity:.92}
+
+  /* ---- PRINT: one .sheet per physical page at full-bleed 8.75in ---- */
+  @media print{ .fitme{transform:none!important}
+
+    @page{size:8.75in 8.75in;margin:0}
+    body{background:#fff;padding:0}
+    .book{gap:0}
+    .label{display:none}
+    .spread{display:contents}
+    .sheet,.spread .sheet{width:8.75in;height:8.75in;border-radius:0;box-shadow:none;page-break-after:always;break-after:page}
+    .gutter{display:none}
+  }
+</style>
+</head>
+<body>
+<div class="book fitme">
+
+  <!-- ===== FRONT COVER (lives in the separate cover PDF) ===== -->
+  <div class="label">Front cover</div>
+  <div class="sheet" style="background:var(--teal);border-left:11px solid var(--teal-dk)">
+    <div class="pad" style="justify-content:flex-start;padding:7cqw 8cqw 6cqw">
+      <div style="font:500 3cqw 'Plus Jakarta Sans';letter-spacing:.5cqw;text-transform:uppercase;white-space:nowrap;color:#e7c98c;margin-bottom:2.4cqw">A book about good character</div>
+      <div style="width:54%;aspect-ratio:3/4;border:0.7cqw solid var(--gold);border-radius:50% 50% 7% 7%/40% 40% 5% 5%;overflow:hidden;position:relative;background:var(--teal-dk)">
+        <img class="photo" src="{{PHOTO_COVER}}" alt="">
+      </div>
+      <div style="font:500 italic 7cqw 'Fraunces',serif;color:#e7c98c;margin-top:4cqw">I am</div>
+      <div style="font:600 13cqw 'Fraunces',serif;line-height:.92;color:#fbf2dd;margin-top:.4cqw">{{CHILD_NAME}}</div>
+      <div style="font:600 5cqw 'Baloo Bhaijaan 2',sans-serif;color:var(--gold);margin-top:1.4cqw">{{CHILD_NAME_ARABIC}}</div>
+    </div>
+  </div>
+
+  <!-- ===== INTERIOR pp.1-4 · front matter ===== -->
+  <div class="label">Page 1 · Bismillah</div>
+  <div class="sheet" style="background:var(--cream)">
+    <div class="pad">
+      <div style="font:600 9cqw 'Baloo Bhaijaan 2',sans-serif;color:var(--terra)">بِسْمِ اللّٰه</div>
+      <div style="font:500 3cqw 'Plus Jakarta Sans';letter-spacing:.3cqw;text-transform:uppercase;color:#b09b78;margin-top:2cqw">In the name of Allah</div>
+    </div>
+  </div>
+
+  <div class="label">Page 2 · Title</div>
+  <div class="sheet" style="background:var(--teal)">
+    <div class="pad" style="padding:9cqw">
+      <div style="font:500 3cqw 'Plus Jakarta Sans';letter-spacing:.5cqw;text-transform:uppercase;color:#e7c98c">I am</div>
+      <div style="font:600 16cqw 'Fraunces',serif;color:#fbf2dd;line-height:.95;margin-top:.5cqw">{{CHILD_NAME}}</div>
+      <div style="font:600 6cqw 'Baloo Bhaijaan 2',sans-serif;color:var(--gold);margin-top:1.6cqw">{{CHILD_NAME_ARABIC}}</div>
+    </div>
+  </div>
+
+  <div class="label">Page 3 · This book belongs to</div>
+  <div class="sheet" style="background:var(--cream)">
+    <div class="pad">
+      <div style="font:500 3cqw 'Plus Jakarta Sans';letter-spacing:.34cqw;text-transform:uppercase;color:#b09b78">This book belongs to</div>
+      <div style="font:600 13cqw 'Fraunces',serif;color:var(--teal);line-height:1;margin-top:2.4cqw">{{CHILD_NAME}}</div>
+      <div style="font:600 5cqw 'Baloo Bhaijaan 2',sans-serif;color:var(--terra);margin-top:1.4cqw">{{CHILD_NAME_ARABIC}}</div>
+      <svg width="13%" viewBox="0 0 40 40" style="margin-top:3cqw"><path d="M20,33 C9,24 5,16.5 10.5,11.5 C15,7.5 20,11.5 20,11.5 C20,11.5 25,7.5 29.5,11.5 C35,16.5 31,24 20,33 Z" fill="#cd7e58"></path></svg>
+    </div>
+  </div>
+
+  <div class="label">Page 4 · Dedication</div>
+  <div class="sheet" style="background:#eef3ea">
+    <div class="pad" style="padding:13cqw">
+      <div style="font:500 2.8cqw 'Plus Jakarta Sans';letter-spacing:.3cqw;text-transform:uppercase;color:#7a8a72">Dedication</div>
+      <div style="font:400 italic 3.8cqw 'Fraunces',serif;color:#4f5a48;line-height:1.6;margin-top:3cqw">{{DEDICATION}}</div>
+    </div>
+  </div>
+
+  <!-- ===== Spread 1 · Kind · pp.5-6 ===== -->
+  <div class="label">Spread 1 · Kind · pp. 5–6</div>
+  <div class="spread">
+    <div class="sheet" style="background:#efe6cf">
+      <img class="photo" src="{{PHOTO_1}}" alt="Kind">
+      <div class="photo-grad"></div>
+      <div class="cap"><span class="ar">لَطِيف</span><span class="tr">lateef</span></div>
+    </div>
+    <div class="gutter"></div>
+    <div class="sheet words" style="background:#f6efdd">
+      <div class="kicker" style="color:#cd7e58">I am</div>
+      <div class="trait" style="color:#2f5d57">Kind</div>
+      <div class="wordar" style="color:#b8893a">لَطِيف</div>
+      <div class="wordtr" style="color:#9a7b52">lateef</div>
+      <div class="rule" style="background:#cba24a"></div>
+      <div class="btext" style="color:#5a4a36">I am kind. I speak softly and I love to help. Allah loves a gentle heart, and mine is one of them.</div>
+    </div>
+  </div>
+
+  <!-- ===== Spread 2 · Grateful · pp.7-8 ===== -->
+  <div class="label">Spread 2 · Grateful · pp. 7–8</div>
+  <div class="spread">
+    <div class="sheet" style="background:#24493f">
+      <img class="photo" src="{{PHOTO_2}}" alt="Grateful">
+      <div class="photo-grad"></div>
+      <div class="cap"><span class="ar">شَاكِر</span><span class="tr">shakir</span></div>
+    </div>
+    <div class="gutter"></div>
+    <div class="sheet words" style="background:#2f5d57">
+      <div class="kicker" style="color:#e7c98c">I am</div>
+      <div class="trait" style="color:#fbf2dd">Grateful</div>
+      <div class="wordar" style="color:#e6b94e">شَاكِر</div>
+      <div class="wordtr" style="color:#cbb27f">shakir</div>
+      <div class="rule" style="background:#e6b94e"></div>
+      <div class="btext" style="color:#e7ddc4">I am grateful. For every gift, big and small, I whisper Alhamdulillah. The more I thank Allah, the fuller my heart feels.</div>
+    </div>
+  </div>
+
+  <!-- ===== Spread 3 · Loving · pp.9-10 ===== -->
+  <div class="label">Spread 3 · Loving · pp. 9–10</div>
+  <div class="spread">
+    <div class="sheet" style="background:#efe6cf">
+      <img class="photo" src="{{PHOTO_3}}" alt="Loving">
+      <div class="photo-grad"></div>
+      <div class="cap"><span class="ar">بَارّ</span><span class="tr">barr</span></div>
+    </div>
+    <div class="gutter"></div>
+    <div class="sheet words" style="background:#f6efdd">
+      <div class="kicker" style="color:#cd7e58">I am</div>
+      <div class="trait" style="color:#2f5d57">Loving</div>
+      <div class="wordar" style="color:#b8893a">بَارّ</div>
+      <div class="wordtr" style="color:#9a7b52">barr</div>
+      <div class="rule" style="background:#cba24a"></div>
+      <div class="btext" style="color:#5a4a36">I love my parents. I listen to them and help without being asked. Their dua follows me wherever I go.</div>
+    </div>
+  </div>
+
+  <!-- ===== Spread 4 · Generous · pp.11-12 ===== -->
+  <div class="label">Spread 4 · Generous · pp. 11–12</div>
+  <div class="spread">
+    <div class="sheet" style="background:#24493f">
+      <img class="photo" src="{{PHOTO_4}}" alt="Generous">
+      <div class="photo-grad"></div>
+      <div class="cap"><span class="ar">كَرِيم</span><span class="tr">kareem</span></div>
+    </div>
+    <div class="gutter"></div>
+    <div class="sheet words" style="background:#2f5d57">
+      <div class="kicker" style="color:#e7c98c">I am</div>
+      <div class="trait" style="color:#fbf2dd">Generous</div>
+      <div class="wordar" style="color:#e6b94e">كَرِيم</div>
+      <div class="wordtr" style="color:#cbb27f">kareem</div>
+      <div class="rule" style="background:#e6b94e"></div>
+      <div class="btext" style="color:#e7ddc4">I am generous. I love to give and to watch others smile. Whatever I share, Allah gives back and more.</div>
+    </div>
+  </div>
+
+  <!-- ===== Spread 5 · Honest · pp.13-14 ===== -->
+  <div class="label">Spread 5 · Honest · pp. 13–14</div>
+  <div class="spread">
+    <div class="sheet" style="background:#efe6cf">
+      <img class="photo" src="{{PHOTO_5}}" alt="Honest">
+      <div class="photo-grad"></div>
+      <div class="cap"><span class="ar">صَادِق</span><span class="tr">sadiq</span></div>
+    </div>
+    <div class="gutter"></div>
+    <div class="sheet words" style="background:#f6efdd">
+      <div class="kicker" style="color:#cd7e58">I am</div>
+      <div class="trait" style="color:#2f5d57">Honest</div>
+      <div class="wordar" style="color:#b8893a">صَادِق</div>
+      <div class="wordtr" style="color:#9a7b52">sadiq</div>
+      <div class="rule" style="background:#cba24a"></div>
+      <div class="btext" style="color:#5a4a36">I am honest. I speak the truth, even when it is the hard thing to do. Allah stands with those who are true.</div>
+    </div>
+  </div>
+
+  <!-- ===== Spread 6 · Forgiving · pp.15-16 ===== -->
+  <div class="label">Spread 6 · Forgiving · pp. 15–16</div>
+  <div class="spread">
+    <div class="sheet" style="background:#24493f">
+      <img class="photo" src="{{PHOTO_6}}" alt="Forgiving">
+      <div class="photo-grad"></div>
+      <div class="cap"><span class="ar">صَفُوح</span><span class="tr">safooh</span></div>
+    </div>
+    <div class="gutter"></div>
+    <div class="sheet words" style="background:#2f5d57">
+      <div class="kicker" style="color:#e7c98c">I am</div>
+      <div class="trait" style="color:#fbf2dd">Forgiving</div>
+      <div class="wordar" style="color:#e6b94e">صَفُوح</div>
+      <div class="wordtr" style="color:#cbb27f">safooh</div>
+      <div class="rule" style="background:#e6b94e"></div>
+      <div class="btext" style="color:#e7ddc4">I am forgiving. I set down my anger and choose peace instead. When I forgive others, Allah is gentle with me.</div>
+    </div>
+  </div>
+
+  <!-- ===== Spread 7 · Patient · pp.17-18 ===== -->
+  <div class="label">Spread 7 · Patient · pp. 17–18</div>
+  <div class="spread">
+    <div class="sheet" style="background:#efe6cf">
+      <img class="photo" src="{{PHOTO_7}}" alt="Patient">
+      <div class="photo-grad"></div>
+      <div class="cap"><span class="ar">صَابِر</span><span class="tr">sabir</span></div>
+    </div>
+    <div class="gutter"></div>
+    <div class="sheet words" style="background:#f6efdd">
+      <div class="kicker" style="color:#cd7e58">I am</div>
+      <div class="trait" style="color:#2f5d57">Patient</div>
+      <div class="wordar" style="color:#b8893a">صَابِر</div>
+      <div class="wordtr" style="color:#9a7b52">sabir</div>
+      <div class="rule" style="background:#cba24a"></div>
+      <div class="btext" style="color:#5a4a36">I am patient. I breathe, I wait, and I trust Allah's plan. The best things are always worth the wait.</div>
+    </div>
+  </div>
+
+  <!-- ===== Spread 8 · Brave · pp.19-20 ===== -->
+  <div class="label">Spread 8 · Brave · pp. 19–20</div>
+  <div class="spread">
+    <div class="sheet" style="background:#24493f">
+      <img class="photo" src="{{PHOTO_8}}" alt="Brave">
+      <div class="photo-grad"></div>
+      <div class="cap"><span class="ar">شُجَاع</span><span class="tr">shuja'</span></div>
+    </div>
+    <div class="gutter"></div>
+    <div class="sheet words" style="background:#2f5d57">
+      <div class="kicker" style="color:#e7c98c">I am</div>
+      <div class="trait" style="color:#fbf2dd">Brave</div>
+      <div class="wordar" style="color:#e6b94e">شُجَاع</div>
+      <div class="wordtr" style="color:#cbb27f">shuja'</div>
+      <div class="rule" style="background:#e6b94e"></div>
+      <div class="btext" style="color:#e7ddc4">I am brave. When something feels big, I stand a little taller. With Allah beside me, I am never alone.</div>
+    </div>
+  </div>
+
+  <!-- ===== Spread 9 · Curious · pp.21-22 ===== -->
+  <div class="label">Spread 9 · Curious · pp. 21–22</div>
+  <div class="spread">
+    <div class="sheet" style="background:#efe6cf">
+      <img class="photo" src="{{PHOTO_9}}" alt="Curious">
+      <div class="photo-grad"></div>
+      <div class="cap"><span class="ar">مُتَعَلِّم</span><span class="tr">muta'allim</span></div>
+    </div>
+    <div class="gutter"></div>
+    <div class="sheet words" style="background:#f6efdd">
+      <div class="kicker" style="color:#cd7e58">I am</div>
+      <div class="trait" style="color:#2f5d57">Curious</div>
+      <div class="wordar" style="color:#b8893a">مُتَعَلِّم</div>
+      <div class="wordtr" style="color:#9a7b52">muta'allim</div>
+      <div class="rule" style="background:#cba24a"></div>
+      <div class="btext" style="color:#5a4a36">I am curious. I ask, I wonder, and I reach for something new. Every answer shows me how wonderful Allah's world is.</div>
+    </div>
+  </div>
+
+  <!-- ===== Spread 10 · Clean · pp.23-24 ===== -->
+  <div class="label">Spread 10 · Clean · pp. 23–24</div>
+  <div class="spread">
+    <div class="sheet" style="background:#24493f">
+      <img class="photo" src="{{PHOTO_10}}" alt="Clean">
+      <div class="photo-grad"></div>
+      <div class="cap"><span class="ar">نَظِيف</span><span class="tr">nadheef</span></div>
+    </div>
+    <div class="gutter"></div>
+    <div class="sheet words" style="background:#2f5d57">
+      <div class="kicker" style="color:#e7c98c">I am</div>
+      <div class="trait" style="color:#fbf2dd">Clean</div>
+      <div class="wordar" style="color:#e6b94e">نَظِيف</div>
+      <div class="wordtr" style="color:#cbb27f">nadheef</div>
+      <div class="rule" style="background:#e6b94e"></div>
+      <div class="btext" style="color:#e7ddc4">I am clean. I take care of my body, my space, and my heart. To Allah, a clean heart shines the brightest.</div>
+    </div>
+  </div>
+
+  <!-- ===== Spread 11 · Cheerful · pp.25-26 ===== -->
+  <div class="label">Spread 11 · Cheerful · pp. 25–26</div>
+  <div class="spread">
+    <div class="sheet" style="background:#efe6cf">
+      <img class="photo" src="{{PHOTO_11}}" alt="Cheerful">
+      <div class="photo-grad"></div>
+      <div class="cap"><span class="ar">بَشُوش</span><span class="tr">bashoosh</span></div>
+    </div>
+    <div class="gutter"></div>
+    <div class="sheet words" style="background:#f6efdd">
+      <div class="kicker" style="color:#cd7e58">I am</div>
+      <div class="trait" style="color:#2f5d57">Cheerful</div>
+      <div class="wordar" style="color:#b8893a">بَشُوش</div>
+      <div class="wordtr" style="color:#9a7b52">bashoosh</div>
+      <div class="rule" style="background:#cba24a"></div>
+      <div class="btext" style="color:#5a4a36">I am cheerful. I carry a smile and share it freely. A smile is a gift, and giving it is a kindness Allah loves.</div>
+    </div>
+  </div>
+
+  <!-- ===== Spread 12 · Mindful · pp.27-28 ===== -->
+  <div class="label">Spread 12 · Mindful · pp. 27–28</div>
+  <div class="spread">
+    <div class="sheet" style="background:#24493f">
+      <img class="photo" src="{{PHOTO_12}}" alt="Mindful">
+      <div class="photo-grad"></div>
+      <div class="cap"><span class="ar">تَقِيّ</span><span class="tr">taqiyy</span></div>
+    </div>
+    <div class="gutter"></div>
+    <div class="sheet words" style="background:#2f5d57">
+      <div class="kicker" style="color:#e7c98c">I am</div>
+      <div class="trait" style="color:#fbf2dd">Mindful</div>
+      <div class="wordar" style="color:#e6b94e">تَقِيّ</div>
+      <div class="wordtr" style="color:#cbb27f">taqiyy</div>
+      <div class="rule" style="background:#e6b94e"></div>
+      <div class="btext" style="color:#e7ddc4">I am mindful of Allah. I know He is always near, in all I say and do. When I remember Him, my heart grows calm and sure.</div>
+    </div>
+  </div>
+
+  <!-- ===== pp.29-30 · closing & du'a ===== -->
+  <div class="label">Page 29 · Closing</div>
+  <div class="sheet" style="background:var(--teal)">
+    <div class="pad" style="padding:13cqw">
+      <div style="font:400 6cqw 'Fraunces',serif;color:#fbf2dd;line-height:1.45">{{CHILD_NAME}}, Allah made your heart beautiful. And every day, you make it shine even more.</div>
+    </div>
+  </div>
+
+  <div class="label">Page 30 · Du'a</div>
+  <div class="sheet" style="background:var(--cream)">
+    <div class="pad" style="padding:13cqw">
+      <div style="font:500 7cqw 'Baloo Bhaijaan 2',sans-serif;color:var(--terra);line-height:1.8">اللَّهُمَّ حَسِّنْ خُلُقِي</div>
+      <div style="font:500 2.8cqw 'Plus Jakarta Sans';letter-spacing:.2cqw;text-transform:uppercase;color:#b09b78;margin-top:2cqw">O Allah, make my character beautiful</div>
+      <div style="font:400 4cqw 'Fraunces',serif;font-style:italic;color:#9a7b52;margin-top:4cqw">Ameen.</div>
+    </div>
+  </div>
+
+  <!-- ===== p.31 grown-ups note · p.32 colophon ===== -->
+  <div class="label">Page 31 · A note for grown-ups</div>
+  <div class="sheet" style="background:#eef3ea">
+    <div class="pad" style="padding:13cqw">
+      <div style="font:600 3cqw 'Plus Jakarta Sans';letter-spacing:.2cqw;text-transform:uppercase;color:#7a8a72">For grown-ups</div>
+      <div style="font:400 3.4cqw 'Fraunces',serif;color:#4f5a48;line-height:1.55;margin-top:3cqw">Read one page together each night. Talk about a moment {{subject}} showed this today, and notice it out loud when it happens. Small reminders, repeated with love, become character.</div>
+    </div>
+  </div>
+
+  <div class="label">Page 32 · Colophon</div>
+  <div class="sheet" style="background:var(--teal)">
+    <div class="pad">
+      <img src="{{LOGO}}" alt="Ketabi Studio" style="width:30%">
+      <div style="font:400 2.4cqw 'Fraunces',serif;font-style:italic;color:#bcd0c9;margin-top:4cqw">Made with love at Ketabi Studio</div>
+    </div>
+  </div>
+
+  <!-- ===== BACK COVER (separate cover PDF) ===== -->
+  <div class="label">Back cover</div>
+  <div class="sheet" style="background:var(--teal);border-right:11px solid var(--teal-dk)">
+    <div class="pad" style="padding:12cqw 10cqw">
+      <div style="font:400 4.2cqw 'Fraunces',serif;color:#fbf2dd;line-height:1.45">Twelve gentle reminders of the good character Allah placed in every child.</div>
+      <div style="font:400 italic 2.8cqw 'Fraunces',serif;color:#bcd0c9;line-height:1.5;margin-top:3.5cqw">Twelve affirmations, in English and Arabic, starring your child.</div>
+      <img src="{{LOGO}}" alt="Ketabi Studio" style="width:23%;margin-top:8cqw;opacity:.95">
+    </div>
+  </div>
+
+</div>
+<script>
+function _fit(){document.querySelectorAll('.fitme').forEach(function(el){el.style.transform='none';var w=el.offsetWidth;var s=Math.min(1,(window.innerWidth-20)/w);el.style.transform='scale('+s+')';el.style.transformOrigin='top center';});}
+addEventListener('resize',_fit);addEventListener('load',_fit);
+</script>
+</body>
+</html>

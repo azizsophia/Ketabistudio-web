@@ -7,3 +7,4 @@ requests>=2.31
 arabic-reshaper>=3.0
 python-bidi>=0.4
 img2pdf
+playwright>=1.40

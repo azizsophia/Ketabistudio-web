@@ -1,0 +1,226 @@
+{
+  "product": {
+    "printer": "Lulu",
+    "type": "Square hardcover/paperback children's book",
+    "trim_in": [
+      8.5,
+      8.5
+    ],
+    "bleed_in": 0.125,
+    "file_with_bleed_in": [
+      8.75,
+      8.75
+    ],
+    "safe_margin_in": 0.5,
+    "safe_area_in": [
+      7.5,
+      7.5
+    ],
+    "ppi": 300,
+    "page_px_at_300ppi": [
+      2625,
+      2625
+    ],
+    "color": "sRGB",
+    "fonts_embedded": true,
+    "interior_pages": 32,
+    "interior_format": "single-page PDF, pages in reading order, first printed page is right-hand",
+    "cover_format": "separate one-piece PDF: back + spine + front; spine width set by Lulu from page count + paper",
+    "binding_options": {
+      "paperback": {
+        "cover": "one-piece PDF: back+spine+front, bleed 0.125in only",
+        "lulu_min_pages": 32
+      },
+      "hardcover_casewrap": {
+        "cover": "one-piece PDF per Lulu casewrap template: back+spine+front PLUS wrap (~0.75in) + hinge; pull exact wrap and spine from Lulu for the final page count + paper",
+        "note": "matches the existing keepsake hardcover"
+      }
+    },
+    "arabic_note": "Trait words are voweled; have a native speaker proof before the first print run."
+  },
+  "variables": {
+    "CHILD_NAME": "Muadh",
+    "CHILD_NAME_ARABIC": "مُعاذ",
+    "gender": "boy"
+  },
+  "pronouns": {
+    "boy": {
+      "Subject": "He",
+      "subject": "he",
+      "object": "him",
+      "possessive": "his"
+    },
+    "girl": {
+      "Subject": "She",
+      "subject": "she",
+      "object": "her",
+      "possessive": "her"
+    }
+  },
+  "photos": {
+    "note": "Customer-supplied. Recommend ~2625x2625 px (300 PPI) JPEG/PNG, sRGB. One per slot below.",
+    "slots": [
+      "PHOTO_COVER",
+      "PHOTO_1",
+      "PHOTO_2",
+      "PHOTO_3",
+      "PHOTO_4",
+      "PHOTO_5",
+      "PHOTO_6",
+      "PHOTO_7",
+      "PHOTO_8",
+      "PHOTO_9",
+      "PHOTO_10",
+      "PHOTO_11",
+      "PHOTO_12"
+    ]
+  },
+  "page_map": [
+    {
+      "page": 1,
+      "type": "bismillah"
+    },
+    {
+      "page": 2,
+      "type": "title"
+    },
+    {
+      "page": 3,
+      "type": "belongs_to"
+    },
+    {
+      "page": 4,
+      "type": "dedication"
+    },
+    {
+      "pages": "5-28",
+      "type": "12 character spreads (photo page + words page)"
+    },
+    {
+      "page": 29,
+      "type": "closing"
+    },
+    {
+      "page": 30,
+      "type": "dua"
+    },
+    {
+      "page": 31,
+      "type": "grownups_note"
+    },
+    {
+      "page": 32,
+      "type": "colophon"
+    }
+  ],
+  "traits": [
+    {
+      "key": "kind",
+      "kicker": "I am",
+      "trait": "Kind",
+      "arabic": "لَطِيف",
+      "translit": "lateef",
+      "photo": "PHOTO_1",
+      "body": "I am kind. I speak softly and I love to help. Allah loves a gentle heart, and mine is one of them."
+    },
+    {
+      "key": "grateful",
+      "kicker": "I am",
+      "trait": "Grateful",
+      "arabic": "شَاكِر",
+      "translit": "shakir",
+      "photo": "PHOTO_2",
+      "body": "I am grateful. For every gift, big and small, I whisper Alhamdulillah. The more I thank Allah, the fuller my heart feels."
+    },
+    {
+      "key": "honors_parents",
+      "kicker": "I am",
+      "trait": "Loving",
+      "arabic": "بَارّ",
+      "translit": "barr",
+      "photo": "PHOTO_3",
+      "body": "I love my parents. I listen to them and help without being asked. Their dua follows me wherever I go."
+    },
+    {
+      "key": "generous",
+      "kicker": "I am",
+      "trait": "Generous",
+      "arabic": "كَرِيم",
+      "translit": "kareem",
+      "photo": "PHOTO_4",
+      "body": "I am generous. I love to give and to watch others smile. Whatever I share, Allah gives back and more."
+    },
+    {
+      "key": "honest",
+      "kicker": "I am",
+      "trait": "Honest",
+      "arabic": "صَادِق",
+      "translit": "sadiq",
+      "photo": "PHOTO_5",
+      "body": "I am honest. I speak the truth, even when it is the hard thing to do. Allah stands with those who are true."
+    },
+    {
+      "key": "forgiving",
+      "kicker": "I am",
+      "trait": "Forgiving",
+      "arabic": "صَفُوح",
+      "translit": "safooh",
+      "photo": "PHOTO_6",
+      "body": "I am forgiving. I set down my anger and choose peace instead. When I forgive others, Allah is gentle with me."
+    },
+    {
+      "key": "patient",
+      "kicker": "I am",
+      "trait": "Patient",
+      "arabic": "صَابِر",
+      "translit": "sabir",
+      "photo": "PHOTO_7",
+      "body": "I am patient. I breathe, I wait, and I trust Allah's plan. The best things are always worth the wait."
+    },
+    {
+      "key": "brave",
+      "kicker": "I am",
+      "trait": "Brave",
+      "arabic": "شُجَاع",
+      "translit": "shuja'",
+      "photo": "PHOTO_8",
+      "body": "I am brave. When something feels big, I stand a little taller. With Allah beside me, I am never alone."
+    },
+    {
+      "key": "learner",
+      "kicker": "I am",
+      "trait": "Curious",
+      "arabic": "مُتَعَلِّم",
+      "translit": "muta'allim",
+      "photo": "PHOTO_9",
+      "body": "I am curious. I ask, I wonder, and I reach for something new. Every answer shows me how wonderful Allah's world is."
+    },
+    {
+      "key": "clean",
+      "kicker": "I am",
+      "trait": "Clean",
+      "arabic": "نَظِيف",
+      "translit": "nadheef",
+      "photo": "PHOTO_10",
+      "body": "I am clean. I take care of my body, my space, and my heart. To Allah, a clean heart shines the brightest."
+    },
+    {
+      "key": "cheerful",
+      "kicker": "I am",
+      "trait": "Cheerful",
+      "arabic": "بَشُوش",
+      "translit": "bashoosh",
+      "photo": "PHOTO_11",
+      "body": "I am cheerful. I carry a smile and share it freely. A smile is a gift, and giving it is a kindness Allah loves."
+    },
+    {
+      "key": "remembers_allah",
+      "kicker": "I am",
+      "trait": "Mindful",
+      "arabic": "تَقِيّ",
+      "translit": "taqiyy",
+      "photo": "PHOTO_12",
+      "body": "I am mindful of Allah. I know He is always near, in all I say and do. When I remember Him, my heart grows calm and sure."
+    }
+  ]
+}
