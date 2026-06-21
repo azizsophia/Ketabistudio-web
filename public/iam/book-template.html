@@ -54,10 +54,12 @@
 
   .pad{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:11cqw}
   .photo{width:100%;height:100%;object-fit:cover;display:block;background:#ddd}
-  .cap{position:absolute;left:7cqw;bottom:6cqw;display:flex;align-items:baseline;gap:2cqw;z-index:2}
+  /* Clean full-bleed photo pages: the trait + Arabic + pronunciation live on
+     the facing text page, so no caption/gradient over the photo itself. */
+  .cap{position:absolute;left:7cqw;bottom:6cqw;display:none;align-items:baseline;gap:2cqw;z-index:2}
   .cap .ar{font:600 8cqw 'Baloo Bhaijaan 2',sans-serif;color:#fbf2dd}
   .cap .tr{font:500 3cqw 'Plus Jakarta Sans';letter-spacing:.2cqw;text-transform:uppercase;color:#f0d9b0}
-  .photo-grad{position:absolute;left:0;right:0;bottom:0;height:34%;background:linear-gradient(180deg,rgba(20,14,6,0),rgba(20,14,6,.6));z-index:1}
+  .photo-grad{display:none}
 
   /* ---- PHOTO-OPTIONAL: an empty photo slot ({{PHOTO_n}} -> "") becomes a
      designed page automatically, so the book is always 32 pages and never
@@ -72,7 +74,7 @@
       radial-gradient(circle at 50% 35%, rgba(230,185,78,.16), rgba(230,185,78,0) 46%) no-repeat;
   }
   .sheet:has(.photo[src=""]) .cap,.sheet:has(.photo:not([src])) .cap{
-    left:0;right:0;bottom:auto;top:54%;justify-content:center;text-align:center}
+    display:flex;left:0;right:0;bottom:auto;top:54%;justify-content:center;text-align:center}
   .sheet:has(.photo[src=""]) .cap .ar,.sheet:has(.photo:not([src])) .cap .ar{color:var(--teal);font-size:17cqw}
   .sheet:has(.photo[src=""]) .cap .tr,.sheet:has(.photo:not([src])) .cap .tr{color:var(--terra);font-size:4cqw}
 

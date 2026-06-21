@@ -80,8 +80,28 @@ export default function IamBookBuilder() {
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [reuseFor, setReuseFor] = useState<number | null>(null);
 
   const priceCents = useMemo(() => bindingCents(binding), [binding]);
+
+  // distinct photos already added (cover + inside), offered for reuse so a
+  // parent who wants the same photo on more than one page needn't re-upload.
+  const usedPhotos = useMemo(() => {
+    const seen = new Set<string>();
+    const out: Photo[] = [];
+    for (const p of [cover, ...photos]) {
+      if (p?.url && !p.busy && !seen.has(p.url)) { seen.add(p.url); out.push(p); }
+    }
+    return out;
+  }, [cover, photos]);
+
+  function assignReuse(src: Photo) {
+    if (reuseFor === null) return;
+    const i = reuseFor;
+    setPhotos((arr) => arr.map((x, j) => (j === i ? { url: src.url, w: src.w, h: src.h } : x)));
+    setPhotoCrops((arr) => arr.map((x, j) => (j === i ? null : x)));
+    setReuseFor(null);
+  }
 
   const previewState: PreviewState = {
     name, nameAr, gender, dedication, colorway,
@@ -354,7 +374,8 @@ export default function IamBookBuilder() {
               {photos.map((p, i) => (
                 <PhotoSlot key={i} photo={p} crop={photoCrops[i]} label={TRAITS[i]?.trait}
                   frameAspect={INSIDE_ASPECT} minShortPx={INSIDE_MIN_PX}
-                  captionAr={TRAITS[i]?.arabic} captionTr={TRAITS[i]?.translit}
+                  canReuse={usedPhotos.length > 0}
+                  onReuseRequest={() => setReuseFor(i)}
                   onPick={(f) => onPhoto(i, f)}
                   onCrop={(c) => setPhotoCrops((arr) => arr.map((x, j) => (j === i ? c : x)))}
                   onClear={() => {
@@ -366,8 +387,8 @@ export default function IamBookBuilder() {
 
             <p className={styles.note}>
               Drag any photo to position it, and pinch or use the slider to zoom.
-              Use clear photos for the sharpest print, the zoom is limited so
-              nothing ever prints blurry.
+              You can reuse the same photo on more than one page. Use clear photos
+              for the sharpest print, the zoom is limited so nothing prints blurry.
             </p>
 
             <button type="button" className={`btn btn-outline ${styles.previewBtn}`} onClick={() => setShowPreview(true)}>
@@ -384,6 +405,9 @@ export default function IamBookBuilder() {
           </div>
         </div>
         {showPreview && <IamBookPreview state={previewState} onClose={() => setShowPreview(false)} />}
+        {reuseFor !== null && (
+          <ReusePicker photos={usedPhotos} onPick={assignReuse} onClose={() => setReuseFor(null)} />
+        )}
       </section>
     );
   }
@@ -463,7 +487,7 @@ export default function IamBookBuilder() {
 
 function PhotoSlot({
   photo, crop, onPick, onCrop, onClear, label, big, frameAspect, minShortPx, rounded,
-  captionAr, captionTr,
+  captionAr, captionTr, canReuse, onReuseRequest,
 }: {
   photo: Photo | null;
   crop: Crop | null;
@@ -477,6 +501,8 @@ function PhotoSlot({
   rounded?: string;
   captionAr?: string;
   captionTr?: string;
+  canReuse?: boolean;
+  onReuseRequest?: () => void;
 }) {
   if (photo?.busy) {
     return <div className={`${styles.tile} ${big ? styles.tileBig : ""}`}><span className={styles.tileMsg}>Uploading…</span></div>;
@@ -494,19 +520,45 @@ function PhotoSlot({
           onClear={onClear}
           captionAr={captionAr}
           captionTr={captionTr}
-          showGradient={!big}
+          showGradient={false}
           showSafe={!big}
         />
       </div>
     );
   }
   return (
-    <div className={`${styles.tile} ${big ? styles.tileBig : ""}`}>
+    <div className={`${styles.tile} ${styles.emptyTile} ${big ? styles.tileBig : ""}`}>
       <label className={styles.tileAdd}>
         <input type="file" accept="image/*" hidden
           onChange={(e) => e.target.files?.[0] && onPick(e.target.files[0])} />
         <span>{label || "Add"}</span>
       </label>
+      {canReuse && onReuseRequest && (
+        <button type="button" className={styles.reuseLink} onClick={onReuseRequest}>
+          or reuse a photo
+        </button>
+      )}
+    </div>
+  );
+}
+
+function ReusePicker({ photos, onPick, onClose }: {
+  photos: Photo[]; onPick: (p: Photo) => void; onClose: () => void;
+}) {
+  return (
+    <div className={styles.reuseBackdrop} onClick={onClose} role="dialog" aria-modal="true">
+      <div className={styles.reusePanel} onClick={(e) => e.stopPropagation()}>
+        <p className={styles.reuseTitle}>Reuse one of your photos</p>
+        <div className={styles.reuseGrid}>
+          {photos.map((p, idx) => (
+            <button key={idx} type="button" className={styles.reuseThumb} onClick={() => onPick(p)}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={p.url} alt="" />
+            </button>
+          ))}
+        </div>
+        <button type="button" className="btn btn-outline" onClick={onClose}>Cancel</button>
+      </div>
     </div>
   );
 }

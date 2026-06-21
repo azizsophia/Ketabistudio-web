@@ -378,9 +378,12 @@
   text-align: center;
   padding: 2px 0;
 }
+.emptyTile {
+  flex-direction: column;
+}
 .tileAdd {
+  flex: 1;
   width: 100%;
-  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -389,6 +392,67 @@
   font-size: 0.78rem;
   text-align: center;
   padding: 6px;
+}
+.reuseLink {
+  width: 100%;
+  border: none;
+  border-top: 1px solid #e3dccb;
+  background: #fbf6ea;
+  color: var(--gold-deep);
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 5px 4px;
+  cursor: pointer;
+}
+
+/* reuse picker modal */
+.reuseBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(28, 24, 18, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+}
+.reusePanel {
+  width: 100%;
+  max-width: 420px;
+  max-height: 80vh;
+  overflow: auto;
+  background: var(--cream);
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.55);
+  text-align: center;
+}
+.reuseTitle {
+  font-family: var(--font-display), Georgia, serif;
+  color: var(--forest);
+  font-size: 1.1rem;
+  margin: 0 0 14px;
+}
+.reuseGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.reuseThumb {
+  aspect-ratio: 1 / 1;
+  border: 1.5px solid #e3dccb;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f1ece0;
+  cursor: pointer;
+  padding: 0;
+}
+.reuseThumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 .note {
   color: #76726a;
