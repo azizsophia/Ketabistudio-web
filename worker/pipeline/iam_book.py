@@ -16,9 +16,48 @@ Lulu specs: 8.5x8.5 trim, 0.125 bleed -> 8.75 interior pages, 300 PPI, sRGB.
 Cover sizes are computed from the spine (and wrap for casewrap) Lulu returns.
 """
 import base64
+import io
 import os
 import re
 from pathlib import Path
+
+import requests
+from PIL import Image
+
+# Embed photos at print resolution (not the customer's full multi-megapixel
+# originals) so the rendered PDF stays a sane size — 8.5in at 300 DPI ≈ 2550px,
+# so ~2800px on the long edge is plenty even full-bleed.
+_PHOTO_CAP_PX = 2800
+_DATA_URI_CACHE: dict[str, str] = {}
+
+
+def photo_data_uri(url: str) -> str:
+    """Download a customer photo, downscale to print resolution, and return a
+    JPEG data URI for embedding. Cached per URL. Falls back to the original URL
+    if anything goes wrong (Chromium can still fetch it)."""
+    if not url or url.startswith("data:"):
+        return url or ""
+    if url in _DATA_URI_CACHE:
+        return _DATA_URI_CACHE[url]
+    try:
+        r = requests.get(url, timeout=60)
+        r.raise_for_status()
+        im = Image.open(io.BytesIO(r.content))
+        if im.mode not in ("RGB", "L"):
+            im = im.convert("RGB")
+        w, h = im.size
+        m = max(w, h)
+        if m > _PHOTO_CAP_PX:
+            s = _PHOTO_CAP_PX / float(m)
+            im = im.resize((max(1, int(w * s)), max(1, int(h * s))), Image.LANCZOS)
+        buf = io.BytesIO()
+        im.convert("RGB").save(buf, "JPEG", quality=85, optimize=True)
+        uri = "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
+        if len(_DATA_URI_CACHE) < 64:
+            _DATA_URI_CACHE[url] = uri
+        return uri
+    except Exception:  # noqa: BLE001 — fall back to the URL; never block a render
+        return url
 
 DIR = None
 for _cand in (

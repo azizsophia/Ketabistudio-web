@@ -120,6 +120,10 @@ def storage_upload(bucket, path, data: bytes, ctype):
                                "Content-Type": ctype,
                                "x-upsert": "true"},
                       data=data, timeout=300)
+    if r.status_code >= 400:
+        # surface the real reason (e.g. file-size limit) in the logs
+        print(f"[storage] upload failed {r.status_code} for {bucket}/{path} "
+              f"({len(data)} bytes): {r.text[:300]}", flush=True)
     r.raise_for_status()
     return path
 
@@ -231,8 +235,9 @@ def generate_iam(order, workdir: Path, cover_type="hardcover", client=None):
     spec = spec_for(order["book_slug"], cover_type)
 
     # photos may be a list of {"url","crop"} (current) or bare url strings
-    # (legacy); build url + crop maps the renderer consumes.
-    photos_map = {"cover": photos.get("cover_photo_url") or ""}
+    # (legacy); build url + crop maps the renderer consumes. Photos are embedded
+    # at print resolution (downscaled) so the rendered PDF stays a sane size.
+    photos_map = {"cover": iam_book.photo_data_uri(photos.get("cover_photo_url") or "")}
     crops_map = {"cover": photos.get("cover_crop")}
     for i, item in enumerate(photos.get("photos") or []):
         if not item:
@@ -242,7 +247,7 @@ def generate_iam(order, workdir: Path, cover_type="hardcover", client=None):
         else:
             url, crop = item.get("url"), item.get("crop")
         if url:
-            photos_map[str(i + 1)] = url
+            photos_map[str(i + 1)] = iam_book.photo_data_uri(url)
             crops_map[str(i + 1)] = crop
 
     book_order = {
