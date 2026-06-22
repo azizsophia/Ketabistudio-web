@@ -46,8 +46,8 @@
   color: var(--gold-deep);
   margin: 0 0 12px;
 }
-/* Rendered to mirror the real printed cover: teal board, gold-keyline arch,
-   Fraunces display + Baloo Arabic, a spine edge and a book-like shadow. */
+/* Full-bleed photo cover: the photo fills the cover, title overlaid at the
+   bottom over a scrim, with a fine gold keyline — mirrors the printed cover. */
 .cover {
   position: relative;
   width: 100%;
@@ -55,85 +55,86 @@
   margin: 0 auto;
   aspect-ratio: 1 / 1;
   container-type: inline-size;
-  border-radius: 3px 12px 12px 3px;
-  /* darker spine edge on the left, like a real book */
-  border-left: 10px solid var(--cover-dk, #21443f);
-  color: #f7efdc;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 28px 50px -22px rgba(33, 68, 63, 0.6);
+}
+.coverPhoto {
+  position: absolute;
+  inset: 0;
+  background-color: #21443f;
+  background-size: cover;
+  background-position: center;
+}
+.coverEmpty {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 8% 9%;
-  overflow: hidden;
-  text-align: center;
-  box-shadow:
-    -3px 0 0 rgba(0, 0, 0, 0.08),
-    0 28px 50px -22px rgba(33, 68, 63, 0.6);
+  color: rgba(247, 239, 220, 0.6);
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
 }
-/* a fine gold keyline framing the cover */
-.cover::after {
-  content: "";
+.coverScrim {
   position: absolute;
-  inset: 5.5%;
-  border: 1px solid rgba(230, 185, 78, 0.55);
-  border-radius: 4px;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(18, 15, 12, 0.5), rgba(18, 15, 12, 0) 26%),
+    linear-gradient(0deg, rgba(18, 15, 12, 0.82), rgba(18, 15, 12, 0.3) 52%, rgba(18, 15, 12, 0) 75%);
+}
+.coverKeyline {
+  position: absolute;
+  inset: 4%;
+  border: 1px solid rgba(246, 234, 210, 0.7);
+  border-radius: 3px;
   pointer-events: none;
 }
 .cKick {
+  position: absolute;
+  top: 6cqw;
+  left: 0;
+  right: 0;
+  text-align: center;
   font-size: 0.6rem;
-  letter-spacing: 0.24em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: rgba(231, 201, 140, 0.92);
-  margin-bottom: 7%;
+  color: #f4ead2;
 }
-.arch {
-  width: 50%;
-  aspect-ratio: 4 / 5;
-  /* dome top, gently rounded base — matches the print cover arch */
-  border-radius: 50% 50% 9% 9% / 36% 36% 6% 6%;
-  overflow: hidden;
+.coverTitle {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 7cqw;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  background: var(--cover-dk, #21443f);
-  border: 2.5px solid var(--gold);
-  box-shadow: 0 8px 20px -10px rgba(0, 0, 0, 0.5);
-  margin-bottom: 7%;
-}
-.arch img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.archEmpty {
-  font-size: 0.72rem;
-  color: rgba(247, 239, 220, 0.6);
-  letter-spacing: 0.04em;
+  text-align: center;
+  padding: 0 7cqw;
 }
 .cIam {
   font-family: var(--font-display), Georgia, serif;
   font-style: italic;
   font-weight: 500;
-  font-size: clamp(1.3rem, 5cqw, 1.7rem);
+  font-size: clamp(1.1rem, 5cqw, 1.5rem);
   color: var(--gold);
   line-height: 1;
 }
 .cName {
   font-family: var(--font-display), Georgia, serif;
   font-weight: 600;
-  font-size: clamp(1.9rem, 9cqw, 2.6rem);
-  line-height: 1.02;
+  font-size: clamp(1.7rem, 11cqw, 2.5rem);
+  line-height: 0.95;
   margin-top: 1%;
-  color: #fbf4e2;
+  color: #fff;
   word-break: break-word;
 }
 .cNameAr {
   font-family: var(--font-baloo), var(--font-arabic), serif;
   font-weight: 600;
-  font-size: clamp(1.2rem, 6cqw, 1.6rem);
+  font-size: clamp(1rem, 5.5cqw, 1.45rem);
   color: var(--gold);
-  margin-top: 4%;
-  min-height: 1.4em;
+  margin-top: 3%;
+  min-height: 1.2em;
 }
 .previewNote {
   max-width: 340px;

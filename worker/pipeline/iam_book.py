@@ -117,6 +117,26 @@ def _crop_style(crop):
             f"width:{wp:.4f}%;height:{hp:.4f}%;max-width:none;object-fit:cover")
 
 
+def _cover_crop_style(crop):
+    """Style for the FULL-BLEED cover photo: object-fit cover + object-position
+    from the crop, so it fills the cover and honours where the customer framed it
+    without ever distorting (works for any crop aspect)."""
+    if not crop:
+        return ""
+    try:
+        x, y = float(crop["x"]), float(crop["y"])
+        w, h = float(crop["w"]), float(crop["h"])
+    except (KeyError, TypeError, ValueError):
+        return ""
+    if w <= 0 or h <= 0:
+        return ""
+    px = (x / (1 - w) * 100.0) if w < 0.999 else 50.0
+    py = (y / (1 - h) * 100.0) if h < 0.999 else 50.0
+    px = max(0.0, min(100.0, px))
+    py = max(0.0, min(100.0, py))
+    return f"object-fit:cover;object-position:{px:.2f}% {py:.2f}%"
+
+
 def _tokens(order):
     g = (order.get("gender") or "boy").lower()
     pr = PRONOUNS.get(g, PRONOUNS["boy"])
@@ -132,7 +152,7 @@ def _tokens(order):
     photos = order.get("photos") or {}
     crops = order.get("crops") or {}
     t["PHOTO_COVER"] = photos.get("cover") or photos.get("PHOTO_COVER") or ""
-    t["PHOTO_COVER_STYLE"] = _crop_style(crops.get("cover"))
+    t["PHOTO_COVER_STYLE"] = _cover_crop_style(crops.get("cover"))
     for i in range(1, 13):
         t[f"PHOTO_{i}"] = photos.get(str(i)) or photos.get(f"PHOTO_{i}") or ""
         t[f"PHOTO_{i}_STYLE"] = _crop_style(crops.get(str(i)))

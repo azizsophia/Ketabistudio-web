@@ -29,11 +29,13 @@ type Props = {
   captionTr?: string;
   showGradient?: boolean;
   showSafe?: boolean;
+  /** full-bleed cover: pan only, no zoom (the photo fills the cover) */
+  noZoom?: boolean;
 };
 
 export default function PhotoCropper({
   src, frameAspect, minShortPx, rounded, value, onChange, onClear,
-  captionAr, captionTr, showGradient, showSafe,
+  captionAr, captionTr, showGradient, showSafe, noZoom,
 }: Props) {
   const frameRef = useRef<HTMLDivElement>(null);
   const [nat, setNat] = useState<{ w: number; h: number } | null>(null);
@@ -64,8 +66,8 @@ export default function PhotoCropper({
   }, [nat, value, frameAspect]);
 
   const natAspect = nat ? nat.w / nat.h : frameAspect;
-  const zMax = nat ? maxZoomForQuality(nat.w, nat.h, frameAspect, minShortPx) : 1;
-  const crop = cropFromState(natAspect, frameAspect, Math.min(zoom, zMax || 1), cx, cy);
+  const zMax = noZoom ? 1 : (nat ? maxZoomForQuality(nat.w, nat.h, frameAspect, minShortPx) : 1);
+  const crop = cropFromState(natAspect, frameAspect, noZoom ? 1 : Math.min(zoom, zMax || 1), cx, cy);
 
   // publish the crop whenever it changes (primitive deps avoid render loops)
   useEffect(() => {
@@ -92,11 +94,11 @@ export default function PhotoCropper({
   }
   function onUp() { drag.current = null; }
   function onWheel(e: React.WheelEvent) {
-    if (!nat) return;
+    if (!nat || noZoom) return;
     setZoom((z) => clamp(z * (e.deltaY < 0 ? 1.08 : 0.92), 1, zMax));
   }
 
-  const canZoom = zMax > 1.001;
+  const canZoom = !noZoom && zMax > 1.001;
 
   return (
     <div className={styles.wrap}>
@@ -132,6 +134,7 @@ export default function PhotoCropper({
         {lowRes && <span className={styles.low}>Low res at this zoom</span>}
         <span className={styles.hint}>Drag to position</span>
       </div>
+      {!noZoom && (
       <div className={styles.zoomRow} aria-hidden={!canZoom}>
         <span className={styles.zi}>−</span>
         <input
@@ -147,6 +150,7 @@ export default function PhotoCropper({
         />
         <span className={styles.zi}>+</span>
       </div>
+      )}
     </div>
   );
 }

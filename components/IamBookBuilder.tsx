@@ -13,11 +13,10 @@ import {
 } from "@/lib/iamBook";
 
 // Frame shapes the photos print into, so the on-screen crop matches the page.
-const COVER_ASPECT = 4 / 5;   // the cover photo arch
-const COVER_MIN_PX = 900;     // keep the cover crop ≥ ~210 ppi
+const COVER_ASPECT = 1;       // the cover photo is now full-bleed (square)
+const COVER_MIN_PX = 1500;    // full-bleed cover needs real resolution
 const INSIDE_ASPECT = 1;      // full-bleed square page
 const INSIDE_MIN_PX = 1400;   // keep an inside crop ≥ ~160 ppi
-const ARCH_RADIUS = "50% 50% 9% 9% / 36% 36% 6% 6%";
 
 const COUNTRIES = [
   { code: "US", name: "United States" }, { code: "GB", name: "United Kingdom" },
@@ -272,27 +271,29 @@ export default function IamBookBuilder() {
       <p className={styles.previewLabel}>Front cover</p>
       <div
         className={styles.cover}
-        style={{ background: cw.bg, ["--cover-dk" as string]: cw.dk } as CSSProperties}
+        style={{ background: cw.dk } as CSSProperties}
       >
+        {cover?.url ? (
+          <span
+            className={styles.coverPhoto}
+            style={{
+              backgroundImage: `url("${cover.url}")`,
+              backgroundRepeat: "no-repeat",
+              backgroundSize: "cover",
+              backgroundPosition: coverCrop ? cropToBackground(coverCrop).position : "center",
+            }}
+          />
+        ) : (
+          <span className={`${styles.coverPhoto} ${styles.coverEmpty}`}>Your photo</span>
+        )}
+        <span className={styles.coverScrim} />
+        <span className={styles.coverKeyline} />
         <span className={styles.cKick}>A book about good character</span>
-        <span
-          className={styles.arch}
-          style={
-            cover?.url
-              ? {
-                  backgroundImage: `url("${cover.url}")`,
-                  backgroundRepeat: "no-repeat",
-                  backgroundSize: coverCrop ? cropToBackground(coverCrop).size : "cover",
-                  backgroundPosition: coverCrop ? cropToBackground(coverCrop).position : "center",
-                }
-              : undefined
-          }
-        >
-          {!cover?.url && <span className={styles.archEmpty}>Your photo</span>}
+        <span className={styles.coverTitle}>
+          <span className={styles.cIam}>I am</span>
+          <span className={styles.cName}>{name.trim() || "Your child"}</span>
+          <span className={styles.cNameAr} dir="rtl" lang="ar">{nameAr.trim()}</span>
         </span>
-        <span className={styles.cIam}>I am</span>
-        <span className={styles.cName}>{name.trim() || "Your child"}</span>
-        <span className={styles.cNameAr} dir="rtl" lang="ar">{nameAr.trim()}</span>
       </div>
       <p className={styles.previewNote}>
         Inside: twelve “I am” affirmations in English and Arabic, plus a dua, each
@@ -417,7 +418,7 @@ export default function IamBookBuilder() {
             <span className={styles.label}>Cover photo</span>
             <PhotoSlot
               photo={cover} crop={coverCrop} big
-              frameAspect={COVER_ASPECT} minShortPx={COVER_MIN_PX} rounded={ARCH_RADIUS}
+              frameAspect={COVER_ASPECT} minShortPx={COVER_MIN_PX}
               onPick={onCover}
               onCrop={setCoverCrop}
               onClear={() => { setCover(null); setCoverCrop(null); }}
@@ -576,6 +577,7 @@ function PhotoSlot({
           captionTr={captionTr}
           showGradient={false}
           showSafe={!big}
+          noZoom={big}
         />
         <label className={styles.replaceBtn}>
           Replace photo

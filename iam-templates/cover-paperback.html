@@ -52,21 +52,22 @@
   /* fold guide lines (screen only) */
   .fold{position:absolute;top:0;bottom:0;width:0;border-left:1px dashed rgba(255,255,255,.28);z-index:5;pointer-events:none}
 
-  /* FRONT */
-  .front .inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:7cqw 8cqw;padding-right:calc(8cqw + var(--bleed))}
-  .arch{width:36%;aspect-ratio:4/5;border:0.7cqw solid var(--gold);border-radius:50% 50% 9% 9%/36% 36% 6% 6%;overflow:hidden;position:relative;background:var(--teal-dk);margin-top:2cqw}
-  .arch img{width:100%;height:100%;object-fit:cover;display:block;background:#cdd4cf}
-  /* no cover photo: hide the arch so the cover reads as intentional, not empty */
-  .arch:has(img[src=""]),.arch:has(img:not([src])){display:none}
-  .kick{font:500 3cqw 'Plus Jakarta Sans';letter-spacing:.5cqw;text-transform:uppercase;white-space:nowrap;color:#e7c98c}
-  .iam{font:500 italic 7cqw 'Fraunces',serif;color:#e7c98c;margin-top:5cqw}
+  /* FRONT — full-bleed photo cover; title overlaid at the bottom */
+  .coverphoto{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:var(--teal-dk);z-index:0}
+  .scrim-top{position:absolute;left:0;right:0;top:0;height:26%;z-index:1;pointer-events:none;
+             background:linear-gradient(180deg,rgba(18,15,12,.55),rgba(18,15,12,0))}
+  .scrim-bot{position:absolute;left:0;right:0;bottom:0;height:54%;z-index:1;pointer-events:none;
+             background:linear-gradient(0deg,rgba(18,15,12,.82),rgba(18,15,12,.30) 52%,rgba(18,15,12,0))}
+  .front-top{position:absolute;left:0;right:0;top:0;display:flex;justify-content:center;padding:5.5cqw 8cqw 0;padding-right:calc(8cqw + var(--bleed));z-index:3}
+  .front-bot{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 8cqw 8cqw;padding-right:calc(8cqw + var(--bleed));z-index:3}
+  .kick{font:500 3cqw 'Plus Jakarta Sans';letter-spacing:.5cqw;text-transform:uppercase;white-space:nowrap;color:#f4ead2}
+  .iam{font:500 italic 7cqw 'Fraunces',serif;color:var(--gold)}
+  .name{font:600 14cqw 'Fraunces',serif;line-height:.95;color:#fff;text-align:center;margin-top:1cqw}
+  .name-ar{font:600 5.5cqw 'Baloo Bhaijaan 2',sans-serif;color:var(--gold);margin-top:1.5cqw}
   .fitname{white-space:nowrap;width:100%;text-align:center}
-  /* luxury detailing: fine double gold keyline frame + diamond flourish (no stars) */
-  .keyline{position:absolute;inset:5%;border:1px solid rgba(230,185,78,.55);border-radius:3px;pointer-events:none;z-index:4}
-  .keyline::after{content:"";position:absolute;inset:1cqw;border:1px solid rgba(230,185,78,.30);border-radius:2px}
-  .flourish{display:flex;align-items:center;justify-content:center;gap:2.4cqw;width:42cqw;margin-top:3cqw}
-  .flourish::before,.flourish::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(230,185,78,.75),transparent)}
-  .flourish i{flex:0 0 auto;width:1.5cqw;height:1.5cqw;background:var(--gold);transform:rotate(45deg)}
+  /* fine gold keyline frame over the photo (no stars) */
+  .keyline{position:absolute;inset:5%;border:1px solid rgba(246,234,210,.7);border-radius:3px;pointer-events:none;z-index:2}
+  .keyline::after{content:"";position:absolute;inset:1cqw;border:1px solid rgba(246,234,210,.4);border-radius:2px}
 
   /* BACK */
   .back .inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
@@ -104,16 +105,15 @@
     <!-- ===== FRONT COVER (right) ===== -->
     <div class="panel front">
       <div class="fold" style="left:0"></div>
+      <img class="coverphoto" src="{{PHOTO_COVER}}" style="{{PHOTO_COVER_STYLE}}" alt="">
+      <div class="scrim-top"></div>
+      <div class="scrim-bot"></div>
       <div class="keyline"></div>
-      <div class="inner">
-        <div class="kick" style="margin-bottom:2.4cqw">A book about good character</div>
-        <div class="arch">
-          <img src="{{PHOTO_COVER}}" style="{{PHOTO_COVER_STYLE}}" alt="">
-        </div>
+      <div class="front-top"><div class="kick">A book about good character</div></div>
+      <div class="front-bot">
         <div class="iam">I am</div>
-        <div class="fitname" style="font:600 13cqw 'Fraunces',serif;line-height:.92;color:#fbf2dd;text-align:center;margin-top:.4cqw">{{CHILD_NAME}}</div>
-        <div style="font:600 5cqw 'Baloo Bhaijaan 2',sans-serif;color:var(--gold);margin-top:1.4cqw">{{CHILD_NAME_ARABIC}}</div>
-        <div class="flourish"><i></i></div>
+        <div class="fitname name">{{CHILD_NAME}}</div>
+        <div class="name-ar">{{CHILD_NAME_ARABIC}}</div>
       </div>
     </div>
 
