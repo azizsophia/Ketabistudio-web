@@ -52,15 +52,19 @@
   /* fold guide lines (screen only) */
   .fold{position:absolute;top:0;bottom:0;width:0;border-left:1px dashed rgba(255,255,255,.28);z-index:5;pointer-events:none}
 
-  /* FRONT — full-bleed photo cover; title overlaid at the bottom */
-  .coverphoto{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:var(--teal-dk);z-index:0}
-  .scrim-top{position:absolute;left:0;right:0;top:0;height:26%;z-index:1;pointer-events:none;
-             background:linear-gradient(180deg,rgba(18,15,12,.55),rgba(18,15,12,0))}
-  .scrim-bot{position:absolute;left:0;right:0;bottom:0;height:44%;z-index:1;pointer-events:none;
-             background:linear-gradient(0deg,rgba(18,15,12,.66),rgba(18,15,12,.18) 55%,rgba(18,15,12,0))}
-  .front-top{position:absolute;left:0;right:0;top:0;display:flex;justify-content:center;padding:5.5cqw 8cqw 0;padding-right:calc(8cqw + var(--bleed));z-index:3}
-  .front-bot{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 8cqw 8cqw;padding-right:calc(8cqw + var(--bleed));z-index:3}
-  .kick{font:500 3cqw 'Plus Jakarta Sans';letter-spacing:.5cqw;text-transform:uppercase;white-space:nowrap;color:#f4ead2}
+  /* FRONT — full-bleed photo cover; title over the photo at the foot.
+     .front clips the face + the 1/8in bleed; .coverface is the EXACT visible
+     face so the photo matches the cropped square (WYSIWYG) and bleeds past it. */
+  .coverface{position:absolute;left:0;top:var(--bleed);width:var(--panel);height:var(--panel);
+             overflow:visible;container-type:inline-size}
+  /* with a crop, {{PHOTO_COVER_STYLE}} maps it onto .coverface exactly + bleeds;
+     with no crop, this default fills the whole bleed area, centred */
+  .coverphoto{position:absolute;left:0;top:calc(-1 * var(--bleed));
+              width:calc(var(--panel) + var(--bleed));height:calc(var(--panel) + 2 * var(--bleed));
+              object-fit:cover;background:var(--teal-dk)}
+  .scrim-bot{position:absolute;left:0;right:0;bottom:0;height:52%;z-index:1;pointer-events:none;
+             background:linear-gradient(0deg,rgba(18,15,12,.80),rgba(18,15,12,.34) 50%,rgba(18,15,12,0))}
+  .front-bot{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 8cqw 7cqw;z-index:3}
   .iam{font:500 italic 7cqw 'Fraunces',serif;color:var(--gold)}
   .name{font:600 14cqw 'Fraunces',serif;line-height:.95;color:#fff;text-align:center;margin-top:1cqw}
   .name-ar{font:600 5.5cqw 'Baloo Bhaijaan 2',sans-serif;color:var(--gold);margin-top:1.5cqw}
@@ -101,13 +105,14 @@
     <!-- ===== FRONT COVER (right) ===== -->
     <div class="panel front">
       <div class="fold" style="left:0"></div>
-      <img class="coverphoto" src="{{PHOTO_COVER}}" style="{{PHOTO_COVER_STYLE}}" alt="">
-      <div class="scrim-bot"></div>
-      <div class="keyline"></div>
-      <div class="front-bot">
-        <div class="iam">I am</div>
-        <div class="fitname name">{{CHILD_NAME}}</div>
-        <div class="name-ar">{{CHILD_NAME_ARABIC}}</div>
+      <div class="coverface">
+        <img class="coverphoto" src="{{PHOTO_COVER}}" style="{{PHOTO_COVER_STYLE}}" alt="">
+        <div class="scrim-bot"></div>
+        <div class="front-bot">
+          <div class="iam">I am</div>
+          <div class="fitname name">{{CHILD_NAME}}</div>
+          <div class="name-ar">{{CHILD_NAME_ARABIC}}</div>
+        </div>
       </div>
     </div>
 

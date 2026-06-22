@@ -279,7 +279,7 @@ export default function IamBookBuilder() {
             style={{
               backgroundImage: `url("${cover.url}")`,
               backgroundRepeat: "no-repeat",
-              backgroundSize: "cover",
+              backgroundSize: coverCrop ? cropToBackground(coverCrop).size : "cover",
               backgroundPosition: coverCrop ? cropToBackground(coverCrop).position : "center",
             }}
           />
@@ -287,7 +287,6 @@ export default function IamBookBuilder() {
           <span className={`${styles.coverPhoto} ${styles.coverEmpty}`}>Your photo</span>
         )}
         <span className={styles.coverScrim} />
-        <span className={styles.coverKeyline} />
         <span className={styles.coverTitle}>
           <span className={styles.cIam}>I am</span>
           <span className={styles.cName}>{name.trim() || "Your child"}</span>

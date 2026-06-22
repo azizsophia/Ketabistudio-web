@@ -152,7 +152,9 @@ def _tokens(order):
     photos = order.get("photos") or {}
     crops = order.get("crops") or {}
     t["PHOTO_COVER"] = photos.get("cover") or photos.get("PHOTO_COVER") or ""
-    t["PHOTO_COVER_STYLE"] = _cover_crop_style(crops.get("cover"))
+    # cover prints onto a square face that equals the cropped square, so the
+    # precise crop maps 1:1 (WYSIWYG) and bleeds into the wrap behind it
+    t["PHOTO_COVER_STYLE"] = _crop_style(crops.get("cover"))
     for i in range(1, 13):
         t[f"PHOTO_{i}"] = photos.get(str(i)) or photos.get(f"PHOTO_{i}") or ""
         t[f"PHOTO_{i}_STYLE"] = _crop_style(crops.get(str(i)))
