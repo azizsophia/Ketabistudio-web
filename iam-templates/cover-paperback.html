@@ -62,9 +62,9 @@
   .coverphoto{position:absolute;left:0;top:calc(-1 * var(--bleed));
               width:calc(var(--panel) + var(--bleed));height:calc(var(--panel) + 2 * var(--bleed));
               object-fit:cover;background:var(--teal-dk)}
-  .scrim-bot{position:absolute;left:0;right:0;bottom:0;height:52%;z-index:1;pointer-events:none;
-             background:linear-gradient(0deg,rgba(18,15,12,.80),rgba(18,15,12,.34) 50%,rgba(18,15,12,0))}
-  .front-bot{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 8cqw 7cqw;z-index:3}
+  .scrim-bot{position:absolute;left:0;right:0;top:58%;bottom:calc(-1 * var(--bleed));z-index:1;pointer-events:none;
+             background:linear-gradient(0deg,rgba(18,15,12,.56),rgba(18,15,12,0))}
+  .front-bot{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 8cqw 7cqw;z-index:3;text-shadow:0 2px 16px rgba(0,0,0,.55)}
   .iam{font:500 italic 7cqw 'Fraunces',serif;color:var(--gold)}
   .name{font:600 14cqw 'Fraunces',serif;line-height:.95;color:#fff;text-align:center;margin-top:1cqw}
   .name-ar{font:600 5.5cqw 'Baloo Bhaijaan 2',sans-serif;color:var(--gold);margin-top:1.5cqw}
