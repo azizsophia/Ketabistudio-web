@@ -87,6 +87,12 @@
   .rule{width:9cqw;height:2px;border-radius:2px;margin-top:3.2cqw;opacity:.92}
   /* the child's name fits to one line at any length (sized by JS, see _fitNames) */
   .fitname{white-space:nowrap;width:100%;text-align:center}
+  /* luxury cover detailing: fine double gold keyline + diamond flourish (no stars) */
+  .keyline{position:absolute;inset:5%;border:1px solid rgba(230,185,78,.55);border-radius:3px;pointer-events:none;z-index:4}
+  .keyline::after{content:"";position:absolute;inset:1cqw;border:1px solid rgba(230,185,78,.30);border-radius:2px}
+  .flourish{display:flex;align-items:center;justify-content:center;gap:2.4cqw;width:42cqw;margin-top:3cqw}
+  .flourish::before,.flourish::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(230,185,78,.75),transparent)}
+  .flourish i{flex:0 0 auto;width:1.5cqw;height:1.5cqw;background:var(--gold);transform:rotate(45deg)}
 
   /* ---- PRINT: one .sheet per physical page at full-bleed 8.75in ---- */
   @media print{ .fitme{transform:none!important}
@@ -106,15 +112,17 @@
 
   <!-- ===== FRONT COVER (lives in the separate cover PDF) ===== -->
   <div class="label">Front cover</div>
-  <div class="sheet" style="background:var(--teal);border-left:11px solid var(--teal-dk)">
-    <div class="pad" style="justify-content:flex-start;padding:7cqw 8cqw 6cqw">
+  <div class="sheet" style="background:var(--teal)">
+    <div class="keyline"></div>
+    <div class="pad" style="justify-content:center;padding:6cqw 8cqw">
       <div style="font:500 3cqw 'Plus Jakarta Sans';letter-spacing:.5cqw;text-transform:uppercase;white-space:nowrap;color:#e7c98c;margin-bottom:2.4cqw">A book about good character</div>
-      <div style="width:42%;aspect-ratio:4/5;border:0.7cqw solid var(--gold);border-radius:50% 50% 9% 9%/36% 36% 6% 6%;overflow:hidden;position:relative;background:var(--teal-dk)">
+      <div style="width:36%;aspect-ratio:4/5;border:0.7cqw solid var(--gold);border-radius:50% 50% 9% 9%/36% 36% 6% 6%;overflow:hidden;position:relative;background:var(--teal-dk);margin-top:2cqw">
         <img class="photo" src="{{PHOTO_COVER}}" style="{{PHOTO_COVER_STYLE}}" alt="">
       </div>
-      <div style="font:500 italic 7cqw 'Fraunces',serif;color:#e7c98c;margin-top:8cqw">I am</div>
+      <div style="font:500 italic 7cqw 'Fraunces',serif;color:#e7c98c;margin-top:5cqw">I am</div>
       <div class="fitname" style="font:600 13cqw 'Fraunces',serif;line-height:.92;color:#fbf2dd;margin-top:.4cqw">{{CHILD_NAME}}</div>
       <div style="font:600 5cqw 'Baloo Bhaijaan 2',sans-serif;color:var(--gold);margin-top:1.4cqw">{{CHILD_NAME_ARABIC}}</div>
+      <div class="flourish"><i></i></div>
     </div>
   </div>
 
