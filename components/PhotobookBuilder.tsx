@@ -683,7 +683,7 @@ export default function PhotobookBuilder({
             </span>
           </div>
           <p className={styles.priceNote}>
-            Checked by hand before it ships — guaranteed right.
+            Printed to order and shipped with care.
           </p>
         </div>
 

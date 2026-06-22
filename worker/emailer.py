@@ -148,13 +148,9 @@ def send_order_confirmation(order: dict) -> bool:
     inner = f"""\
 <h1 style="margin:0 0 12px;font-size:22px;color:{FOREST};">Thank you for your order</h1>
 <p style="margin:0 0 16px;font-size:15px;line-height:1.6;">
-  We have received your order for <strong>{book}</strong> and payment is
-  confirmed. Your book is being made now.
-</p>
-<p style="margin:0 0 16px;font-size:15px;line-height:1.6;">
-  Every order is carefully reviewed and quality-checked before it goes to
-  print, so your child&rsquo;s name, the artwork, and each page are just
-  right. We will email you again the moment it ships.
+  We have received your order for <strong>{book}</strong> and your payment is
+  confirmed. It is being prepared with care, and we will email you again the
+  moment it ships.
 </p>
 <p style="margin:0;font-size:13px;color:#8a847a;">Order {short}</p>
 """

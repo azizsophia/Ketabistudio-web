@@ -547,7 +547,7 @@ export default function OrderSection({ slug, personalized }: Props) {
               {isInternational
                 ? "Live shipping rate for your country, shown at checkout."
                 : "Live shipping rate shown at checkout."}{" "}
-              Checked by hand before it ships — guaranteed right.
+              Printed to order and shipped with care.
             </p>
           </div>
 
@@ -584,11 +584,9 @@ export default function OrderSection({ slug, personalized }: Props) {
           <h2 className={styles.heading}>Order received</h2>
           <p className={styles.sub}>
             {personalized && name.trim()
-              ? `${name.trim()}'s book is being made now. `
-              : "Your book is being prepared now. "}
-            We review every single book personally before it goes to print,
-            so each page is exactly right. You will receive an email at{" "}
-            <strong>{email}</strong> when it ships.
+              ? `${name.trim()}'s book is confirmed and being prepared with care. `
+              : "Your order is confirmed and being prepared with care. "}
+            We&apos;ll email you at <strong>{email}</strong> the moment it ships.
           </p>
           <p className={styles.orderId}>Order {orderId.slice(0, 8)}</p>
         </div>
