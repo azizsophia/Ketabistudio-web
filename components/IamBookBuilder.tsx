@@ -288,7 +288,6 @@ export default function IamBookBuilder() {
         )}
         <span className={styles.coverScrim} />
         <span className={styles.coverKeyline} />
-        <span className={styles.cKick}>A book about good character</span>
         <span className={styles.coverTitle}>
           <span className={styles.cIam}>I am</span>
           <span className={styles.cName}>{name.trim() || "Your child"}</span>
