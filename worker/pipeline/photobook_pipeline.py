@@ -44,7 +44,7 @@ import os
 from pathlib import Path
 
 import requests
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 # Reuse the verified Arabic shaping + full-bleed helpers + geometry from the
 # duas engine so the dua renders identically (exact glyphs, correct RTL) and
@@ -179,12 +179,13 @@ def _download(url):
         path = unquote(urlparse(url).path) if url.startswith("file://") else url
         img = Image.open(path)
         img.load()
-        return img.convert("RGB")
+        return ImageOps.exif_transpose(img).convert("RGB")
     r = requests.get(url, timeout=300)
     r.raise_for_status()
     img = Image.open(io.BytesIO(r.content))
     img.load()
-    return img.convert("RGB")
+    # honour EXIF orientation so portrait phone photos don't flip
+    return ImageOps.exif_transpose(img).convert("RGB")
 
 
 def _cover_fit(img, w, h):

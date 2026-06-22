@@ -66,13 +66,13 @@
   /* FRONT */
   .front .inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:var(--safe)}
   .kick{font:500 3cqw 'Plus Jakarta Sans';letter-spacing:.5cqw;text-transform:uppercase;white-space:nowrap;color:#e7c98c}
-  .arch{width:50%;aspect-ratio:4/5;border:0.7cqw solid var(--gold);border-radius:50% 50% 9% 9%/36% 36% 6% 6%;overflow:hidden;position:relative;background:var(--teal-dk)}
+  .arch{width:46%;aspect-ratio:4/5;border:0.7cqw solid var(--gold);border-radius:50% 50% 9% 9%/36% 36% 6% 6%;overflow:hidden;position:relative;background:var(--teal-dk)}
   .arch img{width:100%;height:100%;object-fit:cover;display:block;background:#cdd4cf}
   /* no cover photo: hide the arch so the cover reads as intentional, not empty */
   .arch:has(img[src=""]),.arch:has(img:not([src])){display:none}
   .name{font:600 13cqw 'Fraunces',serif;line-height:.92;color:#fbf2dd;text-align:center;margin-top:1cqw}
   .name-ar{font:600 5cqw 'Baloo Bhaijaan 2',sans-serif;color:var(--gold);margin-top:1.2cqw}
-  .fitname{white-space:nowrap}
+  .fitname{white-space:nowrap;width:100%;text-align:center}
 
   /* BACK */
   .back .inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:var(--safe)}
@@ -99,7 +99,7 @@
         <div class="inner">
           <div style="font:400 4cqw 'Fraunces',serif;color:#fbf2dd;line-height:1.45">Twelve gentle reminders of the good character Allah placed in every child.</div>
           <div style="font:400 2.7cqw 'Fraunces',serif;font-style:italic;color:#bcd0c9;line-height:1.5;margin-top:4cqw">In English and Arabic, starring your child.</div>
-          <img src="{{LOGO}}" alt="Ketabi Studio" style="width:26%;margin-top:auto;opacity:.95">
+          <img src="{{LOGO}}" alt="Ketabi Studio" style="width:26%;margin-top:9cqw;opacity:.95">
         </div>
       </div>
 
@@ -113,7 +113,7 @@
         <div class="inner">
           <div class="kick">A book about good character</div>
           <div class="arch"><img src="{{PHOTO_COVER}}" style="{{PHOTO_COVER_STYLE}}" alt=""></div>
-          <div style="font:500 italic 7cqw 'Fraunces',serif;color:#e7c98c;margin-top:3cqw">I am</div>
+          <div style="font:500 italic 7cqw 'Fraunces',serif;color:#e7c98c;margin-top:6cqw">I am</div>
           <div class="name fitname">{{CHILD_NAME}}</div>
           <div class="name-ar">{{CHILD_NAME_ARABIC}}</div>
         </div>

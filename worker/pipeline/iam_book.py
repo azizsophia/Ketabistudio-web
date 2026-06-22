@@ -22,7 +22,7 @@ import re
 from pathlib import Path
 
 import requests
-from PIL import Image
+from PIL import Image, ImageOps
 
 # Embed photos at print resolution (not the customer's full multi-megapixel
 # originals) so the rendered PDF stays a sane size — 8.5in at 300 DPI ≈ 2550px,
@@ -43,6 +43,8 @@ def photo_data_uri(url: str) -> str:
         r = requests.get(url, timeout=60)
         r.raise_for_status()
         im = Image.open(io.BytesIO(r.content))
+        # honour the phone's EXIF orientation (bake it in) so photos don't flip
+        im = ImageOps.exif_transpose(im)
         if im.mode not in ("RGB", "L"):
             im = im.convert("RGB")
         w, h = im.size
