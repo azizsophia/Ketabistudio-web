@@ -312,6 +312,18 @@ def process(order):
     except Exception as e:  # noqa: BLE001
         print(f"[{oid}] confirmation email error (non-fatal): {e}")
 
+    # Heads-up to the OWNER that a paid order came in (once per order), so they
+    # know to watch for the approval email and nothing is silently lost.
+    try:
+        seen = db("GET", f"order_events?order_id=eq.{oid}"
+                          "&event=eq.admin_new_order&select=order_id")
+        if not seen:
+            emailer.send_admin_new_order(order)
+            db("POST", "order_events",
+               json={"order_id": oid, "event": "admin_new_order"})
+    except Exception as e:  # noqa: BLE001
+        print(f"[{oid}] admin new-order email error (non-fatal): {e}")
+
     # Lulu client — created up front because hardcover cover generation must
     # query Lulu for the required casewrap cover dimensions before rendering.
     client = lulu_client.LuluClient(
@@ -521,17 +533,31 @@ def main():
                 except qc.QCFailure as e:
                     set_status(order["id"], "failed",
                                qc_report={"failure": str(e)})
+                    try:
+                        emailer.send_admin_failed(order, str(e))
+                    except Exception:  # noqa: BLE001
+                        pass
                     print(f"[{order['id']}] QC FAIL: {e}")
                 except Exception:
+                    tb = traceback.format_exc()
                     set_status(order["id"], "failed",
-                               qc_report={"failure": traceback.format_exc()[-800:]})
+                               qc_report={"failure": tb[-800:]})
+                    try:
+                        emailer.send_admin_failed(order, tb[-400:])
+                    except Exception:  # noqa: BLE001
+                        pass
                     traceback.print_exc()
             for order in db("GET", "orders?status=eq.approved&order=created_at"):
                 try:
                     submit_approved(order)
                 except Exception:
+                    tb = traceback.format_exc()
                     set_status(order["id"], "failed",
-                               qc_report={"failure": traceback.format_exc()[-800:]})
+                               qc_report={"failure": tb[-800:]})
+                    try:
+                        emailer.send_admin_failed(order, tb[-400:])
+                    except Exception:  # noqa: BLE001
+                        pass
                     traceback.print_exc()
             # Advance submitted/printing jobs toward shipped (+ email)
             for order in db(

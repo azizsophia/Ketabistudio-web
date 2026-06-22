@@ -290,3 +290,47 @@ def send_admin_review(order: dict, digest_url: str = "",
 {dash_block}
 """
     return send_email(ADMIN_EMAIL, f"Approve: {book} (order {oid})", _shell(inner))
+
+
+def send_admin_new_order(order: dict) -> bool:
+    """Heads-up to the owner the moment a paid order starts processing, so they
+    know to watch for the approval email and nothing slips through."""
+    book = html.escape(_book_label(order))
+    oid = str(order.get("id", ""))[:8]
+    ship = order.get("shipping") or {}
+    where = html.escape(
+        ", ".join(p for p in [ship.get("city"), ship.get("country_code")] if p))
+    cover = "hardcover" if order.get("cover_type") == "hardcover" else "softcover"
+    inner = f"""\
+<h1 style="margin:0 0 10px;font-size:20px;color:{FOREST};">New order received</h1>
+<p style="margin:0 0 6px;font-size:15px;line-height:1.6;"><strong>{book}</strong> ({cover})</p>
+<p style="margin:0 0 16px;font-size:13px;color:#8a847a;">Order {oid}{(' &middot; ' + where) if where else ''}</p>
+<p style="margin:0 0 16px;font-size:15px;line-height:1.6;">
+  Payment is confirmed and the book is being prepared now. You will get an
+  <strong>&ldquo;Approve&rdquo;</strong> email with the print files shortly —
+  keep an eye out so the order is not delayed.
+</p>
+"""
+    return send_email(ADMIN_EMAIL, f"New order: {book}", _shell(inner))
+
+
+def send_admin_failed(order: dict, reason: str = "") -> bool:
+    """Alert the owner when an order could NOT be generated, so a paid order
+    never goes quiet (no approval email would otherwise be sent)."""
+    book = html.escape(_book_label(order))
+    oid = str(order.get("id", ""))[:8]
+    r = html.escape((reason or "").strip()[:280])
+    inner = f"""\
+<h1 style="margin:0 0 10px;font-size:20px;color:#b3503c;">An order needs attention</h1>
+<p style="margin:0 0 6px;font-size:15px;line-height:1.6;">
+  <strong>{book}</strong> could not be prepared automatically, so it will
+  <strong>not</strong> send an approval email on its own.
+</p>
+<p style="margin:0 0 12px;font-size:13px;color:#8a847a;">Order {oid}</p>
+{f'<p style="margin:0 0 16px;font-size:13px;color:#8a847a;line-height:1.5;">{r}</p>' if r else ''}
+<p style="margin:0;font-size:14px;line-height:1.6;">
+  Check the worker logs, fix the issue, then re-run the order so the customer
+  is not left waiting.
+</p>
+"""
+    return send_email(ADMIN_EMAIL, f"Needs attention: {book} (order {oid})", _shell(inner))
