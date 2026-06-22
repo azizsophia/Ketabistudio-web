@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import styles from "./IamBookBuilder.module.css";
 import PhotoCropper from "./PhotoCropper";
 import IamBookPreview from "./IamBookPreview";
@@ -37,6 +37,7 @@ const COUNTRIES = [
   { code: "TR", name: "Turkey" }, { code: "AE", name: "United Arab Emirates" },
 ] as const;
 const STATE_REQUIRED = new Set(["US", "CA", "AU"]);
+const DRAFT_KEY = "iam_draft_v1"; // auto-saved builder progress (this device)
 
 type Photo = { url: string; w: number | null; h: number | null; busy?: boolean };
 type Step = "details" | "photos" | "deliver";
@@ -81,6 +82,55 @@ export default function IamBookBuilder() {
   const [submitting, setSubmitting] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [reuseFor, setReuseFor] = useState<number | null>(null);
+  const [hydrated, setHydrated] = useState(false);
+
+  // ── auto-save: restore an in-progress book on this device, and keep it saved
+  //    as the customer works, so a refresh or coming back never loses photos ──
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (raw) {
+        const d = JSON.parse(raw);
+        if (typeof d.name === "string") setName(d.name);
+        if (typeof d.nameAr === "string") setNameAr(d.nameAr);
+        if (typeof d.arConfirmed === "boolean") setArConfirmed(d.arConfirmed);
+        if (d.gender === "boy" || d.gender === "girl") setGender(d.gender);
+        if (typeof d.dedication === "string") setDedication(d.dedication);
+        if (d.colorway === "teal" || d.colorway === "rose") setColorway(d.colorway);
+        if (d.binding === "hardcover" || d.binding === "paperback") setBinding(d.binding);
+        if (d.cover) setCover(d.cover);
+        if (d.coverCrop) setCoverCrop(d.coverCrop);
+        if (Array.isArray(d.photos) && d.photos.length === PHOTO_SLOTS) setPhotos(d.photos);
+        if (Array.isArray(d.photoCrops) && d.photoCrops.length === PHOTO_SLOTS) setPhotoCrops(d.photoCrops);
+        if (typeof d.email === "string") setEmail(d.email);
+        if (typeof d.phone === "string") setPhone(d.phone);
+        if (typeof d.sName === "string") setSName(d.sName);
+        if (typeof d.line1 === "string") setLine1(d.line1);
+        if (typeof d.line2 === "string") setLine2(d.line2);
+        if (typeof d.city === "string") setCity(d.city);
+        if (typeof d.state === "string") setState(d.state);
+        if (typeof d.postcode === "string") setPostcode(d.postcode);
+        if (typeof d.country === "string") setCountry(d.country);
+      }
+    } catch { /* ignore corrupt drafts */ }
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    const keep = (p: Photo | null): Photo | null =>
+      p && p.url && !p.busy ? { url: p.url, w: p.w, h: p.h } : null;
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({
+        name, nameAr, arConfirmed, gender, dedication, colorway, binding,
+        cover: keep(cover), coverCrop,
+        photos: photos.map(keep), photoCrops,
+        email, phone, sName, line1, line2, city, state, postcode, country,
+      }));
+    } catch { /* storage full / unavailable — non-fatal */ }
+  }, [hydrated, name, nameAr, arConfirmed, gender, dedication, colorway, binding,
+      cover, coverCrop, photos, photoCrops, email, phone, sName, line1, line2,
+      city, state, postcode, country]);
 
   const priceCents = useMemo(() => bindingCents(binding), [binding]);
 
@@ -205,7 +255,11 @@ export default function IamBookBuilder() {
           body: JSON.stringify({ orderId: d.orderId }),
         });
         const cd = await c.json();
-        if (c.ok && cd.url) { window.location.href = cd.url; return; }
+        if (c.ok && cd.url) {
+          try { localStorage.removeItem(DRAFT_KEY); } catch { /* non-fatal */ }
+          window.location.href = cd.url;
+          return;
+        }
         setError(cd.error || "Could not start checkout.");
       } else setError(d.error || "Something went wrong. Please try again.");
     } catch { setError("Network error. Please try again."); }
