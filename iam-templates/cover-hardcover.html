@@ -53,7 +53,7 @@
         height:calc(var(--wrap)*2 + var(--panel));
         box-shadow:0 30px 70px rgba(60,40,20,.30)}
   /* the visible trim region (front+spine+back), inset by the wrap on all sides */
-  .trim{position:absolute;inset:var(--wrap);display:flex}
+  .trim{position:absolute;inset:var(--wrap);display:flex;z-index:1}
   .panel{height:100%;position:relative;overflow:hidden;container-type:inline-size}
   .back{width:var(--panel)}
   .front{width:var(--panel)}
@@ -63,12 +63,15 @@
   .g{position:absolute;top:0;bottom:0;border-left:1px dashed rgba(255,255,255,.30);z-index:9;pointer-events:none}
   .gh{position:absolute;left:0;right:0;border-top:1px dashed rgba(255,255,255,.30);z-index:9;pointer-events:none}
 
-  /* FRONT — full-bleed photo cover; title overlaid at the bottom */
-  .coverphoto{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:var(--teal-dk);z-index:0}
-  .scrim-top{position:absolute;left:0;right:0;top:0;height:26%;z-index:1;pointer-events:none;
-             background:linear-gradient(180deg,rgba(18,15,12,.55),rgba(18,15,12,0))}
-  .scrim-bot{position:absolute;left:0;right:0;bottom:0;height:54%;z-index:1;pointer-events:none;
-             background:linear-gradient(0deg,rgba(18,15,12,.82),rgba(18,15,12,.30) 52%,rgba(18,15,12,0))}
+  /* FRONT — full-bleed photo cover; title overlaid at the bottom.
+     The photo bleeds across the front panel AND the casewrap around it, so the
+     front face is edge-to-edge photo (no teal border; safe if wrap/cut shifts). */
+  .coverbleed{position:absolute;top:0;bottom:0;right:0;
+              left:calc(var(--wrap) + var(--panel) + var(--spine));
+              overflow:hidden;z-index:0;background:var(--teal-dk)}
+  .coverphoto{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:var(--teal-dk)}
+  .scrim-bot{position:absolute;left:0;right:0;bottom:0;height:44%;z-index:1;pointer-events:none;
+             background:linear-gradient(0deg,rgba(18,15,12,.66),rgba(18,15,12,.18) 55%,rgba(18,15,12,0))}
   .front-top{position:absolute;left:0;right:0;top:0;display:flex;justify-content:center;padding:5.5cqw var(--safe) 0;z-index:3}
   .front-bot{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 var(--safe) 7cqw;z-index:3}
   .kick{font:500 3cqw 'Plus Jakarta Sans';letter-spacing:.5cqw;text-transform:uppercase;white-space:nowrap;color:#f4ead2}
@@ -99,6 +102,9 @@
     <div class="gh" style="top:var(--wrap)"></div>
     <div class="gh" style="bottom:var(--wrap)"></div>
 
+    <!-- front cover photo: bleeds across the front face + its wrap (edge to edge) -->
+    <div class="coverbleed"><img class="coverphoto" src="{{PHOTO_COVER}}" style="{{PHOTO_COVER_STYLE}}" alt=""></div>
+
     <div class="trim">
       <!-- BACK -->
       <div class="panel back">
@@ -115,9 +121,8 @@
         <div class="txt"><span>I am {{CHILD_NAME}}</span><span style="color:#e6b94e">Ketabi</span></div>
       </div>
 
-      <!-- FRONT -->
+      <!-- FRONT (photo sits behind, in .coverbleed; this layer holds the overlay) -->
       <div class="panel front">
-        <img class="coverphoto" src="{{PHOTO_COVER}}" style="{{PHOTO_COVER_STYLE}}" alt="">
         <div class="scrim-bot"></div>
         <div class="keyline"></div>
         <div class="front-bot">

@@ -78,7 +78,7 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: linear-gradient(0deg, rgba(18, 15, 12, 0.82), rgba(18, 15, 12, 0.3) 52%, rgba(18, 15, 12, 0) 75%);
+  background: linear-gradient(0deg, rgba(18, 15, 12, 0.66), rgba(18, 15, 12, 0.18) 55%, rgba(18, 15, 12, 0) 78%);
 }
 .coverKeyline {
   position: absolute;
