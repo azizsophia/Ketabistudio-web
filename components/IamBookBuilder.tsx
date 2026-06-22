@@ -13,8 +13,8 @@ import {
 } from "@/lib/iamBook";
 
 // Frame shapes the photos print into, so the on-screen crop matches the page.
-const COVER_ASPECT = 1;       // the cover photo is now full-bleed (square)
-const COVER_MIN_PX = 1500;    // full-bleed cover needs real resolution
+const COVER_ASPECT = 4 / 3;   // cover photo sits above the title plate (4:3)
+const COVER_MIN_PX = 1500;    // cover photo needs real resolution
 const INSIDE_ASPECT = 1;      // full-bleed square page
 const INSIDE_MIN_PX = 1400;   // keep an inside crop ≥ ~160 ppi
 
@@ -265,29 +265,26 @@ export default function IamBookBuilder() {
     finally { setSubmitting(false); }
   }
 
-  const cw = COVER_BG[colorway];
   const Preview = (
     <div className={styles.previewPane}>
       <p className={styles.previewLabel}>Front cover</p>
-      <div
-        className={styles.cover}
-        style={{ background: cw.dk } as CSSProperties}
-      >
-        {cover?.url ? (
-          <span
-            className={styles.coverPhoto}
-            style={{
-              backgroundImage: `url("${cover.url}")`,
-              backgroundRepeat: "no-repeat",
-              backgroundSize: coverCrop ? cropToBackground(coverCrop).size : "cover",
-              backgroundPosition: coverCrop ? cropToBackground(coverCrop).position : "center",
-            }}
-          />
-        ) : (
-          <span className={`${styles.coverPhoto} ${styles.coverEmpty}`}>Your photo</span>
-        )}
-        <span className={styles.coverScrim} />
-        <span className={styles.coverTitle}>
+      <div className={styles.cover}>
+        <span className={styles.coverPhotoArea}>
+          {cover?.url ? (
+            <span
+              className={styles.coverPhoto}
+              style={{
+                backgroundImage: `url("${cover.url}")`,
+                backgroundRepeat: "no-repeat",
+                backgroundSize: coverCrop ? cropToBackground(coverCrop).size : "cover",
+                backgroundPosition: coverCrop ? cropToBackground(coverCrop).position : "center",
+              }}
+            />
+          ) : (
+            <span className={`${styles.coverPhoto} ${styles.coverEmpty}`}>Your photo</span>
+          )}
+        </span>
+        <span className={styles.coverPlate}>
           <span className={styles.cIam}>I am</span>
           <span className={styles.cName}>{name.trim() || "Your child"}</span>
           <span className={styles.cNameAr} dir="rtl" lang="ar">{nameAr.trim()}</span>

@@ -52,22 +52,23 @@
   /* fold guide lines (screen only) */
   .fold{position:absolute;top:0;bottom:0;width:0;border-left:1px dashed rgba(255,255,255,.28);z-index:5;pointer-events:none}
 
-  /* FRONT — full-bleed photo cover; title over the photo at the foot.
-     .front clips the face + the 1/8in bleed; .coverface is the EXACT visible
-     face so the photo matches the cropped square (WYSIWYG) and bleeds past it. */
+  /* FRONT — editorial cover: photo on top (4:3) + cream title plate below.
+     .front clips the face + the 1/8in bleed; .coverface is the exact visible
+     face; the photo fills .photo-area (matches the 4:3 crop) and bleeds past it;
+     the plate covers the bottom and bleeds too. */
   .coverface{position:absolute;left:0;top:var(--bleed);width:var(--panel);height:var(--panel);
              overflow:visible;container-type:inline-size}
-  /* with a crop, {{PHOTO_COVER_STYLE}} maps it onto .coverface exactly + bleeds;
-     with no crop, this default fills the whole bleed area, centred */
+  .photo-area{position:absolute;left:0;right:0;top:0;height:75%;overflow:visible}
+  /* with a crop, {{PHOTO_COVER_STYLE}} maps the 4:3 crop onto .photo-area + bleeds */
   .coverphoto{position:absolute;left:0;top:calc(-1 * var(--bleed));
-              width:calc(var(--panel) + var(--bleed));height:calc(var(--panel) + 2 * var(--bleed));
+              width:calc(100% + var(--bleed));height:calc(100% + var(--bleed));
               object-fit:cover;background:var(--teal-dk)}
-  .scrim-bot{position:absolute;left:0;right:0;top:58%;bottom:calc(-1 * var(--bleed));z-index:1;pointer-events:none;
-             background:linear-gradient(0deg,rgba(18,15,12,.56),rgba(18,15,12,0))}
-  .front-bot{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 8cqw 7cqw;z-index:3;text-shadow:0 2px 16px rgba(0,0,0,.55)}
-  .iam{font:500 italic 7cqw 'Fraunces',serif;color:var(--gold)}
-  .name{font:600 14cqw 'Fraunces',serif;line-height:.95;color:#fff;text-align:center;margin-top:1cqw}
-  .name-ar{font:600 5.5cqw 'Baloo Bhaijaan 2',sans-serif;color:var(--gold);margin-top:1.5cqw}
+  .plate{position:absolute;left:0;right:0;top:75%;bottom:calc(-1 * var(--bleed));z-index:2;
+         background:var(--cream);display:flex;flex-direction:column;align-items:center;justify-content:center;
+         padding:0 8cqw}
+  .iam{font:500 italic 4.6cqw 'Fraunces',serif;color:#b8863a}
+  .name{font:600 11.5cqw 'Fraunces',serif;line-height:.98;color:var(--teal-dk);text-align:center;margin-top:.4cqw}
+  .name-ar{font:600 5cqw 'Baloo Bhaijaan 2',sans-serif;color:#b8863a;margin-top:1cqw}
   .fitname{white-space:nowrap;width:100%;text-align:center}
   /* fine gold keyline frame over the photo (no stars) */
   .keyline{position:absolute;inset:5%;border:1px solid rgba(246,234,210,.7);border-radius:3px;pointer-events:none;z-index:2}
@@ -105,9 +106,10 @@
     <div class="panel front">
       <div class="fold" style="left:0"></div>
       <div class="coverface">
-        <img class="coverphoto" src="{{PHOTO_COVER}}" style="{{PHOTO_COVER_STYLE}}" alt="">
-        <div class="scrim-bot"></div>
-        <div class="front-bot">
+        <div class="photo-area">
+          <img class="coverphoto" src="{{PHOTO_COVER}}" style="{{PHOTO_COVER_STYLE}}" alt="">
+        </div>
+        <div class="plate">
           <div class="iam">I am</div>
           <div class="fitname name">{{CHILD_NAME}}</div>
           <div class="name-ar">{{CHILD_NAME_ARABIC}}</div>

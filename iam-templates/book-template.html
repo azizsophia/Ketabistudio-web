@@ -87,19 +87,13 @@
   .rule{width:9cqw;height:2px;border-radius:2px;margin-top:3.2cqw;opacity:.92}
   /* the child's name fits to one line at any length (sized by JS, see _fitNames) */
   .fitname{white-space:nowrap;width:100%;text-align:center}
-  /* full-bleed photo cover: photo fills the cover, title overlaid at the bottom */
-  .coverphoto{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:var(--teal-dk);z-index:0}
-  .cscrim-top{position:absolute;left:0;right:0;top:0;height:26%;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(18,15,12,.55),rgba(18,15,12,0))}
-  .cscrim-bot{position:absolute;left:0;right:0;top:58%;bottom:0;z-index:1;pointer-events:none;background:linear-gradient(0deg,rgba(18,15,12,.56),rgba(18,15,12,0))}
-  .cfront-top{position:absolute;left:0;right:0;top:0;display:flex;justify-content:center;padding:6cqw 8cqw 0;z-index:3}
-  .cfront-bot{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 8cqw 7cqw;z-index:3;text-shadow:0 2px 16px rgba(0,0,0,.55)}
-  .ckick{font:500 3cqw 'Plus Jakarta Sans';letter-spacing:.5cqw;text-transform:uppercase;white-space:nowrap;color:#f4ead2}
-  .ciam{font:500 italic 7cqw 'Fraunces',serif;color:var(--gold)}
-  .cname{font:600 14cqw 'Fraunces',serif;line-height:.95;color:#fff;margin-top:1cqw}
-  .cname-ar{font:600 5.5cqw 'Baloo Bhaijaan 2',sans-serif;color:var(--gold);margin-top:1.5cqw}
-  /* fine gold keyline frame over the photo (no stars) */
-  .keyline{position:absolute;inset:4%;border:1px solid rgba(246,234,210,.7);border-radius:3px;pointer-events:none;z-index:2}
-  .keyline::after{content:"";position:absolute;inset:1cqw;border:1px solid rgba(246,234,210,.4);border-radius:2px}
+  /* editorial cover: photo on top (4:3) + cream title plate below */
+  .cphoto-area{position:absolute;left:0;right:0;top:0;height:75%;overflow:hidden;background:var(--teal-dk)}
+  .coverphoto{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:var(--teal-dk)}
+  .cplate{position:absolute;left:0;right:0;top:75%;bottom:0;background:var(--cream);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 8cqw}
+  .ciam{font:500 italic 4.6cqw 'Fraunces',serif;color:#b8863a}
+  .cname{font:600 11.5cqw 'Fraunces',serif;line-height:.98;color:var(--teal-dk);margin-top:.4cqw}
+  .cname-ar{font:600 5cqw 'Baloo Bhaijaan 2',sans-serif;color:#b8863a;margin-top:1cqw}
 
   /* ---- PRINT: one .sheet per physical page at full-bleed 8.75in ---- */
   @media print{ .fitme{transform:none!important}
@@ -119,10 +113,11 @@
 
   <!-- ===== FRONT COVER (lives in the separate cover PDF) ===== -->
   <div class="label">Front cover</div>
-  <div class="sheet" style="background:var(--teal-dk)">
-    <img class="coverphoto" src="{{PHOTO_COVER}}" style="{{PHOTO_COVER_STYLE}}" alt="">
-    <div class="cscrim-bot"></div>
-    <div class="cfront-bot">
+  <div class="sheet" style="background:var(--cream)">
+    <div class="cphoto-area">
+      <img class="coverphoto" src="{{PHOTO_COVER}}" style="{{PHOTO_COVER_STYLE}}" alt="">
+    </div>
+    <div class="cplate">
       <div class="ciam">I am</div>
       <div class="fitname cname">{{CHILD_NAME}}</div>
       <div class="cname-ar">{{CHILD_NAME_ARABIC}}</div>

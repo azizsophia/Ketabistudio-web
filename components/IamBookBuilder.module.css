@@ -46,8 +46,7 @@
   color: var(--gold-deep);
   margin: 0 0 12px;
 }
-/* Full-bleed photo cover: the photo fills the cover, title overlaid at the
-   bottom over a scrim, with a fine gold keyline — mirrors the printed cover. */
+/* Editorial cover: photo on top (4:3) + a cream title plate below — mirrors print. */
 .cover {
   position: relative;
   width: 100%;
@@ -57,7 +56,17 @@
   container-type: inline-size;
   border-radius: 4px;
   overflow: hidden;
+  background: var(--cream, #f6efdd);
   box-shadow: 0 28px 50px -22px rgba(33, 68, 63, 0.6);
+}
+.coverPhotoArea {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 75%;
+  overflow: hidden;
+  background: #21443f;
 }
 .coverPhoto {
   position: absolute;
@@ -74,65 +83,43 @@
   font-size: 0.8rem;
   letter-spacing: 0.04em;
 }
-.coverScrim {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: linear-gradient(0deg, rgba(18, 15, 12, 0.56), rgba(18, 15, 12, 0) 42%);
-}
-.coverKeyline {
-  position: absolute;
-  inset: 4%;
-  border: 1px solid rgba(246, 234, 210, 0.7);
-  border-radius: 3px;
-  pointer-events: none;
-}
-.cKick {
-  position: absolute;
-  top: 6cqw;
-  left: 0;
-  right: 0;
-  text-align: center;
-  font-size: 0.6rem;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: #f4ead2;
-}
-.coverTitle {
+.coverPlate {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 7cqw;
+  top: 75%;
+  bottom: 0;
+  background: var(--cream, #f6efdd);
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   text-align: center;
   padding: 0 7cqw;
-  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.55);
 }
 .cIam {
   font-family: var(--font-display), Georgia, serif;
   font-style: italic;
   font-weight: 500;
-  font-size: clamp(1.1rem, 5cqw, 1.5rem);
-  color: var(--gold);
+  font-size: clamp(0.8rem, 4.6cqw, 1.1rem);
+  color: #b8863a;
   line-height: 1;
 }
 .cName {
   font-family: var(--font-display), Georgia, serif;
   font-weight: 600;
-  font-size: clamp(1.7rem, 11cqw, 2.5rem);
-  line-height: 0.95;
-  margin-top: 1%;
-  color: #fff;
+  font-size: clamp(1.4rem, 11.5cqw, 2.2rem);
+  line-height: 0.98;
+  margin-top: 0.4cqw;
+  color: #21443f;
   word-break: break-word;
 }
 .cNameAr {
   font-family: var(--font-baloo), var(--font-arabic), serif;
   font-weight: 600;
-  font-size: clamp(1rem, 5.5cqw, 1.45rem);
-  color: var(--gold);
-  margin-top: 3%;
+  font-size: clamp(0.95rem, 5cqw, 1.3rem);
+  color: #b8863a;
+  margin-top: 1cqw;
   min-height: 1.2em;
 }
 .previewNote {
