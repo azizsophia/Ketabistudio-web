@@ -198,6 +198,50 @@ build step.
 
 ---
 
+## Changelog
+
+### 2026-06-23 — "I Am [Child]" book: cinematic cover + interior polish
+
+Pre-launch QA pass on the personalized **I-Am** book (HTML-rendered via
+`worker/pipeline/iam_book.py`; templates in `iam-templates/`). Trim unchanged
+at 8.5×8.5in, 32pp. Files touched:
+`iam-templates/{book-template,cover-hardcover,cover-paperback}.html`,
+`components/IamBookBuilder.tsx` + `.module.css`, `worker/pipeline/iam_book.py`.
+
+- **New front cover — cinematic full-bleed.** Replaced the photo-band + cream
+  title-plate cover with a full-bleed design: the customer photo fills the
+  whole face, a soft teal scrim rises from the foot, and the title (gold star,
+  italic "I am", name, gold hairline, Arabic) sits over it inside the safe
+  area. `object-fit:cover` means any photo shape fills cleanly with **no white
+  edges and no manual cropping needed**; the customer's crop still overrides
+  (WYSIWYG). The scrim guarantees the title stays legible on light photos.
+  **Hardcover and paperback front faces are now identical.**
+- **WYSIWYG kept in sync** across three surfaces: the inline builder preview
+  (`IamBookBuilder`), the "exactly as it prints" modal (renders
+  `book-template.html` via `/api/iam/template`), and the Lulu print covers.
+  The cover cropper frame is now **square** (`COVER_ASPECT = 1`).
+- **Interior refinements.** The 12 trait spreads now anchor the "I am
+  &lt;Trait&gt;" block to a fixed top so the large trait word sits at the **same
+  height on every spread** (was vertically centred, so 2- vs 3-line sentences
+  made it jump). Body sentences use `text-wrap:balance` for even line breaks.
+- **Spine text — Lulu-aware.** Lulu advises against spine text below ~0.25in.
+  `render_cover` now drops the spine text when the spine is under 0.22in. For
+  32pp this means the **paperback** (0.139in spine) prints a clean spine while
+  the **hardcover** (0.25in spine, ~0.078in clearance) keeps "I am [Name] /
+  Ketabi". Thicker future books keep it on both.
+- **Geometry confirmed against Lulu** `/cover-dimensions/` (sandbox = prod for
+  geometry): paperback **17.389×8.75in, spine 0.139in**; hardcover
+  **19.0×10.25in, spine 0.25in, wrap 0.875in**. Our render matches exactly;
+  the worker pulls these live per order and `gate_spec` + `gate_lulu` validate
+  every job.
+
+Note: the I-Am book offers **both** bindings (softcover + hardcover casewrap),
+unlike the three books table above. `TEST_DOLLAR_PRICING` and `COMING_SOON`
+(see `lib/pricing.ts`, `lib/flags.ts`) remain `true` — books are $1 and the
+public site is gated to `/coming-soon` until launch.
+
+---
+
 ## Incident log / known issues
 
 **2026-06-11 — long-straight variants rendered without the girl.**
