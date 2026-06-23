@@ -64,7 +64,7 @@
   left: 0;
   right: 0;
   top: 0;
-  height: 65%;
+  height: 60%;
   overflow: hidden;
   background: #21443f;
 }
@@ -87,7 +87,7 @@
   position: absolute;
   left: 0;
   right: 0;
-  top: 65%;
+  top: 60%;
   bottom: 0;
   background: var(--cream, #f6efdd);
   display: flex;
@@ -101,14 +101,14 @@
   font-family: var(--font-display), Georgia, serif;
   font-style: italic;
   font-weight: 500;
-  font-size: clamp(1rem, 6.5cqw, 1.45rem);
+  font-size: clamp(1.1rem, 7.5cqw, 1.6rem);
   color: #b8863a;
   line-height: 1;
 }
 .cName {
   font-family: var(--font-display), Georgia, serif;
   font-weight: 600;
-  font-size: clamp(1.6rem, 14cqw, 2.7rem);
+  font-size: clamp(1.8rem, 15.5cqw, 3rem);
   line-height: 0.98;
   margin-top: 0.2cqw;
   color: #21443f;
@@ -117,7 +117,7 @@
 .cNameAr {
   font-family: var(--font-baloo), var(--font-arabic), serif;
   font-weight: 600;
-  font-size: clamp(1.05rem, 6cqw, 1.5rem);
+  font-size: clamp(1.15rem, 7cqw, 1.7rem);
   color: #b8863a;
   line-height: 1;
   margin-top: 2.4cqw;
