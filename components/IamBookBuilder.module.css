@@ -46,7 +46,8 @@
   color: var(--gold-deep);
   margin: 0 0 12px;
 }
-/* Editorial cover: photo on top (4:3) + a cream title plate below — mirrors print. */
+/* Cinematic full-bleed cover: customer photo fills the face, title over a soft
+   teal scrim at the foot — mirrors the print template (cover-*.html). */
 .cover {
   position: relative;
   width: 100%;
@@ -56,15 +57,12 @@
   container-type: inline-size;
   border-radius: 4px;
   overflow: hidden;
-  background: var(--cream, #f6efdd);
+  background: #21443f;
   box-shadow: 0 28px 50px -22px rgba(33, 68, 63, 0.6);
 }
 .coverPhotoArea {
   position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 60%;
+  inset: 0;
   overflow: hidden;
   background: #21443f;
 }
@@ -73,7 +71,7 @@
   inset: 0;
   background-color: #21443f;
   background-size: cover;
-  background-position: center;
+  background-position: 50% 42%;
 }
 .coverEmpty {
   display: flex;
@@ -83,44 +81,70 @@
   font-size: 0.8rem;
   letter-spacing: 0.04em;
 }
+.cScrim {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 74%;
+  z-index: 1;
+  background: linear-gradient(to top, #21443f 24%, rgba(33, 68, 63, 0) 82%);
+}
+.cKeyline {
+  position: absolute;
+  inset: 4.5cqw;
+  border: 1px solid rgba(246, 234, 210, 0.55);
+  z-index: 2;
+  pointer-events: none;
+}
 .coverPlate {
   position: absolute;
   left: 0;
   right: 0;
-  top: 60%;
   bottom: 0;
-  background: var(--cream, #f6efdd);
+  z-index: 3;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   text-align: center;
-  padding: 5cqw 7cqw 0;
+  padding: 0 9cqw 6.5cqw;
+}
+.cStar {
+  width: 6cqw;
+  height: 6cqw;
+  color: #e6b94e;
+  margin-bottom: 1.2cqw;
 }
 .cIam {
   font-family: var(--font-display), Georgia, serif;
   font-style: italic;
   font-weight: 500;
-  font-size: clamp(1.1rem, 7.5cqw, 1.6rem);
-  color: #b8863a;
+  font-size: clamp(0.95rem, 6cqw, 1.4rem);
+  color: #e6b94e;
   line-height: 1;
 }
 .cName {
   font-family: var(--font-display), Georgia, serif;
   font-weight: 600;
-  font-size: clamp(1.8rem, 15.5cqw, 3rem);
+  font-size: clamp(1.6rem, 14cqw, 2.8rem);
   line-height: 0.98;
   margin-top: 0.2cqw;
-  color: #21443f;
+  color: #f6efdd;
   word-break: break-word;
+}
+.cRule {
+  width: 9cqw;
+  height: 1.5px;
+  background: #e6b94e;
+  opacity: 0.9;
+  margin: 1.9cqw 0 1.6cqw;
 }
 .cNameAr {
   font-family: var(--font-baloo), var(--font-arabic), serif;
   font-weight: 600;
-  font-size: clamp(1.15rem, 7cqw, 1.7rem);
-  color: #b8863a;
+  font-size: clamp(1rem, 6cqw, 1.5rem);
+  color: #e6b94e;
   line-height: 1;
-  margin-top: 2.4cqw;
   min-height: 1.2em;
 }
 .previewNote {

@@ -52,27 +52,28 @@
   /* fold guide lines (screen only) */
   .fold{position:absolute;top:0;bottom:0;width:0;border-left:1px dashed rgba(255,255,255,.28);z-index:5;pointer-events:none}
 
-  /* FRONT — editorial cover: photo on top (4:3) + cream title plate below.
-     .front clips the face + the 1/8in bleed; .coverface is the exact visible
-     face; the photo fills .photo-area (matches the 4:3 crop) and bleeds past it;
-     the plate covers the bottom and bleeds too. */
+  /* FRONT — cinematic full-bleed cover: the customer photo fills the whole
+     front panel (bleeding top/bottom/outer), a soft teal scrim rises from the
+     foot, and the title sits over it inside the safe area. .coverphoto fills the
+     panel; {{PHOTO_COVER_STYLE}} (the customer's crop) overrides object-fit when
+     present so what they frame is what prints. */
+  .coverphoto{position:absolute;inset:0;width:100%;height:100%;
+              object-fit:cover;object-position:50% 42%;background:var(--teal-dk)}
   .coverface{position:absolute;left:0;top:var(--bleed);width:var(--panel);height:var(--panel);
-             overflow:visible;container-type:inline-size}
-  .photo-area{position:absolute;left:0;right:0;top:0;height:60%;overflow:visible}
-  /* with a crop, {{PHOTO_COVER_STYLE}} maps the crop onto .photo-area + bleeds */
-  .coverphoto{position:absolute;left:0;top:calc(-1 * var(--bleed));
-              width:calc(100% + var(--bleed));height:calc(100% + var(--bleed));
-              object-fit:cover;background:var(--teal-dk)}
-  .plate{position:absolute;left:0;right:calc(-1 * var(--bleed));top:60%;bottom:calc(-1 * var(--bleed));z-index:2;
-         background:var(--cream);display:flex;flex-direction:column;align-items:center;justify-content:center;
-         padding:5cqw 8cqw var(--bleed);padding-right:calc(8cqw + var(--bleed))}
-  .iam{font:500 italic 7.5cqw 'Fraunces',serif;color:#b8863a;line-height:1}
-  .name{font:600 15.5cqw 'Fraunces',serif;line-height:.98;color:var(--teal-dk);text-align:center;margin-top:.2cqw}
-  .name-ar{font:600 7cqw 'Baloo Bhaijaan 2',sans-serif;color:#b8863a;line-height:1;margin-top:2.4cqw}
+             overflow:visible;container-type:inline-size;z-index:2}
+  .cscrim{position:absolute;left:0;right:calc(-1 * var(--bleed));bottom:calc(-1 * var(--bleed));
+          height:80%;z-index:1;background:linear-gradient(to top,#21443f 24%,rgba(33,68,63,0) 82%)}
+  .ckeyline{position:absolute;inset:4.5cqw;border:1px solid rgba(246,234,210,.55);
+            z-index:2;pointer-events:none}
+  .plate{position:absolute;left:0;right:0;bottom:0;z-index:3;
+         display:flex;flex-direction:column;align-items:center;text-align:center;
+         padding:0 9cqw 7cqw}
+  .cstar{width:6cqw;height:6cqw;color:var(--gold);margin-bottom:1.2cqw}
+  .iam{font:500 italic 6cqw 'Fraunces',serif;color:var(--gold);line-height:1}
+  .name{font:600 14cqw 'Fraunces',serif;line-height:.98;color:#fbf2dd;text-align:center}
+  .crule{width:9cqw;height:1.5px;background:var(--gold);opacity:.9;margin:1.9cqw 0 1.6cqw}
+  .name-ar{font:600 6cqw 'Baloo Bhaijaan 2',sans-serif;color:var(--gold);line-height:1}
   .fitname{white-space:nowrap;width:100%;text-align:center}
-  /* fine gold keyline frame over the photo (no stars) */
-  .keyline{position:absolute;inset:5%;border:1px solid rgba(246,234,210,.7);border-radius:3px;pointer-events:none;z-index:2}
-  .keyline::after{content:"";position:absolute;inset:1cqw;border:1px solid rgba(246,234,210,.4);border-radius:2px}
 
   /* BACK */
   .back .inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
@@ -104,17 +105,19 @@
 
     <!-- ===== FRONT COVER (right) ===== -->
     <div class="panel front">
-      <div class="fold" style="left:0"></div>
+      <img class="coverphoto" src="{{PHOTO_COVER}}" style="{{PHOTO_COVER_STYLE}}" alt="">
       <div class="coverface">
-        <div class="photo-area">
-          <img class="coverphoto" src="{{PHOTO_COVER}}" style="{{PHOTO_COVER_STYLE}}" alt="">
-        </div>
+        <div class="cscrim"></div>
+        <div class="ckeyline"></div>
         <div class="plate">
+          <svg class="cstar" viewBox="0 0 100 100"><polygon points="50,4 58,42 96,50 58,58 50,96 42,58 4,50 42,42" fill="currentColor"/></svg>
           <div class="iam">I am</div>
           <div class="fitname name">{{CHILD_NAME}}</div>
+          <div class="crule"></div>
           <div class="name-ar fitname">{{CHILD_NAME_ARABIC}}</div>
         </div>
       </div>
+      <div class="fold" style="left:0"></div>
     </div>
 
   </div>

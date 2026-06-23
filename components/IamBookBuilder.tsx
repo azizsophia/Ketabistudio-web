@@ -13,7 +13,7 @@ import {
 } from "@/lib/iamBook";
 
 // Frame shapes the photos print into, so the on-screen crop matches the page.
-const COVER_ASPECT = 1 / 0.60; // cover photo fills the top 60% above the title plate
+const COVER_ASPECT = 1; // full-bleed square cover (photo fills the whole face)
 const COVER_MIN_PX = 1500;    // cover photo needs real resolution
 const INSIDE_ASPECT = 1;      // full-bleed square page
 const INSIDE_MIN_PX = 1400;   // keep an inside crop ≥ ~160 ppi
@@ -277,16 +277,22 @@ export default function IamBookBuilder() {
                 backgroundImage: `url("${cover.url}")`,
                 backgroundRepeat: "no-repeat",
                 backgroundSize: coverCrop ? cropToBackground(coverCrop).size : "cover",
-                backgroundPosition: coverCrop ? cropToBackground(coverCrop).position : "center",
+                backgroundPosition: coverCrop ? cropToBackground(coverCrop).position : "50% 42%",
               }}
             />
           ) : (
             <span className={`${styles.coverPhoto} ${styles.coverEmpty}`}>Your photo</span>
           )}
         </span>
+        <span className={styles.cScrim} />
+        <span className={styles.cKeyline} />
         <span className={styles.coverPlate}>
+          <svg className={styles.cStar} viewBox="0 0 100 100" aria-hidden="true">
+            <polygon points="50,4 58,42 96,50 58,58 50,96 42,58 4,50 42,42" fill="currentColor" />
+          </svg>
           <span className={styles.cIam}>I am</span>
           <span className={styles.cName}>{name.trim() || "Your child"}</span>
+          <span className={styles.cRule} />
           <span className={styles.cNameAr} dir="rtl" lang="ar">{nameAr.trim()}</span>
         </span>
       </div>
