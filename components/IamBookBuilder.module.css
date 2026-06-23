@@ -95,7 +95,7 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 6cqw 7cqw 0;
+  padding: 3cqw 7cqw 0;
 }
 .cIam {
   font-family: var(--font-display), Georgia, serif;
@@ -108,7 +108,7 @@
 .cName {
   font-family: var(--font-display), Georgia, serif;
   font-weight: 600;
-  font-size: clamp(1.4rem, 11.5cqw, 2.2rem);
+  font-size: clamp(1.5rem, 13cqw, 2.5rem);
   line-height: 0.98;
   margin-top: 0.4cqw;
   color: #21443f;
