@@ -78,10 +78,13 @@
   .sheet:has(.photo[src=""]) .cap .ar,.sheet:has(.photo:not([src])) .cap .ar{color:var(--teal);font-size:17cqw}
   .sheet:has(.photo[src=""]) .cap .tr,.sheet:has(.photo:not([src])) .cap .tr{color:var(--terra);font-size:4cqw}
 
-  .words{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:11cqw 9cqw}
+  /* Anchor the trait block to a fixed top so the big trait word sits at the SAME
+     height on every spread (the sentence length varies 2–3 lines, so centring
+     the whole block would make the trait jump page-to-page). */
+  .words{display:flex;flex-direction:column;justify-content:flex-start;align-items:center;text-align:center;padding:23cqw 9cqw 11cqw}
   .kicker{font:500 3.2cqw 'Plus Jakarta Sans';letter-spacing:.45cqw;text-transform:uppercase;white-space:nowrap}
   .trait{font:600 15cqw 'Fraunces',serif;line-height:1.02;margin-top:.6cqw}
-  .btext{font:400 3.7cqw 'Fraunces',serif;line-height:1.6;margin-top:3.2cqw;max-width:92%}
+  .btext{font:400 3.7cqw 'Fraunces',serif;line-height:1.6;margin-top:3.2cqw;max-width:92%;text-wrap:balance}
   .wordar{font:600 7cqw 'Baloo Bhaijaan 2',sans-serif;line-height:1.4;margin-top:3.2cqw}
   .wordtr{font:500 2.5cqw 'Plus Jakarta Sans';letter-spacing:.34cqw;text-transform:uppercase;margin-top:.7cqw}
   .rule{width:9cqw;height:2px;border-radius:2px;margin-top:3.2cqw;opacity:.92}
