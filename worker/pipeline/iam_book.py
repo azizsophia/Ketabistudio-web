@@ -227,6 +227,15 @@ def render_cover(order, spine_in, wrap_in=0.75) -> bytes:
     f = "cover-hardcover.html" if binding == "hardcover" else "cover-paperback.html"
     html = (DIR / f).read_text("utf-8")
 
+    # Lulu does not recommend spine text on a thin spine — a small bindery shift
+    # can push it onto the fold/cover. Drop the spine text when the spine is
+    # under ~0.22in (glyph height + Lulu's ~1/16in clearance each side). For the
+    # current 32pp books this clears the paperback (0.139in spine) and keeps it
+    # on the hardcover (0.25in spine); thicker future books keep it on both.
+    if spine_in < 0.22:
+        html = re.sub(r'<div class="txt">.*?</div>',
+                      '<div class="txt"></div>', html, flags=re.S)
+
     # print scale: 1 inch = 96 CSS px so sizes map 1:1 in page.pdf
     html = html.replace("--in:80px", "--in:96px").replace("--in:70px", "--in:96px")
     # drop in Lulu's exact spine (+ wrap for casewrap)
