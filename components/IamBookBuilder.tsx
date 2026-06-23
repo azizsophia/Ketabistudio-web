@@ -13,7 +13,7 @@ import {
 } from "@/lib/iamBook";
 
 // Frame shapes the photos print into, so the on-screen crop matches the page.
-const COVER_ASPECT = 1 / 0.7; // cover photo fills the top 70% above the title plate
+const COVER_ASPECT = 1 / 0.65; // cover photo fills the top 65% above the title plate
 const COVER_MIN_PX = 1500;    // cover photo needs real resolution
 const INSIDE_ASPECT = 1;      // full-bleed square page
 const INSIDE_MIN_PX = 1400;   // keep an inside crop ≥ ~160 ppi

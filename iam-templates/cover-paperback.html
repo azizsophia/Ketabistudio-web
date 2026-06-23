@@ -58,17 +58,17 @@
      the plate covers the bottom and bleeds too. */
   .coverface{position:absolute;left:0;top:var(--bleed);width:var(--panel);height:var(--panel);
              overflow:visible;container-type:inline-size}
-  .photo-area{position:absolute;left:0;right:0;top:0;height:70%;overflow:visible}
+  .photo-area{position:absolute;left:0;right:0;top:0;height:65%;overflow:visible}
   /* with a crop, {{PHOTO_COVER_STYLE}} maps the crop onto .photo-area + bleeds */
   .coverphoto{position:absolute;left:0;top:calc(-1 * var(--bleed));
               width:calc(100% + var(--bleed));height:calc(100% + var(--bleed));
               object-fit:cover;background:var(--teal-dk)}
-  .plate{position:absolute;left:0;right:calc(-1 * var(--bleed));top:70%;bottom:calc(-1 * var(--bleed));z-index:2;
+  .plate{position:absolute;left:0;right:calc(-1 * var(--bleed));top:65%;bottom:calc(-1 * var(--bleed));z-index:2;
          background:var(--cream);display:flex;flex-direction:column;align-items:center;justify-content:center;
          padding:3cqw 8cqw var(--bleed);padding-right:calc(8cqw + var(--bleed))}
-  .iam{font:500 italic 4.6cqw 'Fraunces',serif;color:#b8863a;line-height:1}
-  .name{font:600 13cqw 'Fraunces',serif;line-height:.98;color:var(--teal-dk);text-align:center;margin-top:.2cqw}
-  .name-ar{font:600 5cqw 'Baloo Bhaijaan 2',sans-serif;color:#b8863a;line-height:1;margin-top:2.4cqw}
+  .iam{font:500 italic 6.5cqw 'Fraunces',serif;color:#b8863a;line-height:1}
+  .name{font:600 14cqw 'Fraunces',serif;line-height:.98;color:var(--teal-dk);text-align:center;margin-top:.2cqw}
+  .name-ar{font:600 6cqw 'Baloo Bhaijaan 2',sans-serif;color:#b8863a;line-height:1;margin-top:2.4cqw}
   .fitname{white-space:nowrap;width:100%;text-align:center}
   /* fine gold keyline frame over the photo (no stars) */
   .keyline{position:absolute;inset:5%;border:1px solid rgba(246,234,210,.7);border-radius:3px;pointer-events:none;z-index:2}
