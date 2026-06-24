@@ -144,12 +144,12 @@ export default function Gateway() {
                 title="I Am — your child"
                 pages={[
                   { src: "/images/iam/page06.jpg" },
+                  { src: "/images/iam/page07.jpg" },
                   { src: "/images/iam/page08.jpg" },
-                  { src: "/images/iam/page20.jpg" },
                 ]}
                 stage="forest"
                 eyebrow="Personalized"
-                caption="Your child’s name will be here, and on every page"
+                caption="Your child’s name and photos, on every page"
               />
               <Link href="/books/i-am" className="btn btn-primary">
                 Personalize “I Am”
