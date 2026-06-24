@@ -1,97 +1,137 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import styles from "./FlipBook.module.css";
 
 /*
-  FlipBook — static page-turn preview for the fixed (non-personalized) books.
-  Page 0: front cover. Pages 1..N: interior preview images.
-  Each interior image already has the book's real page text baked in, so the
-  caption here is just a short hint label under the spread.
+  FlipBook — premium auto-playing page-turn showcase.
+  Page 0 = front cover, then the interior preview spreads. The book sits on a
+  quiet "stage" (forest for storybooks, charcoal for keepsakes) and turns its
+  own pages with a perspective flip + cast shadow, looping. Honours
+  prefers-reduced-motion (no auto-play, simple cut) and pauses on hover.
+
+  Backwards compatible: <FlipBook cover title pages /> still works; the new
+  optional props (stage, eyebrow, caption, autoMs) add the luxe treatment.
 */
+
+type Page = { src: string; caption?: string };
 
 type Props = {
   cover: string;
   title: string;
-  pages: { src: string; caption: string }[];
+  pages: Page[];
+  stage?: "forest" | "charcoal";
+  eyebrow?: string;
+  caption?: string;
+  autoMs?: number;
 };
 
-export default function FlipBook({ cover, title, pages }: Props) {
-  const [page, setPage] = useState(0);
-  const [turning, setTurning] = useState(false);
+export default function FlipBook({
+  cover,
+  title,
+  pages,
+  stage = "forest",
+  eyebrow,
+  caption,
+  autoMs = 2600,
+}: Props) {
+  const slides = [cover, ...pages.map((p) => p.src)];
+  const n = slides.length;
 
-  const last = pages.length; // page 0 = cover, then 1..pages.length
+  const [idx, setIdx] = useState(0);
+  const [flipping, setFlipping] = useState(false);
+  const [paused, setPaused] = useState(false);
+  const reduced = useRef(false);
 
-  function go(dir: 1 | -1) {
-    const next = page + dir;
-    if (next < 0 || next > last) return;
-    setTurning(true);
-    setTimeout(() => {
-      setPage(next);
-      setTurning(false);
-    }, 180);
+  useEffect(() => {
+    reduced.current =
+      typeof window !== "undefined" &&
+      !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  }, []);
+
+  // Auto-advance: trigger a flip every autoMs unless paused or reduced-motion.
+  useEffect(() => {
+    if (paused || reduced.current || n < 2) return;
+    const t = setInterval(() => setFlipping(true), autoMs);
+    return () => clearInterval(t);
+  }, [paused, autoMs, n]);
+
+  const next = (idx + 1) % n;
+
+  function onLeafEnd() {
+    if (!flipping) return;
+    setIdx(next);
+    setFlipping(false);
   }
 
-  const isCover = page === 0;
-  const hint = isCover
-    ? "Turn the page to peek inside"
-    : pages[page - 1].caption;
+  function jump(to: number) {
+    setFlipping(false);
+    setIdx(((to % n) + n) % n);
+  }
 
   return (
-    <div className={styles.previewShell}>
-      <div className={`${styles.page} ${turning ? styles.turning : ""}`}>
-        <div className={styles.spread}>
-          {isCover ? (
+    <div
+      className={styles.showcase}
+      data-stage={stage}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
+      <div className={styles.stageInner}>
+        <div className={styles.bookArea}>
+          <span className={styles.dropShadow} aria-hidden="true" />
+          {/* page revealed beneath the turning leaf */}
+          <div className={styles.leafBack}>
             <Image
-              src={cover}
-              alt={`${title} cover`}
+              src={slides[next]}
+              alt=""
               width={900}
               height={900}
               className={styles.art}
+              aria-hidden="true"
             />
-          ) : (
+          </div>
+          {/* the turning leaf (current page) — remounts per idx so it never
+              animates backwards on reset */}
+          <div
+            key={idx}
+            className={`${styles.leaf} ${flipping ? styles.flipping : ""}`}
+            onTransitionEnd={onLeafEnd}
+          >
             <Image
-              src={pages[page - 1].src}
-              alt={pages[page - 1].caption}
+              src={slides[idx]}
+              alt={idx === 0 ? `${title} cover` : `${title} — inside`}
               width={900}
               height={900}
               className={styles.art}
+              priority={idx === 0}
             />
-          )}
+            <span className={styles.leafShade} aria-hidden="true" />
+          </div>
         </div>
-      </div>
 
-      {/* page turn controls */}
-      <div className={styles.controls}>
-        <button
-          type="button"
-          className={styles.turnBtn}
-          onClick={() => go(-1)}
-          disabled={page === 0}
-          aria-label="Previous page"
-        >
-          ‹
-        </button>
-        <div className={styles.dots}>
-          {Array.from({ length: last + 1 }).map((_, i) => (
-            <span
+        {(eyebrow || caption) && (
+          <div className={styles.caption}>
+            <span className={styles.rule} aria-hidden="true" />
+            {eyebrow && <p className={styles.eyebrow}>{eyebrow}</p>}
+            {caption && <p className={styles.captionLine}>{caption}</p>}
+          </div>
+        )}
+
+        <div className={styles.dots} role="tablist" aria-label="Pages">
+          {slides.map((_, i) => (
+            <button
               key={i}
-              className={`${styles.dot} ${page === i ? styles.dotActive : ""}`}
+              type="button"
+              className={`${styles.dot} ${i === idx ? styles.dotActive : ""}`}
+              onClick={() => jump(i)}
+              aria-label={`Go to page ${i + 1}`}
+              aria-selected={i === idx}
+              role="tab"
             />
           ))}
         </div>
-        <button
-          type="button"
-          className={styles.turnBtn}
-          onClick={() => go(1)}
-          disabled={page === last}
-          aria-label="Next page"
-        >
-          ›
-        </button>
       </div>
-      <p className={styles.hint}>{hint}</p>
     </div>
   );
 }

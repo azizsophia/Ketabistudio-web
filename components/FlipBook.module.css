@@ -1,28 +1,76 @@
-/* ── FlipBook — static page-turn preview for fixed books ── */
+/* ── FlipBook — premium auto-playing page-turn showcase ── */
 
-.previewShell {
+.showcase {
   width: 100%;
-  max-width: 420px;
+  max-width: 560px;
   margin: 0 auto;
 }
 
-.page {
+.stageInner {
   position: relative;
-  border-radius: var(--radius-img, 16px);
+  border-radius: 22px;
   overflow: hidden;
-  box-shadow: 0 14px 44px -18px rgba(46, 74, 58, 0.4);
-  transition: opacity 0.18s ease, transform 0.18s ease;
-  background: var(--card);
+  padding: clamp(30px, 6vw, 56px) clamp(24px, 6vw, 60px) clamp(26px, 5vw, 40px);
+  box-shadow: inset 0 0 120px rgba(0, 0, 0, 0.5),
+    0 30px 70px -34px rgba(0, 0, 0, 0.55);
 }
 
-.turning {
-  opacity: 0;
-  transform: translateX(-12px) scale(0.985);
+.showcase[data-stage="forest"] .stageInner {
+  background: radial-gradient(125% 105% at 50% 0%, #2e4a3a 0%, #1b2e25 62%, #101d18 100%);
 }
 
-.spread {
+.showcase[data-stage="charcoal"] .stageInner {
+  background: radial-gradient(125% 105% at 50% 0%, #322f2c 0%, #1d1b19 62%, #100f0e 100%);
+}
+
+/* ── the book ── */
+.bookArea {
   position: relative;
+  width: 100%;
+  max-width: 380px;
+  margin: 0 auto;
   aspect-ratio: 1 / 1;
+  perspective: 1700px;
+}
+
+.dropShadow {
+  position: absolute;
+  inset: 6px 4px -10px 14px;
+  border-radius: 18px;
+  background: rgba(0, 0, 0, 0.55);
+  filter: blur(26px);
+  z-index: 0;
+}
+
+.leaf,
+.leafBack {
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 2px rgba(201, 168, 76, 0.45),
+    0 26px 50px -24px rgba(0, 0, 0, 0.7);
+  background: #fcfbf8;
+}
+
+.leafBack {
+  z-index: 1;
+}
+
+.leaf {
+  z-index: 2;
+  transform-origin: left center;
+  transform: rotateY(0deg);
+  opacity: 1;
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+  transition: transform 0.92s cubic-bezier(0.42, 0.04, 0.2, 1),
+    opacity 0.92s ease-in;
+}
+
+.flipping {
+  transform: rotateY(-152deg);
+  opacity: 0;
 }
 
 .art {
@@ -32,63 +80,95 @@
   object-fit: cover;
 }
 
-/* ── Controls ── */
-.controls {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 18px;
-  margin-top: 14px;
+/* darkening sheen on the leaf as it lifts */
+.leafShade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, rgba(8, 14, 11, 0) 30%, rgba(8, 14, 11, 0.45) 100%);
+  opacity: 0;
+  transition: opacity 0.92s ease-in;
+  pointer-events: none;
 }
 
-.turnBtn {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  border: 2px solid var(--line);
-  background: var(--card);
-  color: var(--forest);
-  font-size: 1.5rem;
-  line-height: 1;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.15s;
-  padding-bottom: 4px;
+.flipping .leafShade {
+  opacity: 1;
 }
 
-.turnBtn:active:not(:disabled) {
-  background: var(--forest);
-  color: var(--cream);
+/* ── caption ── */
+.caption {
+  text-align: center;
+  margin-top: clamp(20px, 4vw, 30px);
 }
 
-.turnBtn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
+.rule {
+  display: block;
+  width: 64px;
+  height: 1px;
+  margin: 0 auto 14px;
+  background: linear-gradient(90deg, transparent, #c9a84c, transparent);
+  position: relative;
 }
 
+.rule::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  background: #c9a84c;
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.eyebrow {
+  font-size: 0.72rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: #d2b676;
+  margin: 0 0 6px;
+}
+
+.captionLine {
+  font-family: var(--font-display, Georgia, serif);
+  font-size: clamp(1.05rem, 2.6vw, 1.3rem);
+  color: #f3efe7;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* ── dots ── */
 .dots {
   display: flex;
-  gap: 8px;
+  justify-content: center;
+  gap: 9px;
+  margin-top: clamp(18px, 3.5vw, 26px);
 }
 
 .dot {
   width: 8px;
   height: 8px;
+  padding: 0;
+  border: none;
   border-radius: 50%;
-  background: var(--line);
-  transition: background 0.2s;
+  background: rgba(245, 241, 232, 0.28);
+  cursor: pointer;
+  transition: background 0.25s, transform 0.25s;
+}
+
+.dot:hover {
+  background: rgba(245, 241, 232, 0.55);
 }
 
 .dotActive {
-  background: var(--forest);
+  background: #c9a84c;
+  transform: scale(1.25);
 }
 
-.hint {
-  text-align: center;
-  font-size: 0.78rem;
-  color: var(--muted);
-  margin-top: 10px;
-  font-style: italic;
+@media (prefers-reduced-motion: reduce) {
+  .leaf {
+    transition: opacity 0.3s ease;
+  }
+  .flipping {
+    transform: rotateY(0deg);
+  }
 }

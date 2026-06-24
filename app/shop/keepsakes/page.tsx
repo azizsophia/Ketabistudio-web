@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { PHOTOBOOK_ORDER, PHOTOBOOK_TEMPLATES } from "@/lib/photobook";
+import FlipBook from "@/components/FlipBook";
 import styles from "../../books/books.module.css";
 
 export const metadata: Metadata = {
@@ -30,6 +31,21 @@ export default function KeepsakesPage() {
           </span>
         </div>
       </header>
+
+      <div className="wrap" style={{ padding: "4px 0 48px" }}>
+        <FlipBook
+          cover="/images/keepsake/about-mama/cover.jpg"
+          title="Everything I Love About Mama"
+          pages={[
+            { src: "/images/keepsake/about-mama/page04.jpg" },
+            { src: "/images/keepsake/about-mama/page12.jpg" },
+            { src: "/images/keepsake/about-mama/page23.jpg" },
+          ]}
+          stage="charcoal"
+          eyebrow="A hardcover keepsake"
+          caption="Your own photos and words, sealed with a dua"
+        />
+      </div>
 
       <section className={`wrap ${styles.grid}`} aria-label="Photo keepsakes">
         {PHOTOBOOK_ORDER.map((slug) => {
