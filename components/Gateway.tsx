@@ -128,11 +128,16 @@ export default function Gateway() {
       <section className={styles.featured}>
         <div className={`wrap ${styles.featuredInner}`}>
           <Link href="/books/i-am" className={styles.featuredCover} aria-hidden="true" tabIndex={-1}>
-            <span className={styles.fcKick}>A book about good character</span>
-            <span className={styles.fcArch}>Your photo</span>
-            <span className={styles.fcIam}>I am</span>
-            <span className={styles.fcName}>Your child</span>
-            <span className={styles.fcNameAr} dir="rtl" lang="ar">اسم طفلك</span>
+            <span className={styles.fcPhotoHint}>Your photo</span>
+            <span className={styles.fcScrim} aria-hidden="true" />
+            <span className={styles.fcKeyline} aria-hidden="true" />
+            <span className={styles.fcPlate}>
+              <span className={styles.fcStar} aria-hidden="true">✦</span>
+              <span className={styles.fcIam}>I am</span>
+              <span className={styles.fcName}>Your child</span>
+              <span className={styles.fcRule} aria-hidden="true" />
+              <span className={styles.fcNameAr} dir="rtl" lang="ar">اسم طفلك</span>
+            </span>
           </Link>
           <div className={styles.featuredCopy}>
             <p className="eyebrow">New · Personalized</p>

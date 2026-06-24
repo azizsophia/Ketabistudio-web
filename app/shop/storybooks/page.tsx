@@ -43,12 +43,17 @@ export default function StorybooksPage() {
               aria-hidden="true"
             />
             <span className={styles.iamCover}>
-              <span className={styles.iamKick}>A book about good character</span>
-              <span className={styles.iamArch}>Your photo</span>
-              <span className={styles.iamIam}>I am</span>
-              <span className={styles.iamName}>Your child</span>
-              <span className={styles.iamNameAr} dir="rtl" lang="ar">
-                اسم طفلك
+              <span className={styles.iamPhotoHint}>Your photo</span>
+              <span className={styles.iamScrim} aria-hidden="true" />
+              <span className={styles.iamKeyline} aria-hidden="true" />
+              <span className={styles.iamPlate}>
+                <span className={styles.iamStar} aria-hidden="true">✦</span>
+                <span className={styles.iamIam}>I am</span>
+                <span className={styles.iamName}>Your child</span>
+                <span className={styles.iamRule} aria-hidden="true" />
+                <span className={styles.iamNameAr} dir="rtl" lang="ar">
+                  اسم طفلك
+                </span>
               </span>
             </span>
             <span className={styles.personalizeBadge}>

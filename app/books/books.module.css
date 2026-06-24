@@ -207,20 +207,22 @@
 
 .bookCard:hover .cta { color: var(--gold-deep); }
 
-/* ── personalized "I am ___" mini-cover (rendered, no photo) ── */
+/* ── personalized "I am ___" mini-cover — cinematic full-bleed (matches the
+   real cover: customer photo fills the face, teal scrim rises from the foot,
+   gold title plate sits over it) ── */
 .iamCover {
   position: relative;
   z-index: 1;
   width: min(280px, 80%);
   aspect-ratio: 1 / 1;
   border-radius: 4px 12px 12px 4px;
-  background: #2f5d57;
-  color: #f6efe0;
+  overflow: hidden;
+  background: radial-gradient(118% 78% at 50% 32%, #37726a 0%, #21443f 72%);
+  color: #fbf2dd;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 7% 8%;
+  justify-content: flex-end;
   text-align: center;
   box-shadow:
     -3px 0 0 rgba(0, 0, 0, 0.06),
@@ -233,45 +235,77 @@
     -3px 0 0 rgba(0, 0, 0, 0.06),
     0 36px 60px -28px rgba(46, 74, 58, 0.55);
 }
-.iamKick {
+.iamPhotoHint {
+  position: absolute;
+  top: 27%;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  text-align: center;
   font-size: 0.5rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(246, 239, 224, 0.72);
-  margin-bottom: 9%;
+  color: rgba(246, 239, 224, 0.5);
 }
-.iamArch {
-  width: 50%;
-  aspect-ratio: 4 / 5;
-  border-radius: 50% 50% 9% 9% / 36% 36% 6% 6%;
-  background: #21443f;
-  border: 2.5px solid var(--gold);
-  box-shadow: 0 8px 18px -10px rgba(0, 0, 0, 0.5);
+.iamScrim {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 72%;
+  z-index: 1;
+  background: linear-gradient(to top, #21443f 22%, rgba(33, 68, 63, 0) 86%);
+  pointer-events: none;
+}
+.iamKeyline {
+  position: absolute;
+  inset: 7%;
+  z-index: 2;
+  border: 1px solid rgba(246, 234, 210, 0.5);
+  pointer-events: none;
+}
+.iamPlate {
+  position: relative;
+  z-index: 3;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-size: 0.6rem;
-  color: rgba(246, 239, 224, 0.6);
-  margin-bottom: 8%;
+  text-align: center;
+  padding: 0 10% 11%;
+}
+.iamStar {
+  color: var(--gold);
+  font-size: 0.85rem;
+  line-height: 1;
+  margin-bottom: 3%;
 }
 .iamIam {
   font-family: var(--font-display), Georgia, serif;
   font-style: italic;
-  font-size: 1.2rem;
+  font-size: 1rem;
   color: var(--gold);
   line-height: 1;
 }
 .iamName {
   font-family: var(--font-display), Georgia, serif;
+  font-weight: 600;
   font-size: 1.7rem;
-  line-height: 1.05;
+  line-height: 0.98;
+  color: #fbf2dd;
+}
+.iamRule {
+  width: 34px;
+  height: 1.5px;
+  background: var(--gold);
+  opacity: 0.9;
+  margin: 6% 0 5%;
 }
 .iamNameAr {
   font-family: var(--font-baloo), var(--font-arabic), serif;
   font-weight: 600;
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   color: var(--gold);
-  margin-top: 5%;
+  line-height: 1;
 }
 
 /* ── trust strip ────────────────────────────────────── */
