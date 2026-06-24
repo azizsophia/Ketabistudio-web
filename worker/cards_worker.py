@@ -367,7 +367,10 @@ def process_card(order):
         # order if Prodigi's cost is above the cap (e.g. a pricey international
         # courier). This makes a runaway charge impossible — we never submit a
         # too-expensive order, so no charge happens. Tune via PRODIGI_MAX_COST.
-        cap = float(os.environ.get("PRODIGI_MAX_COST", "12") or 12)
+        # Default 16: live Prodigi (cheapest method) for our destinations tops
+        # out ~$12.5 (e.g. Malaysia); intl revenue is ~$30, so $16 passes every
+        # legitimate order while still catching a genuinely broken/express quote.
+        cap = float(os.environ.get("PRODIGI_MAX_COST", "16") or 16)
         best = prodigi_client.cheapest_shipping(country)
         if not best:
             raise RuntimeError(

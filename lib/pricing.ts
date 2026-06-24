@@ -16,9 +16,36 @@ export const HARDCOVER_PRICE_DISPLAY = TEST_DOLLAR_PRICING ? "$1.00" : "$49.99";
 
 export type CoverType = "softcover" | "hardcover";
 
-/** Book price in cents for the chosen cover type (softcover is the default). */
-export function bookPriceCents(coverType?: string): number {
-  return coverType === "hardcover" ? HARDCOVER_PRICE_CENTS : BOOK_PRICE_CENTS;
+/* Non-personalized storybooks sell below the personalized tier. They carry the
+   same Lulu cost (~$15.47 delivered US: $9.03 print + $0.75 fulfillment + $5.69
+   MAIL) but have no personalization, so they're priced at $24.99 softcover
+   (~$8.50 US / ~$16 intl profit). SOFTCOVER-ONLY: their cover art is a flattened
+   PDF sized for the perfect-bound wrap (1252x630pt). A casewrap hardcover needs
+   a different, larger cover (1368x738pt, confirmed live with Lulu) that does not
+   exist for these titles, so they are never offered in hardcover. */
+export const STORYBOOK_PRICE_CENTS = TEST_DOLLAR_PRICING ? 100 : 2499; // $1 test / $24.99
+export const STORYBOOK_PRICE_DISPLAY = TEST_DOLLAR_PRICING ? "$1.00" : "$24.99";
+
+const SOFTCOVER_PRICE_OVERRIDES: Record<string, number> = {
+  "juha-and-the-enormous-pumpkin": STORYBOOK_PRICE_CENTS,
+  "maryam-is-kind-to-her-parents": STORYBOOK_PRICE_CENTS,
+};
+
+/** Book price in cents for a cover type, optionally for a specific slug.
+ *  Hardcover uses the personalized hardcover price; otherwise a slug may carry
+ *  its own softcover price (non-personalized storybooks) before the default. */
+export function bookPriceCents(coverType?: string, slug?: string): number {
+  if (coverType === "hardcover") return HARDCOVER_PRICE_CENTS;
+  if (slug && slug in SOFTCOVER_PRICE_OVERRIDES) {
+    return SOFTCOVER_PRICE_OVERRIDES[slug];
+  }
+  return BOOK_PRICE_CENTS;
+}
+
+/** Storefront display price (softcover) for a book — slug-aware. */
+export function bookPriceDisplay(slug?: string): string {
+  if (slug && slug in SOFTCOVER_PRICE_OVERRIDES) return STORYBOOK_PRICE_DISPLAY;
+  return BOOK_PRICE_DISPLAY;
 }
 
 /* Shipping model: FREE for US (baked into the book price); real-time Lulu
@@ -27,13 +54,42 @@ export function isFreeShippingCountry(countryCode: string): boolean {
   return countryCode.toUpperCase() === "US";
 }
 
-/* Greeting cards are priced "delivered" — ONE flat worldwide price that
-   includes printing + shipping (no separate shipping line). The price must
-   cover the most expensive route (US: ~$11.40 printed+shipped via Cloudprinter)
-   and still profit, while international (Prodigi: ~$3-7) profits more.
-   At $14.99: US nets ~$2-3 after fees, UK/Gulf net ~$7-11. */
-export const CARD_PRICE_CENTS = TEST_DOLLAR_PRICING ? 100 : 1499; // $1 test / $14.99 delivered worldwide
-export const CARD_PRICE_DISPLAY = TEST_DOLLAR_PRICING ? "$1.00" : "$14.99";
+/* Greeting cards: ONE flat card price AND ONE flat shipping price worldwide
+   (so the storefront never shows two different prices — avoids confusion).
+   International still earns the fatter margin automatically, because Prodigi
+   (~$7 delivered) is far cheaper to fulfil than US Cloudprinter (~$11.62) —
+   the margin difference comes from print cost, not from a higher shipping
+   charge, so intl shipping doesn't need to be steep.
+
+   Worked economics (live printer quotes, June 2026; Stripe ~2.9% + $0.30):
+     • US   : $12.99 card + $4.99 ship = $17.98; cost ~$11.62; fee ~$0.82
+              → profit ≈ $5.5
+     • Intl : $12.99 card + $4.99 ship = $17.98; cost ~$7 typical (worst
+              ~$13.71 Malaysia); fee ~$0.82
+              → profit ≈ $10.2 typical / ≈ $3.4 worst case
+   Intl nets ~2x the US at the SAME shipping price — no need to charge more. */
+export const CARD_PRICE_CENTS = TEST_DOLLAR_PRICING ? 100 : 1299; // $1 test / $12.99 card (same worldwide)
+export const CARD_PRICE_DISPLAY = TEST_DOLLAR_PRICING ? "$1.00" : "$12.99";
+
+/* Flat card shipping, same worldwide. In test mode shipping is $0 so a test
+   order totals exactly $1 (the card price). Restore with TEST_DOLLAR_PRICING. */
+export const CARD_SHIP_US_CENTS = TEST_DOLLAR_PRICING ? 0 : 499; // $4.99 domestic
+export const CARD_SHIP_INTL_CENTS = TEST_DOLLAR_PRICING ? 0 : 499; // $4.99 international (same)
+export const CARD_SHIP_US_DISPLAY = "$4.99";
+export const CARD_SHIP_INTL_DISPLAY = "$4.99";
+
+/** Card shipping charge in cents for a destination country. */
+export function cardShippingCents(countryCode: string): number {
+  return countryCode.toUpperCase() === "US"
+    ? CARD_SHIP_US_CENTS
+    : CARD_SHIP_INTL_CENTS;
+}
+
+export function cardShippingLabel(countryCode: string): string {
+  return countryCode.toUpperCase() === "US"
+    ? "Shipping (US)"
+    : "Shipping (International)";
+}
 
 export const SHIPPING_US_CENTS = 499; // $4.99 domestic
 export const SHIPPING_INTL_CENTS = 1499; // $14.99 international
@@ -51,15 +107,6 @@ export function shippingLabel(countryCode: string): string {
 }
 
 export const CURRENCY = "usd";
-
-/* ── Hifz (Quran memorization) recurring subscription ──
-   Two billing cadences. While TEST_DOLLAR_PRICING is true both are $1 so the
-   owner can run real recurring test charges cheaply. */
-export const HIFZ_MONTHLY_CENTS = TEST_DOLLAR_PRICING ? 100 : 699; // $6.99/mo
-export const HIFZ_ANNUAL_CENTS = TEST_DOLLAR_PRICING ? 100 : 5900; // $59/yr
-
-export const HIFZ_MONTHLY_DISPLAY = TEST_DOLLAR_PRICING ? "$1.00" : "$6.99";
-export const HIFZ_ANNUAL_DISPLAY = TEST_DOLLAR_PRICING ? "$1.00" : "$59";
 
 /* Human-readable for the storefront */
 export const BOOK_PRICE_DISPLAY = TEST_DOLLAR_PRICING ? "$1.00" : "$34.99";

@@ -353,7 +353,7 @@ STORY = {
         "They jumped on the bed\r"
         "and laughed until their cheeks hurt.\r"
         "Being kind, being grateful,\r"
-        "being themselves -- that was the best feeling\r"
+        "and being themselves was the best feeling\r"
         "in the whole wide world."
     ),
     19: (
@@ -393,7 +393,7 @@ STORY = {
     ),
     24: (
         "That night, under the soft glow of the moon,\r"
-        "(Child's Name) read her favorite du'a\r"
+        "(Child's Name) read her favorite dua\r"
         "and smiled to herself.\r"
         "She knew exactly who she was."
     ),

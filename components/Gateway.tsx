@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import FlipBook from "./FlipBook";
 import styles from "./Gateway.module.css";
 
 /* The three expressions of one mission, framed as stages of a family's
@@ -124,34 +125,70 @@ export default function Gateway() {
         </div>
       </section>
 
-      {/* ── featured: the personalized "I Am [Child]" book ── */}
-      <section className={styles.featured}>
-        <div className={`wrap ${styles.featuredInner}`}>
-          <Link href="/books/i-am" className={styles.featuredCover} aria-hidden="true" tabIndex={-1}>
-            <span className={styles.fcPhotoHint}>Your photo</span>
-            <span className={styles.fcScrim} aria-hidden="true" />
-            <span className={styles.fcKeyline} aria-hidden="true" />
-            <span className={styles.fcPlate}>
-              <span className={styles.fcStar} aria-hidden="true">✦</span>
-              <span className={styles.fcIam}>I am</span>
-              <span className={styles.fcName}>Your child</span>
-              <span className={styles.fcRule} aria-hidden="true" />
-              <span className={styles.fcNameAr} dir="rtl" lang="ar">اسم طفلك</span>
-            </span>
-          </Link>
-          <div className={styles.featuredCopy}>
-            <p className="eyebrow">New · Personalized</p>
-            <h2 className={styles.featuredTitle}>
-              I Am <span className={styles.gold}>[Your Child]</span>
-            </h2>
-            <p className={styles.featuredDesc}>
-              A keepsake where your child is the hero of every page: twelve
-              beautiful traits in English and Arabic, with their name, your
-              dedication, and your own photos.
-            </p>
-            <div className={styles.featuredCta}>
+      {/* ── the books, turning their own pages ── */}
+      <section className={styles.showcase}>
+        <div className={`wrap ${styles.showcaseInner}`}>
+          <p className="eyebrow">Made for your child</p>
+          <h2 className={styles.showcaseTitle}>
+            Books they see themselves in<span className={styles.gold}>.</span>
+          </h2>
+          <p className={`lede ${styles.showcaseLede}`}>
+            Hand-illustrated, personalized, and printed to order. Turn the pages
+            and watch your child become the hero of every one.
+          </p>
+
+          <div className={styles.showcaseGrid}>
+            <div className={styles.showcaseItem}>
+              <FlipBook
+                cover="/images/iam/cover.jpg"
+                title="I Am — your child"
+                pages={[
+                  { src: "/images/iam/page06.jpg" },
+                  { src: "/images/iam/page07.jpg" },
+                  { src: "/images/iam/page08.jpg" },
+                ]}
+                stage="forest"
+                eyebrow="Personalized"
+                caption="Your child’s name and photos, on every page"
+              />
               <Link href="/books/i-am" className="btn btn-primary">
-                Personalize the book
+                Personalize “I Am”
+              </Link>
+            </div>
+
+            <div className={styles.showcaseItem}>
+              <FlipBook
+                cover="/images/book-amira.jpg"
+                title="Her Beautiful Hijab"
+                pages={[
+                  { src: "/images/preview-amira-5.jpg" },
+                  { src: "/images/preview-amira-8.jpg" },
+                  { src: "/images/preview-amira-12.jpg" },
+                ]}
+                stage="forest"
+                eyebrow="Personalized"
+                caption="Your child’s name will be here, and on every page"
+              />
+              <Link href="/books/her-beautiful-hijab" className="btn btn-primary">
+                See the Hijab book
+              </Link>
+            </div>
+
+            <div className={styles.showcaseItem}>
+              <FlipBook
+                cover="/images/keepsake/about-mama/cover.jpg"
+                title="Everything I Love About Mama"
+                pages={[
+                  { src: "/images/keepsake/about-mama/page04.jpg" },
+                  { src: "/images/keepsake/about-mama/page12.jpg" },
+                  { src: "/images/keepsake/about-mama/page23.jpg" },
+                ]}
+                stage="charcoal"
+                eyebrow="A hardcover keepsake"
+                caption="Your own photos and words, sealed with a dua"
+              />
+              <Link href="/shop/keepsakes" className="btn btn-primary">
+                Explore keepsakes
               </Link>
             </div>
           </div>

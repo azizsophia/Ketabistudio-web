@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { VISIBLE_BOOKS, PRINT_SPEC, getBook } from "@/lib/books";
-import { BOOK_PRICE_DISPLAY } from "@/lib/pricing";
+import { bookPriceDisplay } from "@/lib/pricing";
 import OrderSection from "@/components/OrderSection";
 import DuasPreviewPlayground from "@/components/DuasPreviewPlayground";
 import FlipBook from "@/components/FlipBook";
@@ -83,7 +83,7 @@ export default async function BookPage({
                   Order now
                 </a>
                 <span className={styles.priceTag}>
-                  {personalized ? "From " : ""}{BOOK_PRICE_DISPLAY} · Free US shipping
+                  {personalized ? "From " : ""}{bookPriceDisplay(book.slug)} · Free US shipping
                 </span>
               </>
             )}
@@ -91,31 +91,22 @@ export default async function BookPage({
         </div>
       </div>
 
-      {fixed && (
-      <div className={`wrap ${styles.previewBlock}`}>
-        <p className="eyebrow">A peek inside</p>
-        <FlipBook cover={book.cover} title={book.title} pages={book.previews} />
-      </div>
-      )}
-
-      {!personalized && !fixed && (
-      <div className={`wrap ${styles.previewBlock}`}>
-        <p className="eyebrow">A peek inside</p>
-        <div className={styles.previews}>
-          {book.previews.map((p) => (
-            <figure key={p.src} className={styles.previewCard}>
-              <Image
-                src={p.src}
-                alt={p.caption}
-                width={900}
-                height={900}
-                className={styles.previewImg}
-              />
-              <figcaption className={styles.previewCap}>{p.caption}</figcaption>
-            </figure>
-          ))}
+      {!soon && book.previews.length > 0 && (
+        <div className={`wrap ${styles.previewBlock}`}>
+          <p className="eyebrow">A peek inside</p>
+          <FlipBook
+            cover={book.cover}
+            title={book.title}
+            pages={book.previews}
+            stage="forest"
+            eyebrow={personalized ? "Personalized" : undefined}
+            caption={
+              personalized
+                ? "Your child’s name will be here, and on every page"
+                : undefined
+            }
+          />
         </div>
-      </div>
       )}
 
       {soon ? (

@@ -66,7 +66,7 @@
     "en": "Wishing you healing",
     "words": [{ "ar": "شفاء", "translit": "Shifa" }],
     "dua": "May Allah grant you a swift and complete recovery.",
-    "msg": "Thinking of you and making du'a for you. May Allah grant you a swift and complete recovery, ameen."
+    "msg": "Thinking of you and making dua for you. May Allah grant you a swift and complete recovery, ameen."
   },
   "wife": {
     "group": "relationship",
@@ -82,7 +82,7 @@
     "group": "relationship",
     "color": "#1f4f54",
     "eyebrow": "To my husband",
-    "headlineEn": "My answered du'a",
+    "headlineEn": "My answered dua",
     "word": { "ar": "الحمد لله", "translit": "Alhamdulillah" },
     "sub": "grateful for you, always",
     "dua": "May Allah protect you and bless our years together.",
@@ -94,9 +94,9 @@
     "eyebrow": "To my mother",
     "headlineEn": "Heaven beneath her feet",
     "word": { "ar": "أمي", "translit": "Ummī · my mother" },
-    "sub": "with love and endless du'a",
+    "sub": "with love and endless dua",
     "dua": "May Allah grant you the highest gardens of Jannah.",
-    "msg": "Thank you for every du'a, every sacrifice and every kindness. May Allah reward you with Jannah, I love you, Mum."
+    "msg": "Thank you for every dua, every sacrifice and every kindness. May Allah reward you with Jannah, I love you, Mum."
   },
   "dad": {
     "group": "relationship",

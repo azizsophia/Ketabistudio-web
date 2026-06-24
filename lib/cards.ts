@@ -1,5 +1,5 @@
 // Typed data for the Ketabi greeting-card maker.
-// All values (ids, titles, colours, Arabic words, transliterations, du'as,
+// All values (ids, titles, colours, Arabic words, transliterations, duas,
 // default messages, prices) are ported verbatim from the high-fidelity
 // prototype (src/Ketabi Card Maker.dc.html). Do not auto-translate the
 // Arabic: every word here is vetted.
@@ -178,7 +178,7 @@ export const OCCASIONS: OccasionCard[] = [
     en: "Wishing you healing",
     words: [{ ar: "شفاء", translit: "Shifa" }],
     dua: "May Allah grant you a swift and complete recovery.",
-    msg: "Thinking of you and making du'a for you. May Allah grant you a swift and complete recovery, ameen.",
+    msg: "Thinking of you and making dua for you. May Allah grant you a swift and complete recovery, ameen.",
   },
 ];
 
@@ -201,7 +201,7 @@ export const RELATIONSHIPS: RelationshipCard[] = [
     title: "For My Husband",
     color: "#1f4f54",
     eyebrow: "To my husband",
-    headlineEn: "My answered du'a",
+    headlineEn: "My answered dua",
     word: { ar: "الحمد لله", translit: "Alhamdulillah" },
     sub: "grateful for you, always",
     dua: "May Allah protect you and bless our years together.",
@@ -215,9 +215,9 @@ export const RELATIONSHIPS: RelationshipCard[] = [
     eyebrow: "To my mother",
     headlineEn: "Heaven beneath her feet",
     word: { ar: "أمي", translit: "Ummī · my mother" },
-    sub: "with love and endless du'a",
+    sub: "with love and endless dua",
     dua: "May Allah grant you the highest gardens of Jannah.",
-    msg: "Thank you for every du'a, every sacrifice and every kindness. May Allah reward you with Jannah, I love you, Mum.",
+    msg: "Thank you for every dua, every sacrifice and every kindness. May Allah reward you with Jannah, I love you, Mum.",
   },
   {
     id: "dad",

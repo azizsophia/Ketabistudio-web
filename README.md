@@ -200,6 +200,62 @@ build step.
 
 ## Changelog
 
+### 2026-06-24 — Removed Hifz and Rugs product lines
+
+Both were dropped as product directions. Fully removed from the codebase:
+- **Hifz** (Quran-memorization subscription): `app/hifz/*`, `app/api/hifz/*`,
+  `lib/hifz/*`, `lib/quran.ts`, the Supabase auth client (`lib/supabase/*`,
+  `app/auth/*` — only the hifz login used it), the `HIFZ_*` price constants in
+  `lib/pricing.ts`, and the subscription branch of the Stripe webhook
+  (`app/api/stripe-webhook/route.ts` is now book/card one-time orders only).
+- **Rugs** (Hopscotch Rug): `app/rugs/*`, `components/RugStudio.*`,
+  `components/HopscotchRug.tsx`, and the now-unused Fredoka font in `layout.tsx`.
+
+Neither was linked from navigation, so storefront IA is unchanged. The "Reflect"
+world on the homepage still points at the **mobile app** (`/app`), and all
+Quran/film brand copy is untouched (it refers to the app + short films, not the
+removed web subscription). Build + typecheck clean after removal.
+
+### 2026-06-24 — Storybook pricing ($24.99, softcover-only)
+
+The two non-personalized storybooks (**Juha and the Enormous Pumpkin**,
+**Maryam is Kind to Her Parents**) now have their own price, separate from the
+$34.99 personalized tier. Added a slug-aware `bookPriceCents(coverType, slug)`
+plus `bookPriceDisplay(slug)` and a `SOFTCOVER_PRICE_OVERRIDES` map in
+`lib/pricing.ts`; checkout and the book detail page pass the slug.
+
+- **$24.99 softcover** (gated behind `TEST_DOLLAR_PRICING`; $1 in test).
+  Live cost is $15.47 delivered US ($9.03 print + $0.75 fulfillment + $5.69
+  MAIL — matched exactly by a real Lulu test print), so profit ≈ $8.50 US /
+  ~$16 intl.
+- **Softcover-only — confirmed against Lulu specs.** These titles are flattened
+  pre-made cover PDFs sized for the perfect-bound wrap (Lulu requires
+  **1252×630pt** at 32pp). A casewrap hardcover needs a different, larger cover
+  (**1368×738pt**, confirmed live) that doesn't exist for them, so hardcover is
+  intentionally not offered (they remain absent from `HARDCOVER_SLUGS`, and the
+  worker force-downgrades any stray hardcover value).
+
+### 2026-06-24 — Hijab book copy polish; Lulu shipping audit (Gulf gated)
+
+**Beautiful Hijab book** copy cleaned: removed the two em dashes (page 18 story
+line restructured; storefront blurb) since em dashes read as AI-written, and
+standardised "du'a" → "dua" on page 24 (`worker/pipeline/modesty_pipeline.py`,
+`lib/books.ts`). Story + matter pages confirmed otherwise dash-clean.
+
+**Live Lulu cost audit (production keys).** Print cost for the 8.5×8.5in 32pp
+title is **$9.03 softcover / $17.85 hardcover** worldwide. Profit per book:
+softcover ≈ **$19 US / $26 intl**, hardcover ≈ **$25 US / $32 intl** (US ships
+free/baked-in; intl passes Lulu shipping through + $1.50). Healthy 50–60%
+margins on a zero-inventory POD product.
+
+**Gulf shipping gap fixed.** Lulu only offers EXPRESS (~$56) to **AE, KW, QA,
+OM, JO** and **no service** to **BH** — the storefront offered all of them while
+the worker only quotes cheap MAIL, so those orders would fail or lose ~$15–40.
+Removed those 6 from all three Lulu book flows (storybooks, photo-book
+keepsakes, I-Am) in both the API `VALID_COUNTRIES` guards and the builder
+dropdowns. **Saudi (SA) kept** — it ships fine on MAIL (~$17). Greeting cards
+are unaffected (they print via Prodigi/Cloudprinter, not Lulu).
+
 ### 2026-06-24 — Keepsake photo-books audit; duas parked; I-Am storefront covers
 
 Pre-launch QA pass on the **keepsake photo-books** (`lib/photobook.ts`,
@@ -235,6 +291,22 @@ continuous twilight spine, cover-halo fix) is preserved in
 **I-Am storefront mini-covers** updated from the old arch mock to the cinematic
 cover (full-bleed photo + bottom title plate) on `/shop/storybooks` and the
 homepage feature, matching the live builder.
+
+**Greeting card pricing decided (live values, still gated by test mode).**
+Cards move from one flat "delivered" price to a **flat $12.99 card + flat $4.99
+shipping, same worldwide** (`lib/pricing.ts`, checkout route, `CardMaker`).
+- One card price and one shipping price everywhere → no confusing two-price
+  display. International still earns the fatter margin automatically because
+  Prodigi (~$7 delivered) is far cheaper to fulfil than US Cloudprinter
+  (~$11.62) — the gap comes from print cost, not a higher shipping charge.
+- Per-order profit off live printer quotes + Stripe fees: **US ≈ $5.5**,
+  **international ≈ $10 typical** (~$3.4 worst case, Malaysia). Every route
+  profits.
+- Considered $9.99 intl shipping (≈ $15 intl profit) but rejected as too steep
+  for a greeting card / cart-abandonment risk; $4.99 worldwide still ~2× the US
+  margin internationally.
+- All gated behind `TEST_DOLLAR_PRICING`: while `true`, card = $1 and shipping
+  = $0, so test orders total exactly $1. Flip the flag to go live at the above.
 
 `TEST_DOLLAR_PRICING` and `COMING_SOON` remain `true` (everything is $1 and the
 site is gated) until launch.

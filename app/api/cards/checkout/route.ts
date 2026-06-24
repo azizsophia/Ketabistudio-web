@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import { CARD_PRICE_CENTS, CURRENCY } from "@/lib/pricing";
+import {
+  CARD_PRICE_CENTS,
+  CURRENCY,
+  cardShippingCents,
+  cardShippingLabel,
+} from "@/lib/pricing";
 import { findCard } from "@/lib/cards";
 
 const SB = process.env.SUPABASE_URL?.replace(/\s/g, "").replace(/\/$/, "");
@@ -28,7 +33,7 @@ export async function POST(req: NextRequest) {
 
   /* fetch the card order — must exist and still be awaiting payment */
   const r = await fetch(
-    `${SB}/rest/v1/card_orders?id=eq.${orderId}&select=id,status,item_id,customer_email`,
+    `${SB}/rest/v1/card_orders?id=eq.${orderId}&select=id,status,item_id,customer_email,shipping`,
     { headers: { Authorization: `Bearer ${KEY}`, apikey: KEY! }, cache: "no-store" }
   );
   const rows = await r.json();
@@ -44,6 +49,11 @@ export async function POST(req: NextRequest) {
   }
 
   const cardTitle = findCard(order.item_id).title;
+
+  /* Shipping is charged separately by zone (card price is the same worldwide).
+     The country was captured + validated when the order was created. */
+  const country = String(order.shipping?.country_code || "").toUpperCase();
+  const shipCents = cardShippingCents(country);
 
   const origin =
     req.headers.get("origin") ||
@@ -61,12 +71,24 @@ export async function POST(req: NextRequest) {
             currency: CURRENCY,
             unit_amount: CARD_PRICE_CENTS,
             product_data: {
-              name: `Personalised greeting card — ${cardTitle}`,
+              name: `Personalised greeting card, ${cardTitle}`,
               description:
-                "Printed to order and posted directly to your recipient. Delivery included.",
+                "Printed to order and posted directly to your recipient.",
             },
           },
         },
+        ...(shipCents > 0
+          ? [
+              {
+                quantity: 1,
+                price_data: {
+                  currency: CURRENCY,
+                  unit_amount: shipCents,
+                  product_data: { name: cardShippingLabel(country) },
+                },
+              },
+            ]
+          : []),
       ],
       metadata: { cardOrderId: order.id },
       payment_intent_data: { metadata: { cardOrderId: order.id } },
