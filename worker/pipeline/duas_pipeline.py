@@ -197,21 +197,6 @@ def star_crest(d, cx, cy, R, fill=GOLD):
         star_n(d, cx + sgn * int(R * 1.9), cy, int(R * 0.34), 8, fill=fill)
 
 
-def crescent(img, cx, cy, R, fill=GOLD, offx=0.52, k=0.9, tilt=-0.34):
-    """A crescent moon: a disc with an offset disc subtracted, composited onto
-    the RGB base so it reads cleanly on any background. The opening faces up-
-    right. Recurs on the cover sky and the closing page as a twilight motif."""
-    pad = R + 6
-    m = Image.new("L", (2 * pad, 2 * pad), 0)
-    md = ImageDraw.Draw(m)
-    md.ellipse([pad - R, pad - R, pad + R, pad + R], fill=255)
-    r2 = int(R * k); dx = int(R * offx); dy = int(R * tilt)
-    md.ellipse([pad - r2 + dx, pad - r2 + dy, pad + r2 + dx, pad + r2 + dy], fill=0)
-    col = Image.new("RGBA", m.size, fill + (255,))
-    col.putalpha(m)
-    img.paste(col, (cx - pad, cy - pad), col)
-
-
 def flourish(d, cx, y, half_w, fill=GOLD):
     """A small centred ornament: a star with two tapering rules — an elegant
     divider in place of a repeated chest motif."""
@@ -305,13 +290,8 @@ def story_page(entry, ctx):
 def title_page(ctx):
     img, d = blank(frame=True)
     title_block(d, TRIM // 2, 360, ctx["name"])
-    # crescent + stars — the same twilight motif as the cover and closing page
-    cx = TRIM // 2
-    crescent(img, cx, 1470, 132)
-    for sx, sy, r in [(cx - 320, 1370, 19), (cx + 320, 1370, 19),
-                      (cx - 250, 1610, 12), (cx + 270, 1620, 14)]:
-        star5(d, sx, sy, r, GOLD)
-    byline(d, cx, 2240)
+    star_crest(d, TRIM // 2, 1480, 150)
+    byline(d, TRIM // 2, 2240)
     return img
 
 
@@ -328,11 +308,7 @@ def belongs_page(ctx):
 
 def end_page():
     img, d = blank(frame=True)
-    # crescent + stars echo the cover's twilight sky, bookending the story
-    crescent(img, TRIM // 2, 560, 120)
-    for sx, sy, r in [(TRIM // 2 - 300, 470, 18), (TRIM // 2 + 300, 470, 18),
-                      (TRIM // 2 - 230, 690, 11), (TRIM // 2 + 250, 700, 13)]:
-        star5(d, sx, sy, r, GOLD)
+    star_crest(d, TRIM // 2, 560, 140)
     ctext(d, "The End", CG(150, 700), TRIM // 2, 1080, GOLD)
     ctext(d, "Say a dua today, and Allah is always", LO(40, 500), TRIM // 2, 1480, GRAY)
     ctext(d, "near to listen and to love you.", LO(40, 500), TRIM // 2, 1545, GRAY)
@@ -472,11 +448,8 @@ def hero_cutout(ctx, target_w):
 def front_cover(ctx, show_name=True):
     img, d = cover_bg()
     cx = FULLBLEED // 2
-    # a crescent moon presiding over the dusk sky (top-left), the twilight motif
-    # echoed again on the closing page
-    crescent(img, 300, 300, 124, fill=(250, 240, 210))
-    # scattered gold stars across the upper sky (clear of the title and moon)
-    for sx, sy, r in [(170, 150, 13), (250, 760, 12), (560, 560, 8),
+    # scattered gold stars across the upper sky (clear of the title)
+    for sx, sy, r in [(170, 150, 17), (360, 380, 10), (250, 760, 12), (560, 560, 8),
                       (2300, 170, 19), (2150, 430, 11), (2380, 760, 12), (2060, 600, 8),
                       (980, 130, 9), (1660, 120, 11), (1300, 80, 7)]:
         star5(d, sx, sy, r, (250, 240, 208))
