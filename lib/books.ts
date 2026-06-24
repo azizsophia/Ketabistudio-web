@@ -108,6 +108,9 @@ export type Book = {
       };
   /** When true, the book is teased but not yet orderable (storefront + API). */
   comingSoon?: boolean;
+  /** When true, the book is fully hidden: not listed anywhere, its detail page
+   * 404s, and it cannot be ordered. Reversible — flip back to reveal it. */
+  hidden?: boolean;
 };
 
 export const BOOKS: Book[] = [
@@ -174,6 +177,7 @@ export const BOOKS: Book[] = [
       appearsOn: ["Front cover", "Title page", "Belongs-to page", "Every story page"],
     },
     comingSoon: true,
+    hidden: true, // parked: art under review — fully hidden until ready
   },
   {
     slug: "juha-and-the-enormous-pumpkin",
@@ -222,3 +226,6 @@ export const BOOKS: Book[] = [
 ];
 
 export const getBook = (slug: string) => BOOKS.find((b) => b.slug === slug);
+
+/** Books shown in the storefront (hidden ones are parked and excluded). */
+export const VISIBLE_BOOKS = BOOKS.filter((b) => !b.hidden);

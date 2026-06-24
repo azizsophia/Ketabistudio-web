@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import { BOOKS } from "@/lib/books";
 
-/* Books teased but not yet orderable (single source: lib/books comingSoon). */
+/* Books not orderable: teased (comingSoon) or fully parked (hidden). */
 const COMING_SOON_SLUGS = new Set(
-  BOOKS.filter((b) => b.comingSoon).map((b) => b.slug)
+  BOOKS.filter((b) => b.comingSoon || b.hidden).map((b) => b.slug)
 );
 
 const SB = process.env.SUPABASE_URL?.replace(/\s/g, "").replace(/\/$/, "");

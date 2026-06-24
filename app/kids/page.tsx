@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { BOOKS } from "@/lib/books";
+import { VISIBLE_BOOKS as BOOKS } from "@/lib/books";
 import BookScene from "@/components/kids/BookScene";
 import Motifs from "@/components/kids/Motifs";
 import styles from "./kids.module.css";

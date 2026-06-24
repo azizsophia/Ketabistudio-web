@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { BOOKS } from "@/lib/books";
+import { VISIBLE_BOOKS as BOOKS } from "@/lib/books";
 import styles from "../../books/books.module.css";
 
 export const metadata: Metadata = {
