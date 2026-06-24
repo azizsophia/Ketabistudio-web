@@ -101,14 +101,14 @@ const ABOUT_MAMA: PhotobookTemplate = {
     "You are the first dua Allah answered for me.",
     "You teach me to love Allah.",
     "I love praying right beside you.",
-    "Thank you for every duʿā you make for me.",
+    "Thank you for every dua you make for me.",
     "You fill our home with barakah.",
     "Your hugs make everything better.",
     "You read to me until my eyes grow sleepy.",
     "When I'm scared, you remind me Allah is near.",
     "I love the way you say bismillah before everything.",
     "You wipe my tears and make a dua over me.",
-    "You're the first to make duʿā when I'm sick.",
+    "You're the first to make dua when I'm sick.",
     "You celebrate every little thing I learn.",
     "Your kitchen smells like love and good things.",
     "You forgive me before I even finish saying sorry.",
@@ -121,7 +121,7 @@ const ABOUT_MAMA: PhotobookTemplate = {
   dua: D["about-mama"],
   accent: ACCENTS["about-mama"],
   blurb:
-    "A hardcover keepsake your child fills with their own photos and words — twenty things they love about Mama, sealed with the dua for parents.",
+    "A hardcover keepsake your child fills with their own photos and words: twenty things they love about Mama, sealed with the dua for parents.",
   value: "Your own photos & words, sealed with the dua for parents",
 };
 
@@ -140,14 +140,14 @@ const ABOUT_BABA: PhotobookTemplate = {
     "You are an answer to a dua I never had to make.",
     "You teach me to love Allah.",
     "I love standing beside you in salah.",
-    "Thank you for every duʿā you make for me.",
+    "Thank you for every dua you make for me.",
     "You work hard so our home is full of barakah.",
     "Your shoulders are the safest place in the world.",
     "You answer my biggest questions about Allah.",
     "When I'm scared, you remind me Allah is the strongest.",
     "I love the way you say bismillah before everything.",
     "You carry me when my legs are tired.",
-    "You're the first to make duʿā when I'm sick.",
+    "You're the first to make dua when I'm sick.",
     "You're proud of me even when I make mistakes.",
     "You make ordinary days feel like an adventure.",
     "You forgive me before I even finish saying sorry.",
@@ -160,7 +160,7 @@ const ABOUT_BABA: PhotobookTemplate = {
   dua: D["about-baba"],
   accent: ACCENTS["about-baba"],
   blurb:
-    "A hardcover keepsake your child fills with their own photos and words — twenty things they love about Baba, sealed with the dua for parents.",
+    "A hardcover keepsake your child fills with their own photos and words: twenty things they love about Baba, sealed with the dua for parents.",
   value: "Your own photos & words, sealed with the dua for parents",
 };
 
@@ -199,7 +199,7 @@ const ABOUT_GRANDMA: PhotobookTemplate = {
   dua: D["about-grandma"],
   accent: ACCENTS["about-grandma"],
   blurb:
-    "A hardcover keepsake filled with your own photos and words — twenty things you love about Grandma, sealed with a dua for those who raised us.",
+    "A hardcover keepsake filled with your own photos and words: twenty things you love about Grandma, sealed with a dua for those who raised us.",
   value: "Your photos & words, sealed with a dua for those who raised us",
 };
 
@@ -238,7 +238,7 @@ const ABOUT_GRANDPA: PhotobookTemplate = {
   dua: D["about-grandpa"],
   accent: ACCENTS["about-grandpa"],
   blurb:
-    "A hardcover keepsake filled with your own photos and words — twenty things you love about Grandpa, sealed with a dua for those who raised us.",
+    "A hardcover keepsake filled with your own photos and words: twenty things you love about Grandpa, sealed with a dua for those who raised us.",
   value: "Your photos & words, sealed with a dua for those who raised us",
 };
 
@@ -251,7 +251,7 @@ const ABOUT_SPOUSE: PhotobookTemplate = {
   authorPlaceholder: "e.g. your name",
   coverPhoto: true,
   dedication:
-    "my home and my comfort — the one I pray to walk beside, in this life and into Jannah.",
+    "my home and my comfort, the one I pray to walk beside, in this life and into Jannah.",
   defaultCaptions: [
     "Alhamdulillah, Allah wrote you into my life.",
     "You are the answer to a dua I made before I knew you.",
@@ -277,7 +277,7 @@ const ABOUT_SPOUSE: PhotobookTemplate = {
   dua: D["about-spouse"],
   accent: ACCENTS["about-spouse"],
   blurb:
-    "A hardcover keepsake of your love story — twenty things you love about the one Allah chose for you, sealed with the dua for spouses.",
+    "A hardcover keepsake of your love story: twenty things you love about the one Allah chose for you, sealed with the dua for spouses.",
   value: "Your love story, sealed with the dua for spouses",
 };
 
@@ -316,7 +316,7 @@ const ABOUT_BABY: PhotobookTemplate = {
   dua: D["about-baby"],
   accent: ACCENTS["about-baby"],
   blurb:
-    "A hardcover keepsake for your little one — twenty things you love about them, sealed with a dua for righteous children. Perfect for an Aqiqah or first year.",
+    "A hardcover keepsake for your little one: twenty things you love about them, sealed with a dua for righteous children. Perfect for an Aqiqah or first year.",
   value: "For your little one, sealed with a dua for righteous children",
 };
 
@@ -355,7 +355,7 @@ const OUR_RAMADAN: PhotobookTemplate = {
   dua: D["our-ramadan"],
   accent: ACCENTS["our-ramadan"],
   blurb:
-    "A hardcover keepsake of your family's Ramadan & Eid — twenty things you love about the month, sealed with a dua for your family.",
+    "A hardcover keepsake of your family's Ramadan & Eid: twenty things you love about the month, sealed with a dua for your family.",
   value: "Your family's Ramadan & Eid, sealed with a dua for your family",
 };
 

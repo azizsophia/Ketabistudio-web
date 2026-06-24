@@ -113,12 +113,24 @@ DEDICATIONS = {
                       "is a barakah I will never outgrow."),
     "about-grandpa": ("whose stories, patience and faith are a light passed "
                       "down through our family."),
-    "about-spouse": ("my home and my comfort — the one I pray to walk beside, "
+    "about-spouse": ("my home and my comfort, the one I pray to walk beside, "
                      "in this life and into Jannah."),
     "about-baby": ("an answered dua, and a trust (amanah) from Allah we will "
                    "cherish all our days."),
     "our-ramadan": ("for the month our home fills with light, and our hearts "
                     "draw closer to Allah and to each other."),
+}
+
+# The dua each keepsake is "sealed with" — printed on the back cover. Must match
+# the category's actual dua (keepsakeDuas.json), NOT a one-size phrase.
+SEALS = {
+    "about-mama": "the dua for parents",
+    "about-baba": "the dua for parents",
+    "about-grandma": "a dua for those who raised us",
+    "about-grandpa": "a dua for those who raised us",
+    "about-spouse": "the dua for spouses",
+    "about-baby": "a dua for righteous children",
+    "our-ramadan": "a dua for your family",
 }
 
 # ── per-category accent (the single tunable that differentiates the line) ──
@@ -472,15 +484,17 @@ def _front_cover(recipient, author, cover_photo, template="about-mama", crop=Non
     return base
 
 
-def _back_cover(recipient, author):
+def _back_cover(recipient, author, template="about-mama"):
     img = Image.new("RGB", (FULLBLEED, FULLBLEED), BONE)
     d = ImageDraw.Draw(img)
     cx = FULLBLEED // 2
     inset = FBM + 120
     d.rectangle([inset, inset, FULLBLEED - inset, FULLBLEED - inset],
                 outline=ACCENT_DEEP, width=2)
-    blurb = (f"Twenty things {author} loves about {recipient} — in {author}'s "
-             "own photos and words, sealed with the dua for parents.")
+    # Category-correct seal + verb-agnostic phrasing (authors can be "Mama & Baba").
+    seal = SEALS.get(template, "a heartfelt dua")
+    blurb = (f"Twenty things to treasure about {recipient}, in {author}'s "
+             f"own photos and words, sealed with {seal}.")
     fo = CG(60, 520, it=True)
     y = 1060
     for ln in wrap(d, blurb, fo, FULLBLEED - 2 * inset - 200):
@@ -488,6 +502,29 @@ def _back_cover(recipient, author):
         y += 92
     ls(d, "KETABI STUDIO", PF(40, 500), cx, FULLBLEED - inset - 170, ACCENT, 14)
     return img
+
+
+def _spine_text(wrap, sp_l, sp_r, recipient, author, template):
+    """Vertical spine text — the title, with the studio mark at the foot. Skipped
+    when the spine is too thin to carry legible type."""
+    W = sp_r - sp_l
+    if W < 46:
+        return
+    H = wrap.height
+    title = (TITLES.get(template, "") if template in CUSTOM_COVER_TITLE
+             else f"Everything I Love About {recipient}")
+    fs = max(22, min(32, W - 38))
+    strip = Image.new("RGBA", (H, W), (0, 0, 0, 0))
+    sd = ImageDraw.Draw(strip)
+    mid = W / 2  # the spine-width centre line — title + studio mark share it
+    # title: centred along the spine length AND across its width
+    sd.text((H / 2, mid), title, font=PF(fs, 600), fill=(247, 242, 234), anchor="mm")
+    # studio mark: at the foot, on the same centre axis
+    sf = PF(max(15, fs - 9), 600)
+    sd.text((H - int(H * 0.05), mid), "KETABI STUDIO", font=sf,
+            fill=(238, 228, 206), anchor="rm")
+    rot = strip.rotate(270, expand=True)   # title reads top-to-bottom (US/UK spine)
+    wrap.paste(rot, (sp_l, 0), rot)
 
 
 # fixed softcover wrap geometry (17.39 x 8.75in @ 300 DPI) — no Lulu needed
@@ -508,7 +545,7 @@ def cover_wrap(recipient, author, cover_photo, cover_type="softcover",
       the first real hardcover proof; the Lulu validate-cover gate protects it.
     """
     fc = _front_cover(recipient, author, cover_photo, template, crop=cover_crop)
-    bc = _back_cover(recipient, author)
+    bc = _back_cover(recipient, author, template)
     if cover_type == "hardcover":
         from lulu_client import HARDCOVER_POD, cover_dims_to_px
         if client is None:
@@ -518,25 +555,40 @@ def cover_wrap(recipient, author, cover_photo, cover_type="softcover",
         pod = pod or HARDCOVER_POD
         dims = client.calculate_cover_dimensions(pod, page_count)
         total_w, total_h = cover_dims_to_px(dims)  # px @ 300 DPI
-        spine = max(0, total_w - 2 * FULLBLEED)
-        wrap = Image.new("RGB", (max(total_w, 2 * FULLBLEED + spine),
-                                 max(total_h, FULLBLEED)), BONE)
-        y_off = (wrap.height - FULLBLEED) // 2
-        wrap.paste(bc, (0, y_off))
-        wrap.paste(fc, (FULLBLEED + spine, y_off))
-        if spine > 0:
-            ImageDraw.Draw(wrap).rectangle(
-                [FULLBLEED, 0, FULLBLEED + spine, wrap.height],
-                fill=lerp(BONE, ACCENT, 0.12))
+        # Casewrap layout: [turn-in][back board][spine][front board][turn-in].
+        # Position each panel so its VISIBLE FACE (the trim square) sits exactly
+        # on its board — the front photo then runs right to the spine (no gap),
+        # the customer's framing is preserved (no scaling), and the four turn-in
+        # edges are filled by stretching the outermost art so nothing is blank.
+        WRAP = int(round(0.875 * 300))                 # 0.875in casewrap turn-in
+        SPINE_W = max(48, total_w - 2 * WRAP - 2 * TRIM)
+        y_off = (total_h - FULLBLEED) // 2
+        bc_x = WRAP - FBM                              # back face on the inner board
+        fc_x = WRAP + TRIM + SPINE_W - FBM             # front face after the spine
+        wrap = Image.new("RGB", (total_w, total_h), BONE)
+        wrap.paste(bc, (bc_x, y_off))
+        wrap.paste(fc, (fc_x, y_off))
+        # left + right turn-in: extend the outermost photo/page column
+        if bc_x > 0:
+            col = wrap.crop((bc_x, y_off, bc_x + 1, y_off + FULLBLEED)).resize((bc_x, FULLBLEED))
+            wrap.paste(col, (0, y_off))
+        fr = fc_x + FULLBLEED
+        if fr < total_w:
+            col = wrap.crop((fr - 1, y_off, fr, y_off + FULLBLEED)).resize((total_w - fr, FULLBLEED))
+            wrap.paste(col, (fr, y_off))
+        # top + bottom turn-in: stretch the full-width edge rows
         if y_off > 0:
-            top = wrap.crop((0, y_off, wrap.width, y_off + 1)).resize(
-                (wrap.width, y_off))
+            top = wrap.crop((0, y_off, total_w, y_off + 1)).resize((total_w, y_off))
             wrap.paste(top, (0, 0))
-            bot = wrap.crop(
-                (0, y_off + FULLBLEED - 1, wrap.width, y_off + FULLBLEED)
-            ).resize((wrap.width, wrap.height - (y_off + FULLBLEED)))
+            bot = wrap.crop((0, y_off + FULLBLEED - 1, total_w, y_off + FULLBLEED)).resize(
+                (total_w, total_h - (y_off + FULLBLEED)))
             wrap.paste(bot, (0, y_off + FULLBLEED))
-        wrap = wrap.resize((total_w, total_h), Image.LANCZOS)
+        # spine — a slim coloured band centred on the fold, carrying the title
+        # (drawn last so the turn-in stretch can't clobber the spine text)
+        sp_l = total_w // 2 - SPINE_W // 2
+        sp_r = sp_l + SPINE_W
+        ImageDraw.Draw(wrap).rectangle([sp_l, 0, sp_r, total_h], fill=ACCENT_DEEP)
+        _spine_text(wrap, sp_l, sp_r, recipient, author, template)
         return wrap, fc
     # ── softcover (perfect bound) — fixed geometry, no Lulu call ──────
     spine = SOFTCOVER_SPINE
