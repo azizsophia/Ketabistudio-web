@@ -332,30 +332,30 @@ def chest_page(duas):
     M, gx, gy, top = 70, 40, 36, 270
     cw = (TRIM - 2 * M - gx) // 2
     chh = (TRIM - top - M - 2 * gy) // 3
-    labf, trf, enf = CG(32, 600), CG(25, 500, it=True), LO(26, 500)
+    labf, trf, enf = CG(38, 600), CG(30, 500, it=True), LO(31, 500)
     for i, (lab, ar, tr, en, src) in enumerate(duas):
         r, c = divmod(i, 2); x = M + c * (cw + gx); y = top + r * (chh + gy)
         d.rounded_rectangle([x, y, x + cw, y + chh], radius=22, fill=CARD, outline=BORD, width=3)
         cx = x + cw // 2; iw = cw - 110
         star_n(d, x + 46, y + 46, 15, 8)
-        s = 56; rsh = reshape(ar)
-        while s > 26 and d.textlength(rsh, font=AR(s)) > iw:
+        s = 64; rsh = reshape(ar)
+        while s > 30 and d.textlength(rsh, font=AR(s)) > iw:
             s -= 2
         afo = AR(s)
         trl = wrap(d, tr, trf, iw)          # transliteration wraps (some duas are long)
         enl = wrap(d, en, enf, iw)
-        g1, g2, g3, tlh, elh = 20, 26, 22, 34, 38   # compact reference layout
-        block = 32 + g1 + afo.size + g2 + len(trl) * tlh + g3 + len(enl) * elh
-        avail_t, avail_b = y + 34, y + chh - 74            # reserve bottom for source line
+        g1, g2, g3, tlh, elh = 22, 28, 24, 40, 46   # larger, still fits 6 to a page
+        block = 40 + g1 + afo.size + g2 + len(trl) * tlh + g3 + len(enl) * elh
+        avail_t, avail_b = y + 34, y + chh - 78            # reserve bottom for source line
         sy = avail_t + max(0, (avail_b - avail_t - block) // 2)
-        ls(d, lab.upper(), labf, cx, sy, ACCENT, 3); sy += 32 + g1
+        ls(d, lab.upper(), labf, cx, sy, ACCENT, 3); sy += 40 + g1
         ctext(d, rsh, afo, cx, sy, DARK); sy += afo.size + g2
         for ln in trl:
-            ctext(d, ln, trf, cx, sy, GRAY); sy += tlh
+            ctext(d, ln, trf, cx, sy, TRANSLIT); sy += tlh
         sy += g3
         for ln in enl:
             ctext(d, ln, enf, cx, sy, DARK); sy += elh
-        ctext(d, f"({src})", LO(24, 500), cx, y + chh - 46, (170, 158, 140))
+        ctext(d, f"({src})", LO(28, 500), cx, y + chh - 50, (150, 134, 110))
     return img
 
 
@@ -389,9 +389,11 @@ def star_chart():
     return img
 
 
-def cover_bg():
-    """Full-bleed dusk sky: deep indigo at the top fading to warm peach."""
-    img = Image.new("RGB", (FULLBLEED, FULLBLEED))
+def cover_bg(width=FULLBLEED):
+    """Full-bleed dusk sky: deep indigo at the top fading to warm peach.
+    The gradient is horizontally uniform, so an arbitrary-width slice tiles
+    seamlessly — used to carry the sky continuously across the spine."""
+    img = Image.new("RGB", (width, FULLBLEED))
     d = ImageDraw.Draw(img)
     stops = [(0.0, (54, 52, 96)), (0.42, (118, 96, 138)), (0.70, (214, 150, 138)), (1.0, (245, 208, 158))]
     for y in range(FULLBLEED):
@@ -401,7 +403,7 @@ def cover_bg():
             a, ca = stops[k]; b, cb = stops[k + 1]
             if a <= t <= b:
                 col = lerp(ca, cb, (t - a) / (b - a)); break
-        d.line([0, y, FULLBLEED, y], fill=col)
+        d.line([0, y, width, y], fill=col)
     return img, d
 
 def to_fb(img):
@@ -430,6 +432,12 @@ def hero_cutout(ctx, target_w):
     rgba.putdata([(0, 0, 0, 0) if ((p[0] > 250 and p[1] < 8 and p[2] > 250)
                                    or (p[0] > 252 and p[1] > 252 and p[2] > 252))
                   else p for p in rgba.getdata()])
+    # Erode the silhouette back to the art's own dark outline so the pale
+    # anti-aliased edge left by white-background removal doesn't glow as a halo
+    # on the dark cover. A 1px feather keeps the trimmed edge smooth.
+    alpha = rgba.getchannel("A").filter(ImageFilter.MinFilter(7))
+    alpha = alpha.filter(ImageFilter.GaussianBlur(0.6))
+    rgba.putalpha(alpha)
     bb = rgba.getbbox()
     if bb:
         rgba = rgba.crop(bb)
@@ -462,15 +470,16 @@ def front_cover(ctx, show_name=True):
         ctext(d, nm, CG(nsz, 700, it=True), cx, 250 + (250 - nsz) // 2, (224, 178, 92))
     ls(d, "BEAUTIFUL DUAS", CG(120, 600), cx, 600, (248, 241, 226), 10)
     ctext(d, "a keepsake of daily duas", CG(60, 500, it=True), cx, 760, (232, 220, 202))
-    # child, lifted on a soft warm glow
+    # child, lifted on a soft warm glow (sits a little higher so the head reads
+    # close under the title rather than floating low)
     hero = hero_cutout(ctx, 1500)
-    maxh = (FULLBLEED - 250) - 940
+    maxh = (FULLBLEED - 250) - 880
     if hero.height > maxh:
         hero = hero.resize((int(hero.width * maxh / hero.height), maxh), Image.LANCZOS)
     hx, hy = cx - hero.width // 2, (FULLBLEED - 250) - hero.height
     glow = Image.new("RGBA", (FULLBLEED, FULLBLEED), (0, 0, 0, 0))
     ImageDraw.Draw(glow).ellipse([hx - 200, hy - 60, hx + hero.width + 200, hy + hero.height + 140],
-                                 fill=(255, 248, 230, 160))
+                                 fill=(255, 234, 198, 184))
     glow = glow.filter(ImageFilter.GaussianBlur(140))
     img.paste(glow, (0, 0), glow)
     img.paste(hero, (hx, hy), hero)
@@ -538,12 +547,13 @@ def cover_wrap(ctx, cover_type="softcover", client=None, page_count=32, pod=None
         wrap = Image.new("RGB", (max(total_w, 2 * FULLBLEED + spine),
                                  max(total_h, FULLBLEED)), CREAM)
         y_off = (wrap.height - FULLBLEED) // 2
+        # Carry the dusk sky continuously across the spine so the wraparound
+        # casewrap reads as one scene (no cream gap at the spine hinge).
+        if spine > 0:
+            band, _ = cover_bg(spine)
+            wrap.paste(band, (FULLBLEED, y_off))
         wrap.paste(bc, (0, y_off))
         wrap.paste(fc, (FULLBLEED + spine, y_off))
-        if spine > 0:
-            ImageDraw.Draw(wrap).rectangle(
-                [FULLBLEED, 0, FULLBLEED + spine, wrap.height],
-                fill=lerp(CREAM, GOLD, 0.14))
         # Bleed top/bottom turn-in by stretching the art edges.
         if y_off > 0:
             top = wrap.crop((0, y_off, wrap.width, y_off + 1)).resize((wrap.width, y_off))
@@ -557,9 +567,10 @@ def cover_wrap(ctx, cover_type="softcover", client=None, page_count=32, pod=None
     spine = 60
     W, H = spine + 2 * FULLBLEED, FULLBLEED
     wrap = Image.new("RGB", (W, H), CREAM)
+    band, _ = cover_bg(spine)            # twilight spine — continuous with both panels
+    wrap.paste(band, (FULLBLEED, 0))
     wrap.paste(bc, (0, 0))
     wrap.paste(fc, (FULLBLEED + spine, 0))
-    ImageDraw.Draw(wrap).rectangle([FULLBLEED, 0, FULLBLEED + spine, H], fill=lerp(CREAM, GOLD, 0.14))
     wrap = wrap.resize((5217, 2625), Image.LANCZOS)  # 17.39 x 8.75 in @ 300dpi
     return wrap, fc
 
@@ -616,7 +627,7 @@ def text_page(sp, ctx):
     Arabic, transliteration, and a child-friendly meaning, vertically centred."""
     img, d = blank(frame=True)
     cx = TRIM // 2
-    narf, narlh = LO(52, 500), 80
+    narf, narlh = LO(56, 500), 88
     nar = subst(sp["narrative"], ctx["char"], ctx["name"], ctx["eye"])
     narlines = wrap(d, nar, narf, TRIM - 560)
     has_dua = ("arabic" in sp) or ("arabic_ref" in sp)
@@ -631,7 +642,7 @@ def text_page(sp, ctx):
         while s > 46 and d.textlength(rsh, font=AR(s)) > TRIM - 520:
             s -= 2
         trf = CG(52, 500, it=True); trlines = wrap(d, sp["translit"], trf, TRIM - 560)
-        mnf = LO(44, 500); mnlines = wrap(d, sp["meaning"], mnf, TRIM - 620)
+        mnf = LO(47, 500); mnlines = wrap(d, sp["meaning"], mnf, TRIM - 620)
         H += 100 + s + 70 + len(trlines) * 78 + 50 + len(mnlines) * 66
     if has_verse:
         vrsh = reshape(sp["verse_arabic"]); vs = 78
@@ -640,20 +651,30 @@ def text_page(sp, ctx):
         vtf = CG(46, 500, it=True); vtlines = wrap(d, sp["verse_translit"], vtf, TRIM - 600)
         vef = LO(42, 500); velines = wrap(d, sp["verse_english"], vef, TRIM - 620)
         H += 150 + vs + 64 + len(vtlines) * 69 + 44 + len(velines) * 63 + 56
-    y = max(280, (TRIM - H) // 2)
+    # Anchor the Arabic dua at a FIXED height on every dua spread so the hero of
+    # the page never jumps when flipping; the block sits slightly above centre
+    # with the breathing room pooling at the foot. (The lone closing verse page
+    # keeps simple centring.)
+    GAP_NAR_AR = 88
+    if has_dua:
+        occ_h = (56 + 70) if occ else 0
+        above = occ_h + len(narlines) * narlh + GAP_NAR_AR
+        y = max(150, min(1140 - above, (TRIM - 150) - H))
+    else:
+        y = max(280, (TRIM - H) // 2)
     if occ:
         ls(d, occ.upper(), CG(44, 600), cx, y, ACCENT, 4); y += 56
         star_n(d, cx, y + 28, 15, 8); y += 70
     for ln in narlines:
         ctext(d, ln, narf, cx, y, DARK); y += narlh
     if has_dua:
-        y += 100
-        ctext(d, rsh, AR(s), cx, y, DARK); y += s + 70
+        y += GAP_NAR_AR
+        ctext(d, rsh, AR(s), cx, y, DARK); y += s + 64
         for ln in trlines:
             ctext(d, ln, trf, cx, y, TRANSLIT); y += 78
-        y += 50
+        y += 54
         for ln in mnlines:
-            ctext(d, ln, mnf, cx, y, ACCENT); y += 66
+            ctext(d, ln, mnf, cx, y, ACCENT); y += 70
     if has_verse:
         y += 110
         flourish(d, cx, y, 220); y += 64

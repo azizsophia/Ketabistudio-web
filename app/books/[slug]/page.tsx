@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { BOOKS, PRINT_SPEC, getBook } from "@/lib/books";
+import { VISIBLE_BOOKS, PRINT_SPEC, getBook } from "@/lib/books";
 import { BOOK_PRICE_DISPLAY } from "@/lib/pricing";
 import OrderSection from "@/components/OrderSection";
 import DuasPreviewPlayground from "@/components/DuasPreviewPlayground";
@@ -10,7 +10,7 @@ import FlipBook from "@/components/FlipBook";
 import styles from "./book.module.css";
 
 export function generateStaticParams() {
-  return BOOKS.map((b) => ({ slug: b.slug }));
+  return VISIBLE_BOOKS.map((b) => ({ slug: b.slug }));
 }
 
 export async function generateMetadata({
@@ -19,7 +19,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const book = getBook((await params).slug);
-  if (!book) return {};
+  if (!book || book.hidden) return {};
   return { title: book.title, description: book.blurb };
 }
 
@@ -29,7 +29,7 @@ export default async function BookPage({
   params: Promise<{ slug: string }>;
 }) {
   const book = getBook((await params).slug);
-  if (!book) notFound();
+  if (!book || book.hidden) notFound();
 
   const personalized = book.personalization.type === "personalized";
   const fixed = book.personalization.type === "fixed";
