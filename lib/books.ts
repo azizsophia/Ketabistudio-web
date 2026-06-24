@@ -121,7 +121,7 @@ export const BOOKS: Book[] = [
     tag: "Personalized",
     value: "Modesty, confidence, and loving the hijab",
     blurb:
-      "A personalized keepsake — her name on the cover and woven through every page.",
+      "A personalized keepsake with her name on the cover and woven through every page.",
     description:
       "Type her name and choose her look, and we print a one-of-a-kind book where she is the star: on the cover, the dedication, and her very own bookplate. A gentle story about wearing the hijab with joy.",
     cover: "/images/book-amira.jpg",
