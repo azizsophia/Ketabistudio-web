@@ -19,21 +19,21 @@ const INSIDE_ASPECT = 1;      // full-bleed square page
 const INSIDE_MIN_PX = 1400;   // keep an inside crop ≥ ~160 ppi
 
 const COUNTRIES = [
+  // Lulu MAIL-shippable only — AE, KW, QA, OM, JO (EXPRESS-only ~$56) and BH
+  // (no Lulu shipping) excluded; SA stays (ships on MAIL ~$17). Confirmed
+  // against Lulu production, 2026-06-24.
   { code: "US", name: "United States" }, { code: "GB", name: "United Kingdom" },
   { code: "CA", name: "Canada" }, { code: "AU", name: "Australia" },
-  { code: "AT", name: "Austria" }, { code: "BH", name: "Bahrain" },
-  { code: "BE", name: "Belgium" }, { code: "DK", name: "Denmark" },
-  { code: "EG", name: "Egypt" }, { code: "FI", name: "Finland" },
-  { code: "FR", name: "France" }, { code: "DE", name: "Germany" },
-  { code: "IE", name: "Ireland" }, { code: "IT", name: "Italy" },
-  { code: "JO", name: "Jordan" }, { code: "KW", name: "Kuwait" },
-  { code: "MY", name: "Malaysia" }, { code: "NL", name: "Netherlands" },
-  { code: "NZ", name: "New Zealand" }, { code: "NO", name: "Norway" },
-  { code: "OM", name: "Oman" }, { code: "QA", name: "Qatar" },
-  { code: "SA", name: "Saudi Arabia" }, { code: "SG", name: "Singapore" },
-  { code: "ZA", name: "South Africa" }, { code: "ES", name: "Spain" },
-  { code: "SE", name: "Sweden" }, { code: "CH", name: "Switzerland" },
-  { code: "TR", name: "Turkey" }, { code: "AE", name: "United Arab Emirates" },
+  { code: "AT", name: "Austria" }, { code: "BE", name: "Belgium" },
+  { code: "DK", name: "Denmark" }, { code: "EG", name: "Egypt" },
+  { code: "FI", name: "Finland" }, { code: "FR", name: "France" },
+  { code: "DE", name: "Germany" }, { code: "IE", name: "Ireland" },
+  { code: "IT", name: "Italy" }, { code: "MY", name: "Malaysia" },
+  { code: "NL", name: "Netherlands" }, { code: "NZ", name: "New Zealand" },
+  { code: "NO", name: "Norway" }, { code: "SA", name: "Saudi Arabia" },
+  { code: "SG", name: "Singapore" }, { code: "ZA", name: "South Africa" },
+  { code: "ES", name: "Spain" }, { code: "SE", name: "Sweden" },
+  { code: "CH", name: "Switzerland" }, { code: "TR", name: "Turkey" },
 ] as const;
 const STATE_REQUIRED = new Set(["US", "CA", "AU"]);
 const DRAFT_KEY = "iam_draft_v1"; // auto-saved builder progress (this device)

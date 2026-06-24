@@ -110,10 +110,13 @@ export async function POST(req: NextRequest) {
   }
 
   /* validate shipping */
+  // Lulu ships these on its cheap MAIL service. Excluded: AE, KW, QA, OM, JO
+  // (EXPRESS-only, ~$56 shipping — unprofitable) and BH (no Lulu shipping at
+  // all). Saudi (SA) stays — it ships fine on MAIL (~$17). Confirmed against
+  // Lulu production, 2026-06-24.
   const VALID_COUNTRIES = new Set([
-    "US","AU","AT","BH","BE","CA","DK","EG","FI","FR","DE","IE","IT","JO",
-    "KW","MY","NL","NZ","NO","OM","QA","SA","SG","ZA","ES","SE","CH","TR",
-    "AE","GB",
+    "US","AU","AT","BE","CA","DK","EG","FI","FR","DE","IE","IT",
+    "MY","NL","NZ","NO","SA","SG","ZA","ES","SE","CH","TR","GB",
   ]);
   const ship = body.shipping as Record<string, string> | undefined;
   const country = (ship?.country_code || "US").toUpperCase();

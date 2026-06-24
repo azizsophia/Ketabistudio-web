@@ -393,7 +393,7 @@ STORY = {
     ),
     24: (
         "That night, under the soft glow of the moon,\r"
-        "(Child's Name) read her favorite du'a\r"
+        "(Child's Name) read her favorite dua\r"
         "and smiled to herself.\r"
         "She knew exactly who she was."
     ),

@@ -200,6 +200,27 @@ build step.
 
 ## Changelog
 
+### 2026-06-24 — Hijab book copy polish; Lulu shipping audit (Gulf gated)
+
+**Beautiful Hijab book** copy cleaned: removed the two em dashes (page 18 story
+line restructured; storefront blurb) since em dashes read as AI-written, and
+standardised "du'a" → "dua" on page 24 (`worker/pipeline/modesty_pipeline.py`,
+`lib/books.ts`). Story + matter pages confirmed otherwise dash-clean.
+
+**Live Lulu cost audit (production keys).** Print cost for the 8.5×8.5in 32pp
+title is **$9.03 softcover / $17.85 hardcover** worldwide. Profit per book:
+softcover ≈ **$19 US / $26 intl**, hardcover ≈ **$25 US / $32 intl** (US ships
+free/baked-in; intl passes Lulu shipping through + $1.50). Healthy 50–60%
+margins on a zero-inventory POD product.
+
+**Gulf shipping gap fixed.** Lulu only offers EXPRESS (~$56) to **AE, KW, QA,
+OM, JO** and **no service** to **BH** — the storefront offered all of them while
+the worker only quotes cheap MAIL, so those orders would fail or lose ~$15–40.
+Removed those 6 from all three Lulu book flows (storybooks, photo-book
+keepsakes, I-Am) in both the API `VALID_COUNTRIES` guards and the builder
+dropdowns. **Saudi (SA) kept** — it ships fine on MAIL (~$17). Greeting cards
+are unaffected (they print via Prodigi/Cloudprinter, not Lulu).
+
 ### 2026-06-24 — Keepsake photo-books audit; duas parked; I-Am storefront covers
 
 Pre-launch QA pass on the **keepsake photo-books** (`lib/photobook.ts`,
