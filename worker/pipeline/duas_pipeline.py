@@ -432,6 +432,12 @@ def hero_cutout(ctx, target_w):
     rgba.putdata([(0, 0, 0, 0) if ((p[0] > 250 and p[1] < 8 and p[2] > 250)
                                    or (p[0] > 252 and p[1] > 252 and p[2] > 252))
                   else p for p in rgba.getdata()])
+    # Erode the silhouette back to the art's own dark outline so the pale
+    # anti-aliased edge left by white-background removal doesn't glow as a halo
+    # on the dark cover. A 1px feather keeps the trimmed edge smooth.
+    alpha = rgba.getchannel("A").filter(ImageFilter.MinFilter(7))
+    alpha = alpha.filter(ImageFilter.GaussianBlur(0.6))
+    rgba.putalpha(alpha)
     bb = rgba.getbbox()
     if bb:
         rgba = rgba.crop(bb)
