@@ -16,9 +16,36 @@ export const HARDCOVER_PRICE_DISPLAY = TEST_DOLLAR_PRICING ? "$1.00" : "$49.99";
 
 export type CoverType = "softcover" | "hardcover";
 
-/** Book price in cents for the chosen cover type (softcover is the default). */
-export function bookPriceCents(coverType?: string): number {
-  return coverType === "hardcover" ? HARDCOVER_PRICE_CENTS : BOOK_PRICE_CENTS;
+/* Non-personalized storybooks sell below the personalized tier. They carry the
+   same Lulu cost (~$15.47 delivered US: $9.03 print + $0.75 fulfillment + $5.69
+   MAIL) but have no personalization, so they're priced at $24.99 softcover
+   (~$8.50 US / ~$16 intl profit). SOFTCOVER-ONLY: their cover art is a flattened
+   PDF sized for the perfect-bound wrap (1252x630pt). A casewrap hardcover needs
+   a different, larger cover (1368x738pt, confirmed live with Lulu) that does not
+   exist for these titles, so they are never offered in hardcover. */
+export const STORYBOOK_PRICE_CENTS = TEST_DOLLAR_PRICING ? 100 : 2499; // $1 test / $24.99
+export const STORYBOOK_PRICE_DISPLAY = TEST_DOLLAR_PRICING ? "$1.00" : "$24.99";
+
+const SOFTCOVER_PRICE_OVERRIDES: Record<string, number> = {
+  "juha-and-the-enormous-pumpkin": STORYBOOK_PRICE_CENTS,
+  "maryam-is-kind-to-her-parents": STORYBOOK_PRICE_CENTS,
+};
+
+/** Book price in cents for a cover type, optionally for a specific slug.
+ *  Hardcover uses the personalized hardcover price; otherwise a slug may carry
+ *  its own softcover price (non-personalized storybooks) before the default. */
+export function bookPriceCents(coverType?: string, slug?: string): number {
+  if (coverType === "hardcover") return HARDCOVER_PRICE_CENTS;
+  if (slug && slug in SOFTCOVER_PRICE_OVERRIDES) {
+    return SOFTCOVER_PRICE_OVERRIDES[slug];
+  }
+  return BOOK_PRICE_CENTS;
+}
+
+/** Storefront display price (softcover) for a book — slug-aware. */
+export function bookPriceDisplay(slug?: string): string {
+  if (slug && slug in SOFTCOVER_PRICE_OVERRIDES) return STORYBOOK_PRICE_DISPLAY;
+  return BOOK_PRICE_DISPLAY;
 }
 
 /* Shipping model: FREE for US (baked into the book price); real-time Lulu

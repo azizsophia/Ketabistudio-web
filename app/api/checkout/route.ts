@@ -135,7 +135,7 @@ export async function POST(req: NextRequest) {
           quantity: 1,
           price_data: {
             currency: CURRENCY,
-            unit_amount: bookPriceCents(coverType),
+            unit_amount: bookPriceCents(coverType, order.book_slug),
             product_data: {
               name: bookName,
               description:

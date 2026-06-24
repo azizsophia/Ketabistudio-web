@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { VISIBLE_BOOKS, PRINT_SPEC, getBook } from "@/lib/books";
-import { BOOK_PRICE_DISPLAY } from "@/lib/pricing";
+import { bookPriceDisplay } from "@/lib/pricing";
 import OrderSection from "@/components/OrderSection";
 import DuasPreviewPlayground from "@/components/DuasPreviewPlayground";
 import FlipBook from "@/components/FlipBook";
@@ -83,7 +83,7 @@ export default async function BookPage({
                   Order now
                 </a>
                 <span className={styles.priceTag}>
-                  {personalized ? "From " : ""}{BOOK_PRICE_DISPLAY} · Free US shipping
+                  {personalized ? "From " : ""}{bookPriceDisplay(book.slug)} · Free US shipping
                 </span>
               </>
             )}

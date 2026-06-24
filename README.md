@@ -200,6 +200,25 @@ build step.
 
 ## Changelog
 
+### 2026-06-24 — Storybook pricing ($24.99, softcover-only)
+
+The two non-personalized storybooks (**Juha and the Enormous Pumpkin**,
+**Maryam is Kind to Her Parents**) now have their own price, separate from the
+$34.99 personalized tier. Added a slug-aware `bookPriceCents(coverType, slug)`
+plus `bookPriceDisplay(slug)` and a `SOFTCOVER_PRICE_OVERRIDES` map in
+`lib/pricing.ts`; checkout and the book detail page pass the slug.
+
+- **$24.99 softcover** (gated behind `TEST_DOLLAR_PRICING`; $1 in test).
+  Live cost is $15.47 delivered US ($9.03 print + $0.75 fulfillment + $5.69
+  MAIL — matched exactly by a real Lulu test print), so profit ≈ $8.50 US /
+  ~$16 intl.
+- **Softcover-only — confirmed against Lulu specs.** These titles are flattened
+  pre-made cover PDFs sized for the perfect-bound wrap (Lulu requires
+  **1252×630pt** at 32pp). A casewrap hardcover needs a different, larger cover
+  (**1368×738pt**, confirmed live) that doesn't exist for them, so hardcover is
+  intentionally not offered (they remain absent from `HARDCOVER_SLUGS`, and the
+  worker force-downgrades any stray hardcover value).
+
 ### 2026-06-24 — Hijab book copy polish; Lulu shipping audit (Gulf gated)
 
 **Beautiful Hijab book** copy cleaned: removed the two em dashes (page 18 story
