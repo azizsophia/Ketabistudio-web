@@ -36,6 +36,7 @@ SPREAD_W, SPREAD_H = BOOK["spread_px"]
 HALF = BOOK["half_split_x"]
 CREAM = (250, 245, 236); CARD = (255, 252, 245); GOLD = (184, 134, 52)
 DARK = (58, 50, 38); GRAY = (126, 116, 101); BORD = (206, 176, 120); BYL = (150, 116, 52); ACCENT = (150, 98, 30)
+TRANSLIT = (96, 82, 62)  # darker warm stone — keeps transliteration legible in print
 COVER_HERO = "page0009"
 COVER_CROP = (0.05, 0.11, 0.35, 0.93)
 
@@ -360,21 +361,31 @@ def chest_page(duas):
 
 def star_chart():
     img, d = blank()
-    ctext(d, "My Dua Star Chart", CG(86, 700), TRIM // 2, 70, GOLD)
-    ctext(d, "Colour a star each time you remember your dua!", LO(38, 500), TRIM // 2, 200, GRAY)
+    cx = TRIM // 2
+    ctext(d, "My Dua Star Chart", CG(86, 700), cx, 70, GOLD)
+    ctext(d, "Colour a star each time you remember your dua!", LO(38, 500), cx, 200, GRAY)
     labels = BOOK["star_chart_labels"]; days = ["S", "M", "T", "W", "T", "F", "S"]
-    gridL, gridR = 760, TRIM - 90; colw = (gridR - gridL) // 7
-    hdr, top = 300, 380; rh = (TRIM - top - 70) // len(labels)
+    # Rounded card holding a label column + 7 day columns. Alternating soft row
+    # tints replace hard grid rules so it reads as a premium keepsake, not a table.
+    gx0, gx1, gy0, gy1 = 96, TRIM - 96, 330, TRIM - 96
+    labw = 540
+    colw = (gx1 - (gx0 + labw)) // 7
+    hdr_h = 100
+    rh = (gy1 - (gy0 + hdr_h)) // len(labels)
+    d.rounded_rectangle([gx0, gy0, gx1, gy1], radius=44, fill=CARD, outline=BORD, width=3)
     for j, dn in enumerate(days):
-        ctext(d, dn, CG(40, 700), gridL + j * colw + colw // 2, hdr, ACCENT)
-    d.line([90, hdr + 64, TRIM - 70, hdr + 64], fill=BORD, width=2)
+        ctext(d, dn, CG(46, 700), gx0 + labw + j * colw + colw // 2,
+              gy0 + hdr_h // 2 - 28, ACCENT)
+    d.line([gx0 + 36, gy0 + hdr_h, gx1 - 36, gy0 + hdr_h], fill=BORD, width=2)
     for i, lab in enumerate(labels):
-        y = top + i * rh
-        d.text((100, y + rh // 2 - 24), lab, font=LO(34, 500), fill=DARK)
+        ry = gy0 + hdr_h + i * rh
+        if i % 2 == 0:
+            d.rounded_rectangle([gx0 + 16, ry + 6, gx1 - 16, ry + rh - 6],
+                                radius=22, fill=(250, 242, 224))
+        d.text((gx0 + 46, ry + rh // 2 - 26), lab, font=LO(36, 500), fill=DARK)
         for j in range(7):
-            star5(d, gridL + j * colw + colw // 2, y + rh // 2, 26, fill=(245, 238, 222), outline=GOLD, wd=3)
-        if i < len(labels) - 1:
-            d.line([90, y + rh - 4, TRIM - 70, y + rh - 4], fill=BORD, width=2)
+            star5(d, gx0 + labw + j * colw + colw // 2, ry + rh // 2, 28,
+                  fill=(255, 250, 238), outline=GOLD, wd=3)
     return img
 
 
@@ -484,6 +495,14 @@ def back_cover(ctx):
     y = 740
     for ln in wrap(d, blurb, fo, FULLBLEED - 760):
         ctext(d, ln, fo, cx, y, (248, 241, 226)); y += int(56 * 1.6)
+    # "what's inside" teaser — sells the contents and fills the lower space.
+    # Deep warm tones (matching the byline) so it reads on the light peach band.
+    ty = 1720
+    flourish(d, cx, ty, 200, fill=(150, 96, 44)); ty += 78
+    ls(d, "INSIDE", CG(48, 600), cx, ty, (124, 74, 38), 14); ty += 98
+    for ln in ["12 daily duas in Arabic, with easy pronunciation",
+               "a Dua Treasure Chest  ·  a keepsake star chart"]:
+        ctext(d, ln, CG(50, 500, it=True), cx, ty, (104, 62, 32)); ty += 80
     tw = ls(d, "BY KETABI STUDIO", CG(50, 600), cx, FULLBLEED - 360, (104, 62, 32), 10)
     return img
 
@@ -631,7 +650,7 @@ def text_page(sp, ctx):
         y += 100
         ctext(d, rsh, AR(s), cx, y, DARK); y += s + 70
         for ln in trlines:
-            ctext(d, ln, trf, cx, y, GRAY); y += 78
+            ctext(d, ln, trf, cx, y, TRANSLIT); y += 78
         y += 50
         for ln in mnlines:
             ctext(d, ln, mnf, cx, y, ACCENT); y += 66
@@ -640,7 +659,7 @@ def text_page(sp, ctx):
         flourish(d, cx, y, 220); y += 64
         ctext(d, vrsh, AR(vs), cx, y, DARK); y += vs + 64
         for ln in vtlines:
-            ctext(d, ln, vtf, cx, y, GRAY); y += 69
+            ctext(d, ln, vtf, cx, y, TRANSLIT); y += 69
         y += 44
         for ln in velines:
             ctext(d, ln, vef, cx, y, ACCENT); y += 63
