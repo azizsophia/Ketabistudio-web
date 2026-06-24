@@ -27,13 +27,42 @@ export function isFreeShippingCountry(countryCode: string): boolean {
   return countryCode.toUpperCase() === "US";
 }
 
-/* Greeting cards are priced "delivered" — ONE flat worldwide price that
-   includes printing + shipping (no separate shipping line). The price must
-   cover the most expensive route (US: ~$11.40 printed+shipped via Cloudprinter)
-   and still profit, while international (Prodigi: ~$3-7) profits more.
-   At $14.99: US nets ~$2-3 after fees, UK/Gulf net ~$7-11. */
-export const CARD_PRICE_CENTS = TEST_DOLLAR_PRICING ? 100 : 1499; // $1 test / $14.99 delivered worldwide
-export const CARD_PRICE_DISPLAY = TEST_DOLLAR_PRICING ? "$1.00" : "$14.99";
+/* Greeting cards: ONE flat card price worldwide (so the storefront never
+   shows two different card prices — avoids confusion), plus a shipping line
+   that differs by zone. This keeps the US route profitable (Cloudprinter
+   prints+ships ~$11.62) while letting international (Prodigi, ~$3-7 typical)
+   earn a fatter margin via its higher shipping charge.
+
+   Worked economics (live printer quotes, June 2026; Stripe ~2.9% + $0.30):
+     • US   : $12.99 card + $4.99 ship = $17.98; cost ~$11.62; fee ~$0.82
+              → profit ≈ $5.54
+     • Intl : $12.99 card + $9.99 ship = $22.98; cost ~$7 typical (worst
+              ~$13.71 Malaysia); fee ~$0.97
+              → profit ≈ $15.0 typical / ≈ $8.3 worst case
+   Same card price both zones; the margin difference lives entirely in
+   shipping, exactly as intended (higher intl margin). */
+export const CARD_PRICE_CENTS = TEST_DOLLAR_PRICING ? 100 : 1299; // $1 test / $12.99 card (same worldwide)
+export const CARD_PRICE_DISPLAY = TEST_DOLLAR_PRICING ? "$1.00" : "$12.99";
+
+/* Card shipping by zone. In test mode shipping is $0 so a test order totals
+   exactly $1 (the card price). Restore real shipping with TEST_DOLLAR_PRICING. */
+export const CARD_SHIP_US_CENTS = TEST_DOLLAR_PRICING ? 0 : 499; // $4.99 domestic
+export const CARD_SHIP_INTL_CENTS = TEST_DOLLAR_PRICING ? 0 : 999; // $9.99 international
+export const CARD_SHIP_US_DISPLAY = "$4.99";
+export const CARD_SHIP_INTL_DISPLAY = "$9.99";
+
+/** Card shipping charge in cents for a destination country. */
+export function cardShippingCents(countryCode: string): number {
+  return countryCode.toUpperCase() === "US"
+    ? CARD_SHIP_US_CENTS
+    : CARD_SHIP_INTL_CENTS;
+}
+
+export function cardShippingLabel(countryCode: string): string {
+  return countryCode.toUpperCase() === "US"
+    ? "Shipping (US)"
+    : "Shipping (International)";
+}
 
 export const SHIPPING_US_CENTS = 499; // $4.99 domestic
 export const SHIPPING_INTL_CENTS = 1499; // $14.99 international

@@ -10,7 +10,12 @@ import {
   CARD_MESSAGE_MAX,
   type CardItem,
 } from "@/lib/cards";
-import { CARD_PRICE_DISPLAY } from "@/lib/pricing";
+import {
+  CARD_PRICE_DISPLAY,
+  CARD_SHIP_US_DISPLAY,
+  CARD_SHIP_INTL_DISPLAY,
+  TEST_DOLLAR_PRICING,
+} from "@/lib/pricing";
 import styles from "./CardMaker.module.css";
 
 /* The card studio, rebuilt simple: pick a card → personalise the message →
@@ -437,8 +442,20 @@ export default function CardMaker() {
             <span>Greeting card (printed &amp; posted)</span>
             <span>{CARD_PRICE_DISPLAY}</span>
           </div>
+          {!TEST_DOLLAR_PRICING && (
+            <div className={styles.priceRow}>
+              <span>
+                Shipping ({country === "US" ? "US" : "International"})
+              </span>
+              <span>
+                {country === "US"
+                  ? CARD_SHIP_US_DISPLAY
+                  : CARD_SHIP_INTL_DISPLAY}
+              </span>
+            </div>
+          )}
           <p className={styles.priceNote}>
-            Premium matte card · printed to order · delivery included.
+            Premium matte card · printed to order · posted to your recipient.
           </p>
         </div>
 
