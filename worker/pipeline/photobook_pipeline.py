@@ -121,6 +121,18 @@ DEDICATIONS = {
                     "draw closer to Allah and to each other."),
 }
 
+# The dua each keepsake is "sealed with" — printed on the back cover. Must match
+# the category's actual dua (keepsakeDuas.json), NOT a one-size phrase.
+SEALS = {
+    "about-mama": "the dua for parents",
+    "about-baba": "the dua for parents",
+    "about-grandma": "a dua for those who raised us",
+    "about-grandpa": "a dua for those who raised us",
+    "about-spouse": "the dua for spouses",
+    "about-baby": "a dua for righteous children",
+    "our-ramadan": "a dua for your family",
+}
+
 # ── per-category accent (the single tunable that differentiates the line) ──
 # Same luxury system everywhere; only the metal/keyline colour shifts. Each:
 # (main on ivory, deep keyline, light tint for type over a dark photo).
@@ -472,15 +484,17 @@ def _front_cover(recipient, author, cover_photo, template="about-mama", crop=Non
     return base
 
 
-def _back_cover(recipient, author):
+def _back_cover(recipient, author, template="about-mama"):
     img = Image.new("RGB", (FULLBLEED, FULLBLEED), BONE)
     d = ImageDraw.Draw(img)
     cx = FULLBLEED // 2
     inset = FBM + 120
     d.rectangle([inset, inset, FULLBLEED - inset, FULLBLEED - inset],
                 outline=ACCENT_DEEP, width=2)
-    blurb = (f"Twenty things {author} loves about {recipient} — in {author}'s "
-             "own photos and words, sealed with the dua for parents.")
+    # Category-correct seal + verb-agnostic phrasing (authors can be "Mama & Baba").
+    seal = SEALS.get(template, "a heartfelt dua")
+    blurb = (f"Twenty things to treasure about {recipient} — in {author}'s "
+             f"own photos and words, sealed with {seal}.")
     fo = CG(60, 520, it=True)
     y = 1060
     for ln in wrap(d, blurb, fo, FULLBLEED - 2 * inset - 200):
@@ -508,7 +522,7 @@ def cover_wrap(recipient, author, cover_photo, cover_type="softcover",
       the first real hardcover proof; the Lulu validate-cover gate protects it.
     """
     fc = _front_cover(recipient, author, cover_photo, template, crop=cover_crop)
-    bc = _back_cover(recipient, author)
+    bc = _back_cover(recipient, author, template)
     if cover_type == "hardcover":
         from lulu_client import HARDCOVER_POD, cover_dims_to_px
         if client is None:
