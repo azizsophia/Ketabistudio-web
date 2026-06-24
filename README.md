@@ -200,6 +200,47 @@ build step.
 
 ## Changelog
 
+### 2026-06-24 — Keepsake photo-books audit; duas parked; I-Am storefront covers
+
+Pre-launch QA pass on the **keepsake photo-books** (`lib/photobook.ts`,
+`worker/pipeline/photobook_pipeline.py`) plus two storefront/gating changes.
+
+**Keepsakes — production-readiness audit (all 7 titles).** 8.5×8.5in,
+24-page hardcover casewrap, every interior page a customer photo.
+- **Lulu hardcover POD confirmed** (sandbox): `0850X0850.FC.PRE.CW.080CW444.MXX`
+  accepts 24pp → wrap **19.0×10.25in** (5700×3075px @300). The worker pulls
+  these live per order; `gate_spec` + `gate_lulu` validate every job.
+- **Cover casewrap rebuilt** so the front photo runs **right to the spine**
+  (no cream gap) with the customer's framing preserved (no scaling); turn-ins
+  filled by edge-stretch. Added a slim **deep-accent spine** carrying the title
+  top-to-bottom (US/UK convention) with **KETABI STUDIO** centred at the foot
+  (anchored, on the title's axis).
+- **Back-cover seal fixed** — was hardcoded "sealed with the dua for parents"
+  on all 7; now a per-template `SEALS` map matched to each book's actual dua
+  (spouses / righteous children / your family / those who raised us). Verb made
+  plural-safe ("Mama & Baba").
+- **Copy cleanup** — removed em dashes from all customer-facing keepsake copy
+  (storefront blurbs, spouse dedication, printed back-cover line); standardised
+  "duʿā" → "dua" in the default captions.
+- **Verified:** all 7 render 24pp at 8.75×8.75in/300dpi with the correct dua
+  (17:24, 25:74, 3:38, 2:201), correct spine title + seal, and audited captions.
+
+**Duas book parked.** `my-beautiful-duas` art is under review, so it is fully
+**hidden** via a reversible `hidden` flag in `lib/books.ts`: excluded from
+every listing (`VISIBLE_BOOKS`), its detail route 404s, and it cannot be
+ordered. Earlier interior polish (readable treasure grid, anchored dua pages,
+continuous twilight spine, cover-halo fix) is preserved in
+`worker/pipeline/duas_pipeline.py`.
+
+**I-Am storefront mini-covers** updated from the old arch mock to the cinematic
+cover (full-bleed photo + bottom title plate) on `/shop/storybooks` and the
+homepage feature, matching the live builder.
+
+`TEST_DOLLAR_PRICING` and `COMING_SOON` remain `true` (everything is $1 and the
+site is gated) until launch.
+
+---
+
 ### 2026-06-23 — "I Am [Child]" book: cinematic cover + interior polish
 
 Pre-launch QA pass on the personalized **I-Am** book (HTML-rendered via
