@@ -37,7 +37,7 @@ export default function FlipBook({
   stage = "forest",
   eyebrow,
   caption,
-  autoMs = 4400,
+  autoMs = 6000,
 }: Props) {
   const slides = [cover, ...pages.map((p) => p.src)];
   const n = slides.length;
