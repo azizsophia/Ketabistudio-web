@@ -42,8 +42,7 @@
   z-index: 0;
 }
 
-.leaf,
-.leafBack {
+.layer {
   position: absolute;
   inset: 0;
   border-radius: 14px;
@@ -51,21 +50,21 @@
   box-shadow: inset 0 0 0 2px rgba(201, 168, 76, 0.45),
     0 26px 50px -24px rgba(0, 0, 0, 0.7);
   background: #fcfbf8;
-}
-
-.leafBack {
-  z-index: 1;
-}
-
-.leaf {
-  z-index: 2;
   transform-origin: left center;
   transform: rotateY(0deg);
   opacity: 1;
   backface-visibility: hidden;
   will-change: transform, opacity;
-  transition: transform 0.92s cubic-bezier(0.42, 0.04, 0.2, 1),
-    opacity 0.92s ease-in;
+  transition: transform 1.2s cubic-bezier(0.42, 0.04, 0.2, 1),
+    opacity 1.2s ease-in;
+}
+
+.layerBottom {
+  z-index: 1;
+}
+
+.layerTop {
+  z-index: 2;
 }
 
 .flipping {
@@ -165,8 +164,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .leaf {
-    transition: opacity 0.3s ease;
+  .layer {
+    transition: opacity 0.4s ease;
   }
   .flipping {
     transform: rotateY(0deg);

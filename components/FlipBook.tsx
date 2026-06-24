@@ -1,18 +1,21 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type { TransitionEvent } from "react";
 import Image from "next/image";
 import styles from "./FlipBook.module.css";
 
 /*
   FlipBook — premium auto-playing page-turn showcase.
-  Page 0 = front cover, then the interior preview spreads. The book sits on a
-  quiet "stage" (forest for storybooks, charcoal for keepsakes) and turns its
-  own pages with a perspective flip + cast shadow, looping. Honours
-  prefers-reduced-motion (no auto-play, simple cut) and pauses on hover.
 
-  Backwards compatible: <FlipBook cover title pages /> still works; the new
-  optional props (stage, eyebrow, caption, autoMs) add the luxe treatment.
+  Two stacked layers "ping-pong": the page about to be revealed is ALWAYS
+  already painted on the lower layer, so a turn never flashes the wrong page.
+  The top layer rotates away (perspective + fade) to reveal it; the layers then
+  swap roles. The now-hidden layer silently loads the next page behind the new
+  top. Honours prefers-reduced-motion and pauses on hover.
+
+  Backwards compatible: <FlipBook cover title pages /> still works; the optional
+  stage / eyebrow / caption / autoMs props add the luxe treatment.
 */
 
 type Page = { src: string; caption?: string };
@@ -34,12 +37,16 @@ export default function FlipBook({
   stage = "forest",
   eyebrow,
   caption,
-  autoMs = 2600,
+  autoMs = 4400,
 }: Props) {
   const slides = [cover, ...pages.map((p) => p.src)];
   const n = slides.length;
 
-  const [idx, setIdx] = useState(0);
+  // a/b are the two layers; `top` is whichever is currently face-up. The lower
+  // layer always shows the NEXT page so a flip reveals a pre-painted image.
+  const [aIdx, setAIdx] = useState(0);
+  const [bIdx, setBIdx] = useState(1 % n);
+  const [top, setTop] = useState<"a" | "b">("a");
   const [flipping, setFlipping] = useState(false);
   const [paused, setPaused] = useState(false);
   const reduced = useRef(false);
@@ -50,24 +57,62 @@ export default function FlipBook({
       !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
   }, []);
 
-  // Auto-advance: trigger a flip every autoMs unless paused or reduced-motion.
   useEffect(() => {
     if (paused || reduced.current || n < 2) return;
     const t = setInterval(() => setFlipping(true), autoMs);
     return () => clearInterval(t);
   }, [paused, autoMs, n]);
 
-  const next = (idx + 1) % n;
+  const current = top === "a" ? aIdx : bIdx;
 
-  function onLeafEnd() {
-    if (!flipping) return;
-    setIdx(next);
-    setFlipping(false);
+  function onTopEnd(e: TransitionEvent) {
+    // advance once, on the transform's end only (opacity also transitions)
+    if (e.propertyName !== "transform" || !flipping) return;
+    if (top === "a") {
+      setTop("b");
+      setFlipping(false);
+      setAIdx((bIdx + 1) % n); // hidden layer pre-loads the page after next
+    } else {
+      setTop("a");
+      setFlipping(false);
+      setBIdx((aIdx + 1) % n);
+    }
   }
 
-  function jump(to: number) {
+  function jump(i: number) {
+    const t = ((i % n) + n) % n;
     setFlipping(false);
-    setIdx(((to % n) + n) % n);
+    if (top === "a") {
+      setAIdx(t);
+      setBIdx((t + 1) % n);
+    } else {
+      setBIdx(t);
+      setAIdx((t + 1) % n);
+    }
+  }
+
+  function layer(which: "a" | "b") {
+    const isTop = top === which;
+    const idx = which === "a" ? aIdx : bIdx;
+    return (
+      <div
+        className={`${styles.layer} ${isTop ? styles.layerTop : styles.layerBottom} ${
+          isTop && flipping ? styles.flipping : ""
+        }`}
+        onTransitionEnd={isTop ? onTopEnd : undefined}
+        aria-hidden={!isTop}
+      >
+        <Image
+          src={slides[idx]}
+          alt={isTop ? (idx === 0 ? `${title} cover` : `${title} — inside`) : ""}
+          width={900}
+          height={900}
+          className={styles.art}
+          priority={idx === 0}
+        />
+        <span className={styles.leafShade} aria-hidden="true" />
+      </div>
+    );
   }
 
   return (
@@ -80,34 +125,8 @@ export default function FlipBook({
       <div className={styles.stageInner}>
         <div className={styles.bookArea}>
           <span className={styles.dropShadow} aria-hidden="true" />
-          {/* page revealed beneath the turning leaf */}
-          <div className={styles.leafBack}>
-            <Image
-              src={slides[next]}
-              alt=""
-              width={900}
-              height={900}
-              className={styles.art}
-              aria-hidden="true"
-            />
-          </div>
-          {/* the turning leaf (current page) — remounts per idx so it never
-              animates backwards on reset */}
-          <div
-            key={idx}
-            className={`${styles.leaf} ${flipping ? styles.flipping : ""}`}
-            onTransitionEnd={onLeafEnd}
-          >
-            <Image
-              src={slides[idx]}
-              alt={idx === 0 ? `${title} cover` : `${title} — inside`}
-              width={900}
-              height={900}
-              className={styles.art}
-              priority={idx === 0}
-            />
-            <span className={styles.leafShade} aria-hidden="true" />
-          </div>
+          {layer("a")}
+          {layer("b")}
         </div>
 
         {(eyebrow || caption) && (
@@ -123,10 +142,10 @@ export default function FlipBook({
             <button
               key={i}
               type="button"
-              className={`${styles.dot} ${i === idx ? styles.dotActive : ""}`}
+              className={`${styles.dot} ${i === current ? styles.dotActive : ""}`}
               onClick={() => jump(i)}
               aria-label={`Go to page ${i + 1}`}
-              aria-selected={i === idx}
+              aria-selected={i === current}
               role="tab"
             />
           ))}
