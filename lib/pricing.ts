@@ -27,29 +27,29 @@ export function isFreeShippingCountry(countryCode: string): boolean {
   return countryCode.toUpperCase() === "US";
 }
 
-/* Greeting cards: ONE flat card price worldwide (so the storefront never
-   shows two different card prices — avoids confusion), plus a shipping line
-   that differs by zone. This keeps the US route profitable (Cloudprinter
-   prints+ships ~$11.62) while letting international (Prodigi, ~$3-7 typical)
-   earn a fatter margin via its higher shipping charge.
+/* Greeting cards: ONE flat card price AND ONE flat shipping price worldwide
+   (so the storefront never shows two different prices — avoids confusion).
+   International still earns the fatter margin automatically, because Prodigi
+   (~$7 delivered) is far cheaper to fulfil than US Cloudprinter (~$11.62) —
+   the margin difference comes from print cost, not from a higher shipping
+   charge, so intl shipping doesn't need to be steep.
 
    Worked economics (live printer quotes, June 2026; Stripe ~2.9% + $0.30):
      • US   : $12.99 card + $4.99 ship = $17.98; cost ~$11.62; fee ~$0.82
-              → profit ≈ $5.54
-     • Intl : $12.99 card + $9.99 ship = $22.98; cost ~$7 typical (worst
-              ~$13.71 Malaysia); fee ~$0.97
-              → profit ≈ $15.0 typical / ≈ $8.3 worst case
-   Same card price both zones; the margin difference lives entirely in
-   shipping, exactly as intended (higher intl margin). */
+              → profit ≈ $5.5
+     • Intl : $12.99 card + $4.99 ship = $17.98; cost ~$7 typical (worst
+              ~$13.71 Malaysia); fee ~$0.82
+              → profit ≈ $10.2 typical / ≈ $3.4 worst case
+   Intl nets ~2x the US at the SAME shipping price — no need to charge more. */
 export const CARD_PRICE_CENTS = TEST_DOLLAR_PRICING ? 100 : 1299; // $1 test / $12.99 card (same worldwide)
 export const CARD_PRICE_DISPLAY = TEST_DOLLAR_PRICING ? "$1.00" : "$12.99";
 
-/* Card shipping by zone. In test mode shipping is $0 so a test order totals
-   exactly $1 (the card price). Restore real shipping with TEST_DOLLAR_PRICING. */
+/* Flat card shipping, same worldwide. In test mode shipping is $0 so a test
+   order totals exactly $1 (the card price). Restore with TEST_DOLLAR_PRICING. */
 export const CARD_SHIP_US_CENTS = TEST_DOLLAR_PRICING ? 0 : 499; // $4.99 domestic
-export const CARD_SHIP_INTL_CENTS = TEST_DOLLAR_PRICING ? 0 : 999; // $9.99 international
+export const CARD_SHIP_INTL_CENTS = TEST_DOLLAR_PRICING ? 0 : 499; // $4.99 international (same)
 export const CARD_SHIP_US_DISPLAY = "$4.99";
-export const CARD_SHIP_INTL_DISPLAY = "$9.99";
+export const CARD_SHIP_INTL_DISPLAY = "$4.99";
 
 /** Card shipping charge in cents for a destination country. */
 export function cardShippingCents(countryCode: string): number {

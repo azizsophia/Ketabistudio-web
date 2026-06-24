@@ -236,6 +236,22 @@ continuous twilight spine, cover-halo fix) is preserved in
 cover (full-bleed photo + bottom title plate) on `/shop/storybooks` and the
 homepage feature, matching the live builder.
 
+**Greeting card pricing decided (live values, still gated by test mode).**
+Cards move from one flat "delivered" price to a **flat $12.99 card + flat $4.99
+shipping, same worldwide** (`lib/pricing.ts`, checkout route, `CardMaker`).
+- One card price and one shipping price everywhere → no confusing two-price
+  display. International still earns the fatter margin automatically because
+  Prodigi (~$7 delivered) is far cheaper to fulfil than US Cloudprinter
+  (~$11.62) — the gap comes from print cost, not a higher shipping charge.
+- Per-order profit off live printer quotes + Stripe fees: **US ≈ $5.5**,
+  **international ≈ $10 typical** (~$3.4 worst case, Malaysia). Every route
+  profits.
+- Considered $9.99 intl shipping (≈ $15 intl profit) but rejected as too steep
+  for a greeting card / cart-abandonment risk; $4.99 worldwide still ~2× the US
+  margin internationally.
+- All gated behind `TEST_DOLLAR_PRICING`: while `true`, card = $1 and shipping
+  = $0, so test orders total exactly $1. Flip the flag to go live at the above.
+
 `TEST_DOLLAR_PRICING` and `COMING_SOON` remain `true` (everything is $1 and the
 site is gated) until launch.
 
