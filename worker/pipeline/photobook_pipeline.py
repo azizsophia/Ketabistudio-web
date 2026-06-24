@@ -516,14 +516,13 @@ def _spine_text(wrap, sp_l, sp_r, recipient, author, template):
     fs = max(22, min(32, W - 38))
     strip = Image.new("RGBA", (H, W), (0, 0, 0, 0))
     sd = ImageDraw.Draw(strip)
-    f = PF(fs, 600)
-    tw = sd.textlength(title, font=f)
-    sd.text(((H - tw) / 2, (W - fs) / 2 - 4), title, font=f, fill=(247, 242, 234))
+    mid = W / 2  # the spine-width centre line — title + studio mark share it
+    # title: centred along the spine length AND across its width
+    sd.text((H / 2, mid), title, font=PF(fs, 600), fill=(247, 242, 234), anchor="mm")
+    # studio mark: at the foot, on the same centre axis
     sf = PF(max(15, fs - 9), 600)
-    sm = "KETABI STUDIO"
-    smw = sd.textlength(sm, font=sf)
-    sd.text((H - int(H * 0.06) - smw, (W - (fs - 9)) / 2 - 1), sm, font=sf,
-            fill=(238, 228, 206))
+    sd.text((H - int(H * 0.05), mid), "KETABI STUDIO", font=sf,
+            fill=(238, 228, 206), anchor="rm")
     rot = strip.rotate(270, expand=True)   # title reads top-to-bottom (US/UK spine)
     wrap.paste(rot, (sp_l, 0), rot)
 
