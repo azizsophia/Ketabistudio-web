@@ -200,6 +200,22 @@ build step.
 
 ## Changelog
 
+### 2026-06-24 — Removed Hifz and Rugs product lines
+
+Both were dropped as product directions. Fully removed from the codebase:
+- **Hifz** (Quran-memorization subscription): `app/hifz/*`, `app/api/hifz/*`,
+  `lib/hifz/*`, `lib/quran.ts`, the Supabase auth client (`lib/supabase/*`,
+  `app/auth/*` — only the hifz login used it), the `HIFZ_*` price constants in
+  `lib/pricing.ts`, and the subscription branch of the Stripe webhook
+  (`app/api/stripe-webhook/route.ts` is now book/card one-time orders only).
+- **Rugs** (Hopscotch Rug): `app/rugs/*`, `components/RugStudio.*`,
+  `components/HopscotchRug.tsx`, and the now-unused Fredoka font in `layout.tsx`.
+
+Neither was linked from navigation, so storefront IA is unchanged. The "Reflect"
+world on the homepage still points at the **mobile app** (`/app`), and all
+Quran/film brand copy is untouched (it refers to the app + short films, not the
+removed web subscription). Build + typecheck clean after removal.
+
 ### 2026-06-24 — Storybook pricing ($24.99, softcover-only)
 
 The two non-personalized storybooks (**Juha and the Enormous Pumpkin**,

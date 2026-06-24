@@ -5,7 +5,6 @@ import {
   Amiri,
   Cormorant,
   Playfair_Display,
-  Fredoka,
   Baloo_Bhaijaan_2,
 } from "next/font/google";
 import "./globals.css";
@@ -49,12 +48,6 @@ const playfair = Playfair_Display({
   variable: "--font-playfair",
 });
 
-/* Playful display + Arabic for the children's hopscotch rug art. */
-const fredoka = Fredoka({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-fredoka",
-});
 const baloo = Baloo_Bhaijaan_2({
   subsets: ["arabic", "latin"],
   weight: ["600", "700", "800"],
@@ -85,7 +78,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${fraunces.variable} ${jakarta.variable} ${amiri.variable} ${cormorant.variable} ${playfair.variable} ${fredoka.variable} ${baloo.variable}`}
+        className={`${fraunces.variable} ${jakarta.variable} ${amiri.variable} ${cormorant.variable} ${playfair.variable} ${baloo.variable}`}
       >
         <Splash />
         <Header />
