@@ -130,10 +130,12 @@ def _shadowed_type(cover, draw_fns):
     td = ImageDraw.Draw(txt)
     for fn in draw_fns:
         fn(td)
-    halo = txt.split()[3].filter(ImageFilter.GaussianBlur(9))
+    halo = txt.split()[3].filter(ImageFilter.GaussianBlur(12))
     shadow = Image.new("RGBA", cover.size, (8, 6, 4, 0))
     shadow.putalpha(halo)
     base = cover.convert("RGBA")
+    # three passes so even the small gold eyebrow holds up over a near-white photo
+    base.alpha_composite(shadow)
     base.alpha_composite(shadow)
     base.alpha_composite(shadow)
     base.alpha_composite(txt)
