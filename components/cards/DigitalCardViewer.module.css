@@ -175,15 +175,17 @@
   justify-content: flex-end;
   gap: 10px;
   padding-bottom: 30px;
+  /* guarantees legibility over any photo, however bright */
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.55), 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 .coverHasPhoto .coverEyebrow {
-  color: rgba(255, 248, 235, 0.85);
+  color: rgba(255, 248, 235, 0.9);
 }
 .coverHasPhoto .coverName {
   color: #fff;
 }
 .coverHasPhoto .coverHint {
-  color: rgba(255, 248, 235, 0.82);
+  color: rgba(255, 248, 235, 0.85);
 }
 .coverMotif {
   width: 30px;
