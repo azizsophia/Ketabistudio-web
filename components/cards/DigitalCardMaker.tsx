@@ -12,7 +12,14 @@ import {
   type CardItem,
 } from "@/lib/cards";
 import { DIGITAL_CARD_PRICE_DISPLAY } from "@/lib/pricing";
-import { CardFront, CardInside } from "./CardArt";
+import { CardInside } from "./CardArt";
+import { Emblem } from "./DigitalCardViewer";
+import {
+  MOTIFS,
+  SCHEMES,
+  defaultMotif,
+  schemeStyle,
+} from "@/lib/digitalCard";
 import styles from "./DigitalCardMaker.module.css";
 
 /* The digital card studio: pick a card → personalise → choose how to deliver
@@ -34,6 +41,8 @@ export default function DigitalCardMaker() {
   const [message, setMessage] = useState("");
   const [sender, setSender] = useState("");
   const [accent, setAccent] = useState("");
+  const [theme, setTheme] = useState("crescent");
+  const [scheme, setScheme] = useState("midnight");
 
   const [photoUrl, setPhotoUrl] = useState("");
   const [photoBusy, setPhotoBusy] = useState(false);
@@ -50,6 +59,7 @@ export default function DigitalCardMaker() {
     setItemId(id);
     setMessage(findCard(id).msg); // start from the suggestion; fully editable
     setAccent(cardColors(id)[0].hex);
+    setTheme(defaultMotif(id)); // a fitting motif to start from
     setPhotoUrl("");
     setPhotoWarn("");
     setStep("personalise");
@@ -118,6 +128,8 @@ export default function DigitalCardMaker() {
           sender: sender.trim(),
           recipient_name: recipient.trim(),
           accent,
+          theme,
+          scheme,
           photo_url: photoUrl || undefined,
           email: email.trim(),
           deliver_email: deliverEmail,
@@ -186,10 +198,8 @@ export default function DigitalCardMaker() {
       <section className={styles.section}>
         <div className={styles.makerGrid}>
           <aside className={styles.previewPane}>
-            <p className={styles.previewLabel}>Front</p>
-            <div className={styles.cardFrame}>
-              <CardFront card={card} accent={accent} photoUrl={photoUrl} />
-            </div>
+            <p className={styles.previewLabel}>Cover</p>
+            <CoverPreview theme={theme} scheme={scheme} recipient={recipient} />
             <p className={styles.previewLabel}>Inside</p>
             <div className={styles.cardFrame}>
               <CardInside
@@ -220,8 +230,8 @@ export default function DigitalCardMaker() {
               onChange={(e) => setRecipient(e.target.value)}
             />
             <p className={styles.hint}>
-              Appears as &ldquo;Dear &hellip;&rdquo; inside, and their initial is
-              pressed into the wax seal on the envelope.
+              Appears as the name on the cover, and as &ldquo;Dear
+              &hellip;&rdquo; inside.
             </p>
 
             <label className={styles.label} htmlFor="msg">Your message (inside)</label>
@@ -252,20 +262,39 @@ export default function DigitalCardMaker() {
               onChange={(e) => setSender(e.target.value)}
             />
 
-            <span className={styles.label}>Cover colour</span>
-            <div className={styles.swatchRow}>
-              {cardColors(card.id).map((c) => (
+            <span className={styles.label}>Design</span>
+            <div className={styles.motifRow}>
+              {MOTIFS.map((m) => (
                 <button
-                  key={c.hex}
+                  key={m.key}
+                  type="button"
+                  className={`${styles.motifBtn} ${
+                    theme === m.key ? styles.motifOn : ""
+                  }`}
+                  aria-pressed={theme === m.key}
+                  title={m.label}
+                  onClick={() => setTheme(m.key)}
+                >
+                  <Emblem theme={m.key} variant="small" />
+                  <span>{m.label}</span>
+                </button>
+              ))}
+            </div>
+
+            <span className={styles.label}>Colour</span>
+            <div className={styles.swatchRow}>
+              {SCHEMES.map((s) => (
+                <button
+                  key={s.key}
                   type="button"
                   className={`${styles.swatch} ${
-                    accent === c.hex ? styles.swatchOn : ""
+                    scheme === s.key ? styles.swatchOn : ""
                   }`}
-                  style={{ backgroundColor: c.hex }}
-                  aria-label={c.name}
-                  aria-pressed={accent === c.hex}
-                  title={c.name}
-                  onClick={() => setAccent(c.hex)}
+                  style={{ background: s.dot }}
+                  aria-label={s.label}
+                  aria-pressed={scheme === s.key}
+                  title={s.label}
+                  onClick={() => setScheme(s.key)}
                 />
               ))}
             </div>
@@ -399,6 +428,41 @@ export default function DigitalCardMaker() {
         </div>
       </div>
     </section>
+  );
+}
+
+/* A faithful static preview of the closed cover card — reflects the chosen
+   motif, colour scheme and recipient name as the buyer designs. */
+function CoverPreview({
+  theme,
+  scheme,
+  recipient,
+}: {
+  theme: string;
+  scheme: string;
+  recipient: string;
+}) {
+  const s = schemeStyle(scheme);
+  return (
+    <div
+      className={styles.coverPreview}
+      style={{ background: s.coverBg, borderColor: s.border }}
+    >
+      <span className={styles.cpMotif} style={{ color: s.gold }}>
+        <Emblem theme={theme} variant="small" />
+      </span>
+      <span className={styles.cpEyebrow} style={{ color: s.eyebrow }}>
+        A gift for you
+      </span>
+      <span className={styles.cpName} style={{ color: s.name }}>
+        {recipient.trim() || "Their name"}
+      </span>
+      <span className={styles.cpRule} style={{ background: s.rule }} />
+      <span className={styles.cpHint} style={{ color: s.hint }}>
+        <span className={styles.cpDot} style={{ background: s.gold }} />
+        Tap to open
+      </span>
+    </div>
   );
 }
 
