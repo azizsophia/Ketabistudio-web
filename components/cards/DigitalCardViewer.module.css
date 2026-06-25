@@ -90,23 +90,21 @@
   opacity: 0.14;
   pointer-events: none;
   transition: opacity 0.7s ease;
+  /* default: large, centred in the back */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: clamp(300px, 92vw, 460px);
 }
 .revealed .motif {
   opacity: 0.32;
 }
-/* moon: a big outline on the right side */
+/* moon sits as an outline off the side instead of centred */
 .motif_crescent {
-  top: 50%;
+  left: auto;
   right: -15%;
   transform: translateY(-50%);
   width: clamp(260px, 82vw, 420px);
-}
-/* arch: a big outline centred in the back */
-.motif_arch {
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: clamp(300px, 94vw, 460px);
 }
 .motifSvg {
   width: 100%;

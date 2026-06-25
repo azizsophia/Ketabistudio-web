@@ -50,7 +50,9 @@ export default function DigitalCardViewer(props: DigitalCardView) {
   const sender = props.sender.trim();
   const message = props.message.trim();
   const accent = props.accent || "#2c6e6a";
-  const theme = props.theme === "arch" ? "arch" : "crescent";
+  const theme = ["arch", "rings", "lantern", "tulip"].includes(props.theme || "")
+    ? (props.theme as string)
+    : "crescent";
   const scheme = ["plum", "forest", "light"].includes(props.scheme || "")
     ? props.scheme
     : "midnight";
@@ -149,42 +151,68 @@ export default function DigitalCardViewer(props: DigitalCardView) {
   );
 }
 
-/* Two modern Islamic motifs — moon and arch. On the cover card it's a small
-   filled gold emblem; in the background it's a large thin OUTLINE (a moon on
-   the side, an arch in the back). No star shapes of any kind. */
+/* Premium modern-Islamic motifs. On the cover card it's a small gold emblem;
+   in the background it's a large thin outline. No star shapes of any kind. */
 function Emblem({ theme, variant }: { theme: string; variant: "big" | "small" }) {
   const big = variant === "big";
   const cls = big ? styles.motifSvg : styles.coverMotif;
+  const sw = big ? 1.5 : 2; // background reads thinner, cover emblem a touch bolder
 
   if (theme === "arch") {
     return (
-      <svg className={cls} viewBox="0 0 48 54" aria-hidden="true" fill="none">
-        <g stroke="currentColor" strokeLinecap="round">
-          <path d="M8 53 V23 C8 12 15 5 24 5 C33 5 40 12 40 23 V53" strokeWidth={big ? 1.1 : 1.5} />
-          <path d="M14 53 V25 C14 16.5 18 11 24 11 C30 11 34 16.5 34 25 V53" strokeWidth={big ? 0.9 : 1.2} opacity="0.55" />
+      <svg className={cls} viewBox="0 0 48 56" aria-hidden="true" fill="none">
+        <g stroke="currentColor" strokeWidth={sw} strokeLinecap="round">
+          <circle cx="24" cy="5" r="1.7" fill="currentColor" stroke="none" />
+          <path d="M9 55 V27 C9 16 16 9 24 7 C32 9 39 16 39 27 V55" />
+          <path d="M14.5 55 V29 C14.5 20 19 14 24 12 C29 14 33.5 20 33.5 29 V55" opacity="0.5" />
         </g>
       </svg>
     );
   }
-  /* crescent moon */
-  if (big) {
-    /* big = thin outline */
+  if (theme === "rings") {
     return (
-      <svg className={cls} viewBox="0 0 48 48" aria-hidden="true" fill="none">
-        <path
-          d="M33 5 a19 19 0 1 0 0 38 a23.5 23.5 0 1 1 0 -38 Z"
-          stroke="currentColor"
-          strokeWidth="1.1"
-        />
+      <svg className={cls} viewBox="0 0 52 48" aria-hidden="true" fill="none">
+        <g stroke="currentColor" strokeWidth={sw}>
+          <circle cx="19" cy="25" r="12.5" />
+          <circle cx="33" cy="25" r="12.5" />
+        </g>
       </svg>
     );
   }
-  /* small = filled moon */
+  if (theme === "lantern") {
+    return (
+      <svg className={cls} viewBox="0 0 48 56" aria-hidden="true" fill="none">
+        <g stroke="currentColor" strokeWidth={sw} strokeLinejoin="round" strokeLinecap="round">
+          <path d="M24 4 v3.5" />
+          <ellipse cx="24" cy="9.5" rx="3" ry="1.5" />
+          <path d="M18 13 h12 l1.5 4 h-15 z" />
+          <path d="M16.5 17 h15 v22 q0 4 -3.5 5 h-8 q-3.5 -1 -3.5 -5 z" />
+          <path d="M24 17 v27" opacity="0.4" />
+          <path d="M21.5 44.5 h5 l-1.2 4 h-2.6 z" />
+        </g>
+      </svg>
+    );
+  }
+  if (theme === "tulip") {
+    return (
+      <svg className={cls} viewBox="0 0 48 56" aria-hidden="true" fill="none">
+        <g stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M24 12 C19 18 16 24 18 30 C20 34 28 34 30 30 C32 24 29 18 24 12 Z" />
+          <path d="M18 23 C16 20 14 19 12 19 C13 23 15 25 18 26" />
+          <path d="M30 23 C32 20 34 19 36 19 C35 23 33 25 30 26" />
+          <path d="M24 34 V50" />
+        </g>
+      </svg>
+    );
+  }
+  /* crescent moon — filled on the cover, a clean outline in the background */
   return (
     <svg className={cls} viewBox="0 0 48 48" aria-hidden="true" fill="none">
       <path
-        d="M33 6 a18.5 18.5 0 1 0 0 36 a23 23 0 1 1 0 -36 Z"
-        fill="currentColor"
+        d="M24 5 a19 19 0 1 0 0 38 a13 19 0 1 1 0 -38 Z"
+        fill={big ? "none" : "currentColor"}
+        stroke={big ? "currentColor" : "none"}
+        strokeWidth={big ? 1.6 : 0}
       />
     </svg>
   );
