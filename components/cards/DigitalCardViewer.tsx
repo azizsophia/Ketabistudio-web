@@ -99,6 +99,8 @@ export default function DigitalCardViewer(props: DigitalCardView) {
         {/* Envelope */}
         <div className={styles.envelope} aria-hidden={stage !== "sealed"}>
           <div className={styles.envBody} />
+          {/* patterned liner, revealed as the flap lifts */}
+          <div className={styles.envLiner} aria-hidden="true" />
           {props.recipientName.trim() && (
             <p className={styles.envName}>For {props.recipientName.trim()}</p>
           )}
@@ -110,7 +112,7 @@ export default function DigitalCardViewer(props: DigitalCardView) {
             aria-label="Open your card"
             disabled={stage !== "sealed"}
           >
-            <span className={styles.sealMark}>{sealLetter}</span>
+            <WaxSeal letter={sealLetter} />
           </button>
         </div>
 
@@ -135,6 +137,94 @@ export default function DigitalCardViewer(props: DigitalCardView) {
       {hint && <p className={styles.hint}>{hint}</p>}
       {stage === "open" && footer}
     </div>
+  );
+}
+
+/* A real wax seal: an organic (displaced) edge, matte forest-green wax, a
+   debossed gold monogram pressed into it, and a soft contact shadow. No gloss,
+   no hard ring, no glow — those are the tells of a fake/plastic seal. */
+function WaxSeal({ letter }: { letter: string }) {
+  const serif = "var(--font-playfair), Georgia, serif";
+  return (
+    <svg viewBox="0 0 120 120" className={styles.waxSvg} aria-hidden="true">
+      <defs>
+        <filter id="waxRough" x="-25%" y="-25%" width="150%" height="150%">
+          <feTurbulence
+            type="fractalNoise"
+            baseFrequency="0.018 0.022"
+            numOctaves="2"
+            seed="7"
+            result="n"
+          />
+          <feDisplacementMap
+            in="SourceGraphic"
+            in2="n"
+            scale="8"
+            xChannelSelector="R"
+            yChannelSelector="G"
+          />
+        </filter>
+        <filter id="waxDrop" x="-40%" y="-40%" width="180%" height="180%">
+          <feDropShadow
+            dx="0"
+            dy="3"
+            stdDeviation="4"
+            floodColor="#0b0f0c"
+            floodOpacity="0.5"
+          />
+        </filter>
+        <radialGradient id="waxFill" cx="40%" cy="34%" r="78%">
+          <stop offset="0%" stopColor="#3f6149" />
+          <stop offset="55%" stopColor="#2b4334" />
+          <stop offset="100%" stopColor="#192a21" />
+        </radialGradient>
+        <linearGradient id="waxGold" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#b78a3c" />
+          <stop offset="45%" stopColor="#f1d897" />
+          <stop offset="62%" stopColor="#cba24c" />
+          <stop offset="100%" stopColor="#9c7a32" />
+        </linearGradient>
+      </defs>
+
+      {/* wax body — matte, organic edge, soft contact shadow */}
+      <g filter="url(#waxDrop)">
+        <circle
+          cx="60"
+          cy="60"
+          r="40"
+          fill="url(#waxFill)"
+          filter="url(#waxRough)"
+        />
+        {/* a subtle pressed inner moat, like a stamped die */}
+        <circle
+          cx="60"
+          cy="60"
+          r="32"
+          fill="none"
+          stroke="rgba(0,0,0,0.22)"
+          strokeWidth="1.4"
+          filter="url(#waxRough)"
+        />
+      </g>
+
+      {/* debossed monogram: dark recess above, light catch below, gold on top */}
+      <g
+        style={{ fontFamily: serif }}
+        fontSize="42"
+        fontWeight={600}
+        textAnchor="middle"
+      >
+        <text x="60" y="75" fill="#16241c" opacity="0.55">
+          {letter}
+        </text>
+        <text x="60" y="76.4" fill="#f7eccb" opacity="0.28">
+          {letter}
+        </text>
+        <text x="60" y="75" fill="url(#waxGold)">
+          {letter}
+        </text>
+      </g>
+    </svg>
   );
 }
 
