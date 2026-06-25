@@ -53,10 +53,10 @@ export default async function CardViewPage({
   searchParams,
 }: {
   params: Promise<{ token: string }>;
-  searchParams: Promise<{ theme?: string }>;
+  searchParams: Promise<{ theme?: string; scheme?: string }>;
 }) {
   const { token } = await params;
-  const { theme } = await searchParams;
+  const { theme, scheme } = await searchParams;
   const card = await fetchCard(token);
 
   if (!card) {
@@ -77,5 +77,11 @@ export default async function CardViewPage({
     );
   }
 
-  return <DigitalCardViewer {...card} theme={theme || card.theme} />;
+  return (
+    <DigitalCardViewer
+      {...card}
+      theme={theme || card.theme}
+      scheme={scheme || card.scheme}
+    />
+  );
 }

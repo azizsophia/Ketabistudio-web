@@ -3,6 +3,19 @@
    in, content arriving in sequence. No envelope, no skeuomorphism. */
 
 .stage {
+  /* ── colour scheme tokens (default: midnight) ── */
+  --stageA: #1b2a4a;
+  --stageB: #141b2e;
+  --stageC: #0f1420;
+  --cover-bg: radial-gradient(120% 80% at 50% 12%, #234455 0%, #182a3e 46%, #111c2c 100%);
+  --cover-border: rgba(201, 168, 106, 0.34);
+  --name: #f4eddd;
+  --eyebrow: rgba(214, 180, 110, 0.92);
+  --hint: rgba(239, 231, 216, 0.7);
+  --rule: rgba(214, 180, 110, 0.55);
+  --gold: #d6b46e;
+  --motif: #c9a86a;
+
   position: relative;
   min-height: 100vh;
   min-height: 100dvh;
@@ -12,9 +25,36 @@
   padding: 52px 20px;
   overflow-x: hidden;
   overflow-y: auto;
-  background: linear-gradient(180deg, #1b2a4a 0%, #141b2e 58%, #0f1420 100%);
+  background: linear-gradient(180deg, var(--stageA) 0%, var(--stageB) 58%, var(--stageC) 100%);
   color: #efe7d8;
   isolation: isolate;
+}
+/* ── colour schemes ── */
+.scheme_plum {
+  --stageA: #2a1c3d;
+  --stageB: #1b1228;
+  --stageC: #120b1c;
+  --cover-bg: radial-gradient(120% 80% at 50% 12%, #4a3357 0%, #2c1d3c 46%, #180f24 100%);
+}
+.scheme_forest {
+  --stageA: #173024;
+  --stageB: #0f2018;
+  --stageC: #0a140e;
+  --cover-bg: radial-gradient(120% 80% at 50% 12%, #2d4d3b 0%, #1b3327 46%, #0e1c14 100%);
+}
+.scheme_light {
+  --stageA: #f4ecdd;
+  --stageB: #ece1cd;
+  --stageC: #e3d7be;
+  --cover-bg: linear-gradient(165deg, #fcf8ef 0%, #efe5d2 100%);
+  --cover-border: rgba(176, 142, 66, 0.42);
+  --name: #2a2a32;
+  --eyebrow: rgba(150, 118, 52, 0.95);
+  --hint: rgba(70, 64, 54, 0.66);
+  --rule: rgba(176, 142, 66, 0.5);
+  --gold: #b08e42;
+  --motif: #b08e42;
+  color: #2a2a32;
 }
 /* fine grain so the dark canvas reads crafted, not flat */
 .stage::before {
@@ -41,23 +81,37 @@
     transparent 70%
   );
 }
-/* the design motif in the night sky — fully visible, above the card */
+/* large outline motif in the background — faint behind the cover, stronger
+   once the card opens */
 .motif {
   position: absolute;
-  top: 7%;
-  left: 50%;
-  transform: translateX(-50%);
   z-index: 0;
-  width: clamp(78px, 24vw, 104px);
-  color: #c9a86a;
-  opacity: 0.62;
+  color: var(--motif);
+  opacity: 0.14;
   pointer-events: none;
+  transition: opacity 0.7s ease;
+}
+.revealed .motif {
+  opacity: 0.32;
+}
+/* moon: a big outline on the right side */
+.motif_crescent {
+  top: 50%;
+  right: -15%;
+  transform: translateY(-50%);
+  width: clamp(260px, 82vw, 420px);
+}
+/* arch: a big outline centred in the back */
+.motif_arch {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: clamp(300px, 94vw, 460px);
 }
 .motifSvg {
   width: 100%;
   height: auto;
   display: block;
-  filter: drop-shadow(0 0 18px rgba(201, 168, 106, 0.25));
 }
 
 /* ── cover: a closed card floating on the midnight stage ── */
@@ -70,13 +124,12 @@
   width: min(330px, calc(100% - 48px));
   aspect-ratio: 5 / 7;
   padding: 0;
-  border: 1px solid rgba(201, 168, 106, 0.34);
+  border: 1px solid var(--cover-border);
   border-radius: 24px;
   cursor: pointer;
   overflow: hidden;
-  color: #efe7d8;
-  /* deep jewel card with a soft sheen + warm halo */
-  background: radial-gradient(120% 80% at 50% 12%, #234455 0%, #182a3e 46%, #111c2c 100%);
+  color: var(--name);
+  background: var(--cover-bg);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4),
     0 36px 70px -22px rgba(0, 0, 0, 0.7),
     0 0 90px -26px rgba(201, 168, 106, 0.28);
@@ -103,7 +156,7 @@
 .coverMotif {
   width: 30px;
   height: 30px;
-  color: #d6b46e;
+  color: var(--gold);
   margin-bottom: 4px;
 }
 .coverEyebrow {
@@ -111,19 +164,19 @@
   font-size: 0.68rem;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: rgba(214, 180, 110, 0.92);
+  color: var(--eyebrow);
 }
 .coverName {
   font-family: var(--font-display), Georgia, serif;
   font-size: clamp(2rem, 8vw, 2.7rem);
   line-height: 1.06;
-  color: #f4eddd;
+  color: var(--name);
   max-width: 12ch;
 }
 .coverRule {
   width: 34px;
   height: 1px;
-  background: rgba(214, 180, 110, 0.55);
+  background: var(--rule);
 }
 .coverHint {
   display: inline-flex;
@@ -133,13 +186,13 @@
   font-family: var(--font-body), system-ui, sans-serif;
   font-size: 0.8rem;
   letter-spacing: 0.05em;
-  color: rgba(239, 231, 216, 0.7);
+  color: var(--hint);
 }
 .coverPulse {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #d6b46e;
+  background: var(--gold);
   box-shadow: 0 0 0 0 rgba(214, 180, 110, 0.55);
   animation: pulse 2.2s ease-out infinite;
 }
