@@ -12,7 +12,7 @@ export type DigitalCardView = {
   sender: string;
   recipientName: string;
   photoUrl?: string;
-  /** background motif design: crescent | arch */
+  /** background motif design: crescent | arch | rings | lantern */
   theme?: string;
   /** colour scheme: midnight | plum | forest | light */
   scheme?: string;
@@ -50,7 +50,7 @@ export default function DigitalCardViewer(props: DigitalCardView) {
   const sender = props.sender.trim();
   const message = props.message.trim();
   const accent = props.accent || "#2c6e6a";
-  const theme = ["arch", "rings", "lantern", "tulip"].includes(props.theme || "")
+  const theme = ["arch", "rings", "lantern"].includes(props.theme || "")
     ? (props.theme as string)
     : "crescent";
   const scheme = ["plum", "forest", "light"].includes(props.scheme || "")
@@ -189,18 +189,6 @@ function Emblem({ theme, variant }: { theme: string; variant: "big" | "small" })
           <path d="M16.5 17 h15 v22 q0 4 -3.5 5 h-8 q-3.5 -1 -3.5 -5 z" />
           <path d="M24 17 v27" opacity="0.4" />
           <path d="M21.5 44.5 h5 l-1.2 4 h-2.6 z" />
-        </g>
-      </svg>
-    );
-  }
-  if (theme === "tulip") {
-    return (
-      <svg className={cls} viewBox="0 0 48 56" aria-hidden="true" fill="none">
-        <g stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round">
-          <path d="M24 12 C19 18 16 24 18 30 C20 34 28 34 30 30 C32 24 29 18 24 12 Z" />
-          <path d="M18 23 C16 20 14 19 12 19 C13 23 15 25 18 26" />
-          <path d="M30 23 C32 20 34 19 36 19 C35 23 33 25 30 26" />
-          <path d="M24 34 V50" />
         </g>
       </svg>
     );
