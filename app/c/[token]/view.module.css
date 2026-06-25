@@ -4,9 +4,7 @@
   align-items: center;
   justify-content: center;
   padding: 48px 20px;
-  background:
-    radial-gradient(108% 64% at 50% 38%, rgba(201, 168, 76, 0.14), transparent 56%),
-    radial-gradient(140% 100% at 50% 50%, #1b211d 0%, #0e120f 55%, #070908 100%);
+  background: linear-gradient(180deg, #1b2a4a 0%, #141b2e 58%, #0f1420 100%);
 }
 .missingInner {
   max-width: 420px;
