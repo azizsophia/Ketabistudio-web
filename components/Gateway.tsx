@@ -195,6 +195,50 @@ export default function Gateway() {
         </div>
       </section>
 
+      {/* ── digital cards ── */}
+      <section className={styles.dcards}>
+        <div className={`wrap ${styles.dcardsInner}`}>
+          <div className={styles.dcardsArt}>
+            <span className={styles.dcCover}>
+              <Image
+                src="/images/digital-cards/newbaby.jpg"
+                alt="A digital New Baby card with a family photo on the cover"
+                fill
+                sizes="(max-width: 760px) 78vw, 320px"
+                className={styles.dcPhoto}
+              />
+              <span className={styles.dcScrim} aria-hidden="true" />
+              <span className={styles.dcText}>
+                <span className={styles.dcEyebrow}>A gift for you</span>
+                <span className={styles.dcName}>Teta</span>
+                <span className={styles.dcHint}>
+                  <span className={styles.dcDot} aria-hidden="true" />
+                  Tap to open
+                </span>
+              </span>
+            </span>
+            <span className={styles.dcTag}>New Baby · sealed with a dua</span>
+          </div>
+
+          <div className={styles.dcardsCopy}>
+            <p className="eyebrow">Sent in a moment</p>
+            <h2 className={styles.showcaseTitle}>
+              A card they open like a gift<span className={styles.gold}>.</span>
+            </h2>
+            <p className={`lede ${styles.showcaseLede}`}>
+              Personalize a beautiful animated card — for Eid, a nikah, a new
+              baby, or just because. Add your photo and message, and we&apos;ll
+              seal it with a dua, then deliver it by a private link, anywhere in
+              the world.
+            </p>
+            <p className={styles.dcPrice}>$3.99 · no postage, no waiting</p>
+            <Link href="/digital-cards" className="btn btn-primary">
+              Send a digital card →
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* ── the three worlds ── */}
       <section className={`wrap ${styles.worlds}`} id="worlds">
         <div className={styles.grid}>
