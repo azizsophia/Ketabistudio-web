@@ -411,3 +411,28 @@
   line-height: 1.5;
   margin: 8px 0 0;
 }
+
+/* ── made-to-order confirmation (gates checkout) ── */
+.confirm {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 2px 0 16px;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: #4a4036;
+  cursor: pointer;
+  text-align: left;
+}
+.confirm input {
+  margin-top: 3px;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  accent-color: var(--forest, #1f6b5a);
+  cursor: pointer;
+}
+.confirm a {
+  color: var(--gold-deep);
+  text-decoration: underline;
+}

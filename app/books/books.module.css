@@ -423,3 +423,15 @@
     margin-right: auto;
   }
 }
+
+/* ── keepsake section grouping (scannable, less overwhelming) ── */
+.groupHeading {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(1.25rem, 3vw, 1.7rem);
+  color: var(--forest);
+  text-align: center;
+  margin: clamp(28px, 5vw, 48px) 0 clamp(14px, 2.5vw, 22px);
+}
+.groupHeading:first-of-type {
+  margin-top: clamp(8px, 2vw, 16px);
+}

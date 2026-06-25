@@ -112,6 +112,7 @@ export default function PhotobookBuilder({
 
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [agreed, setAgreed] = useState(false);
 
   const stateRequired = STATE_REQUIRED.has(country);
   const isInternational = country !== "US";
@@ -270,6 +271,9 @@ export default function PhotobookBuilder({
     }
     if (!phone.trim()) {
       return setError("A phone number is required for delivery.");
+    }
+    if (!agreed) {
+      return setError("Please confirm you've reviewed your keepsake before we print it.");
     }
 
     setSubmitting(true);
@@ -681,6 +685,22 @@ export default function PhotobookBuilder({
           </p>
         </div>
 
+        <label className={styles.confirm}>
+          <input
+            type="checkbox"
+            checked={agreed}
+            onChange={(e) => setAgreed(e.target.checked)}
+          />
+          <span>
+            I&apos;ve reviewed my photos and captions in the live preview, and
+            understand this keepsake is personalized and printed to order. See our{" "}
+            <a href="/refund-policy" target="_blank" rel="noopener noreferrer">
+              refund policy
+            </a>
+            .
+          </span>
+        </label>
+
         {error && <p className={styles.error}>{error}</p>}
         <div className={styles.btnRow}>
           <button className="btn btn-outline" onClick={() => setStep("spreads")}>
@@ -689,7 +709,7 @@ export default function PhotobookBuilder({
           <button
             className={`btn btn-primary ${styles.nextBtn}`}
             onClick={placeOrder}
-            disabled={submitting}
+            disabled={submitting || !agreed}
           >
             {submitting ? "Starting checkout…" : "Continue to payment"}
           </button>
