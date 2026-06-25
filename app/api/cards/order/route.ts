@@ -57,6 +57,24 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Card-front recipient, custom front line, and sign-off: cap length so the
+  // print always stays within the card's safe margins (the renderer also
+  // shrinks to fit, but this keeps the input sane and matches the builder).
+  const NAME_MAX = 40;
+  const senderText = String(body.sender || "").trim();
+  const recipientText = String(body.recipient_name || "").trim();
+  const customFront = String(body.custom_front || "").trim();
+  if (
+    senderText.length > NAME_MAX ||
+    recipientText.length > NAME_MAX ||
+    customFront.length > NAME_MAX
+  ) {
+    return NextResponse.json(
+      { error: `Names and sign-off must be ${NAME_MAX} characters or fewer.` },
+      { status: 400 }
+    );
+  }
+
   /* validate email */
   const email = String(body.email || "").trim().toLowerCase();
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -111,15 +129,15 @@ export async function POST(req: NextRequest) {
     collection,
     item_id: itemId,
     accent,
-    recipient_name: String(body.recipient_name || "").trim() || null,
+    recipient_name: recipientText || null,
     show_name: !!body.show_name,
-    custom_front: String(body.custom_front || "").trim() || null,
+    custom_front: customFront || null,
     arabic_index: Number.isFinite(Number(body.arabic_index))
       ? Number(body.arabic_index)
       : 0,
     arabic_off: !!body.arabic_off,
     message: message || null,
-    sender: String(body.sender || "").trim() || null,
+    sender: senderText || null,
     photo_url: String(body.photo_url || "").trim() || null,
     paper,
     customer_email: email,
