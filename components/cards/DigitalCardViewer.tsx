@@ -63,7 +63,7 @@ export default function DigitalCardViewer(props: DigitalCardView) {
       <div className={styles.glow} aria-hidden="true" />
       <Crescent />
 
-      {/* Cover */}
+      {/* Cover — a closed card you tap to open */}
       <button
         type="button"
         className={styles.cover}
@@ -72,11 +72,16 @@ export default function DigitalCardViewer(props: DigitalCardView) {
         aria-hidden={stage !== "cover"}
         aria-label="Open your card"
       >
-        <span className={styles.coverEyebrow}>A gift for you</span>
-        {recipient && <span className={styles.coverName}>{recipient}</span>}
-        <span className={styles.coverHint}>
-          <span className={styles.coverPulse} aria-hidden="true" />
-          Tap to open
+        <span className={styles.coverShine} aria-hidden="true" />
+        <span className={styles.coverInner}>
+          <MiniCrescent />
+          <span className={styles.coverEyebrow}>A gift for you</span>
+          {recipient && <span className={styles.coverName}>{recipient}</span>}
+          <span className={styles.coverRule} aria-hidden="true" />
+          <span className={styles.coverHint}>
+            <span className={styles.coverPulse} aria-hidden="true" />
+            Tap to open
+          </span>
         </span>
       </button>
 
@@ -127,6 +132,24 @@ export default function DigitalCardViewer(props: DigitalCardView) {
       {/* keep reduced-motion users from missing the (now-skipped) cover */}
       {reduced && null}
     </div>
+  );
+}
+
+/* A small gold crescent motif for the cover card. */
+function MiniCrescent() {
+  return (
+    <svg
+      className={styles.coverMotif}
+      viewBox="0 0 48 48"
+      aria-hidden="true"
+      fill="none"
+    >
+      <path
+        d="M33 7 a18 18 0 1 0 0 34 a22 22 0 1 1 0 -34 Z"
+        fill="currentColor"
+        opacity="0.92"
+      />
+    </svg>
   );
 }
 
