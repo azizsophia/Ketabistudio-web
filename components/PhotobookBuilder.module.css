@@ -434,7 +434,6 @@
   color: var(--gold-deep);
   text-decoration: underline;
 }
-
 /* ── set progress (the 20 photo pages, done five at a time) ── */
 .progress {
   margin: 4px 0 22px;
