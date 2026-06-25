@@ -217,7 +217,7 @@ export default function Gateway() {
                 </span>
               </span>
             </span>
-            <span className={styles.dcTag}>New Baby · sealed with a dua</span>
+            <span className={styles.dcTag}>An Eid card for Teta · sealed with a dua</span>
           </div>
 
           <div className={styles.dcardsCopy}>
