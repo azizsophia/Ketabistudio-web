@@ -8,12 +8,11 @@
   gap: 26px;
   padding: 56px 20px 72px;
   overflow: hidden;
-  background: radial-gradient(
-    120% 80% at 50% 0%,
-    #34503f 0%,
-    #243a2d 48%,
-    #18271e 100%
-  );
+  /* a dark jewel-box: deep near-black with a warm gold halo behind the card,
+     so the cream envelope and the coloured card both read as luxurious. */
+  background:
+    radial-gradient(108% 64% at 50% 38%, rgba(201, 168, 76, 0.14), transparent 56%),
+    radial-gradient(140% 100% at 50% 50%, #1b211d 0%, #0e120f 55%, #070908 100%);
 }
 
 /* ── ambient gold flecks ── */
@@ -55,9 +54,11 @@
   position: absolute;
   inset: 0;
   border-radius: 12px;
-  background: linear-gradient(160deg, #2e4a3a, #1f342a);
-  box-shadow: 0 34px 80px -26px rgba(0, 0, 0, 0.75),
-    inset 0 0 0 1px rgba(214, 188, 130, 0.22);
+  /* fine cream stationery */
+  background: linear-gradient(158deg, #f4eedd 0%, #ece1c9 100%);
+  box-shadow: 0 40px 90px -28px rgba(0, 0, 0, 0.7),
+    inset 0 0 0 1px rgba(150, 120, 60, 0.18),
+    inset 0 0 60px rgba(120, 95, 45, 0.06);
 }
 .envFlap {
   position: absolute;
@@ -65,28 +66,40 @@
   right: 0;
   top: 0;
   height: 56%;
-  background: linear-gradient(160deg, #355340, #274035);
+  background: linear-gradient(158deg, #f0e7d2 0%, #e4d8bd 100%);
   clip-path: polygon(0 0, 100% 0, 50% 100%);
   transform-origin: top center;
   transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
   z-index: 4;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 3px 10px rgba(90, 70, 30, 0.14);
+}
+/* a thin gold inner keyline reads as a printed deckle on fine paper */
+.envFlap::after {
+  content: "";
+  position: absolute;
+  inset: 8px 8px auto 8px;
+  height: calc(100% - 16px);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  border-top: 1px solid rgba(176, 142, 66, 0.4);
 }
 .seal {
   position: absolute;
   left: 50%;
   top: 40%;
-  width: 66px;
-  height: 66px;
-  margin: -33px 0 0 -33px;
+  width: 68px;
+  height: 68px;
+  margin: -34px 0 0 -34px;
   border: none;
   border-radius: 50%;
   cursor: pointer;
   z-index: 5;
-  color: #5a4715;
-  background: radial-gradient(circle at 36% 30%, #efd488, #c9a84c 55%, #a4842f);
-  box-shadow: 0 8px 18px -5px rgba(0, 0, 0, 0.55),
-    inset 0 0 0 2px rgba(255, 255, 255, 0.18);
+  /* forest-green wax with a gold monogram — the brand's colours, high
+     contrast against the cream paper. */
+  background: radial-gradient(circle at 36% 30%, #3c5e49, #294135 58%, #1c2d25);
+  color: #ecd28a;
+  box-shadow: 0 10px 20px -6px rgba(0, 0, 0, 0.5),
+    inset 0 0 0 2px rgba(236, 210, 138, 0.35),
+    inset 0 2px 6px rgba(255, 255, 255, 0.12);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -98,7 +111,7 @@
   font-weight: 600;
   font-size: 1.7rem;
   line-height: 1;
-  color: #5a4715;
+  color: #ecd28a;
 }
 /* the recipient's name written on the envelope — "named mail" is the magic */
 .envName {
@@ -112,13 +125,13 @@
   text-align: center;
   font-family: var(--font-cormorant), Georgia, serif;
   font-style: italic;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   letter-spacing: 0.01em;
-  color: rgba(246, 244, 239, 0.92);
+  color: #3a4a3f;
 }
 @keyframes sealPulse {
-  0%, 100% { box-shadow: 0 8px 18px -5px rgba(0, 0, 0, 0.55), inset 0 0 0 2px rgba(255, 255, 255, 0.18), 0 0 0 0 rgba(233, 205, 131, 0.5); }
-  50% { box-shadow: 0 8px 18px -5px rgba(0, 0, 0, 0.55), inset 0 0 0 2px rgba(255, 255, 255, 0.18), 0 0 0 12px rgba(233, 205, 131, 0); }
+  0%, 100% { box-shadow: 0 10px 20px -6px rgba(0, 0, 0, 0.5), inset 0 0 0 2px rgba(236, 210, 138, 0.35), inset 0 2px 6px rgba(255, 255, 255, 0.12), 0 0 0 0 rgba(236, 210, 138, 0.5); }
+  50% { box-shadow: 0 10px 20px -6px rgba(0, 0, 0, 0.5), inset 0 0 0 2px rgba(236, 210, 138, 0.35), inset 0 2px 6px rgba(255, 255, 255, 0.12), 0 0 0 13px rgba(236, 210, 138, 0); }
 }
 
 /* envelope opens (stage left sealed) */

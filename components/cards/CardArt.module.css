@@ -20,6 +20,18 @@
 .coverSolid {
   align-items: center;
 }
+/* a soft top-light sheen gives the flat colour depth, so it reads richer */
+.coverSolid::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    120% 78% at 50% 0%,
+    rgba(255, 255, 255, 0.12),
+    rgba(255, 255, 255, 0) 58%
+  );
+  pointer-events: none;
+}
 .coverPhoto {
   align-items: flex-end;
 }
