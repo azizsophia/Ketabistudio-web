@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
+import { useMemo, useRef, useState, type ReactNode } from "react";
 import styles from "./PhotobookBuilder.module.css";
 import type { PhotobookTemplate } from "@/lib/photobook";
 import { CAPTION_MAX } from "@/lib/photobook";
@@ -23,6 +23,10 @@ const GAL_ASPECT = 1400 / 1750, GAL_MIN_PX = 1100;
    Unknown/unreadable dimensions (e.g. HEIC) -> BLOCK (we can't verify). */
 const DPI_MIN = 2000;
 const DPI_GOOD = 2625;
+
+/* The 20 photo pages are filled in sets of this many, so the step never feels
+   like one overwhelming scroll. 5 -> four tidy sets of five. */
+const PAGES_PER_CHUNK = 5;
 
 /* Countries the Lulu print network ships to (kept in sync with the API). */
 const COUNTRIES = [
@@ -79,6 +83,9 @@ export default function PhotobookBuilder({
   template: PhotobookTemplate;
 }) {
   const [step, setStep] = useState<Step>("names");
+  /* which set of 5 photo pages is showing (0-indexed) */
+  const [chunk, setChunk] = useState(0);
+  const spreadsTopRef = useRef<HTMLParagraphElement>(null);
 
   /* names + cover photo */
   const [recipient, setRecipient] = useState("");
@@ -237,8 +244,19 @@ export default function PhotobookBuilder({
         checkout with a blocked/missing photo) ── */
   const namesValid =
     !!recipient.trim() && !!author.trim() && usable(coverPhoto);
-  const spreadsValid =
-    captions.every((c) => !!c.trim()) && photos.every((p) => usable(p));
+
+  const numChunks = Math.ceil(captions.length / PAGES_PER_CHUNK);
+  const chunkStart = chunk * PAGES_PER_CHUNK;
+  const chunkEnd = Math.min(chunkStart + PAGES_PER_CHUNK, captions.length);
+  /* the set on screen is complete (gates the per-set Continue button) */
+  const chunkValid = captions
+    .slice(chunkStart, chunkEnd)
+    .every((c, k) => !!c.trim() && usable(photos[chunkStart + k]));
+  /* overall pages finished, for the progress bar */
+  const pagesReady = photos.reduce(
+    (n, p, i) => (captions[i]?.trim() && usable(p) ? n + 1 : n),
+    0
+  );
 
   /* ── step nav ── */
   function continueNames() {
@@ -246,16 +264,40 @@ export default function PhotobookBuilder({
     if (!author.trim()) return setError(`${template.authorLabel} is required.`);
     if (!usable(coverPhoto)) return setError("Please add a cover photo that meets the resolution guide.");
     setError("");
+    setChunk(0);
     setStep("spreads");
   }
 
+  function scrollSpreadsTop() {
+    spreadsTopRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  /* Validate just the set currently on screen, then advance to the next set
+     (or on to shipping once the last set is done). */
   function continueSpreads() {
-    for (let i = 0; i < captions.length; i++) {
+    const start = chunk * PAGES_PER_CHUNK;
+    const end = Math.min(start + PAGES_PER_CHUNK, captions.length);
+    for (let i = start; i < end; i++) {
       if (!captions[i].trim()) return setError(`Page ${i + 1} needs a caption.`);
       if (!usable(photos[i])) return setError(`Page ${i + 1} needs a photo that meets the resolution guide.`);
     }
     setError("");
-    setStep("shipping");
+    if (end < captions.length) {
+      setChunk(chunk + 1);
+      scrollSpreadsTop();
+    } else {
+      setStep("shipping");
+    }
+  }
+
+  function backSpreads() {
+    setError("");
+    if (chunk > 0) {
+      setChunk(chunk - 1);
+      scrollSpreadsTop();
+    } else {
+      setStep("names");
+    }
   }
 
   async function placeOrder() {
@@ -488,17 +530,37 @@ export default function PhotobookBuilder({
     return shell(
       <section className={styles.section}>
         <div className={styles.inner}>
-          <p className={styles.stepLabel}>Step 2 of 3</p>
+          <p className={styles.stepLabel} ref={spreadsTopRef}>
+            Step 2 of 3 · Set {chunk + 1} of {numChunks}
+          </p>
           <h2 className={styles.heading}>Your twenty pages</h2>
           <p className={styles.sub}>
             Each page pairs one of your photos with a line — we&apos;ve filled in
-            beautiful words for you, edit any to make it yours. It&apos;s an
-            editorial layout: some photos fill the whole page, others sit framed,
-            for rhythm. Use a wide, high-quality photo for the{" "}
+            beautiful words for you, edit any to make it yours. We&apos;ll take it
+            five pages at a time. Some photos fill the whole page, others sit
+            framed, for rhythm. Use a wide, high-quality photo for the{" "}
             <em>full-page</em> spots.
           </p>
 
-          {captions.map((cap, i) => {
+          <div className={styles.progress}>
+            <div className={styles.progressHead}>
+              <span>
+                Pages {chunkStart + 1}–{chunkEnd}
+              </span>
+              <span>
+                {pagesReady} of {captions.length} ready
+              </span>
+            </div>
+            <div className={styles.progressTrack} aria-hidden="true">
+              <span
+                className={styles.progressFill}
+                style={{ width: `${(pagesReady / captions.length) * 100}%` }}
+              />
+            </div>
+          </div>
+
+          {captions.slice(chunkStart, chunkEnd).map((cap, k) => {
+            const i = chunkStart + k;
             const fullPage = (i + 1) % 3 === 1;
             return (
             <div className={styles.spread} key={i}>
@@ -549,15 +611,15 @@ export default function PhotobookBuilder({
 
           {error && <p className={styles.error}>{error}</p>}
           <div className={styles.btnRow}>
-            <button className="btn btn-outline" onClick={() => setStep("names")}>
-              ← Back
+            <button className="btn btn-outline" onClick={backSpreads}>
+              {chunk > 0 ? "← Previous set" : "← Back"}
             </button>
             <button
               className={`btn btn-primary ${styles.nextBtn}`}
               onClick={continueSpreads}
-              disabled={!spreadsValid}
+              disabled={!chunkValid}
             >
-              Continue
+              {chunk < numChunks - 1 ? "Next set" : "Continue"}
             </button>
           </div>
         </div>

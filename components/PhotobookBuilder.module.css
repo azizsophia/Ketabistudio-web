@@ -434,3 +434,30 @@
   color: var(--gold-deep);
   text-decoration: underline;
 }
+
+/* ── set progress (the 20 photo pages, done five at a time) ── */
+.progress {
+  margin: 4px 0 22px;
+}
+.progressHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
+  color: var(--gold-deep);
+  margin-bottom: 7px;
+}
+.progressTrack {
+  height: 7px;
+  border-radius: 99px;
+  background: #ece3d2;
+  overflow: hidden;
+}
+.progressFill {
+  display: block;
+  height: 100%;
+  border-radius: 99px;
+  background: var(--forest);
+  transition: width 0.35s ease;
+}
