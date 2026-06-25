@@ -151,6 +151,40 @@
   padding: 34px 26px;
   text-align: center;
 }
+/* ── photo cover: a full-bleed photo with the name over a soft scrim ── */
+.coverPhoto {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-size: cover;
+  background-position: center;
+}
+.coverPhotoScrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    to top,
+    rgba(8, 10, 16, 0.9) 0%,
+    rgba(8, 10, 16, 0.55) 30%,
+    rgba(8, 10, 16, 0.12) 58%,
+    rgba(8, 10, 16, 0.28) 100%
+  );
+}
+.coverHasPhoto .coverInner {
+  justify-content: flex-end;
+  gap: 10px;
+  padding-bottom: 30px;
+}
+.coverHasPhoto .coverEyebrow {
+  color: rgba(255, 248, 235, 0.85);
+}
+.coverHasPhoto .coverName {
+  color: #fff;
+}
+.coverHasPhoto .coverHint {
+  color: rgba(255, 248, 235, 0.82);
+}
 .coverMotif {
   width: 30px;
   height: 30px;
@@ -272,15 +306,6 @@
 .revealed .card > *:nth-child(9) { animation-delay: 1.02s; }
 .revealed .card > *:nth-child(10) { animation-delay: 1.12s; }
 
-.photo {
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  border-radius: 16px;
-  background-size: cover;
-  background-position: center;
-  margin-bottom: 22px;
-  box-shadow: 0 10px 28px -14px rgba(0, 0, 0, 0.5);
-}
 .eyebrow {
   font-family: var(--font-body), system-ui, sans-serif;
   font-size: 0.72rem;

@@ -199,7 +199,12 @@ export default function DigitalCardMaker() {
         <div className={styles.makerGrid}>
           <aside className={styles.previewPane}>
             <p className={styles.previewLabel}>Cover</p>
-            <CoverPreview theme={theme} scheme={scheme} recipient={recipient} />
+            <CoverPreview
+              theme={theme}
+              scheme={scheme}
+              recipient={recipient}
+              photoUrl={photoUrl}
+            />
             <p className={styles.previewLabel}>Inside</p>
             <div className={styles.cardFrame}>
               <CardInside
@@ -437,30 +442,60 @@ function CoverPreview({
   theme,
   scheme,
   recipient,
+  photoUrl,
 }: {
   theme: string;
   scheme: string;
   recipient: string;
+  photoUrl: string;
 }) {
   const s = schemeStyle(scheme);
+  const hasPhoto = !!photoUrl;
   return (
     <div
-      className={styles.coverPreview}
-      style={{ background: s.coverBg, borderColor: s.border }}
+      className={`${styles.coverPreview} ${hasPhoto ? styles.cpHasPhoto : ""}`}
+      style={{
+        background: hasPhoto ? "#10131a" : s.coverBg,
+        borderColor: s.border,
+      }}
     >
-      <span className={styles.cpMotif} style={{ color: s.gold }}>
-        <Emblem theme={theme} variant="small" />
-      </span>
-      <span className={styles.cpEyebrow} style={{ color: s.eyebrow }}>
-        A gift for you
-      </span>
-      <span className={styles.cpName} style={{ color: s.name }}>
-        {recipient.trim() || "Their name"}
-      </span>
-      <span className={styles.cpRule} style={{ background: s.rule }} />
-      <span className={styles.cpHint} style={{ color: s.hint }}>
-        <span className={styles.cpDot} style={{ background: s.gold }} />
-        Tap to open
+      {hasPhoto && (
+        <>
+          <span
+            className={styles.cpPhoto}
+            style={{ backgroundImage: `url(${photoUrl})` }}
+          />
+          <span className={styles.cpScrim} />
+        </>
+      )}
+      <span className={styles.cpContent}>
+        {!hasPhoto && (
+          <span className={styles.cpMotif} style={{ color: s.gold }}>
+            <Emblem theme={theme} variant="small" />
+          </span>
+        )}
+        <span
+          className={styles.cpEyebrow}
+          style={{ color: hasPhoto ? "rgba(255,248,235,0.85)" : s.eyebrow }}
+        >
+          A gift for you
+        </span>
+        <span
+          className={styles.cpName}
+          style={{ color: hasPhoto ? "#fff" : s.name }}
+        >
+          {recipient.trim() || "Their name"}
+        </span>
+        {!hasPhoto && (
+          <span className={styles.cpRule} style={{ background: s.rule }} />
+        )}
+        <span
+          className={styles.cpHint}
+          style={{ color: hasPhoto ? "rgba(255,248,235,0.82)" : s.hint }}
+        >
+          <span className={styles.cpDot} style={{ background: s.gold }} />
+          Tap to open
+        </span>
       </span>
     </div>
   );

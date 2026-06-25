@@ -79,21 +79,34 @@ export default function DigitalCardViewer(props: DigitalCardView) {
         <Emblem theme={theme} variant="big" />
       </div>
 
-      {/* Cover — a closed card you tap to open */}
+      {/* Cover — a closed card you tap to open. With a photo it becomes a
+          full-bleed photo cover; without one, the elegant jewel card. */}
       <button
         type="button"
-        className={styles.cover}
+        className={`${styles.cover} ${props.photoUrl ? styles.coverHasPhoto : ""}`}
         onClick={reveal}
         disabled={stage !== "cover"}
         aria-hidden={stage !== "cover"}
         aria-label="Open your card"
       >
-        <span className={styles.coverShine} aria-hidden="true" />
+        {props.photoUrl ? (
+          <>
+            <span
+              className={styles.coverPhoto}
+              style={{ backgroundImage: `url(${props.photoUrl})` }}
+            />
+            <span className={styles.coverPhotoScrim} aria-hidden="true" />
+          </>
+        ) : (
+          <span className={styles.coverShine} aria-hidden="true" />
+        )}
         <span className={styles.coverInner}>
-          <Emblem theme={theme} variant="small" />
+          {!props.photoUrl && <Emblem theme={theme} variant="small" />}
           <span className={styles.coverEyebrow}>A gift for you</span>
           {recipient && <span className={styles.coverName}>{recipient}</span>}
-          <span className={styles.coverRule} aria-hidden="true" />
+          {!props.photoUrl && (
+            <span className={styles.coverRule} aria-hidden="true" />
+          )}
           <span className={styles.coverHint}>
             <span className={styles.coverPulse} aria-hidden="true" />
             Tap to open
@@ -103,14 +116,6 @@ export default function DigitalCardViewer(props: DigitalCardView) {
 
       {/* Card */}
       <article className={styles.card} aria-hidden={stage !== "revealed"}>
-        {props.photoUrl && (
-          <div
-            className={styles.photo}
-            style={{ backgroundImage: `url(${props.photoUrl})` }}
-            role="img"
-            aria-label="Your photo"
-          />
-        )}
         <p className={styles.eyebrow} style={{ color: accent }}>
           {card.eyebrow}
         </p>
