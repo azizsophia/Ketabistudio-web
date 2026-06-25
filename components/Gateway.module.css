@@ -524,3 +524,118 @@
 .showcaseItem > a {
   align-self: center;
 }
+
+/* ── digital cards showcase ── */
+.dcards {
+  padding: var(--space-section) 0;
+  background: var(--cream-2, #f4efe4);
+}
+.dcardsInner {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 36px;
+  align-items: center;
+}
+@media (min-width: 860px) {
+  .dcardsInner {
+    grid-template-columns: 320px 1fr;
+    gap: 56px;
+  }
+}
+.dcardsArt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.dcCover {
+  position: relative;
+  width: clamp(216px, 70vw, 300px);
+  aspect-ratio: 5 / 7;
+  border-radius: 22px;
+  overflow: hidden;
+  background: #16243c;
+  box-shadow: 0 34px 64px -26px rgba(20, 16, 8, 0.55),
+    0 0 0 1px rgba(201, 168, 106, 0.18);
+}
+.dcPhoto {
+  object-fit: cover;
+}
+.dcScrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(8, 10, 16, 0.9) 0%,
+    rgba(8, 10, 16, 0.5) 32%,
+    rgba(8, 10, 16, 0.1) 60%,
+    rgba(8, 10, 16, 0.25) 100%
+  );
+}
+.dcText {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 0 22px 26px;
+  text-align: center;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.55), 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+.dcEyebrow {
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: rgba(255, 248, 235, 0.9);
+}
+.dcName {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.95rem;
+  line-height: 1.05;
+  color: #fff;
+}
+.dcHint {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: 0.78rem;
+  color: rgba(255, 248, 235, 0.85);
+}
+.dcDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #d6b46e;
+}
+.dcTag {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-style: italic;
+  font-size: 0.98rem;
+  color: var(--gold-deep);
+}
+.dcardsCopy :global(.eyebrow) {
+  margin-bottom: 4px;
+}
+.dcPrice {
+  color: var(--forest);
+  font-weight: 600;
+  margin: 16px 0 20px;
+}
+@media (max-width: 859px) {
+  .dcardsCopy {
+    text-align: center;
+  }
+}
+@media (min-width: 860px) {
+  .dcardsCopy :global(.lede),
+  .dcardsCopy .showcaseLede {
+    margin-left: 0;
+    margin-right: 0;
+    max-width: 540px;
+  }
+}
