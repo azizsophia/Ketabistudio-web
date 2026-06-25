@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { findCard } from "@/lib/cards";
-import { CardFront, CardInside } from "./CardArt";
 import styles from "./DigitalCardViewer.module.css";
 
 export type DigitalCardView = {
@@ -15,158 +14,138 @@ export type DigitalCardView = {
   photoUrl?: string;
 };
 
-type Stage = "sealed" | "front" | "open";
+type Stage = "cover" | "revealed";
 
-/* The luxury motion experience. A sealed envelope rests, gold seal glinting;
-   a tap breaks the seal and the card rises out; a second tap opens it like a
-   real greeting card to reveal the message + dua inside. Respects
-   prefers-reduced-motion (renders a calm, static stacked layout instead). */
+/* A modern "Light Reveal": a calm full-screen cover that, on tap, dissolves
+   (blur + scale) while the card resolves into focus — the Arabic word, the
+   message, and the dua arriving in sequence. No envelope, no skeuomorphism.
+   Respects prefers-reduced-motion (renders the card straight away, no motion). */
 export default function DigitalCardViewer(props: DigitalCardView) {
   const card = findCard(props.itemId);
-  const [stage, setStage] = useState<Stage>("sealed");
+  const [stage, setStage] = useState<Stage>("cover");
   const [reduced, setReduced] = useState(false);
-
-  /* The wax seal carries the recipient's initial, so it feels pressed just for
-     them. Falls back to the Ketabi mark only when no name is given. */
-  const sealLetter = (() => {
-    const m = props.recipientName.trim().match(/\p{L}/u);
-    return m ? m[0].toUpperCase() : "K";
-  })();
 
   useEffect(() => {
     const m = window.matchMedia("(prefers-reduced-motion: reduce)");
     setReduced(m.matches);
+    if (m.matches) setStage("revealed");
   }, []);
 
-  const front = (
-    <CardFront card={card} accent={props.accent} photoUrl={props.photoUrl} />
-  );
-  const inside = (
-    <CardInside
-      card={card}
-      accent={props.accent}
-      message={props.message}
-      sender={props.sender}
-      recipientName={props.recipientName}
-      revealed={stage === "open"}
-    />
-  );
+  /* hero word + occasion line, from the card data */
+  const heroAr = card.group === "occasion" ? card.words[0]?.ar : card.word.ar;
+  const rawTranslit =
+    card.group === "occasion" ? card.words[0]?.translit : card.word.translit;
+  /* hide the transliteration when it just repeats the eyebrow (e.g. Eid) */
+  const heroTranslit =
+    rawTranslit && rawTranslit.toLowerCase() !== card.eyebrow.toLowerCase()
+      ? rawTranslit
+      : "";
+  const occasionEn = card.group === "occasion" ? card.en : card.headlineEn;
 
-  const footer = (
-    <p className={styles.madeBy}>
-      Sent with love ·{" "}
-      <Link href="/digital-cards" className={styles.madeByLink}>
-        Make your own card
-      </Link>
-    </p>
-  );
+  const recipient = props.recipientName.trim();
+  const sender = props.sender.trim();
+  const message = props.message.trim();
+  const accent = props.accent || "#2c6e6a";
 
-  /* Calm fallback: no envelope, no 3D — just the card front above its inside. */
-  if (reduced) {
-    return (
-      <div className={`${styles.stage} ${styles.stageStatic}`}>
-        <div className={styles.staticCard}>{front}</div>
-        <div className={styles.staticCard}>{inside}</div>
-        {footer}
-      </div>
-    );
-  }
-
-  function advance() {
-    /* A soft haptic tick at the moment of action (silently no-ops on iOS). */
+  function reveal() {
     if (typeof navigator !== "undefined" && "vibrate" in navigator) {
       try {
-        navigator.vibrate(15);
+        navigator.vibrate(8);
       } catch {
         /* ignore */
       }
     }
-    setStage((s) => (s === "sealed" ? "front" : s === "front" ? "open" : "open"));
+    setStage("revealed");
   }
-
-  const hint =
-    stage === "sealed"
-      ? "Tap to open"
-      : stage === "front"
-      ? "Tap the card to open it"
-      : "";
 
   return (
     <div className={`${styles.stage} ${styles[stage]}`}>
-      <Sparkles />
+      <div className={styles.glow} aria-hidden="true" />
+      <Crescent />
 
-      <div className={styles.scene}>
-        {/* Envelope — the whole thing is the button when sealed */}
-        <button
-          type="button"
-          className={styles.envelope}
-          onClick={advance}
-          aria-label="Open your card"
-          aria-hidden={stage !== "sealed"}
-          disabled={stage !== "sealed"}
-        >
-          <span className={styles.envBody} />
-          {/* patterned liner, revealed as the flap lifts */}
-          <span className={styles.envLiner} aria-hidden="true" />
-          <span className={styles.envFrame} aria-hidden="true" />
-          <span className={styles.envFlap} />
-          {/* a small gold foil monogram pressed into the flap */}
-          <span className={styles.flapMark} aria-hidden="true">
-            {sealLetter}
-          </span>
-          {props.recipientName.trim() && (
-            <span className={styles.envName}>For {props.recipientName.trim()}</span>
-          )}
-        </button>
+      {/* Cover */}
+      <button
+        type="button"
+        className={styles.cover}
+        onClick={reveal}
+        disabled={stage !== "cover"}
+        aria-hidden={stage !== "cover"}
+        aria-label="Open your card"
+      >
+        <span className={styles.coverEyebrow}>A gift for you</span>
+        {recipient && <span className={styles.coverName}>{recipient}</span>}
+        <span className={styles.coverHint}>
+          <span className={styles.coverPulse} aria-hidden="true" />
+          Tap to open
+        </span>
+      </button>
 
-        {/* Card */}
-        <button
-          type="button"
-          className={styles.card}
-          onClick={advance}
-          aria-label={stage === "front" ? "Open the card" : "Your card"}
-          disabled={stage === "sealed"}
-        >
-          <div className={styles.fold}>
-            <div className={styles.panelInside}>{inside}</div>
-            <div className={styles.panelCover}>
-              <div className={styles.coverFace}>{front}</div>
-              <div className={styles.coverBack} aria-hidden="true" />
-            </div>
-          </div>
-        </button>
-      </div>
+      {/* Card */}
+      <article className={styles.card} aria-hidden={stage !== "revealed"}>
+        {props.photoUrl && (
+          <div
+            className={styles.photo}
+            style={{ backgroundImage: `url(${props.photoUrl})` }}
+            role="img"
+            aria-label="Your photo"
+          />
+        )}
+        <p className={styles.eyebrow} style={{ color: accent }}>
+          {card.eyebrow}
+        </p>
+        <p className={styles.hero} lang="ar" dir="rtl">
+          {heroAr}
+        </p>
+        {heroTranslit && <p className={styles.translit}>{heroTranslit}</p>}
+        {occasionEn && <p className={styles.occasion}>{occasionEn}</p>}
 
-      {hint && <p className={styles.hint}>{hint}</p>}
-      {stage === "open" && footer}
+        <span
+          className={styles.divider}
+          style={{ background: accent }}
+          aria-hidden="true"
+        />
+
+        {recipient && <p className={styles.dear}>Dear {recipient},</p>}
+        {message && <p className={styles.message}>{message}</p>}
+
+        <div className={styles.duaWrap}>
+          <p className={styles.duaLabel} style={{ color: accent }}>
+            A dua for you
+          </p>
+          <p className={styles.dua}>{card.dua}</p>
+        </div>
+
+        {sender && <p className={styles.sender}>{sender}</p>}
+
+        <p className={styles.made}>
+          <Link href="/digital-cards" className={styles.madeLink}>
+            Make your own card
+          </Link>
+        </p>
+      </article>
+
+      {/* keep reduced-motion users from missing the (now-skipped) cover */}
+      {reduced && null}
     </div>
   );
 }
 
-/* A few drifting gold flecks for ambience. Purely decorative. */
-function Sparkles() {
-  const dots = [
-    { left: "12%", top: "22%", d: "0s", s: 1 },
-    { left: "82%", top: "18%", d: "1.4s", s: 0.7 },
-    { left: "26%", top: "74%", d: "0.8s", s: 0.9 },
-    { left: "70%", top: "68%", d: "2.1s", s: 1.1 },
-    { left: "48%", top: "12%", d: "1.1s", s: 0.6 },
-    { left: "90%", top: "48%", d: "0.4s", s: 0.8 },
-  ];
+/* A single thin mono-line crescent, bleeding off the top edge — the cultural
+   signal, used as a quiet graphic device rather than an ornate border. */
+function Crescent() {
   return (
-    <div className={styles.sparkles} aria-hidden="true">
-      {dots.map((d, i) => (
-        <span
-          key={i}
-          className={styles.sparkle}
-          style={{
-            left: d.left,
-            top: d.top,
-            animationDelay: d.d,
-            transform: `scale(${d.s})`,
-          }}
-        />
-      ))}
-    </div>
+    <svg
+      className={styles.crescent}
+      viewBox="0 0 200 200"
+      aria-hidden="true"
+      fill="none"
+    >
+      <path
+        d="M140 20 a70 70 0 1 0 0 160 a86 86 0 1 1 0 -160 Z"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        opacity="0.5"
+      />
+    </svg>
   );
 }
