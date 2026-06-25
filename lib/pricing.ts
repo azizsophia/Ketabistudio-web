@@ -91,6 +91,16 @@ export function cardShippingLabel(countryCode: string): string {
     : "Shipping (International)";
 }
 
+/* ── Digital greeting cards ──
+   A hosted, animated card delivered by a shareable link (and optionally
+   emailed to the recipient). Nothing is printed or posted, so there is no
+   print cost, no shipping, and no country gating — it sells worldwide,
+   including the Gulf where physical card shipping is unavailable. Priced as
+   an impulse buy, well below the physical card. ~100% margin minus the Stripe
+   fee. In test mode it is $1 like everything else. */
+export const DIGITAL_CARD_PRICE_CENTS = TEST_DOLLAR_PRICING ? 100 : 399; // $1 test / $3.99
+export const DIGITAL_CARD_PRICE_DISPLAY = TEST_DOLLAR_PRICING ? "$1.00" : "$3.99";
+
 export const SHIPPING_US_CENTS = 499; // $4.99 domestic
 export const SHIPPING_INTL_CENTS = 1499; // $14.99 international
 

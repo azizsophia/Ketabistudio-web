@@ -1,0 +1,39 @@
+.missing {
+  min-height: 92vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 20px;
+  background: radial-gradient(
+    120% 80% at 50% 0%,
+    #34503f 0%,
+    #243a2d 48%,
+    #18271e 100%
+  );
+}
+.missingInner {
+  max-width: 420px;
+  text-align: center;
+  color: #f6f4ef;
+}
+.missingMark {
+  color: #e9cd83;
+  font-size: 1.6rem;
+  margin: 0 0 10px;
+}
+.missingTitle {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  margin: 0 0 12px;
+}
+.missingText {
+  color: rgba(246, 244, 239, 0.78);
+  line-height: 1.6;
+  margin: 0 0 22px;
+}
+.missingCta {
+  color: #e9cd83;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-weight: 600;
+}
