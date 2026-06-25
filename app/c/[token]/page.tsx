@@ -50,17 +50,20 @@ async function fetchCard(token: string): Promise<DigitalCardView | null> {
 
 export default async function CardViewPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ token: string }>;
+  searchParams: Promise<{ theme?: string }>;
 }) {
   const { token } = await params;
+  const { theme } = await searchParams;
   const card = await fetchCard(token);
 
   if (!card) {
     return (
       <div className={styles.missing}>
         <div className={styles.missingInner}>
-          <p className={styles.missingMark}>✦</p>
+          <p className={styles.missingMark} aria-hidden="true">☾</p>
           <h1 className={styles.missingTitle}>This card isn&apos;t ready yet</h1>
           <p className={styles.missingText}>
             The link may be incomplete, or the card hasn&apos;t been sent yet.
@@ -74,5 +77,5 @@ export default async function CardViewPage({
     );
   }
 
-  return <DigitalCardViewer {...card} />;
+  return <DigitalCardViewer {...card} theme={theme || card.theme} />;
 }
