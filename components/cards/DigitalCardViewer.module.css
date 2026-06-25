@@ -49,7 +49,7 @@
   position: absolute;
   inset: 0;
   z-index: 3;
-  transition: transform 0.9s cubic-bezier(0.5, 0.1, 0.2, 1), opacity 0.7s ease;
+  transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.7s ease;
 }
 .envBody {
   position: absolute;
@@ -68,7 +68,7 @@
   background: linear-gradient(160deg, #355340, #274035);
   clip-path: polygon(0 0, 100% 0, 50% 100%);
   transform-origin: top center;
-  transition: transform 0.8s cubic-bezier(0.5, 0.1, 0.2, 1);
+  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
   z-index: 4;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
@@ -99,6 +99,22 @@
   font-size: 1.7rem;
   line-height: 1;
   color: #5a4715;
+}
+/* the recipient's name written on the envelope — "named mail" is the magic */
+.envName {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 70%;
+  z-index: 3;
+  margin: 0;
+  padding: 0 12%;
+  text-align: center;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-style: italic;
+  font-size: 1.1rem;
+  letter-spacing: 0.01em;
+  color: rgba(246, 244, 239, 0.92);
 }
 @keyframes sealPulse {
   0%, 100% { box-shadow: 0 8px 18px -5px rgba(0, 0, 0, 0.55), inset 0 0 0 2px rgba(255, 255, 255, 0.18), 0 0 0 0 rgba(233, 205, 131, 0.5); }
@@ -136,7 +152,7 @@
   cursor: default;
   transform: translateY(7%) scale(0.84);
   opacity: 0;
-  transition: transform 0.95s cubic-bezier(0.5, 0.1, 0.2, 1), opacity 0.7s ease;
+  transition: transform 0.95s cubic-bezier(0.22, 1.2, 0.36, 1), opacity 0.7s ease;
   transform-style: preserve-3d;
 }
 .front .card,
@@ -172,7 +188,7 @@
   inset: 0;
   transform-origin: left center;
   transform-style: preserve-3d;
-  transition: transform 1.2s cubic-bezier(0.45, 0.05, 0.2, 1);
+  transition: transform 1.2s cubic-bezier(0.22, 1, 0.36, 1);
   z-index: 2;
 }
 .open .panelCover {
@@ -187,7 +203,14 @@
   backface-visibility: hidden;
 }
 .coverFace {
+  box-shadow: 0 12px 28px -18px rgba(0, 0, 0, 0.6);
+  transition: box-shadow 0.7s ease;
+}
+/* the card gains weight as it rises out of the envelope */
+.front .coverFace,
+.open .coverFace {
   box-shadow: 0 34px 80px -26px rgba(0, 0, 0, 0.7);
+  transition-delay: 0.35s;
 }
 .coverBack {
   transform: rotateY(180deg);

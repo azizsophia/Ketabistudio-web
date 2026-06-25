@@ -125,3 +125,30 @@
   color: #8a8478;
   margin: 16px 0 0;
 }
+
+/* ── choreographed reveal (animated viewer only) ──
+   The lines arrive in sequence after the cover swings open: the recipient's
+   name, the message, the gold rule drawing itself, then the dua and sign-off. */
+@keyframes artFadeUp {
+  from { opacity: 0; transform: translateY(9px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes artRule {
+  from { opacity: 0; transform: scaleX(0); }
+  to { opacity: 1; transform: scaleX(1); }
+}
+.reveal .insideTo { animation: artFadeUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: 0.55s; }
+.reveal .insideMsg { animation: artFadeUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: 0.72s; }
+.reveal .insideRule { animation: artRule 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: 0.92s; transform-origin: center; }
+.reveal .insideDua { animation: artFadeUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: 1.08s; }
+.reveal .insideSender { animation: artFadeUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: 1.24s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal .insideTo,
+  .reveal .insideMsg,
+  .reveal .insideRule,
+  .reveal .insideDua,
+  .reveal .insideSender {
+    animation: none;
+  }
+}

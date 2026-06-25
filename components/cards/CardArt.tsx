@@ -56,17 +56,20 @@ export function CardInside({
   sender,
   recipientName,
   accent,
+  revealed = false,
 }: {
   card: CardItem;
   message: string;
   sender: string;
   recipientName: string;
   accent: string;
+  /* When true, the lines choreograph in (used by the animated viewer). */
+  revealed?: boolean;
 }) {
   const to = recipientName.trim();
   const msg = message.trim();
   return (
-    <div className={styles.inside}>
+    <div className={`${styles.inside} ${revealed ? styles.reveal : ""}`}>
       {to && <p className={styles.insideTo}>Dear {to},</p>}
       <p className={styles.insideMsg}>
         {msg || "Your message will appear here…"}

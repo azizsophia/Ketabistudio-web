@@ -48,6 +48,7 @@ export default function DigitalCardViewer(props: DigitalCardView) {
       message={props.message}
       sender={props.sender}
       recipientName={props.recipientName}
+      revealed={stage === "open"}
     />
   );
 
@@ -72,6 +73,14 @@ export default function DigitalCardViewer(props: DigitalCardView) {
   }
 
   function advance() {
+    /* A soft haptic tick at the moment of action (silently no-ops on iOS). */
+    if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+      try {
+        navigator.vibrate(15);
+      } catch {
+        /* ignore */
+      }
+    }
     setStage((s) => (s === "sealed" ? "front" : s === "front" ? "open" : "open"));
   }
 
@@ -90,6 +99,9 @@ export default function DigitalCardViewer(props: DigitalCardView) {
         {/* Envelope */}
         <div className={styles.envelope} aria-hidden={stage !== "sealed"}>
           <div className={styles.envBody} />
+          {props.recipientName.trim() && (
+            <p className={styles.envName}>For {props.recipientName.trim()}</p>
+          )}
           <div className={styles.envFlap} />
           <button
             type="button"
