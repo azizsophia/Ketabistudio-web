@@ -27,7 +27,7 @@ const TILES: Tile[] = [
     title: "Storybooks",
     sub: "Hand-illustrated Islamic stories: folktales, values, and books your child can star in.",
     cta: "Browse storybooks →",
-    img: "/images/book-amira.jpg",
+    img: "/images/shop/storybooks.jpg",
   },
   {
     href: "/shop/keepsakes",
@@ -35,7 +35,7 @@ const TILES: Tile[] = [
     title: "Keepsakes",
     sub: "Hardcover photo books you fill yourself, for Mama, Baba, grandparents, your spouse, a new baby, and Ramadan.",
     cta: "Browse keepsakes →",
-    img: "/images/keepsake/about-mama/cover.jpg",
+    img: "/images/shop/keepsakes.jpg",
   },
   {
     href: "/cards",
@@ -43,7 +43,7 @@ const TILES: Tile[] = [
     title: "Greeting Cards",
     sub: "Personalized Islamic cards with a vetted dua, for Eid, Nikah, a new baby, and the people you love.",
     cta: "Design a card →",
-    img: "/images/cards/eid.jpg",
+    img: "/images/shop/cards.jpg",
   },
 ];
 
