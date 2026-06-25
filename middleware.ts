@@ -19,6 +19,7 @@ const ALLOW = [
   "/terms",
   "/refund-policy",
   "/cards/print",
+  "/c", // shared digital-card links must open for recipients even pre-launch
   "/admin", // password-protected (ADMIN_KEY); always reachable for the owner
 ];
 

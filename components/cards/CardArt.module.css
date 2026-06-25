@@ -1,0 +1,166 @@
+/* Shared card art — front cover + inside. Ported from CardMaker's preview so
+   the digital card looks identical to the physical one. */
+
+.coverFront {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1464 / 2031;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+}
+.coverFront::after {
+  content: "";
+  position: absolute;
+  inset: 7% 6%;
+  border: 1px solid rgba(214, 188, 130, 0.7);
+  pointer-events: none;
+}
+.coverSolid {
+  align-items: center;
+}
+/* a soft top-light sheen gives the flat colour depth, so it reads richer */
+.coverSolid::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    120% 78% at 50% 0%,
+    rgba(255, 255, 255, 0.12),
+    rgba(255, 255, 255, 0) 58%
+  );
+  pointer-events: none;
+}
+.coverPhoto {
+  align-items: flex-end;
+}
+.photoScrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(20, 17, 14, 0.85) 0%,
+    rgba(20, 17, 14, 0.55) 30%,
+    rgba(20, 17, 14, 0) 60%
+  );
+}
+.pfType {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding: 0 12%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.coverPhoto .pfType {
+  padding-bottom: 13%;
+}
+.pfEyebrow {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 0.66rem;
+  letter-spacing: 0.34em;
+  color: #d6bc82;
+  margin-bottom: 10px;
+}
+.pfBig {
+  font-family: var(--font-arabic), serif;
+  font-size: clamp(1.8rem, 7vw, 2.4rem);
+  line-height: 1.15;
+  color: #f7f2ea;
+}
+.pfTranslit {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-style: italic;
+  font-size: 0.95rem;
+  color: #d6bc82;
+  margin-top: 4px;
+}
+.pfRule {
+  width: 46px;
+  height: 1px;
+  background: #d6bc82;
+  margin: 12px 0;
+}
+.pfLine2 {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-style: italic;
+  font-size: 1.15rem;
+  color: #f7f2ea;
+}
+
+/* ── inside ── */
+.inside {
+  width: 100%;
+  height: 100%;
+  background: #f6f1e9;
+  padding: 14% 12%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.insideTo {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.1rem;
+  color: var(--forest);
+  margin: 0 0 14px;
+  align-self: flex-start;
+}
+.insideMsg {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.15rem;
+  line-height: 1.6;
+  color: var(--ink);
+  margin: 0;
+  white-space: pre-wrap;
+}
+.insideRule {
+  width: 56px;
+  height: 1px;
+  background: var(--gold-deep);
+  margin: 18px 0;
+}
+.insideDua {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-style: italic;
+  color: var(--forest);
+  margin: 0;
+  line-height: 1.5;
+}
+.insideSender {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-style: italic;
+  color: #8a8478;
+  margin: 16px 0 0;
+}
+
+/* ── choreographed reveal (animated viewer only) ──
+   The lines arrive in sequence after the cover swings open: the recipient's
+   name, the message, the gold rule drawing itself, then the dua and sign-off. */
+@keyframes artFadeUp {
+  from { opacity: 0; transform: translateY(9px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes artRule {
+  from { opacity: 0; transform: scaleX(0); }
+  to { opacity: 1; transform: scaleX(1); }
+}
+.reveal .insideTo { animation: artFadeUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: 0.55s; }
+.reveal .insideMsg { animation: artFadeUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: 0.72s; }
+.reveal .insideRule { animation: artRule 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: 0.92s; transform-origin: center; }
+.reveal .insideDua { animation: artFadeUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: 1.08s; }
+.reveal .insideSender { animation: artFadeUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: 1.24s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal .insideTo,
+  .reveal .insideMsg,
+  .reveal .insideRule,
+  .reveal .insideDua,
+  .reveal .insideSender {
+    animation: none;
+  }
+}

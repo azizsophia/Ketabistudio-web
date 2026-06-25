@@ -1,10 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
+import { findCard } from "@/lib/cards";
 
 const SB = process.env.SUPABASE_URL?.replace(/\s/g, "").replace(/\/$/, "");
 const KEY = process.env.SUPABASE_SERVICE_KEY?.replace(/\s/g, "");
 const STRIPE_KEY = process.env.STRIPE_SECRET_KEY?.replace(/\s/g, "");
 const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET?.replace(/\s/g, "");
+const RESEND_API_KEY = process.env.RESEND_API_KEY?.replace(/\s/g, "");
+const EMAIL_FROM =
+  process.env.EMAIL_FROM?.trim() ||
+  "Ketabi Studio <orders@ketabistudio.com>";
+const SITE_URL = (
+  process.env.NEXT_PUBLIC_SITE_URL || "https://ketabistudio-web.vercel.app"
+).replace(/\/$/, "");
 
 /* Stripe needs the raw body to verify the signature, so disable parsing. */
 export const runtime = "nodejs";
@@ -84,6 +92,146 @@ async function logCardEvent(
   });
 }
 
+type DigitalCardOrder = {
+  id: string;
+  token: string;
+  item_id: string;
+  sender: string | null;
+  recipient_name: string | null;
+  deliver_email: boolean;
+  recipient_email: string | null;
+  email_sent: boolean;
+};
+
+/* PATCH a digital card order, returning the updated rows (representation), so
+   the single delivery that flips awaiting_payment → paid is the one that
+   sends the recipient email — keeping it idempotent across Stripe retries. */
+async function patchDigitalCardOrder(
+  id: string,
+  fields: Record<string, unknown>,
+  onlyIfStatus?: string
+): Promise<DigitalCardOrder[]> {
+  const guard = onlyIfStatus ? `&status=eq.${onlyIfStatus}` : "";
+  const r = await fetch(
+    `${SB}/rest/v1/digital_card_orders?id=eq.${id}${guard}`,
+    {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${KEY}`,
+        apikey: KEY!,
+        "Content-Type": "application/json",
+        Prefer: "return=representation",
+      },
+      body: JSON.stringify({ ...fields, updated_at: new Date().toISOString() }),
+    }
+  );
+  const rows = await r.json().catch(() => []);
+  return Array.isArray(rows) ? rows : [];
+}
+
+function esc(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+/* Branded email that delivers the card link to the recipient. Mirrors the
+   worker's Resend shell (forest / cream / gold). No-op if Resend is unset. */
+async function sendDigitalCardEmail(o: DigitalCardOrder): Promise<boolean> {
+  if (!RESEND_API_KEY || !o.recipient_email) return false;
+  const FOREST = "#2E4A3A", CREAM = "#F6F4EF";
+  const title = findCard(o.item_id).title;
+  const from = (o.sender || "").trim();
+  const to = (o.recipient_name || "").trim();
+  const link = `${SITE_URL}/c/${o.token}`;
+  const greeting = to ? `Dear ${esc(to)},` : "You've received a card";
+  const fromLine = from
+    ? `<p style="margin:0 0 16px;font-size:15px;line-height:1.6;">Someone is thinking of you — ${esc(
+        from
+      )} has sent you a ${esc(title)} card.</p>`
+    : `<p style="margin:0 0 16px;font-size:15px;line-height:1.6;">Someone is thinking of you and has sent you a ${esc(
+        title
+      )} card.</p>`;
+  const inner = `\
+<h1 style="margin:0 0 12px;font-size:22px;color:${FOREST};">${greeting}</h1>
+${fromLine}
+<table role="presentation" cellpadding="0" cellspacing="0" style="margin:8px 0 18px;">
+  <tr><td style="border-radius:12px;background:${FOREST};">
+    <a href="${esc(link)}" style="display:inline-block;padding:14px 30px;
+       color:${CREAM};text-decoration:none;font-weight:700;font-size:15px;">
+       Open your card &rarr;</a>
+  </td></tr>
+</table>
+<p style="margin:0;font-size:13px;color:#8a847a;line-height:1.6;">
+  Or paste this link into your browser:<br>${esc(link)}
+</p>`;
+  const shell = `<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:${CREAM};font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#2b2723;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${CREAM};padding:32px 16px;">
+<tr><td align="center"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+style="max-width:520px;background:#ffffff;border-radius:18px;overflow:hidden;border:1px solid #e7e2d8;">
+<tr><td style="background:${FOREST};padding:24px 28px;">
+<span style="color:${CREAM};font-size:20px;font-weight:700;letter-spacing:0.02em;">Ketabi Studio</span>
+</td></tr>
+<tr><td style="padding:32px 28px;">${inner}</td></tr>
+<tr><td style="padding:20px 28px;border-top:1px solid #efeae0;color:#8a847a;font-size:12px;line-height:1.6;">
+Ketabi Studio · A little something, sent with love.
+</td></tr></table></td></tr></table></body></html>`;
+
+  try {
+    const r = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${RESEND_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: EMAIL_FROM,
+        to: [o.recipient_email],
+        subject: from ? `${from} sent you a card` : "You've received a card",
+        html: shell,
+      }),
+    });
+    return r.status === 200 || r.status === 201;
+  } catch (e) {
+    console.error("digital card email error:", e);
+    return false;
+  }
+}
+
+/* Flip a paid digital card to `paid` and, if the buyer opted to email the
+   recipient, send the card link once. */
+async function releaseDigitalCard(session: Stripe.Checkout.Session) {
+  const id = session.metadata?.digitalCardOrderId;
+  if (!id || session.payment_status !== "paid") return;
+  const rows = await patchDigitalCardOrder(
+    id,
+    {
+      status: "paid",
+      notes: JSON.stringify({
+        paid: true,
+        stripe_session_id: session.id,
+        stripe_payment_intent: String(session.payment_intent || ""),
+        amount_paid_cents: session.amount_total ?? null,
+      }),
+    },
+    "awaiting_payment"
+  );
+  if (!rows.length) {
+    console.log(`[digital ${id}] duplicate paid event ignored`);
+    return;
+  }
+  const o = rows[0];
+  console.log(`[digital ${id}] paid → card live at /c/${o.token}`);
+  if (o.deliver_email && o.recipient_email && !o.email_sent) {
+    const ok = await sendDigitalCardEmail(o);
+    if (ok) await patchDigitalCardOrder(o.id, { email_sent: true });
+  }
+}
+
 export async function POST(req: NextRequest) {
   if (!SB || !KEY || !STRIPE_KEY || !WEBHOOK_SECRET) {
     return NextResponse.json({ error: "not configured" }, { status: 500 });
@@ -109,6 +257,8 @@ export async function POST(req: NextRequest) {
      the single gate that turns money into production. */
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
+
+    await releaseDigitalCard(session);
 
     const cardOrderId = session.metadata?.cardOrderId;
     if (cardOrderId && session.payment_status === "paid") {
@@ -165,6 +315,7 @@ export async function POST(req: NextRequest) {
   /* Async payment success (e.g. some intl methods settle later) */
   if (event.type === "checkout.session.async_payment_succeeded") {
     const session = event.data.object as Stripe.Checkout.Session;
+    await releaseDigitalCard(session);
     const cardOrderId = session.metadata?.cardOrderId;
     if (cardOrderId) {
       const changed = await patchCardOrder(

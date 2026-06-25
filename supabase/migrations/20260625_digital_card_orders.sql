@@ -1,0 +1,34 @@
+-- Digital greeting cards: a hosted, animated card delivered by a shareable
+-- link (and optionally emailed to the recipient). Nothing is printed, so this
+-- table is intentionally separate from card_orders — the print worker never
+-- looks at it, and there is no shipping/country gating.
+--
+-- Access is server-side only via the Supabase service key (which bypasses
+-- RLS). RLS is enabled with no public policies, so the anon/public key cannot
+-- read or write these rows. The public card viewer (/c/[token]) reads by token
+-- on the server using the service key.
+
+create table if not exists public.digital_card_orders (
+  id              uuid primary key default gen_random_uuid(),
+  token           text not null unique,        -- public link slug: /c/<token>
+  item_id         text not null,               -- which card (eid, nikah, ...)
+  accent          text,                        -- chosen cover colour (hex)
+  message         text,                        -- inside message
+  sender          text,                        -- sign-off
+  recipient_name  text,                        -- "to ___" shown on the card
+  photo_url       text,                        -- optional cover photo
+  customer_email  text not null,               -- buyer (receipt + their link)
+  deliver_email   boolean not null default false, -- email the recipient too?
+  recipient_email text,                        -- where to email the card
+  status          text not null default 'awaiting_payment',
+  email_sent      boolean not null default false, -- idempotency for the email
+  notes           jsonb,
+  created_at      timestamptz not null default now(),
+  updated_at      timestamptz not null default now()
+);
+
+create index if not exists digital_card_orders_status_idx
+  on public.digital_card_orders (status);
+
+alter table public.digital_card_orders enable row level security;
+-- No policies: only the service key (which bypasses RLS) may read/write.
