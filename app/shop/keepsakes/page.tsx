@@ -91,6 +91,36 @@ export default function KeepsakesPage() {
           );
         })}
       </section>
+
+      {/* Cross-sell: the I-Am book is also a photo keepsake (lives in Storybooks
+          as its primary home; surfaced here for discovery, not duplicated). */}
+      <section className={`wrap ${styles.crossWrap}`} aria-label="Also for your child">
+        <Link href="/books/i-am" className={styles.cross}>
+          <span className={styles.crossImg}>
+            <Image
+              src="/images/iam/cover.jpg"
+              alt="I Am — a personalized photo keepsake for your child"
+              width={520}
+              height={520}
+            />
+          </span>
+          <span className={styles.crossBody}>
+            <span className={styles.crossEyebrow}>Also a keepsake, for your child</span>
+            <span className={styles.crossTitle}>
+              Make your child the hero of every page.
+            </span>
+            <span className={styles.crossText}>
+              &ldquo;I Am ___&rdquo; is a personalized photo keepsake: twelve
+              beautiful traits in English and Arabic, with your child&rsquo;s
+              name, your own photos, and your dedication. A first keepsake
+              they&rsquo;ll grow up treasuring.
+            </span>
+            <span className={styles.crossCta}>
+              Personalize &ldquo;I Am&rdquo; <span aria-hidden="true">&rarr;</span>
+            </span>
+          </span>
+        </Link>
+      </section>
     </div>
   );
 }

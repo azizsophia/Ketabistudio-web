@@ -39,9 +39,9 @@ const TILES: Tile[] = [
   },
   {
     href: "/cards",
-    tag: "Sent for you",
+    tag: "To send with love",
     title: "Greeting Cards",
-    sub: "Personalized Islamic cards with a vetted dua, for Eid, Nikah, a new baby, and the people you love.",
+    sub: "Personalized Islamic cards, each carrying an authentic dua, for Eid, Nikah, a new baby, and everyone you love.",
     cta: "Design a card →",
     img: "/images/shop/cards.jpg",
   },
