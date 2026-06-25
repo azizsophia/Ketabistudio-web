@@ -71,6 +71,7 @@ export default function CardMaker() {
 
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [agreed, setAgreed] = useState(false);
 
   function pick(id: string) {
     setItemId(id);
@@ -132,6 +133,9 @@ export default function CardMaker() {
     }
     if (!phone.trim() || phone.replace(/\D/g, "").length < 7) {
       return setError("Please enter a phone number (the courier requires one for delivery).");
+    }
+    if (!agreed) {
+      return setError("Please confirm you've reviewed your card before we print it.");
     }
     setSubmitting(true);
     try {
@@ -459,6 +463,22 @@ export default function CardMaker() {
           </p>
         </div>
 
+        <label className={styles.confirm}>
+          <input
+            type="checkbox"
+            checked={agreed}
+            onChange={(e) => setAgreed(e.target.checked)}
+          />
+          <span>
+            I&apos;ve reviewed my message and details, and understand this card is
+            personalized and printed to order. See our{" "}
+            <a href="/refund-policy" target="_blank" rel="noopener noreferrer">
+              refund policy
+            </a>
+            .
+          </span>
+        </label>
+
         {error && <p className={styles.error}>{error}</p>}
         <div className={styles.btnRow}>
           <button className="btn btn-outline" onClick={() => setStep("personalise")}>
@@ -467,7 +487,7 @@ export default function CardMaker() {
           <button
             className={`btn btn-primary ${styles.nextBtn}`}
             onClick={placeOrder}
-            disabled={submitting}
+            disabled={submitting || !agreed}
           >
             {submitting ? "Starting checkout…" : "Continue to payment"}
           </button>

@@ -111,6 +111,7 @@ export default function OrderSection({ slug, personalized }: Props) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [orderId, setOrderId] = useState("");
+  const [agreed, setAgreed] = useState(false);
 
   const stateRequired = STATE_REQUIRED.has(country);
   const isInternational = country !== "US";
@@ -146,6 +147,14 @@ export default function OrderSection({ slug, personalized }: Props) {
     }
     if (!phone.trim()) {
       setError("A phone number is required for delivery.");
+      return;
+    }
+    if (!agreed) {
+      setError(
+        personalized
+          ? "Please confirm you've reviewed your personalization before we print it."
+          : "Please confirm you've reviewed your order before we print it."
+      );
       return;
     }
 
@@ -545,6 +554,24 @@ export default function OrderSection({ slug, personalized }: Props) {
             </p>
           </div>
 
+          <label className={styles.confirm}>
+            <input
+              type="checkbox"
+              checked={agreed}
+              onChange={(e) => setAgreed(e.target.checked)}
+            />
+            <span>
+              {personalized
+                ? "I've reviewed my personalization in the preview, and understand this book is personalized and printed to order."
+                : "I've reviewed my order, and understand this book is printed to order."}{" "}
+              See our{" "}
+              <a href="/refund-policy" target="_blank" rel="noopener noreferrer">
+                refund policy
+              </a>
+              .
+            </span>
+          </label>
+
           {error && <p className={styles.error}>{error}</p>}
 
           <div className={styles.btnRow}>
@@ -559,7 +586,7 @@ export default function OrderSection({ slug, personalized }: Props) {
             <button
               className={`btn btn-primary ${styles.nextBtn}`}
               onClick={placeOrder}
-              disabled={submitting}
+              disabled={submitting || !agreed}
             >
               {submitting ? "Starting checkout..." : "Continue to payment"}
             </button>
