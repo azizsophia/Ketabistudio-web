@@ -54,9 +54,10 @@
 .tileImg {
   display: block;
   position: relative;
-  aspect-ratio: 16 / 11;
+  aspect-ratio: 4 / 3;
   overflow: hidden;
-  background: var(--cream);
+  /* matches the composite tile artwork's own background, so it blends seamlessly */
+  background: linear-gradient(158deg, #f8f2e7 0%, #efe6d4 100%);
 }
 .tileImg :global(img) {
   object-fit: cover;
