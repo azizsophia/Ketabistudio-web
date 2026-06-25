@@ -54,12 +54,15 @@
 .tileImg {
   display: block;
   position: relative;
-  aspect-ratio: 16 / 11;
+  aspect-ratio: 4 / 3;
   overflow: hidden;
-  background: var(--cream);
+  background: linear-gradient(158deg, #f8f2e7 0%, #efe6d4 100%);
 }
 .tileImg :global(img) {
-  object-fit: cover;
+  object-fit: contain;
+  padding: 26px;
+  box-sizing: border-box;
+  filter: drop-shadow(0 16px 24px rgba(43, 38, 34, 0.26));
 }
 .tilePlaceholder {
   position: absolute;
