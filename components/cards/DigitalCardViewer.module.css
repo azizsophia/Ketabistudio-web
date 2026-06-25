@@ -41,15 +41,23 @@
     transparent 70%
   );
 }
-.crescent {
+/* the design motif in the night sky — fully visible, above the card */
+.motif {
   position: absolute;
-  top: -46px;
-  right: -34px;
-  width: 210px;
-  height: 210px;
+  top: 7%;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 0;
+  width: clamp(78px, 24vw, 104px);
   color: #c9a86a;
+  opacity: 0.62;
   pointer-events: none;
+}
+.motifSvg {
+  width: 100%;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 0 18px rgba(201, 168, 106, 0.25));
 }
 
 /* ── cover: a closed card floating on the midnight stage ── */
