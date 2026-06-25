@@ -121,8 +121,8 @@ const ABOUT_MAMA: PhotobookTemplate = {
   dua: D["about-mama"],
   accent: ACCENTS["about-mama"],
   blurb:
-    "A hardcover keepsake your child fills with their own photos and words: twenty things they love about Mama, sealed with the dua for parents.",
-  value: "Your own photos & words, sealed with the dua for parents",
+    "A hardcover keepsake your child fills with their own photos, each page carrying a heartfelt line written for you: twenty things to love about Mama, sealed with the dua for parents.",
+  value: "Your photos & heartfelt words, sealed with the dua for parents",
 };
 
 const ABOUT_BABA: PhotobookTemplate = {
@@ -160,8 +160,8 @@ const ABOUT_BABA: PhotobookTemplate = {
   dua: D["about-baba"],
   accent: ACCENTS["about-baba"],
   blurb:
-    "A hardcover keepsake your child fills with their own photos and words: twenty things they love about Baba, sealed with the dua for parents.",
-  value: "Your own photos & words, sealed with the dua for parents",
+    "A hardcover keepsake your child fills with their own photos, each page carrying a heartfelt line written for you: twenty things to love about Baba, sealed with the dua for parents.",
+  value: "Your photos & heartfelt words, sealed with the dua for parents",
 };
 
 const ABOUT_GRANDMA: PhotobookTemplate = {
@@ -199,8 +199,8 @@ const ABOUT_GRANDMA: PhotobookTemplate = {
   dua: D["about-grandma"],
   accent: ACCENTS["about-grandma"],
   blurb:
-    "A hardcover keepsake filled with your own photos and words: twenty things you love about Grandma, sealed with a dua for those who raised us.",
-  value: "Your photos & words, sealed with a dua for those who raised us",
+    "A hardcover keepsake filled with your own photos, each page carrying a heartfelt line written for you: twenty things to love about Grandma, sealed with a dua for those who raised us.",
+  value: "Your photos & heartfelt words, sealed with a dua for those who raised us",
 };
 
 const ABOUT_GRANDPA: PhotobookTemplate = {
@@ -238,8 +238,8 @@ const ABOUT_GRANDPA: PhotobookTemplate = {
   dua: D["about-grandpa"],
   accent: ACCENTS["about-grandpa"],
   blurb:
-    "A hardcover keepsake filled with your own photos and words: twenty things you love about Grandpa, sealed with a dua for those who raised us.",
-  value: "Your photos & words, sealed with a dua for those who raised us",
+    "A hardcover keepsake filled with your own photos, each page carrying a heartfelt line written for you: twenty things to love about Grandpa, sealed with a dua for those who raised us.",
+  value: "Your photos & heartfelt words, sealed with a dua for those who raised us",
 };
 
 const ABOUT_SPOUSE: PhotobookTemplate = {
