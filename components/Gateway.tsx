@@ -185,7 +185,7 @@ export default function Gateway() {
                 ]}
                 stage="charcoal"
                 eyebrow="A hardcover keepsake"
-                caption="Your own photos and words, sealed with a dua"
+                caption="Your photos, words written for you, sealed with a dua"
               />
               <Link href="/shop/keepsakes" className="btn btn-primary">
                 Explore keepsakes

@@ -158,9 +158,9 @@ export default function ComingSoon() {
 
         <p className={styles.peekSub}>Photo keepsakes</p>
         <p className={styles.tourIntro}>
-          Hardcover books you fill with your own photos and words, for Mama,
-          Baba, grandparents, your spouse, a new baby, and Ramadan. Sealed with
-          the dua for parents.
+          Hardcover books you fill with your own photos, each page with a
+          heartfelt line written for you, for Mama, Baba, grandparents, your
+          spouse, a new baby, and Ramadan. Sealed with a dua.
         </p>
 
         <p className={styles.peekSub}>Greeting cards</p>

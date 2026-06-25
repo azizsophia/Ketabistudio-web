@@ -31,9 +31,9 @@ const TILES: Tile[] = [
   },
   {
     href: "/shop/keepsakes",
-    tag: "Your photos and words",
+    tag: "Your photos, heartfelt words",
     title: "Keepsakes",
-    sub: "Hardcover photo books you fill yourself, for Mama, Baba, grandparents, your spouse, a new baby, and Ramadan.",
+    sub: "Hardcover photo books you fill with your own photos. Every caption comes lovingly written, yours to keep or make your own, for Mama, Baba, grandparents, your spouse, a new baby, and Ramadan.",
     cta: "Browse keepsakes →",
     img: "/images/shop/keepsakes.jpg",
   },
