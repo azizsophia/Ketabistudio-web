@@ -153,7 +153,7 @@ export default function DigitalCardViewer(props: DigitalCardView) {
 
 /* Premium modern-Islamic motifs. On the cover card it's a small gold emblem;
    in the background it's a large thin outline. No star shapes of any kind. */
-function Emblem({ theme, variant }: { theme: string; variant: "big" | "small" }) {
+export function Emblem({ theme, variant }: { theme: string; variant: "big" | "small" }) {
   const big = variant === "big";
   const cls = big ? styles.motifSvg : styles.coverMotif;
   const sw = big ? 1.5 : 2; // background reads thinner, cover emblem a touch bolder

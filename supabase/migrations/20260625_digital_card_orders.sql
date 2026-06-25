@@ -12,7 +12,9 @@ create table if not exists public.digital_card_orders (
   id              uuid primary key default gen_random_uuid(),
   token           text not null unique,        -- public link slug: /c/<token>
   item_id         text not null,               -- which card (eid, nikah, ...)
-  accent          text,                        -- chosen cover colour (hex)
+  accent          text,                        -- inside accent colour (hex)
+  theme           text not null default 'crescent', -- motif: crescent|arch|rings|lantern|rose
+  scheme          text not null default 'midnight', -- colour: midnight|plum|forest|light
   message         text,                        -- inside message
   sender          text,                        -- sign-off
   recipient_name  text,                        -- "to ___" shown on the card
@@ -29,6 +31,12 @@ create table if not exists public.digital_card_orders (
 
 create index if not exists digital_card_orders_status_idx
   on public.digital_card_orders (status);
+
+-- Safe to re-run: add design columns if an earlier version of this table exists.
+alter table public.digital_card_orders
+  add column if not exists theme  text not null default 'crescent';
+alter table public.digital_card_orders
+  add column if not exists scheme text not null default 'midnight';
 
 alter table public.digital_card_orders enable row level security;
 -- No policies: only the service key (which bypasses RLS) may read/write.

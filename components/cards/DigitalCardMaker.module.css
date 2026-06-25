@@ -293,3 +293,91 @@
 .nextBtn {
   min-width: 200px;
 }
+
+/* ── motif (design) picker ── */
+.motifRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+}
+.motifBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  width: 66px;
+  padding: 10px 6px 8px;
+  border: 1px solid #d9d1bf;
+  border-radius: 12px;
+  background: #fffdf9;
+  color: var(--gold-deep);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.72rem;
+  transition: border-color 0.14s, box-shadow 0.14s;
+}
+.motifBtn svg {
+  width: 26px;
+  height: 26px;
+}
+.motifBtn:hover {
+  border-color: var(--gold);
+}
+.motifOn {
+  border-color: var(--gold-deep);
+  box-shadow: 0 0 0 2px rgba(184, 134, 43, 0.18);
+}
+
+/* ── cover preview (modern, scheme-aware) ── */
+.coverPreview {
+  width: 100%;
+  aspect-ratio: 5 / 7;
+  border: 1px solid;
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 24px 18px;
+  text-align: center;
+  box-shadow: 0 16px 38px -20px rgba(43, 38, 34, 0.55);
+}
+.cpMotif {
+  display: inline-flex;
+}
+.cpMotif svg {
+  width: 28px;
+  height: 28px;
+}
+.cpEyebrow {
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+}
+.cpName {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(1.4rem, 5vw, 1.95rem);
+  line-height: 1.05;
+  max-width: 12ch;
+}
+.cpRule {
+  width: 28px;
+  height: 1px;
+}
+.cpHint {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  margin-top: 4px;
+}
+.cpDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}

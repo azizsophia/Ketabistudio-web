@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomBytes } from "crypto";
 import { CARD_ITEMS, CARD_MESSAGE_MAX, cardColors, findCard } from "@/lib/cards";
+import { MOTIF_KEYS, SCHEME_KEYS, defaultMotif } from "@/lib/digitalCard";
 
 export const runtime = "nodejs";
 
@@ -8,6 +9,8 @@ const SB = process.env.SUPABASE_URL?.replace(/\s/g, "").replace(/\/$/, "");
 const KEY = process.env.SUPABASE_SERVICE_KEY?.replace(/\s/g, "");
 
 const ITEM_IDS = new Set(CARD_ITEMS.map((c) => c.id));
+const MOTIF_SET = new Set(MOTIF_KEYS);
+const SCHEME_SET = new Set(SCHEME_KEYS);
 const NAME_MAX = 40;
 
 export async function POST(req: NextRequest) {
@@ -68,6 +71,12 @@ export async function POST(req: NextRequest) {
   const allowed = new Set(cardColors(itemId).map((c) => c.hex.toLowerCase()));
   const accent = allowed.has(accentRaw) ? accentRaw : findCard(itemId).color;
 
+  /* design: motif + colour scheme (validated against the allowed sets) */
+  const themeRaw = String(body.theme || "").trim();
+  const theme = MOTIF_SET.has(themeRaw) ? themeRaw : defaultMotif(itemId);
+  const schemeRaw = String(body.scheme || "").trim();
+  const scheme = SCHEME_SET.has(schemeRaw) ? schemeRaw : "midnight";
+
   /* unique, hard-to-guess public link slug */
   const token = randomBytes(16).toString("base64url");
 
@@ -75,6 +84,8 @@ export async function POST(req: NextRequest) {
     token,
     item_id: itemId,
     accent,
+    theme,
+    scheme,
     message: message || null,
     sender: sender || null,
     recipient_name: recipientName || null,
