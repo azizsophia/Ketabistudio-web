@@ -12,8 +12,10 @@ export type DigitalCardView = {
   sender: string;
   recipientName: string;
   photoUrl?: string;
-  /** background motif design: crescent | arch | lantern | arabesque */
+  /** background motif design: crescent | arch */
   theme?: string;
+  /** colour scheme: midnight | plum | forest | light */
+  scheme?: string;
 };
 
 type Stage = "cover" | "revealed";
@@ -48,7 +50,10 @@ export default function DigitalCardViewer(props: DigitalCardView) {
   const sender = props.sender.trim();
   const message = props.message.trim();
   const accent = props.accent || "#2c6e6a";
-  const theme = props.theme || "crescent";
+  const theme = props.theme === "arch" ? "arch" : "crescent";
+  const scheme = ["plum", "forest", "light"].includes(props.scheme || "")
+    ? props.scheme
+    : "midnight";
 
   function reveal() {
     if (typeof navigator !== "undefined" && "vibrate" in navigator) {
@@ -62,9 +67,13 @@ export default function DigitalCardViewer(props: DigitalCardView) {
   }
 
   return (
-    <div className={`${styles.stage} ${styles[stage]}`}>
+    <div
+      className={`${styles.stage} ${styles[stage]} ${styles[`scheme_${scheme}`]}`}
+    >
       <div className={styles.glow} aria-hidden="true" />
-      <div className={styles.motif}>
+      {/* large outline motif in the background — a moon on the side, an arch
+          in the back. Faint behind the cover, stronger once opened. */}
+      <div className={`${styles.motif} ${styles[`motif_${theme}`]}`}>
         <Emblem theme={theme} variant="big" />
       </div>
 
@@ -140,50 +149,37 @@ export default function DigitalCardViewer(props: DigitalCardView) {
   );
 }
 
-/* Modern Islamic motifs — line-art emblems used as the card's design theme.
-   Small (gold, on the cover card) and big (faint, in the night sky behind).
-   Deliberately NO star shapes of any kind. */
+/* Two modern Islamic motifs — moon and arch. On the cover card it's a small
+   filled gold emblem; in the background it's a large thin OUTLINE (a moon on
+   the side, an arch in the back). No star shapes of any kind. */
 function Emblem({ theme, variant }: { theme: string; variant: "big" | "small" }) {
-  const cls = variant === "big" ? styles.motifSvg : styles.coverMotif;
-  const sw = variant === "big" ? 1.3 : 1.5;
+  const big = variant === "big";
+  const cls = big ? styles.motifSvg : styles.coverMotif;
 
   if (theme === "arch") {
     return (
       <svg className={cls} viewBox="0 0 48 54" aria-hidden="true" fill="none">
         <g stroke="currentColor" strokeLinecap="round">
-          <path d="M8 53 V23 C8 12 15 5 24 5 C33 5 40 12 40 23 V53" strokeWidth={sw} />
-          <path d="M14 53 V25 C14 16.5 18 11 24 11 C30 11 34 16.5 34 25 V53" strokeWidth={sw * 0.8} opacity="0.55" />
+          <path d="M8 53 V23 C8 12 15 5 24 5 C33 5 40 12 40 23 V53" strokeWidth={big ? 1.1 : 1.5} />
+          <path d="M14 53 V25 C14 16.5 18 11 24 11 C30 11 34 16.5 34 25 V53" strokeWidth={big ? 0.9 : 1.2} opacity="0.55" />
         </g>
       </svg>
     );
   }
-  if (theme === "lantern") {
+  /* crescent moon */
+  if (big) {
+    /* big = thin outline */
     return (
-      <svg className={cls} viewBox="0 0 48 56" aria-hidden="true" fill="none">
-        <g stroke="currentColor" strokeWidth={sw} strokeLinejoin="round" strokeLinecap="round">
-          <circle cx="24" cy="5" r="2.2" />
-          <path d="M24 7.2 V11" />
-          <path d="M16.5 15 H31.5 L33.5 19 H14.5 Z" />
-          <path d="M16 19 H32 V44 Q32 48 24 49 Q16 48 16 44 Z" />
-          <path d="M24 19 V47" opacity="0.5" />
-          <path d="M21.5 49 H26.5 L25 53 H23 Z" />
-        </g>
+      <svg className={cls} viewBox="0 0 48 48" aria-hidden="true" fill="none">
+        <path
+          d="M33 5 a19 19 0 1 0 0 38 a23.5 23.5 0 1 1 0 -38 Z"
+          stroke="currentColor"
+          strokeWidth="1.1"
+        />
       </svg>
     );
   }
-  if (theme === "arabesque") {
-    return (
-      <svg className={cls} viewBox="0 0 48 52" aria-hidden="true" fill="none">
-        <g stroke="currentColor" strokeWidth={sw} strokeLinecap="round">
-          <path d="M24 5 C15 15 15 26 24 33 C33 26 33 15 24 5 Z" />
-          <path d="M24 33 V48" />
-          <path d="M24 39 C19.5 36.5 16 39 15 43.5" />
-          <path d="M24 39 C28.5 36.5 32 39 33 43.5" />
-        </g>
-      </svg>
-    );
-  }
-  /* crescent (default) — a filled moon */
+  /* small = filled moon */
   return (
     <svg className={cls} viewBox="0 0 48 48" aria-hidden="true" fill="none">
       <path
