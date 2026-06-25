@@ -48,7 +48,22 @@
   position: absolute;
   inset: 0;
   z-index: 3;
+  /* button reset — the whole envelope is the tap target */
+  border: none;
+  background: none;
+  padding: 0;
+  display: block;
   transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.7s ease;
+}
+.envelope:not(:disabled) {
+  cursor: pointer;
+}
+/* a gentle press + lift on hover, so it clearly reads as openable */
+.envelope:not(:disabled):hover {
+  transform: translateY(-3px);
+}
+.envelope:not(:disabled):active {
+  transform: translateY(-1px) scale(0.995);
 }
 .envBody {
   position: absolute;
@@ -108,33 +123,42 @@
   clip-path: polygon(0 0, 100% 0, 50% 100%);
   border-top: 1px solid rgba(176, 142, 66, 0.4);
 }
-.seal {
+/* a delicate gold keyline frame, inset like fine stationery */
+.envFrame {
   position: absolute;
-  left: 50%;
-  top: 40%;
-  width: 82px;
-  height: 82px;
-  margin: -41px 0 0 -41px;
-  border: none;
-  background: none;
-  padding: 0;
-  cursor: pointer;
+  inset: 16px;
+  z-index: 4;
+  border-radius: 5px;
+  border: 1px solid rgba(176, 142, 66, 0.42);
+  box-shadow: inset 0 0 0 3px rgba(255, 253, 246, 0.35);
+  pointer-events: none;
+}
+/* a small gold foil monogram pressed into the flap */
+.flapMark {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 25%;
   z-index: 5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.5s ease;
-}
-.seal:hover {
-  transform: scale(1.04);
-}
-.seal:active {
-  transform: scale(0.96);
-}
-.waxSvg {
-  width: 100%;
-  height: 100%;
-  display: block;
+  text-align: center;
+  font-family: var(--font-playfair), Georgia, serif;
+  font-weight: 600;
+  font-size: 1.7rem;
+  line-height: 1;
+  background: linear-gradient(
+    105deg,
+    #9c7a32 0%,
+    #cba24c 30%,
+    #f3dd9a 48%,
+    #c79a45 64%,
+    #9c7a32 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  /* subtle foil-deboss depth */
+  filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.5))
+    drop-shadow(0 -0.5px 0 rgba(90, 70, 30, 0.28));
 }
 /* the recipient's name written on the envelope — "named mail" is the magic */
 .envName {
@@ -156,13 +180,6 @@
 .front .envFlap,
 .open .envFlap {
   transform: rotateX(178deg);
-}
-.front .seal,
-.open .seal {
-  opacity: 0;
-  transform: scale(0.4);
-  pointer-events: none;
-  animation: none;
 }
 .front .envelope,
 .open .envelope {
