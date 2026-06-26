@@ -202,12 +202,16 @@ Ketabi Studio · A little something, sent with love.
   const replyTo = (o.customer_email || "").trim();
 
   /* Scheduled delivery: if the buyer asked us to hold the card until, say,
-     Eid morning, hand Resend the future instant (ISO). We only honour it if
-     it's still in the future at payment time — otherwise send now. */
+     Eid morning, hand Resend the future instant (ISO). Resend only honours a
+     schedule up to 30 days out, so we pass scheduled_at only when it's still
+     in the future AND inside that window; anything past it sends immediately
+     (better early than silently never). */
+  const MAX_SCHEDULE_MS = 30 * 24 * 60 * 60 * 1000;
   let scheduledAt: string | null = null;
   if (o.scheduled_at) {
     const t = Date.parse(o.scheduled_at);
-    if (!Number.isNaN(t) && t > Date.now() + 60_000) {
+    const now = Date.now();
+    if (!Number.isNaN(t) && t > now + 60_000 && t <= now + MAX_SCHEDULE_MS) {
       scheduledAt = new Date(t).toISOString();
     }
   }

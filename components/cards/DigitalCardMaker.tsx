@@ -133,6 +133,11 @@ export default function DigitalCardMaker() {
       if (!scheduledIso || Date.parse(scheduledIso) <= Date.now() + 60_000) {
         return setError("Please choose a delivery time in the future.");
       }
+      if (Date.parse(scheduledIso) > Date.now() + MAX_SCHEDULE_DAYS * 864e5) {
+        return setError(
+          `You can schedule delivery up to ${MAX_SCHEDULE_DAYS} days ahead. To send earlier, choose “Send now”.`
+        );
+      }
     }
     setSubmitting(true);
     try {
@@ -455,6 +460,7 @@ export default function DigitalCardMaker() {
                     type="datetime-local"
                     value={schedLocal}
                     min={minSchedLocal()}
+                    max={maxSchedLocal()}
                     onChange={(e) => setSchedLocal(e.target.value)}
                     aria-label="Delivery date and time"
                   />
@@ -474,7 +480,7 @@ export default function DigitalCardMaker() {
                 <p className={styles.hint}>
                   {scheduledIso
                     ? `We'll email it ${describeSchedule(schedLocal, schedTz)}. Your private link works straight away — only the email waits.`
-                    : "Pick the day and time they should receive it — perfect for Eid morning."}
+                    : `Pick the day and time they should receive it — up to ${MAX_SCHEDULE_DAYS} days ahead, perfect for Eid morning.`}
                 </p>
               </>
             )}
@@ -643,14 +649,29 @@ function zonedToUtcIso(local: string, timeZone: string): string {
   }
 }
 
-/* Floor for the date picker: a few minutes from now, in the buyer's local
-   clock (the format the datetime-local input expects). */
-function minSchedLocal(): string {
-  const d = new Date(Date.now() + 5 * 60_000);
+/* The email service (Resend) only honours a scheduled send up to 30 days
+   out, so that's the hard ceiling on how far ahead a card can be scheduled.
+   We leave a small buffer so the order→payment gap can't push it over. */
+export const MAX_SCHEDULE_DAYS = 30;
+
+function localStamp(ms: number): string {
+  const d = new Date(ms);
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(
     d.getDate()
   )}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+/* Floor for the date picker: a few minutes from now, in the buyer's local
+   clock (the format the datetime-local input expects). */
+function minSchedLocal(): string {
+  return localStamp(Date.now() + 5 * 60_000);
+}
+
+/* Ceiling for the date picker: 30 days out, the furthest we can reliably
+   deliver. */
+function maxSchedLocal(): string {
+  return localStamp(Date.now() + MAX_SCHEDULE_DAYS * 24 * 60 * 60_000);
 }
 
 /* A friendly read-back of the chosen wall-clock time + zone, e.g.
