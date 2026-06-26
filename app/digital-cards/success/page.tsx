@@ -53,7 +53,7 @@ export default async function DigitalCardSuccess({
               Here&apos;s your private card link. Share it by text, WhatsApp, or
               anywhere you like — it opens to a beautiful animated card.
             </p>
-            <CopyField url={link} />
+            <CopyField url={link} recipientName={order.recipient_name} />
 
             {order?.deliver_email && order?.recipient_email && (
               <p className={styles.emailed}>

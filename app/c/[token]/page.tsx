@@ -1,15 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { findCard } from "@/lib/cards";
+import { cardHeadline } from "@/lib/digitalCard";
 import DigitalCardViewer, {
   type DigitalCardView,
 } from "@/components/cards/DigitalCardViewer";
 import styles from "./view.module.css";
-
-export const metadata: Metadata = {
-  title: "A card for you",
-  robots: { index: false, follow: false },
-};
 
 const SB = process.env.SUPABASE_URL?.replace(/\s/g, "").replace(/\/$/, "");
 const KEY = process.env.SUPABASE_SERVICE_KEY?.replace(/\s/g, "");
@@ -50,6 +46,38 @@ async function fetchCard(token: string): Promise<DigitalCardView | null> {
   };
 }
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ token: string }>;
+}): Promise<Metadata> {
+  const { token } = await params;
+  const card = await fetchCard(token);
+  const title = card
+    ? cardHeadline(card.itemId, card.recipientName)
+    : "A card for you 🌙";
+  const description =
+    "Someone sent you a personalized card from Ketabi Studio. Tap to open it.";
+
+  return {
+    title,
+    description,
+    // Private links: shareable by anyone who has them, but never indexed.
+    robots: { index: false, follow: false },
+    openGraph: {
+      title,
+      description,
+      type: "website",
+      siteName: "Ketabi Studio",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+    },
+  };
+}
+
 export default async function CardViewPage({
   params,
   searchParams,
@@ -82,6 +110,7 @@ export default async function CardViewPage({
   return (
     <DigitalCardViewer
       {...card}
+      token={token}
       theme={theme || card.theme}
       scheme={scheme || card.scheme}
     />

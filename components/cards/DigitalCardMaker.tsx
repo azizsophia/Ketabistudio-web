@@ -52,8 +52,17 @@ export default function DigitalCardMaker() {
   const [deliverEmail, setDeliverEmail] = useState(false);
   const [recipientEmail, setRecipientEmail] = useState("");
 
+  const [sendMode, setSendMode] = useState<"now" | "schedule">("now");
+  const [schedLocal, setSchedLocal] = useState(""); // "YYYY-MM-DDTHH:mm"
+  const [schedTz, setSchedTz] = useState(detectTz());
+
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  const scheduledIso =
+    deliverEmail && sendMode === "schedule" && schedLocal
+      ? zonedToUtcIso(schedLocal, schedTz)
+      : "";
 
   function pick(id: string) {
     setItemId(id);
@@ -117,6 +126,14 @@ export default function DigitalCardMaker() {
     ) {
       return setError("Please enter a valid email address to send the card to.");
     }
+    if (deliverEmail && sendMode === "schedule") {
+      if (!schedLocal) {
+        return setError("Please choose when we should email the card.");
+      }
+      if (!scheduledIso || Date.parse(scheduledIso) <= Date.now() + 60_000) {
+        return setError("Please choose a delivery time in the future.");
+      }
+    }
     setSubmitting(true);
     try {
       const r = await fetch("/api/digital-cards/order", {
@@ -134,6 +151,7 @@ export default function DigitalCardMaker() {
           email: email.trim(),
           deliver_email: deliverEmail,
           recipient_email: deliverEmail ? recipientEmail.trim() : undefined,
+          scheduled_at: scheduledIso || undefined,
         }),
       });
       const data = await r.json();
@@ -404,6 +422,62 @@ export default function DigitalCardMaker() {
               We&apos;ll send them a beautiful note with a button to open the
               card{recipient.trim() ? `, addressed to ${recipient.trim()}` : ""}.
             </p>
+
+            <span className={styles.label}>When should we email it?</span>
+            <div className={styles.sendModeRow}>
+              <button
+                type="button"
+                className={`${styles.sendModeBtn} ${
+                  sendMode === "now" ? styles.sendModeOn : ""
+                }`}
+                aria-pressed={sendMode === "now"}
+                onClick={() => setSendMode("now")}
+              >
+                Send now
+              </button>
+              <button
+                type="button"
+                className={`${styles.sendModeBtn} ${
+                  sendMode === "schedule" ? styles.sendModeOn : ""
+                }`}
+                aria-pressed={sendMode === "schedule"}
+                onClick={() => setSendMode("schedule")}
+              >
+                Schedule it
+              </button>
+            </div>
+
+            {sendMode === "schedule" && (
+              <>
+                <div className={styles.schedGrid}>
+                  <input
+                    className={styles.input}
+                    type="datetime-local"
+                    value={schedLocal}
+                    min={minSchedLocal()}
+                    onChange={(e) => setSchedLocal(e.target.value)}
+                    aria-label="Delivery date and time"
+                  />
+                  <select
+                    className={styles.input}
+                    value={schedTz}
+                    onChange={(e) => setSchedTz(e.target.value)}
+                    aria-label="Timezone"
+                  >
+                    {tzOptions().map((o) => (
+                      <option key={o.value} value={o.value}>
+                        {o.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <p className={styles.hint}>
+                  {scheduledIso
+                    ? `We'll email it ${describeSchedule(schedLocal, schedTz)}. Your private link works straight away — only the email waits.`
+                    : "Pick the day and time they should receive it — perfect for Eid morning."}
+                </p>
+              </>
+            )}
           </>
         )}
 
@@ -499,6 +573,111 @@ function CoverPreview({
       </span>
     </div>
   );
+}
+
+/* The buyer's own timezone, used as the sensible default for scheduling. */
+function detectTz(): string {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Riyadh";
+  } catch {
+    return "Asia/Riyadh";
+  }
+}
+
+/* A short list of timezones that cover the Gulf + the common diaspora, with the
+   buyer's detected zone pinned first so most people never touch it. */
+function tzOptions(): { value: string; label: string }[] {
+  const base = [
+    { value: "Asia/Riyadh", label: "Saudi Arabia (Riyadh)" },
+    { value: "Asia/Dubai", label: "UAE (Dubai)" },
+    { value: "Asia/Qatar", label: "Qatar (Doha)" },
+    { value: "Asia/Kuwait", label: "Kuwait" },
+    { value: "Africa/Cairo", label: "Egypt (Cairo)" },
+    { value: "Europe/London", label: "UK (London)" },
+    { value: "America/New_York", label: "US East (New York)" },
+    { value: "America/Los_Angeles", label: "US West (Los Angeles)" },
+  ];
+  const detected = detectTz();
+  const rest = base.filter((o) => o.value !== detected);
+  const detectedLabel =
+    base.find((o) => o.value === detected)?.label || detected;
+  return [{ value: detected, label: `${detectedLabel} — your time` }, ...rest];
+}
+
+/* Convert a wall-clock "YYYY-MM-DDTHH:mm" in `timeZone` to a UTC ISO instant.
+   Works without a date library by measuring the zone's offset at that instant
+   via Intl, so "9:00am on Eid in Riyadh" lands correctly wherever the buyer is. */
+function zonedToUtcIso(local: string, timeZone: string): string {
+  try {
+    const [datePart, timePart] = local.split("T");
+    if (!datePart || !timePart) return "";
+    const [y, m, d] = datePart.split("-").map(Number);
+    const [hh, mm] = timePart.split(":").map(Number);
+    const asUTC = Date.UTC(y, m - 1, d, hh, mm);
+    const dtf = new Intl.DateTimeFormat("en-US", {
+      timeZone,
+      hour12: false,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+    const parts = dtf.formatToParts(new Date(asUTC));
+    const get = (t: string) => Number(parts.find((p) => p.type === t)?.value);
+    let hour = get("hour");
+    if (hour === 24) hour = 0;
+    const tzAsUTC = Date.UTC(
+      get("year"),
+      get("month") - 1,
+      get("day"),
+      hour,
+      get("minute"),
+      get("second")
+    );
+    const offset = tzAsUTC - asUTC;
+    return new Date(asUTC - offset).toISOString();
+  } catch {
+    return "";
+  }
+}
+
+/* Floor for the date picker: a few minutes from now, in the buyer's local
+   clock (the format the datetime-local input expects). */
+function minSchedLocal(): string {
+  const d = new Date(Date.now() + 5 * 60_000);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(
+    d.getDate()
+  )}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+/* A friendly read-back of the chosen wall-clock time + zone, e.g.
+   "on Fri, 20 Mar at 9:00 AM (Saudi Arabia)". */
+function describeSchedule(local: string, timeZone: string): string {
+  try {
+    const [datePart, timePart] = local.split("T");
+    const [y, m, d] = datePart.split("-").map(Number);
+    const [hh, mm] = timePart.split(":").map(Number);
+    const dt = new Date(y, m - 1, d, hh, mm);
+    const day = dt.toLocaleDateString(undefined, {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+    });
+    const time = dt.toLocaleTimeString(undefined, {
+      hour: "numeric",
+      minute: "2-digit",
+    });
+    const tzLabel =
+      tzOptions()
+        .find((o) => o.value === timeZone)
+        ?.label.replace(" — your time", "") || timeZone;
+    return `on ${day} at ${time} (${tzLabel})`;
+  } catch {
+    return "at the time you chose";
+  }
 }
 
 function CardTile({ c, onPick }: { c: CardItem; onPick: (id: string) => void }) {

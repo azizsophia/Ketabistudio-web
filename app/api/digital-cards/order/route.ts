@@ -77,6 +77,22 @@ export async function POST(req: NextRequest) {
   const schemeRaw = String(body.scheme || "").trim();
   const scheme = SCHEME_SET.has(schemeRaw) ? schemeRaw : "midnight";
 
+  /* optional scheduled delivery: only meaningful when we're emailing the
+     recipient. The builder sends an absolute UTC instant (it converts the
+     buyer's chosen local date/time + timezone). We accept it only if it's a
+     real instant, at least a minute out, and within ~13 months — otherwise we
+     fall back to sending immediately. */
+  let scheduledAt: string | null = null;
+  const schedRaw = String(body.scheduled_at || "").trim();
+  if (deliverEmail && schedRaw) {
+    const t = Date.parse(schedRaw);
+    if (!Number.isNaN(t)) {
+      const now = Date.now();
+      const max = now + 1000 * 60 * 60 * 24 * 400;
+      if (t > now + 60_000 && t < max) scheduledAt = new Date(t).toISOString();
+    }
+  }
+
   /* unique, hard-to-guess public link slug */
   const token = randomBytes(16).toString("base64url");
 
@@ -93,6 +109,7 @@ export async function POST(req: NextRequest) {
     customer_email: email,
     deliver_email: deliverEmail,
     recipient_email: deliverEmail ? recipientEmail : null,
+    scheduled_at: scheduledAt,
     status: "awaiting_payment",
   };
 

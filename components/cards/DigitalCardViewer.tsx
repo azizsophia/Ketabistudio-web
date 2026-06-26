@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { findCard } from "@/lib/cards";
 import styles from "./DigitalCardViewer.module.css";
@@ -16,6 +16,8 @@ export type DigitalCardView = {
   theme?: string;
   /** colour scheme: midnight | plum | forest | light */
   scheme?: string;
+  /** public link slug — used to notify the sender on a real open (not demo) */
+  token?: string;
 };
 
 type Stage = "cover" | "revealed";
@@ -34,6 +36,36 @@ export default function DigitalCardViewer(props: DigitalCardView) {
     setReduced(m.matches);
     if (m.matches) setStage("revealed");
   }, []);
+
+  /* On the first real open, quietly tell the sender "your card was opened".
+     This fires only in a real browser once the card is revealed — link-preview
+     crawlers (WhatsApp, iMessage, etc.) fetch the HTML without running this, so
+     an unfurl never counts as an open. Demo cards never notify. */
+  const notified = useRef(false);
+  useEffect(() => {
+    if (stage !== "revealed" || notified.current) return;
+    const t = props.token;
+    if (!t || t === "demo") return;
+    notified.current = true;
+    try {
+      const body = JSON.stringify({ token: t });
+      if (typeof navigator !== "undefined" && navigator.sendBeacon) {
+        navigator.sendBeacon(
+          "/api/digital-cards/opened",
+          new Blob([body], { type: "application/json" })
+        );
+      } else {
+        fetch("/api/digital-cards/opened", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body,
+          keepalive: true,
+        }).catch(() => {});
+      }
+    } catch {
+      /* notification is best-effort — never block the card */
+    }
+  }, [stage, props.token]);
 
   /* hero word + occasion line, from the card data */
   const heroAr = card.group === "occasion" ? card.words[0]?.ar : card.word.ar;

@@ -259,6 +259,41 @@
   accent-color: var(--forest, #1f6b5a);
   cursor: pointer;
 }
+.sendModeRow {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+.sendModeBtn {
+  flex: 1;
+  padding: 11px 14px;
+  border: 1px solid #d9d1bf;
+  border-radius: 10px;
+  background: #fffdf9;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.sendModeBtn:hover {
+  border-color: var(--gold, #a07f4a);
+}
+.sendModeOn {
+  border-color: var(--forest, #1f6b5a);
+  background: var(--forest, #1f6b5a);
+  color: var(--cream, #f6f4ef);
+}
+.schedGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+@media (max-width: 520px) {
+  .schedGrid {
+    grid-template-columns: 1fr;
+  }
+}
 .priceSummary {
   margin: 24px 0 0;
   padding: 16px 18px;
