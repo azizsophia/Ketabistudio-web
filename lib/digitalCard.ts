@@ -99,3 +99,69 @@ export const SCHEME_STYLE: Record<string, SchemeStyle> = {
 export function schemeStyle(scheme: string): SchemeStyle {
   return SCHEME_STYLE[scheme] || SCHEME_STYLE.midnight;
 }
+
+/* Flat gradients for the share-preview (OG) image. Satori — which renders the
+   1200×630 card — supports linear-gradient but not the radial cover gradients
+   above, so these are a deliberately simple, legible equivalent per scheme. */
+export const SCHEME_OG: Record<
+  string,
+  { bg: string; name: string; eyebrow: string; gold: string; hint: string }
+> = {
+  midnight: {
+    bg: "linear-gradient(150deg, #234455 0%, #182a3e 52%, #101a29 100%)",
+    name: "#f4eddd",
+    eyebrow: "#d6b46e",
+    gold: "#d6b46e",
+    hint: "rgba(239,231,216,0.72)",
+  },
+  plum: {
+    bg: "linear-gradient(150deg, #4a3357 0%, #2c1d3c 52%, #160e22 100%)",
+    name: "#f4eddd",
+    eyebrow: "#d6b46e",
+    gold: "#d6b46e",
+    hint: "rgba(239,231,216,0.72)",
+  },
+  forest: {
+    bg: "linear-gradient(150deg, #2d4d3b 0%, #1b3327 52%, #0d1a13 100%)",
+    name: "#f4eddd",
+    eyebrow: "#d6b46e",
+    gold: "#d6b46e",
+    hint: "rgba(239,231,216,0.72)",
+  },
+  light: {
+    bg: "linear-gradient(150deg, #fcf8ef 0%, #efe5d2 100%)",
+    name: "#2a2a32",
+    eyebrow: "#b08e42",
+    gold: "#b08e42",
+    hint: "rgba(70,64,54,0.7)",
+  },
+};
+
+export function schemeOg(scheme: string) {
+  return SCHEME_OG[scheme] || SCHEME_OG.midnight;
+}
+
+/* The occasion phrased as a noun for the link-preview + email titles, e.g.
+   "an Eid card". Relationship cards stay simply "a card". */
+const OCCASION_PHRASE: Record<string, string> = {
+  eid: "an Eid card",
+  nikah: "a Nikah card",
+  baby: "a New Baby card",
+  ramadan: "a Ramadan card",
+  birthday: "a Birthday card",
+  thanks: "a Thank You card",
+  getwell: "a Get Well card",
+};
+
+export function occasionPhrase(itemId: string): string {
+  return OCCASION_PHRASE[itemId] || "a card";
+}
+
+/* The line that headlines the share preview + notification email. */
+export function cardHeadline(itemId: string, recipientName?: string): string {
+  const phrase = occasionPhrase(itemId);
+  const to = recipientName?.trim();
+  return to
+    ? `${to}, you've received ${phrase} 🌙`
+    : `You've received ${phrase} 🌙`;
+}

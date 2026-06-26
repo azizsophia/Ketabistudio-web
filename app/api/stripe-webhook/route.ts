@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { findCard } from "@/lib/cards";
+import { cardHeadline, occasionPhrase } from "@/lib/digitalCard";
 
 const SB = process.env.SUPABASE_URL?.replace(/\s/g, "").replace(/\/$/, "");
 const KEY = process.env.SUPABASE_SERVICE_KEY?.replace(/\s/g, "");
@@ -100,6 +101,8 @@ type DigitalCardOrder = {
   recipient_name: string | null;
   deliver_email: boolean;
   recipient_email: string | null;
+  customer_email: string | null;
+  scheduled_at: string | null;
   email_sent: boolean;
 };
 
@@ -135,6 +138,18 @@ function esc(s: string): string {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
+}
+
+/* The "From" header: the email goes from our verified sending address (so SPF/
+   DKIM/DMARC pass), but the display name is the sender's own name — so in the
+   inbox it reads "Layla via Ketabi Studio", which feels personal and warm
+   while staying deliverable. Header-unsafe characters are stripped. */
+function senderFrom(sender: string): string {
+  const m = EMAIL_FROM.match(/<([^>]+)>/);
+  const addr = m ? m[1] : EMAIL_FROM;
+  const clean = sender.replace(/["\r\n<>]/g, "").trim();
+  const name = clean ? `${clean} via Ketabi Studio` : "Ketabi Studio";
+  return `${name} <${addr}>`;
 }
 
 /* Branded email that delivers the card link to the recipient. Mirrors the
@@ -181,6 +196,26 @@ style="max-width:520px;background:#ffffff;border-radius:18px;overflow:hidden;bor
 Ketabi Studio · A little something, sent with love.
 </td></tr></table></td></tr></table></body></html>`;
 
+  const subject = from
+    ? `${from} sent you ${occasionPhrase(o.item_id)} 🌙`
+    : cardHeadline(o.item_id, to);
+  const replyTo = (o.customer_email || "").trim();
+
+  /* Scheduled delivery: if the buyer asked us to hold the card until, say,
+     Eid morning, hand Resend the future instant (ISO). Resend only honours a
+     schedule up to 30 days out, so we pass scheduled_at only when it's still
+     in the future AND inside that window; anything past it sends immediately
+     (better early than silently never). */
+  const MAX_SCHEDULE_MS = 30 * 24 * 60 * 60 * 1000;
+  let scheduledAt: string | null = null;
+  if (o.scheduled_at) {
+    const t = Date.parse(o.scheduled_at);
+    const now = Date.now();
+    if (!Number.isNaN(t) && t > now + 60_000 && t <= now + MAX_SCHEDULE_MS) {
+      scheduledAt = new Date(t).toISOString();
+    }
+  }
+
   try {
     const r = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -189,10 +224,12 @@ Ketabi Studio · A little something, sent with love.
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: EMAIL_FROM,
+        from: senderFrom(from),
+        ...(replyTo ? { reply_to: replyTo } : {}),
         to: [o.recipient_email],
-        subject: from ? `${from} sent you a card` : "You've received a card",
+        subject,
         html: shell,
+        ...(scheduledAt ? { scheduled_at: scheduledAt } : {}),
       }),
     });
     return r.status === 200 || r.status === 201;

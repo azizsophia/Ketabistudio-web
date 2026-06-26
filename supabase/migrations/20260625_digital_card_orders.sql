@@ -24,6 +24,8 @@ create table if not exists public.digital_card_orders (
   recipient_email text,                        -- where to email the card
   status          text not null default 'awaiting_payment',
   email_sent      boolean not null default false, -- idempotency for the email
+  scheduled_at    timestamptz,                 -- hold the email until this UTC instant
+  opened_at       timestamptz,                 -- first real open (notifies the buyer once)
   notes           jsonb,
   created_at      timestamptz not null default now(),
   updated_at      timestamptz not null default now()
@@ -31,12 +33,19 @@ create table if not exists public.digital_card_orders (
 
 create index if not exists digital_card_orders_status_idx
   on public.digital_card_orders (status);
+create index if not exists digital_card_orders_token_idx
+  on public.digital_card_orders (token);
 
 -- Safe to re-run: add design columns if an earlier version of this table exists.
 alter table public.digital_card_orders
   add column if not exists theme  text not null default 'crescent';
 alter table public.digital_card_orders
   add column if not exists scheme text not null default 'midnight';
+-- Delivery columns (scheduling + open notification).
+alter table public.digital_card_orders
+  add column if not exists scheduled_at timestamptz;
+alter table public.digital_card_orders
+  add column if not exists opened_at    timestamptz;
 
 alter table public.digital_card_orders enable row level security;
 -- No policies: only the service key (which bypasses RLS) may read/write.
