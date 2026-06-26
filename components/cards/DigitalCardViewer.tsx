@@ -102,7 +102,9 @@ export default function DigitalCardViewer(props: DigitalCardView) {
 
   return (
     <div
-      className={`${styles.stage} ${styles[stage]} ${styles[`scheme_${scheme}`]}`}
+      className={`${styles.stage} ${
+        stage === "revealed" ? styles.revealed : ""
+      } ${styles[`scheme_${scheme}`]}`}
     >
       <div className={styles.glow} aria-hidden="true" />
       {/* large outline motif in the background — a moon on the side, an arch
