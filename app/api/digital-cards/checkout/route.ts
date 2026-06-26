@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import { DIGITAL_CARD_PRICE_CENTS, CURRENCY } from "@/lib/pricing";
+import {
+  DIGITAL_CARD_PRICE_CENTS,
+  VOICE_ADDON_CENTS,
+  CURRENCY,
+} from "@/lib/pricing";
 import { findCard } from "@/lib/cards";
 
 export const runtime = "nodejs";
@@ -30,7 +34,7 @@ export async function POST(req: NextRequest) {
 
   /* fetch the digital card order — must exist and still be awaiting payment */
   const r = await fetch(
-    `${SB}/rest/v1/digital_card_orders?id=eq.${orderId}&select=id,status,item_id,customer_email,token`,
+    `${SB}/rest/v1/digital_card_orders?id=eq.${orderId}&select=id,status,item_id,customer_email,token,has_voice`,
     { headers: { Authorization: `Bearer ${KEY}`, apikey: KEY! }, cache: "no-store" }
   );
   const rows = await r.json();
@@ -52,24 +56,39 @@ export async function POST(req: NextRequest) {
     process.env.NEXT_PUBLIC_SITE_URL ||
     "https://ketabistudio-web.vercel.app";
 
+  const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
+    {
+      quantity: 1,
+      price_data: {
+        currency: CURRENCY,
+        unit_amount: DIGITAL_CARD_PRICE_CENTS,
+        product_data: {
+          name: `Digital greeting card, ${cardTitle}`,
+          description:
+            "A beautiful animated card delivered by a private link, ready to share instantly.",
+        },
+      },
+    },
+  ];
+  if (order.has_voice) {
+    lineItems.push({
+      quantity: 1,
+      price_data: {
+        currency: CURRENCY,
+        unit_amount: VOICE_ADDON_CENTS,
+        product_data: {
+          name: "Voice note add-on",
+          description: "A personal recorded message that plays inside the card.",
+        },
+      },
+    });
+  }
+
   try {
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       customer_email: order.customer_email,
-      line_items: [
-        {
-          quantity: 1,
-          price_data: {
-            currency: CURRENCY,
-            unit_amount: DIGITAL_CARD_PRICE_CENTS,
-            product_data: {
-              name: `Digital greeting card, ${cardTitle}`,
-              description:
-                "A beautiful animated card delivered by a private link, ready to share instantly.",
-            },
-          },
-        },
-      ],
+      line_items: lineItems,
       metadata: { digitalCardOrderId: order.id },
       payment_intent_data: { metadata: { digitalCardOrderId: order.id } },
       success_url: `${origin}/digital-cards/success?id=${order.id}`,

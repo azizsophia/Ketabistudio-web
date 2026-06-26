@@ -26,6 +26,8 @@ create table if not exists public.digital_card_orders (
   email_sent      boolean not null default false, -- idempotency for the email
   scheduled_at    timestamptz,                 -- hold the email until this UTC instant
   opened_at       timestamptz,                 -- first real open (notifies the buyer once)
+  voice_url       text,                        -- optional recorded voice note (mp3)
+  has_voice       boolean not null default false, -- voice add-on purchased
   notes           jsonb,
   created_at      timestamptz not null default now(),
   updated_at      timestamptz not null default now()
@@ -46,6 +48,10 @@ alter table public.digital_card_orders
   add column if not exists scheduled_at timestamptz;
 alter table public.digital_card_orders
   add column if not exists opened_at    timestamptz;
+alter table public.digital_card_orders
+  add column if not exists voice_url    text;
+alter table public.digital_card_orders
+  add column if not exists has_voice    boolean not null default false;
 
 alter table public.digital_card_orders enable row level security;
 -- No policies: only the service key (which bypasses RLS) may read/write.

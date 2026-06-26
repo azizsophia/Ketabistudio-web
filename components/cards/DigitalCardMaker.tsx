@@ -11,9 +11,14 @@ import {
   CARD_MESSAGE_MAX,
   type CardItem,
 } from "@/lib/cards";
-import { DIGITAL_CARD_PRICE_DISPLAY } from "@/lib/pricing";
+import {
+  DIGITAL_CARD_PRICE_DISPLAY,
+  VOICE_ADDON_DISPLAY,
+  DIGITAL_CARD_WITH_VOICE_DISPLAY,
+} from "@/lib/pricing";
 import { CardInside } from "./CardArt";
 import { Emblem } from "./DigitalCardViewer";
+import VoiceRecorder from "./VoiceRecorder";
 import {
   MOTIFS,
   SCHEMES,
@@ -48,6 +53,8 @@ export default function DigitalCardMaker() {
   const [photoBusy, setPhotoBusy] = useState(false);
   const [photoWarn, setPhotoWarn] = useState("");
 
+  const [voiceUrl, setVoiceUrl] = useState("");
+
   const [email, setEmail] = useState("");
   const [deliverEmail, setDeliverEmail] = useState(false);
   const [recipientEmail, setRecipientEmail] = useState("");
@@ -71,6 +78,7 @@ export default function DigitalCardMaker() {
     setTheme(defaultMotif(id)); // a fitting motif to start from
     setPhotoUrl("");
     setPhotoWarn("");
+    setVoiceUrl("");
     setStep("personalise");
     setError("");
   }
@@ -153,6 +161,7 @@ export default function DigitalCardMaker() {
           theme,
           scheme,
           photo_url: photoUrl || undefined,
+          voice_url: voiceUrl || undefined,
           email: email.trim(),
           deliver_email: deliverEmail,
           recipient_email: deliverEmail ? recipientEmail.trim() : undefined,
@@ -368,6 +377,16 @@ export default function DigitalCardMaker() {
             )}
             {photoWarn && <p className={styles.warn}>{photoWarn}</p>}
 
+            <span className={styles.label}>
+              Voice note (optional){" "}
+              <span className={styles.addOnTag}>+{VOICE_ADDON_DISPLAY}</span>
+            </span>
+            <p className={styles.hint}>
+              Record a short message — they&apos;ll hear it in your own voice
+              when they open the card.
+            </p>
+            <VoiceRecorder value={voiceUrl} onChange={setVoiceUrl} />
+
             {error && <p className={styles.error}>{error}</p>}
             <div className={styles.btnRow}>
               <button className="btn btn-outline" onClick={() => setStep("choose")}>
@@ -492,6 +511,18 @@ export default function DigitalCardMaker() {
             <span>Digital greeting card</span>
             <span>{DIGITAL_CARD_PRICE_DISPLAY}</span>
           </div>
+          {voiceUrl && (
+            <>
+              <div className={styles.priceRow}>
+                <span>Voice note 🎙️</span>
+                <span>+{VOICE_ADDON_DISPLAY}</span>
+              </div>
+              <div className={`${styles.priceRow} ${styles.priceTotal}`}>
+                <span>Total</span>
+                <span>{DIGITAL_CARD_WITH_VOICE_DISPLAY}</span>
+              </div>
+            </>
+          )}
           <p className={styles.priceNote}>
             Delivered instantly by link · no postage, no waiting · share it
             anywhere in the world.

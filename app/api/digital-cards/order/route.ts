@@ -96,6 +96,13 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  /* optional voice note — only accept a URL we actually issued (our public
+     storage bucket), so the field can't be pointed at an arbitrary host. */
+  const voiceRaw = String(body.voice_url || "").trim();
+  const voicePrefix = `${SB}/storage/v1/object/public/card-assets/voice/`;
+  const voiceUrl = voiceRaw.startsWith(voicePrefix) ? voiceRaw : null;
+  const hasVoice = !!voiceUrl;
+
   /* unique, hard-to-guess public link slug */
   const token = randomBytes(16).toString("base64url");
 
@@ -109,6 +116,8 @@ export async function POST(req: NextRequest) {
     sender: sender || null,
     recipient_name: recipientName || null,
     photo_url: String(body.photo_url || "").trim() || null,
+    voice_url: voiceUrl,
+    has_voice: hasVoice,
     customer_email: email,
     deliver_email: deliverEmail,
     recipient_email: deliverEmail ? recipientEmail : null,

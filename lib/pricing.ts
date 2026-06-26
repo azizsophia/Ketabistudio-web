@@ -101,6 +101,16 @@ export function cardShippingLabel(countryCode: string): string {
 export const DIGITAL_CARD_PRICE_CENTS = TEST_DOLLAR_PRICING ? 100 : 399; // $1 test / $3.99
 export const DIGITAL_CARD_PRICE_DISPLAY = TEST_DOLLAR_PRICING ? "$1.00" : "$3.99";
 
+/* Optional voice-note add-on: the buyer records a short message that plays
+   inside the opened card. Pure upsell (no extra cost to us beyond storage),
+   charged only when a recording is attached. $1 in test mode. */
+export const VOICE_ADDON_CENTS = TEST_DOLLAR_PRICING ? 100 : 300; // $1 test / +$3.00
+export const VOICE_ADDON_DISPLAY = TEST_DOLLAR_PRICING ? "$1.00" : "$3.00";
+/* Total shown when a voice note is included (base + add-on). */
+export const DIGITAL_CARD_WITH_VOICE_DISPLAY = TEST_DOLLAR_PRICING
+  ? "$2.00"
+  : "$6.99";
+
 export const SHIPPING_US_CENTS = 499; // $4.99 domestic
 export const SHIPPING_INTL_CENTS = 1499; // $14.99 international
 
