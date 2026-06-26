@@ -306,6 +306,17 @@
   justify-content: space-between;
   font-weight: 600;
   color: var(--forest);
+  margin-top: 4px;
+}
+.priceTotal {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #e6dfce;
+}
+.addOnTag {
+  font-weight: 600;
+  color: var(--gold-deep, #a07f4a);
+  font-size: 0.82rem;
 }
 .priceNote {
   margin: 8px 0 0;

@@ -27,7 +27,7 @@ async function fetchCard(token: string): Promise<DigitalCardView | null> {
   if (!SB || !KEY) return null;
   const safe = encodeURIComponent(token);
   const r = await fetch(
-    `${SB}/rest/v1/digital_card_orders?token=eq.${safe}&status=eq.paid&select=item_id,accent,theme,scheme,message,sender,recipient_name,photo_url&limit=1`,
+    `${SB}/rest/v1/digital_card_orders?token=eq.${safe}&status=eq.paid&select=item_id,accent,theme,scheme,message,sender,recipient_name,photo_url,voice_url&limit=1`,
     { headers: { Authorization: `Bearer ${KEY}`, apikey: KEY }, cache: "no-store" }
   );
   if (!r.ok) return null;
@@ -43,6 +43,7 @@ async function fetchCard(token: string): Promise<DigitalCardView | null> {
     sender: String(row.sender || ""),
     recipientName: String(row.recipient_name || ""),
     photoUrl: row.photo_url ? String(row.photo_url) : undefined,
+    voiceUrl: row.voice_url ? String(row.voice_url) : undefined,
   };
 }
 

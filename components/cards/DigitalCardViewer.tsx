@@ -12,6 +12,8 @@ export type DigitalCardView = {
   sender: string;
   recipientName: string;
   photoUrl?: string;
+  /** optional recorded voice note (mp3) that plays inside the opened card */
+  voiceUrl?: string;
   /** background motif design: crescent | arch | rings | lantern | rose */
   theme?: string;
   /** colour scheme: midnight | plum | forest | light */
@@ -167,6 +169,21 @@ export default function DigitalCardViewer(props: DigitalCardView) {
 
         {recipient && <p className={styles.dear}>Dear {recipient},</p>}
         {message && <p className={styles.message}>{message}</p>}
+
+        {props.voiceUrl && (
+          <div className={styles.voiceWrap}>
+            <p className={styles.voiceLabel} style={{ color: accent }}>
+              A voice note for you
+            </p>
+            {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+            <audio
+              className={styles.voicePlayer}
+              src={props.voiceUrl}
+              controls
+              preload="metadata"
+            />
+          </div>
+        )}
 
         <div className={styles.duaWrap}>
           <p className={styles.duaLabel} style={{ color: accent }}>

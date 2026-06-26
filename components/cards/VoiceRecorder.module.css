@@ -1,0 +1,96 @@
+.wrap {
+  margin-top: 6px;
+}
+
+.recordBtn,
+.stopBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  border-radius: 10px;
+  border: 1px solid #d9d1bf;
+  background: #fffdf9;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.recordBtn:hover {
+  border-color: var(--gold, #a07f4a);
+}
+.micDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #c0392b;
+}
+.stopBtn {
+  border-color: #c0392b;
+  color: #c0392b;
+}
+.recDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: #c0392b;
+  animation: blink 1s steps(1) infinite;
+}
+@keyframes blink {
+  50% { opacity: 0.25; }
+}
+.recRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.recHint {
+  font-size: 0.82rem;
+  color: #8a8478;
+}
+.busy {
+  font-size: 0.92rem;
+  color: #5a5750;
+  padding: 8px 0;
+}
+.readyRow {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.player {
+  width: 100%;
+  max-width: 360px;
+  height: 40px;
+}
+.readyActions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.ok {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--forest, #1f6b5a);
+}
+.linkBtn {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-size: 0.88rem;
+  color: #8a8170;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.linkBtn:hover {
+  color: #5f5848;
+}
+.error {
+  color: #b3261e;
+  font-size: 0.85rem;
+  margin: 8px 0 0;
+}
