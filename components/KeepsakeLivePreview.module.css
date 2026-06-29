@@ -67,13 +67,16 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 22cqw 9cqw 9cqw;
+  padding: 30cqw 9cqw 9cqw;
   gap: 1.4cqw;
+  /* deeper, earlier scrim so the kicker + title stay legible over any photo,
+     however bright (e.g. a white onesie / pale floor behind the text) */
   background: linear-gradient(
     180deg,
     rgba(20, 17, 14, 0) 0%,
-    rgba(20, 17, 14, 0.5) 52%,
-    rgba(20, 17, 14, 0.66) 100%
+    rgba(20, 17, 14, 0.34) 30%,
+    rgba(20, 17, 14, 0.62) 62%,
+    rgba(20, 17, 14, 0.82) 100%
   );
 }
 .coverKicker {
@@ -81,8 +84,9 @@
   font-size: 3cqw;
   letter-spacing: 0.34em;
   text-transform: uppercase;
-  color: var(--kacc-dark, #d0b678);
+  color: #ecd6a0;
   margin-bottom: 1.4cqw;
+  text-shadow: 0 0.3cqw 1.2cqw rgba(0, 0, 0, 0.6), 0 0.1cqw 0.4cqw rgba(0, 0, 0, 0.5);
 }
 .coverTitle {
   font-family: var(--font-playfair), Georgia, serif;
@@ -90,6 +94,7 @@
   line-height: 1.04;
   font-weight: 500;
   color: #f7f2ea;
+  text-shadow: 0 0.4cqw 1.6cqw rgba(0, 0, 0, 0.5), 0 0.1cqw 0.5cqw rgba(0, 0, 0, 0.45);
 }
 .coverRule {
   display: block;
@@ -103,6 +108,7 @@
   font-style: italic;
   font-size: 4.2cqw;
   color: #f1ece3;
+  text-shadow: 0 0.3cqw 1cqw rgba(0, 0, 0, 0.5);
 }
 
 .rule {
