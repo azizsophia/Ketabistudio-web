@@ -114,10 +114,17 @@ def set_status(oid, status, **fields):
              "detail": fields.get("qc_report")})
 
 
-def storage_upload(bucket, path, data: bytes, ctype):
+def storage_upload(bucket, path, data: bytes, ctype, cache_control="3600"):
+    # cache_control: seconds string (default) OR directives like "no-cache".
+    # The approval digest is re-uploaded to a FIXED path on every re-render, so
+    # it must be served no-cache — otherwise the owner reviews a stale preview
+    # (browser/CDN serve the old image for up to an hour) and could approve the
+    # wrong render. The print PDFs are downloaded, not previewed, so they keep
+    # the default TTL.
     r = requests.post(f"{SB}/storage/v1/object/{bucket}/{path}",
                       headers={"Authorization": f"Bearer {KEY}",
                                "Content-Type": ctype,
+                               "Cache-Control": cache_control,
                                "x-upsert": "true"},
                       data=data, timeout=300)
     if r.status_code >= 400:
@@ -379,7 +386,8 @@ def process(order):
     ckey = storage_upload("orders", f"{oid}/cover.pdf",
                           Path(cover).read_bytes(), "application/pdf")
     digest = qc.build_digest(interior, cover, order)
-    storage_upload("orders", f"{oid}/digest.jpg", digest, "image/jpeg")
+    storage_upload("orders", f"{oid}/digest.jpg", digest, "image/jpeg",
+                   cache_control="no-cache, max-age=0, must-revalidate")
 
     # Lulu validation on signed URLs — validates the cover against THIS order's
     # POD (softcover or hardcover), so a wrong hardcover cover fails QC and the
