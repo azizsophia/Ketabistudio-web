@@ -70,12 +70,27 @@ function fmtStatus(st: string) {
   return st.replace(/_/g, " ");
 }
 
+/* Statuses where a stored failure is still relevant. Once an order recovers
+   (submitted/printing/shipped), an old traceback left in qc_report is stale —
+   the worker stores it on a transient submit error but doesn't clear it after a
+   later retry succeeds — so we only surface it while the order is actually stuck. */
+const PROBLEM_STATUSES = new Set(["failed", "payment_failed", "rejected"]);
+
 /* ── QC report renderer ── */
-function QcBlock({ report }: { report: Record<string, unknown> }) {
+function QcBlock({
+  report,
+  status,
+}: {
+  report: Record<string, unknown>;
+  status: string;
+}) {
   const spec = report.spec as Record<string, unknown> | undefined;
   const refRaw = report.reference as Record<string, unknown> | undefined;
   const lulu = report.lulu as Record<string, string> | undefined;
-  const failure = report.failure as string | undefined;
+  // Only show a stored traceback if the order is still in a failed state.
+  const failure = PROBLEM_STATUSES.has(status)
+    ? (report.failure as string | undefined)
+    : undefined;
 
   // Only the Hijab book has pixel-diff reference entries ({match_dist,
   // wrong_dist}); Duas/fixed books use other shapes — filter to the real ones
@@ -364,7 +379,7 @@ export default function AdminDashboard() {
               </div>
 
               {/* QC report */}
-              {o.qc_report && <QcBlock report={o.qc_report} />}
+              {o.qc_report && <QcBlock report={o.qc_report} status={o.status} />}
 
               {/* Digest image for awaiting_approval */}
               {o.status === "awaiting_approval" && digestUrls[o.id] && (
