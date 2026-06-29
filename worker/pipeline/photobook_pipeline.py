@@ -44,7 +44,7 @@ import os
 from pathlib import Path
 
 import requests
-from PIL import Image, ImageDraw, ImageFont, ImageOps
+from PIL import Image, ImageDraw, ImageFont, ImageOps, ImageFilter
 
 # Reuse the verified Arabic shaping + full-bleed helpers + geometry from the
 # duas engine so the dua renders identically (exact glyphs, correct RTL) and
@@ -244,17 +244,19 @@ def _hairline(d, cx, y, half=180, color=GOLD, width=2):
     d.line([cx - half, y, cx + half, y], fill=color, width=width)
 
 
-def _bottom_scrim(base, frac=0.40, max_alpha=165, color=(20, 17, 14)):
+def _bottom_scrim(base, frac=0.40, max_alpha=165, color=(20, 17, 14), ease=1.5):
     """Composite a soft transparent->dark gradient over the bottom `frac` of a
     full-bleed photo so a light caption stays legible without a hard band.
-    Gallery/editorial style — the photo still reads edge to edge."""
+    Gallery/editorial style — the photo still reads edge to edge. `ease` shapes
+    the ramp: higher = gentler at the top; lower (→1) darkens sooner so text
+    higher in the scrim still gets coverage."""
     w, h = base.size
     sh = int(h * frac)
     col = Image.new("L", (1, sh))
     for i in range(sh):
         # ease-in so the darkening is gentle at the top of the scrim
         t = i / max(1, sh - 1)
-        col.putpixel((0, i), int(max_alpha * (t ** 1.5)))
+        col.putpixel((0, i), int(max_alpha * (t ** ease)))
     alpha = col.resize((w, sh))
     overlay = Image.new("RGBA", (w, sh), color + (0,))
     overlay.putalpha(alpha)
@@ -316,14 +318,26 @@ def title_page(recipient, author, template="about-mama"):
     M = 240
     # ONE fine gold hairline frame, generously inset (no double keyline).
     d.rectangle([M, M, TRIM - M, TRIM - M], outline=ACCENT_DEEP, width=2)
-    ls(d, "A KEEPSAKE", PF(40, 500), cx, 580, ACCENT, 14)
 
     maxw = TRIM - 2 * M - 160
     lines = _cover_lines(d, recipient, template, maxw)
-    y = _draw_title(d, lines, cx, 850, maxw, ESPRESSO, start=150, minsz=60)
-    y += 28
+
+    # Vertically centre the whole title block on the page (kicker → title →
+    # hairline → byline), so it no longer floats high with an empty lower half.
+    # Mirror _draw_title's fit so we know the title size + height up front.
+    s = 150
+    while s > 60 and any(d.textlength(ln, font=PF(s, 500)) > maxw for ln in lines):
+        s -= 4
+    KICKER_GAP, TITLE_GAP, RULE_GAP, BYLINE_GAP, BYLINE_SZ = 270, 16, 28, 56, 68
+    title_h = len(lines) * (s + TITLE_GAP)
+    block_h = KICKER_GAP + title_h + RULE_GAP + BYLINE_GAP + BYLINE_SZ
+    k_y = max(560, (TRIM - block_h) // 2)
+
+    ls(d, "A KEEPSAKE", PF(40, 500), cx, k_y, ACCENT, 14)
+    y = _draw_title(d, lines, cx, k_y + KICKER_GAP, maxw, ESPRESSO, start=150, minsz=60)
+    y += RULE_GAP
     _hairline(d, cx, y, half=190, color=ACCENT, width=2)
-    ctext(d, f"by {author}", CG(68, 540, it=True), cx, y + 56, STONE)
+    ctext(d, f"by {author}", CG(68, 540, it=True), cx, y + BYLINE_GAP, STONE)
     return img
 
 
@@ -465,11 +479,18 @@ def _front_cover(recipient, author, cover_photo, template="about-mama", crop=Non
     over a soft bottom scrim in ivory Playfair with a small-caps kicker, a fine
     gold rule, and an italic byline — a coffee-table / fine-art book feel."""
     base = _cropped_fit(cover_photo, FULLBLEED, FULLBLEED, crop)
-    base = _bottom_scrim(base, frac=0.62, max_alpha=195)
-    d = ImageDraw.Draw(base, "RGBA")
+    # deeper scrim that reaches a little higher (ease→1.2) so the kicker + title
+    # near the top of the text block still sit on darkening, not bare photo.
+    base = _bottom_scrim(base, frac=0.72, max_alpha=225, ease=1.05).convert("RGBA")
     cx = FULLBLEED // 2
     IVORY = (247, 242, 234)
     M = FBM + 280  # side margin for the title text
+
+    # Draw the title block on its own transparent layer so a soft drop-shadow
+    # can sit beneath it — this guarantees "A KEEPSAKE", the title and byline
+    # stay legible over ANY photo, even a pale outfit/wall directly behind them.
+    layer = Image.new("RGBA", base.size, (0, 0, 0, 0))
+    d = ImageDraw.Draw(layer, "RGBA")
 
     y = int(FULLBLEED * 0.60)
     ls(d, "A KEEPSAKE", PF(44, 500), cx, y, ACCENT_DARK, 16)
@@ -481,7 +502,14 @@ def _front_cover(recipient, author, cover_photo, template="about-mama", crop=Non
     d.line([cx - 150, y, cx + 150, y], fill=ACCENT_DARK + (240,), width=2)
     y += 56
     ctext(d, f"by {author}", CG(64, 540, it=True), cx, y, IVORY)
-    return base
+
+    # soft halo: a blurred, darkened copy of the text's own shape
+    halo = layer.split()[3].filter(ImageFilter.GaussianBlur(18))
+    shadow = Image.new("RGBA", base.size, (10, 8, 6, 255))
+    shadow.putalpha(halo.point(lambda v: int(v * 0.9)))
+    base.alpha_composite(shadow)
+    base.alpha_composite(layer)
+    return base.convert("RGB")
 
 
 def _back_cover(recipient, author, template="about-mama"):
