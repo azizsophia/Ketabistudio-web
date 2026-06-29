@@ -123,17 +123,27 @@ def _book_label(order: dict) -> str:
         return f"I Am {child}" if child else "I Am (personalized book)"
     pd = order.get("photo_data") or {}
     recipient = (pd.get("recipient_name") or "").strip()
-    photobook_titles = {
-        "about-mama": "Everything I Love About Mama",
-        "about-baba": "Everything I Love About Baba",
-        "about-grandma": "Everything I Love About Grandma",
-        "about-grandpa": "Everything I Love About Grandpa",
-        "about-spouse": "About You (keepsake)",
-        "about-baby": "About Our Baby (keepsake)",
-        "our-ramadan": "Our Ramadan (keepsake)",
+    # The "Everything I Love About <name>" keepsakes put the recipient IN the
+    # title (matching the printed cover), so we use that name and do NOT append
+    # a redundant "for <name>" — which read as "…About Baba for Baba".
+    everything_about = {
+        "about-mama": "Mama",
+        "about-baba": "Baba",
+        "about-grandma": "Grandma",
+        "about-grandpa": "Grandpa",
     }
-    if slug in photobook_titles:
-        base = photobook_titles[slug]
+    if slug in everything_about:
+        who = recipient or everything_about[slug]
+        return f"Everything I Love About {who}"
+    # Custom-title keepsakes don't carry the name in the title, so "for <name>"
+    # is meaningful here.
+    custom_titles = {
+        "about-spouse": "About You",
+        "about-baby": "About Our Baby",
+        "our-ramadan": "Our Ramadan",
+    }
+    if slug in custom_titles:
+        base = custom_titles[slug]
         return f"{base} for {recipient}" if recipient else base
     return {
         "juha-and-the-enormous-pumpkin": "Juha and the Enormous Pumpkin",
