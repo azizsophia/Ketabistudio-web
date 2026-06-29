@@ -77,23 +77,24 @@
              overflow:visible;container-type:inline-size;z-index:2}
   /* Foot scrim: confined to the lower panel and eased smoothly to zero so it
      backs the title without casting a visible band across a bright photo
-     (e.g. a child over a white wall). Legibility is guaranteed by the title's
-     own halo below, so the scrim can stay light over the photo. */
+     (e.g. a child over a white wall). The scrim carries legibility; the title
+     gets only a whisper of drop shadow (below) for edge definition — no glow
+     halo, which can fill into an opaque plate behind the text in print. */
   .cscrim{position:absolute;left:0;right:calc(-1 * var(--wrap));bottom:calc(-1 * var(--wrap));
           height:56%;z-index:1;background:linear-gradient(to top,
-            rgba(20,40,37,0.90) 0%, rgba(20,40,37,0.74) 22%, rgba(20,40,37,0.50) 44%,
-            rgba(20,40,37,0.26) 66%, rgba(20,40,37,0.08) 84%, rgba(20,40,37,0) 100%)}
+            #21443fDB 0%, #21443fA8 26%, #21443f6B 50%,
+            #21443f33 72%, #21443f0F 88%, #21443f00 100%)}
   .plate{position:absolute;left:0;right:0;bottom:0;z-index:3;
          display:flex;flex-direction:column;align-items:center;text-align:center;
          padding:0 9cqw 7cqw}
   .cstar{width:6cqw;height:6cqw;color:var(--gold);margin-bottom:1.2cqw}
   .iam{font:500 italic 6cqw 'Fraunces',serif;color:var(--gold);line-height:1;
-       text-shadow:0 0 0.5cqw rgba(10,22,20,.85), 0 0.2cqw 0.6cqw rgba(10,22,20,.7)}
+       text-shadow:0 0.14cqw 0.5cqw rgba(8,16,14,.5)}
   .name{font:600 14cqw 'Fraunces',serif;line-height:.98;color:#fbf2dd;text-align:center;
-        text-shadow:0 0 0.6cqw rgba(10,22,20,.9), 0 0.25cqw 0.7cqw rgba(10,22,20,.85), 0 0.5cqw 1.6cqw rgba(10,22,20,.55)}
+        text-shadow:0 0.18cqw 0.55cqw rgba(8,16,14,.6)}
   .crule{width:9cqw;height:1.5px;background:var(--gold);opacity:.9;margin:1.9cqw 0 1.6cqw}
   .name-ar{font:600 6cqw 'Baloo Bhaijaan 2',sans-serif;color:var(--gold);line-height:1;
-           text-shadow:0 0 0.5cqw rgba(10,22,20,.85), 0 0.2cqw 0.6cqw rgba(10,22,20,.7)}
+           text-shadow:0 0.14cqw 0.5cqw rgba(8,16,14,.5)}
   .fitname{white-space:nowrap;width:100%;text-align:center}
 
   /* BACK */
