@@ -392,3 +392,209 @@ before scale.
 **Domain**: ketabistudio.com still points at the old Capacitor
 marketing site; this app lives at ketabistudio-web.vercel.app until
 the domain is switched in Vercel.
+
+---
+
+# Continuation guide — current state (updated 2026-06-29)
+
+> Read this first if you're a new session picking up the project. It captures
+> everything beyond the original 3-book system: the full product set, the
+> subsystems built since, the **gotchas that cost real debugging time**, and
+> copy-paste **operational recipes**. The sections above are still accurate for
+> the hijab/juha/maryam books; this section is the live state of everything else.
+
+## Where we left off (DO THIS NEXT)
+
+- **Three physical test copies are ordered and in production** (~a few weeks to
+  arrive): a **keepsake** (`about-baba`), a **greeting card**, and the **I Am
+  book** (`i-am`, child "Muadh", order `42c17b3a-b646-4831-b48d-85d2710e93f5`).
+- **Pricing is still in TEST mode.** `TEST_DOLLAR_PRICING = true` in
+  `lib/pricing.ts` (everything is $1). **Do NOT flip to live until the physical
+  copies arrive and the owner confirms print quality in hand** (color, casewrap
+  binding, and cover sharpness — the I-Am cover photo is only ~150–180 DPI). When
+  the owner says go: set `TEST_DOLLAR_PRICING = false`, verify live prices
+  ($49.99 hardcover, $6.99 voice card, etc.), commit, merge to `main`.
+- `COMING_SOON` (`lib/flags.ts`) is still `true` — public site gated to
+  `/coming-soon`; preview cookie `ketabi_preview=ketabi-preview-2026` bypasses it.
+
+## The four product lines
+
+| Line | Slug/route | Printer | Notes |
+|---|---|---|---|
+| Children's books | `/books/[slug]` | Lulu | hijab (personalized), juha, maryam, **I Am [Child]** |
+| Keepsakes | `about-*` (e.g. `about-baba`) | Lulu hardcover casewrap | 24pp 8.5×8.5 photo book, `worker/pipeline/photobook_pipeline.py` (PIL) |
+| Physical greeting cards | `/cards` | Cloudprinter/Prodigi | folded photo cards |
+| Digital cards | `/c/[token]` | — (web) | animated shareable card, optional **voice note** add-on |
+
+## Pricing & flags — `lib/pricing.ts`, `lib/flags.ts`
+
+- `TEST_DOLLAR_PRICING` (line ~8) — `true` ⇒ every price is $1 (test orders).
+- `HARDCOVER_PRICE_CENTS` = $49.99 live; `VOICE_ADDON_CENTS` = TEST ? 100 : 300
+  (+$3 → digital card $6.99 with voice).
+- `COMING_SOON` in `lib/flags.ts` gates the whole site.
+
+## Digital cards subsystem
+
+- **Catalog/helpers:** `lib/digitalCard.ts` (`SCHEME_OG`, `OCCASION_PHRASE`,
+  `cardHeadline`).
+- **Builder UI:** `components/cards/DigitalCardMaker.tsx` (scheme, message,
+  schedule, voice recorder). **Voice recorder:** `components/cards/VoiceRecorder.tsx`
+  records to **MP3 in-browser** via `@breezystack/lamejs` (`lamejs.Mp3Encoder`,
+  AudioContext + ScriptProcessorNode PCM capture, lazy-loaded) so it plays
+  everywhere.
+- **Viewer:** `app/c/[token]/page.tsx` (async params; `generateMetadata` →
+  occasion-aware title, `robots noindex`, OG + Twitter). `app/c/[token]/opengraph-image.tsx`
+  = next/og `ImageResponse`, runtime nodejs, 1200×630, scheme gradient.
+- **APIs:** `app/api/digital-cards/{order,checkout,opened}/route.ts` +
+  `app/api/stripe-webhook/route.ts`. Order route validates `scheduled_at`
+  (**30-day max** — Resend caps `scheduled_at` at 30 days) and `voice_url`
+  prefix. Checkout adds the voice line item when `has_voice`. Webhook:
+  `senderFrom()` personalized From-name, occasion subject, `reply_to`, buyer
+  receipt, idempotent paid-state transition.
+- **Open-notify:** `app/api/digital-cards/opened/route.ts` marks `opened_at`
+  once and emails the buyer. (Bug fixed: a 204 response must have **no body** —
+  return `NextResponse.json({ok:true})` 200, not 204-with-body.)
+- **DB:** `supabase/migrations/20260625_digital_card_orders.sql` — columns
+  `scheduled_at, opened_at, voice_url, has_voice, customer_email` (all live).
+- **Scheduling timezone:** `zonedToUtcIso` verified across DST; Eid cards hidden
+  until within 30 days of the date.
+
+## Keepsakes — `worker/pipeline/photobook_pipeline.py` (PIL render)
+
+- Lulu casewrap hardcover, 24pp, 8.5×8.5, POD `0850X0850.FC.PRE.CW.080CW444.MXX`.
+- Cover render: `_front_cover` draws title on a transparent layer with a
+  gaussian-blur soft shadow over a deepened bottom scrim
+  (`_bottom_scrim(frac, max_alpha, ease)`). `title_page` vertically centers the
+  title block (`k_y = max(560, (TRIM-block_h)//2)`, TRIM=2550, FULLBLEED=2625).
+- Email label fix (`worker/emailer.py` `_book_label`): about-mama/baba/grandma/
+  grandpa return `"Everything I Love About {recipient}"` (no redundant
+  "for {recipient}"); custom-title keepsakes keep "for {recipient}".
+
+## "I Am [Child]" book — templates + the cover saga
+
+- **Templates (single source of truth, in `iam-templates/`):**
+  - `cover-hardcover.html` — casewrap wrap+spine+panel cover (the printed cover).
+  - `cover-paperback.html` — paperback bleed cover.
+  - `book-template.html` — 32-page interior **AND** the front/back cover sheets
+    used by the **website preview** (the worker strips the cover sheets and
+    prints interior only; the cover prints from `cover-*.html`).
+  - `content.json` — the 12 trait spreads (Kind/Lateef … Mindful/Taqiyy).
+- **Rendering:** `worker/pipeline/iam_book.py` → `render_cover` / `render_interior`
+  via Playwright Chromium `page.pdf()` (print media, 1in = 96px). `_crop_style`
+  maps the customer crop `{x,y,w,h}` (visible source rect, fractions) to fill the
+  cover. Hardcover geometry pulled live from Lulu: **19.0×10.25in, wrap 0.875in,
+  spine 0.25in**, front panel 8.5×8.5.
+- **Website preview:** `components/IamBookPreview.tsx` renders `book-template.html`
+  in an iframe (`lib/iamPreview.ts buildPreviewHtml`). Cover sheet in
+  `book-template.html` **must be kept visually identical** to `cover-hardcover.html`
+  or the site and the print diverge (this bit us — see gotchas).
+- **Rose colourway** swaps palette hexes (`#2f5d57/#21443f/#24493f/#bcd0c9`) via
+  string replace in BOTH `iam_book._colorway` and `iamPreview` ROSE map. Any color
+  that must swap has to be written as one of those hexes (use 8-digit `#21443fXX`
+  for alpha so the `#21443f` substring still matches).
+- **Cover design (final, after much iteration):** full-bleed photo, **no keyline
+  box**, **no title text-shadow**, a soft eased foot scrim
+  (`height:56%`, `#21443fDB→…→#21443f00`) that carries title legibility, **no star**
+  flourish. Title = `I am` (gold) / Name (cream) / rule / Arabic name (gold).
+
+## ⚠️ Gotchas that cost real time (read before touching the I-Am cover)
+
+1. **`cqw` units in `text-shadow` rasterize into opaque PLATES on the print
+   worker's Chromium** (a different build than local). Locally they render as a
+   soft shadow, so it passes review then prints as dark boxes behind each title
+   line. **Never put a `cqw`-based text-shadow on the cover title.** Legibility
+   comes from the scrim (a gradient `<div>`, renders identically everywhere).
+   Removed in commit `8aec051`.
+2. **Lulu's order-page thumbnail (and email digest) are small, heavily-compressed
+   JPEGs.** They **band smooth gradients** (JPEG contouring) into a faint
+   horizontal "shadow line" across the scrim — this is NOT in the print file.
+   Verify by scanning the gradient in the real PDF (it steps ~2 luma levels at a
+   time, smooth) or rendering at 240 DPI. Flat/graphic covers (the other books)
+   don't band; gradient-over-photo does. If a customer is bothered, adding faint
+   grain to the scrim would dither away the banding (not yet implemented).
+3. **`digest.jpg` was served from cache** → owner reviewed a stale preview after a
+   re-render and thought the fix hadn't landed. Fixed: worker uploads the digest
+   with `Cache-Control: no-cache` (`storage_upload(..., cache_control=...)`,
+   commit `3ee251f`). Print PDFs keep default TTL.
+4. **Render worker is a Docker service** (`render.yaml`, `worker/Dockerfile`,
+   copies `iam-templates` + `public/images` into the image). A template change
+   only takes effect after Render **rebuilds the image (~10–15 min** — it installs
+   Chromium). Resetting an order too soon re-renders with the OLD image. Always
+   confirm Render shows the new commit **Live** before resetting.
+5. **Customer photos carry EXIF orientation** (iPhone orient 6 = rotate 90°). The
+   browser/cover render applies it; PIL does not by default — use
+   `ImageOps.exif_transpose` when reasoning about crops, and reason in the
+   *displayed* orientation (crop `{x,y,w,h}` fractions are in displayed space).
+6. **Casewrap content within ~0.5in of the trim is at risk** (wrap folds around
+   the board). For full-bleed photos, faces should sit inside the safe margin; a
+   subject filling the frame edge-to-edge can't be saved by cropping.
+
+## Operational recipes (copy-paste)
+
+**Reset an order to re-render** (after a template/worker fix). Subquery form —
+`order by/limit` directly in `where` is a syntax error:
+```sql
+update public.orders
+set status='pending', cover_path=null, interior_path=null, qc_report=null
+where id = (select id from public.orders
+            where book_slug='i-am' and status not in ('submitted','printing','shipped')
+            order by created_at desc limit 1)
+returning id, child_name, status;
+```
+
+**Swap the cover photo + set a crop on an existing I-Am order** (no rebuild). The
+I-Am order stores everything under the `photo_data` JSON column
+(`{cover_photo_url, cover_crop:{x,y,w,h}, photos:[...]}`); `options` holds
+`{name_arabic, gender, colorway, dedication}`:
+```sql
+update public.orders
+set photo_data = jsonb_set(
+      jsonb_set(photo_data::jsonb, '{cover_photo_url}', '"<PUBLIC_URL>"'::jsonb, true),
+      '{cover_crop}', '{"x":0.035,"y":0,"w":0.689,"h":1}'::jsonb, true),
+    status='pending', cover_path=null, interior_path=null, qc_report=null
+where id='<ORDER_ID>'
+returning id, status, photo_data->>'cover_photo_url';
+```
+
+**Upload a photo into the bucket** (so it can be a cover). `POST /api/photobook/photo`
+is **public** (no auth) and returns a public `card-assets/photobook/<uuid>` URL.
+The worker only accepts photos already in that bucket, so new photos MUST go
+through here (or the builder's picker):
+```bash
+curl -X POST https://www.ketabistudio.com/api/photobook/photo \
+  -F "file=@photo.jpg;type=image/jpeg"   # → {"url":"...","width":..,"height":..}
+```
+Print needs ~300 DPI; warn below ~150 (min dim / 8.5in). Screenshots are usually
+too low-res.
+
+**Verify a cover the way it actually prints** (reproduce the worker's exact path —
+local Chromium differs, so always render through `page.pdf()` print media at the
+casewrap dims, then raster with `fitz`/pymupdf). Chromium binary at
+`/opt/pw-browsers/chromium-1194/chrome-linux/chrome`; replicate `iam_book.render_cover`
+(`--in:96px`, set `--spine`/`--wrap`, add the `@media print` CSS, fill tokens,
+`page.pdf(width=19in, height=10.25in)`). Front trim face = x 9.625→18.125in,
+y 0.875→9.375in. See session scratch scripts for the harness.
+
+## Recent commits on `main` (this session)
+
+```
+8aec051  I Am cover: remove title text-shadow (plated on worker Chromium)
+3ee251f  Worker: serve approval digest no-cache (no stale preview)
+b0465fe  I Am cover: remove the star flourish
+f5a154b  I Am cover: drop glow halo, sync website preview to printed cover
+d181f1a  I Am cover: soften + lower foot scrim
+a45bed9  I Am cover: remove keyline frame (clean full-bleed front)
+```
+Dev branch: **`claude/ketabi-qa-audit-u05rrp`** (cover work merged to `main`).
+Note: commits show "Unverified" on GitHub (no GPG signing in the dev
+environment) — committer identity is correct; nothing to fix.
+
+## Admin / supportability notes
+
+- `app/admin/page.tsx`: `QcBlock` only shows `qc_report.failure` for
+  `PROBLEM_STATUSES = {failed, payment_failed, rejected}` — the worker stores a
+  traceback in `qc_report.failure` on a transient submit error and never clears
+  it, so without this guard shipped orders show stale tracebacks.
+- Supabase MCP is often **gated** ("requires approval") and there's no service
+  key in the dev env — hand SQL to the owner to run, or hit deployed public API
+  routes. Storage writes go through `/api/photobook/photo` (above).
