@@ -178,38 +178,6 @@ export default function PhotobookBuilder({
     }
   }
 
-  function dpiMessage(p: Photo | null) {
-    if (!p || p.uploading) return null;
-    if (p.quality === "block") {
-      return (
-        <p className={styles.dpiBlock}>
-          This photo is too low-resolution to print sharply. Please upload a
-          high-quality photo — we print at 300 DPI, so one straight from your
-          phone or camera looks best (screenshots and saved web images usually
-          won&apos;t print well).
-        </p>
-      );
-    }
-    if (p.quality === "warn") {
-      return (
-        <p className={styles.dpiWarn}>
-          This will print, but for the sharpest keepsake upload a
-          higher-quality photo (we print at 300 DPI).
-        </p>
-      );
-    }
-    if (p.quality === "ok") {
-      return <p className={styles.dpiOk}>Looks great — this will print beautifully.</p>;
-    }
-    // unknown dimensions (e.g. HEIC) — block, but stay friendly
-    return (
-      <p className={styles.dpiBlock}>
-        We couldn&apos;t check this photo&apos;s quality. Please upload a
-        high-quality JPG or PNG (we print at 300 DPI) so it prints sharply.
-      </p>
-    );
-  }
-
   /* Usable = uploaded, has a URL, and is NOT blocked. "unknown" (unreadable /
      HEIC) is treated as blocked, so the customer fixes quality themselves and
      the order never gets cancelled later for DPI. */
@@ -369,75 +337,6 @@ export default function PhotobookBuilder({
     } finally {
       setSubmitting(false);
     }
-  }
-
-  /* ── render: an uploader widget with drag/zoom positioning ── */
-  function Uploader({
-    photo, onFile, label, crop, onCrop, frameAspect, minShortPx,
-    canReuse, onReuseRequest,
-  }: {
-    photo: Photo | null;
-    onFile: (f: File) => void;
-    label: string;
-    crop?: Crop | null;
-    onCrop?: (c: Crop) => void;
-    frameAspect: number;
-    minShortPx: number;
-    canReuse?: boolean;
-    onReuseRequest?: () => void;
-  }) {
-    const fileInput = (text: string) => (
-      <label className={styles.fileBtn}>
-        {text}
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => {
-            const f = e.target.files?.[0];
-            if (f) onFile(f);
-            e.currentTarget.value = "";
-          }}
-        />
-      </label>
-    );
-
-    if (photo && photo.url && !photo.uploading) {
-      return (
-        <div className={styles.uploader}>
-          <div className={styles.cropHost}>
-            <PhotoCropper
-              src={photo.url}
-              frameAspect={frameAspect}
-              minShortPx={minShortPx}
-              value={crop}
-              onChange={(c) => onCrop?.(c)}
-              showSafe
-            />
-          </div>
-          <div className={styles.uploadBody}>
-            {fileInput("Change photo")}
-            {dpiMessage(photo)}
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <div className={styles.uploader}>
-        <div className={styles.thumbEmpty}>
-          {photo?.uploading ? "Uploading…" : "No photo"}
-        </div>
-        <div className={styles.uploadBody}>
-          {fileInput(label)}
-          {canReuse && onReuseRequest && (
-            <button type="button" className={styles.reuseInline} onClick={onReuseRequest}>
-              or reuse a photo you added
-            </button>
-          )}
-          {dpiMessage(photo)}
-        </div>
-      </div>
-    );
   }
 
   /* Live preview — reflects names, captions and uploaded photos in real time,
@@ -797,6 +696,112 @@ function ReusePicker({ photos, onPick, onClose }: {
           ))}
         </div>
         <button type="button" className="btn btn-outline" onClick={onClose}>Cancel</button>
+      </div>
+    </div>
+  );
+}
+
+/* DPI guidance + the uploader widget live at MODULE scope on purpose: defining
+   them inside PhotobookBuilder gave them a new component identity on every
+   render, which remounted the PhotoCropper each render. The cropper's image-load
+   effect then re-published its crop → state update → re-render → remount, an
+   infinite loop that re-fetched the photo hundreds of times and made the cover
+   visibly flicker. Stable identity here breaks that loop. */
+function dpiMessage(p: Photo | null) {
+  if (!p || p.uploading) return null;
+  if (p.quality === "block") {
+    return (
+      <p className={styles.dpiBlock}>
+        This photo is too low-resolution to print sharply. Please upload a
+        high-quality photo — we print at 300 DPI, so one straight from your
+        phone or camera looks best (screenshots and saved web images usually
+        won&apos;t print well).
+      </p>
+    );
+  }
+  if (p.quality === "warn") {
+    return (
+      <p className={styles.dpiWarn}>
+        This will print, but for the sharpest keepsake upload a
+        higher-quality photo (we print at 300 DPI).
+      </p>
+    );
+  }
+  if (p.quality === "ok") {
+    return <p className={styles.dpiOk}>Looks great — this will print beautifully.</p>;
+  }
+  // unknown dimensions (e.g. HEIC) — block, but stay friendly
+  return (
+    <p className={styles.dpiBlock}>
+      We couldn&apos;t check this photo&apos;s quality. Please upload a
+      high-quality JPG or PNG (we print at 300 DPI) so it prints sharply.
+    </p>
+  );
+}
+
+function Uploader({
+  photo, onFile, label, crop, onCrop, frameAspect, minShortPx,
+  canReuse, onReuseRequest,
+}: {
+  photo: Photo | null;
+  onFile: (f: File) => void;
+  label: string;
+  crop?: Crop | null;
+  onCrop?: (c: Crop) => void;
+  frameAspect: number;
+  minShortPx: number;
+  canReuse?: boolean;
+  onReuseRequest?: () => void;
+}) {
+  const fileInput = (text: string) => (
+    <label className={styles.fileBtn}>
+      {text}
+      <input
+        type="file"
+        accept="image/*"
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) onFile(f);
+          e.currentTarget.value = "";
+        }}
+      />
+    </label>
+  );
+
+  if (photo && photo.url && !photo.uploading) {
+    return (
+      <div className={styles.uploader}>
+        <div className={styles.cropHost}>
+          <PhotoCropper
+            src={photo.url}
+            frameAspect={frameAspect}
+            minShortPx={minShortPx}
+            value={crop}
+            onChange={(c) => onCrop?.(c)}
+            showSafe
+          />
+        </div>
+        <div className={styles.uploadBody}>
+          {fileInput("Change photo")}
+          {dpiMessage(photo)}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={styles.uploader}>
+      <div className={styles.thumbEmpty}>
+        {photo?.uploading ? "Uploading…" : "No photo"}
+      </div>
+      <div className={styles.uploadBody}>
+        {fileInput(label)}
+        {canReuse && onReuseRequest && (
+          <button type="button" className={styles.reuseInline} onClick={onReuseRequest}>
+            or reuse a photo you added
+          </button>
+        )}
+        {dpiMessage(photo)}
       </div>
     </div>
   );
