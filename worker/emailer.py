@@ -216,8 +216,8 @@ def send_card_shipped(order: dict) -> bool:
 <h1 style="margin:0 0 12px;font-size:22px;color:{FOREST};">Your card is on its way</h1>
 <p style="margin:0 0 16px;font-size:15px;line-height:1.6;">
   Good news — your personalised greeting card has been printed and posted
-  directly to <strong>{recipient}</strong>, blind and white-label, with no
-  Ketabi or printer branding. It simply arrives, beautifully, from you.
+  directly to <strong>{recipient}</strong>. It simply arrives, beautifully,
+  from you.
 </p>
 <p style="margin:0 0 16px;font-size:15px;line-height:1.6;">
   If anything is not right when it arrives, just reply to this email and we
