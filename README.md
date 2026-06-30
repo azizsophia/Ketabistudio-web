@@ -598,3 +598,7 @@ environment) — committer identity is correct; nothing to fix.
 - Supabase MCP is often **gated** ("requires approval") and there's no service
   key in the dev env — hand SQL to the owner to run, or hit deployed public API
   routes. Storage writes go through `/api/photobook/photo` (above).
+- **Customer-facing email copy must not expose fulfilment mechanics.** The
+  card-shipped email (`worker/emailer.py send_card_shipped`) once said "blind
+  and white-label, with no Ketabi or printer branding" — removed. Keep the
+  drop-ship/white-label wording to internal code comments only.
