@@ -61,10 +61,15 @@
               object-fit:cover;object-position:50% 42%;background:var(--teal-dk)}
   .coverface{position:absolute;left:0;top:var(--bleed);width:var(--panel);height:var(--panel);
              overflow:visible;container-type:inline-size;z-index:2}
+  /* Foot scrim: kept identical to the hardcover cover (cover-hardcover.html) —
+     confined to the lower panel and eased smoothly to zero so it backs the
+     title without casting a visible band across a bright photo. No keyline
+     box, no star, no title text-shadow (cqw shadows plate on the print
+     worker's Chromium; the scrim carries legibility on every engine). */
   .cscrim{position:absolute;left:0;right:calc(-1 * var(--bleed));bottom:calc(-1 * var(--bleed));
-          height:80%;z-index:1;background:linear-gradient(to top,#21443f 24%,rgba(33,68,63,0) 82%)}
-  .ckeyline{position:absolute;inset:4.5cqw;border:1px solid rgba(246,234,210,.55);
-            z-index:2;pointer-events:none}
+          height:56%;z-index:1;background:linear-gradient(to top,
+            #21443fDB 0%, #21443fA8 26%, #21443f6B 50%,
+            #21443f33 72%, #21443f0F 88%, #21443f00 100%)}
   .plate{position:absolute;left:0;right:0;bottom:0;z-index:3;
          display:flex;flex-direction:column;align-items:center;text-align:center;
          padding:0 9cqw 7cqw}
@@ -108,9 +113,7 @@
       <img class="coverphoto" src="{{PHOTO_COVER}}" style="{{PHOTO_COVER_STYLE}}" alt="">
       <div class="coverface">
         <div class="cscrim"></div>
-        <div class="ckeyline"></div>
         <div class="plate">
-          <svg class="cstar" viewBox="0 0 100 100"><polygon points="50,4 58,42 96,50 58,58 50,96 42,58 4,50 42,42" fill="currentColor"/></svg>
           <div class="iam">I am</div>
           <div class="fitname name">{{CHILD_NAME}}</div>
           <div class="crule"></div>
