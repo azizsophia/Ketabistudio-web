@@ -392,8 +392,12 @@ def process(order):
     # Lulu validation on signed URLs — validates the cover against THIS order's
     # POD (softcover or hardcover), so a wrong hardcover cover fails QC and the
     # order halts before printing.
+    # page_count must be THIS order's spec (24pp keepsakes vs 32pp books) —
+    # gate_lulu's default is 32, which would validate a keepsake cover against
+    # the wrong spine geometry.
     lulu_report = qc.gate_lulu(client, signed_url("orders", ikey),
-                               signed_url("orders", ckey), spec["pod"])
+                               signed_url("orders", ckey), spec["pod"],
+                               page_count=spec["page_count"])
     set_status(oid, "validated",
                interior_path=ikey, cover_path=ckey,
                qc_report={"spec": spec_report, "reference": ref_report,
