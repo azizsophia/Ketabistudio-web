@@ -64,6 +64,10 @@ export default function VoiceRecorder({
         (window as unknown as { webkitAudioContext: typeof AudioContext })
           .webkitAudioContext;
       const ctx = new Ctx();
+      // iOS Safari can hand back a suspended context even inside a tap
+      // gesture; without resume() onaudioprocess never fires and the take
+      // records silence.
+      if (ctx.state === "suspended") await ctx.resume().catch(() => {});
       ctxRef.current = ctx;
       sampleRateRef.current = ctx.sampleRate;
       const src = ctx.createMediaStreamSource(stream);

@@ -115,7 +115,12 @@ export async function POST(req: NextRequest) {
     message: message || null,
     sender: sender || null,
     recipient_name: recipientName || null,
-    photo_url: String(body.photo_url || "").trim() || null,
+    // like voice_url: only accept a photo URL we actually issued (our public
+    // card-assets bucket), never an arbitrary host
+    photo_url: (() => {
+      const p = String(body.photo_url || "").trim();
+      return p.startsWith(`${SB}/storage/v1/object/public/card-assets/`) ? p : null;
+    })(),
     voice_url: voiceUrl,
     has_voice: hasVoice,
     customer_email: email,

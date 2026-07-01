@@ -335,10 +335,20 @@ async function releaseDigitalCard(session: Stripe.Checkout.Session) {
   console.log(`[digital ${id}] paid → card live at /c/${o.token}`);
   // Buyer always gets a receipt with their own copy of the link.
   await sendBuyerReceipt(o);
-  // Recipient gets the card only if the buyer opted in.
+  // Recipient gets the card only if the buyer opted in. The paid flip above
+  // already consumed the Stripe retry (awaiting_payment guard), so a transient
+  // send failure here would otherwise be lost forever — retry it ourselves.
   if (o.deliver_email && o.recipient_email && !o.email_sent) {
-    const ok = await sendDigitalCardEmail(o);
+    let ok = false;
+    for (let attempt = 1; attempt <= 3 && !ok; attempt++) {
+      ok = await sendDigitalCardEmail(o);
+      if (!ok && attempt < 3) {
+        console.error(`[digital ${o.id}] recipient email attempt ${attempt} failed; retrying`);
+        await new Promise((r) => setTimeout(r, attempt * 1500));
+      }
+    }
     if (ok) await patchDigitalCardOrder(o.id, { email_sent: true });
+    else console.error(`[digital ${o.id}] recipient email failed after 3 attempts — buyer still has the link`);
   }
 }
 

@@ -16,7 +16,7 @@ async function fetchOrder(id: string) {
   if (!SB || !KEY) return null;
   const safe = encodeURIComponent(id);
   const r = await fetch(
-    `${SB}/rest/v1/digital_card_orders?id=eq.${safe}&select=token,deliver_email,recipient_email,recipient_name&limit=1`,
+    `${SB}/rest/v1/digital_card_orders?id=eq.${safe}&select=token,deliver_email,recipient_email,recipient_name,scheduled_at&limit=1`,
     { headers: { Authorization: `Bearer ${KEY}`, apikey: KEY }, cache: "no-store" }
   );
   if (!r.ok) return null;
@@ -57,9 +57,23 @@ export default async function DigitalCardSuccess({
 
             {order?.deliver_email && order?.recipient_email && (
               <p className={styles.emailed}>
-                We&apos;ve also emailed it to{" "}
-                <strong>{order.recipient_email}</strong>
-                {order.recipient_name ? ` for ${order.recipient_name}` : ""}.
+                {order.scheduled_at && new Date(order.scheduled_at) > new Date() ? (
+                  <>
+                    It will also be emailed to{" "}
+                    <strong>{order.recipient_email}</strong> on{" "}
+                    {new Date(order.scheduled_at).toLocaleDateString("en-US", {
+                      month: "long",
+                      day: "numeric",
+                    })}
+                    {order.recipient_name ? ` for ${order.recipient_name}` : ""}.
+                  </>
+                ) : (
+                  <>
+                    We&apos;ve also emailed it to{" "}
+                    <strong>{order.recipient_email}</strong>
+                    {order.recipient_name ? ` for ${order.recipient_name}` : ""}.
+                  </>
+                )}
               </p>
             )}
 
