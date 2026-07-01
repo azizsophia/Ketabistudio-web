@@ -258,10 +258,15 @@ def _submit_cloudprinter(oid, order, card, workdir, common, country):
     """Render the folded 2-page PDF, upload it, quote (cheapest shipment), cost-
     guard, and place the Cloudprinter order. US prints locally + ships cheap."""
     if not cloudprinter_client.configured():
-        note = (f"routed to Cloudprinter for {country} — finishing setup "
-                f"(CLOUDPRINTER_API_KEY in Render). Not charged.")
+        # The customer HAS already paid at Stripe checkout — an unconfigured
+        # fulfiller must refund like the cost-cap hold does, or the order sits
+        # charged-but-unfulfilled forever.
+        note = (f"routed to Cloudprinter for {country} but CLOUDPRINTER_API_KEY "
+                f"is not set — cannot fulfil; customer refunded.")
         set_card_status(oid, "held", notes=json.dumps({"hold": note}))
-        print(f"[card {oid}] HELD (Cloudprinter pending) — {note}", flush=True)
+        print(f"[card {oid}] HELD (Cloudprinter not configured) — {note}",
+              flush=True)
+        _refund_card(order, "cloudprinter not configured")
         return
 
     pdf_path = card_pipeline.build_cloudprinter(card, workdir, **common)
@@ -320,6 +325,61 @@ def _submit_cloudprinter(oid, order, card, workdir, common, country):
 
 
 # ── per-order processing ────────────────────────────────────────────
+def _send_card_confirmation(order):
+    """Order-received email to the buyer, once per order (event-row guarded).
+    Books/digital cards confirm on payment; physical cards previously only
+    emailed at shipping, leaving the buyer with no receipt for days."""
+    oid = order["id"]
+    try:
+        seen = db("GET", f"card_order_events?card_order_id=eq.{oid}"
+                         "&event=eq.confirmation_sent&select=id&limit=1")
+        if seen:
+            return
+        if (hasattr(emailer, "send_card_confirmation")
+                and emailer.send_card_confirmation(order)):
+            log_card_event(oid, "confirmation_sent")
+    except Exception as e:  # noqa: BLE001 — email must never block fulfilment
+        print(f"[card {oid}] confirmation email error (non-fatal): {e}",
+              flush=True)
+
+
+def _any_url(obj):
+    """First http(s) URL anywhere inside obj (str/dict/list)."""
+    if isinstance(obj, str) and obj.startswith("http"):
+        return obj
+    if isinstance(obj, dict):
+        for v in obj.values():
+            u = _any_url(v)
+            if u:
+                return u
+    if isinstance(obj, list):
+        for v in obj:
+            u = _any_url(v)
+            if u:
+                return u
+    return ""
+
+
+def _find_tracking(obj):
+    """Best-effort: find a tracking URL anywhere in a provider payload — a
+    URL that is (or is nested under) a key containing 'track'."""
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            if "track" in str(k).lower():
+                u = _any_url(v)
+                if u:
+                    return u
+            found = _find_tracking(v)
+            if found:
+                return found
+    elif isinstance(obj, list):
+        for v in obj:
+            found = _find_tracking(v)
+            if found:
+                return found
+    return ""
+
+
 def process_card(order):
     """Render → upload → submit one paid card order to Prodigi.
 
@@ -328,6 +388,7 @@ def process_card(order):
     what prints, and the cards match the keepsakes by construction."""
     oid = order["id"]
     try:
+        _send_card_confirmation(order)
         set_card_status(oid, "rendering")
 
         item_id = order.get("item_id") or "eid"
@@ -461,9 +522,23 @@ def poll_card_shipping():
                 print(f"[card {oid}] printing")
             elif stage == "Shipped":
                 set_card_status(oid, "shipped")
+                # tracking: Prodigi puts it on shipments[].tracking.{url,number}
+                tracking_url, carrier = "", ""
+                for sh in (prodigi_order.get("shipments") or []):
+                    tr = sh.get("tracking") or {}
+                    if tr.get("url"):
+                        tracking_url = tr["url"]
+                        carrier = ((sh.get("carrier") or {}).get("name")
+                                   if isinstance(sh.get("carrier"), dict)
+                                   else sh.get("carrier")) or ""
+                        break
+                if not tracking_url:
+                    tracking_url = _find_tracking(prodigi_order)
                 try:
                     if hasattr(emailer, "send_card_shipped"):
-                        emailer.send_card_shipped(order)
+                        emailer.send_card_shipped(order,
+                                                  tracking_url=tracking_url,
+                                                  carrier=carrier)
                 except Exception as e:  # noqa: BLE001
                     print(f"[card {oid}] shipped email error (non-fatal): {e}")
                 print(f"[card {oid}] shipped")
@@ -485,7 +560,8 @@ def _poll_cloudprinter(order, ref):
         set_card_status(oid, "shipped")
         try:
             if hasattr(emailer, "send_card_shipped"):
-                emailer.send_card_shipped(order)
+                emailer.send_card_shipped(order,
+                                          tracking_url=_find_tracking(info))
         except Exception as e:  # noqa: BLE001
             print(f"[card {oid}] shipped email error (non-fatal): {e}")
         print(f"[card {oid}] shipped (Cloudprinter)")
@@ -513,7 +589,8 @@ def _poll_gelato(order, gid):
         set_card_status(oid, "shipped")
         try:
             if hasattr(emailer, "send_card_shipped"):
-                emailer.send_card_shipped(order)
+                emailer.send_card_shipped(order,
+                                          tracking_url=_find_tracking(info))
         except Exception as e:  # noqa: BLE001
             print(f"[card {oid}] shipped email error (non-fatal): {e}")
         print(f"[card {oid}] shipped (Gelato)")

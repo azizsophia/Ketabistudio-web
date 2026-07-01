@@ -207,11 +207,49 @@ def send_shipped(order: dict, tracking_url: str = "", carrier: str = "") -> bool
     )
 
 
-def send_card_shipped(order: dict) -> bool:
-    """Sent when a greeting-card order reports shipped from Prodigi."""
+def send_card_confirmation(order: dict) -> bool:
+    """Sent when a paid greeting-card order is picked up for fulfilment, so
+    the buyer has a receipt right away (shipping can be days later)."""
     ship = order.get("shipping") or {}
     recipient = html.escape((ship.get("name") or "your recipient").strip())
     short = str(order.get("id", ""))[:8]
+    inner = f"""\
+<h1 style="margin:0 0 12px;font-size:22px;color:{FOREST};">We&rsquo;ve received your order</h1>
+<p style="margin:0 0 16px;font-size:15px;line-height:1.6;">
+  Thank you — your personalised greeting card is being printed and will be
+  posted directly to <strong>{recipient}</strong>. We&rsquo;ll email you
+  again the moment it ships.
+</p>
+<p style="margin:0 0 16px;font-size:15px;line-height:1.6;">
+  If anything needs changing, just reply to this email.
+</p>
+<p style="margin:0;font-size:13px;color:#8a847a;">Order {short}</p>
+"""
+    return send_email(
+        order["customer_email"],
+        "Your Ketabi card order is confirmed",
+        _shell(inner),
+    )
+
+
+def send_card_shipped(order: dict, tracking_url: str = "",
+                      carrier: str = "") -> bool:
+    """Sent when a greeting-card order reports shipped from the printer."""
+    ship = order.get("shipping") or {}
+    recipient = html.escape((ship.get("name") or "your recipient").strip())
+    short = str(order.get("id", ""))[:8]
+    track_block = ""
+    if tracking_url:
+        safe_url = html.escape(tracking_url, quote=True)
+        carrier_txt = f" ({html.escape(carrier)})" if carrier else ""
+        track_block = f"""\
+<table role="presentation" cellpadding="0" cellspacing="0" style="margin:8px 0 20px;">
+  <tr><td style="border-radius:12px;background:{FOREST};">
+    <a href="{safe_url}" style="display:inline-block;padding:13px 26px;
+       color:{CREAM};text-decoration:none;font-weight:700;font-size:14px;">
+       Track the delivery{carrier_txt}</a>
+  </td></tr>
+</table>"""
     inner = f"""\
 <h1 style="margin:0 0 12px;font-size:22px;color:{FOREST};">Your card is on its way</h1>
 <p style="margin:0 0 16px;font-size:15px;line-height:1.6;">
@@ -219,6 +257,7 @@ def send_card_shipped(order: dict) -> bool:
   directly to <strong>{recipient}</strong>. It simply arrives, beautifully,
   from you.
 </p>
+{track_block}
 <p style="margin:0 0 16px;font-size:15px;line-height:1.6;">
   If anything is not right when it arrives, just reply to this email and we
   will make it right.
