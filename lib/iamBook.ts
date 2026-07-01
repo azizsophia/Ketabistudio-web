@@ -14,7 +14,7 @@ import {
 export const IAM_SLUG = "i-am";
 export const NAME_MAX = 24;
 export const DEDICATION_MAX = 220;
-export const PHOTO_SLOTS = 12; // all optional; empty slots print a designed page
+export const PHOTO_SLOTS = 12; // REQUIRED — the builder + API enforce cover + all 12
 
 export type Gender = "boy" | "girl";
 export type Colorway = "teal" | "rose";

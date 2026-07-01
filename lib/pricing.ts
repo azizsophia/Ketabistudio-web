@@ -9,8 +9,9 @@ export const TEST_DOLLAR_PRICING = true;
 
 export const BOOK_PRICE_CENTS = TEST_DOLLAR_PRICING ? 100 : 3499; // $1 test / $34.99 live (softcover, free US shipping baked in)
 
-/* Hardcover upsell — offered ONLY for the two personalized books
-   (her-beautiful-hijab, my-beautiful-duas). Softcover stays the default. */
+/* Hardcover — personalized books (her-beautiful-hijab, my-beautiful-duas,
+   i-am) as an upsell, and the ONLY binding for keepsake photobooks.
+   Softcover stays the default for storybooks. See HARDCOVER_SLUGS below. */
 export const HARDCOVER_PRICE_CENTS = TEST_DOLLAR_PRICING ? 100 : 4999; // $1 test / $49.99 live
 export const HARDCOVER_PRICE_DISPLAY = TEST_DOLLAR_PRICING ? "$1.00" : "$49.99";
 

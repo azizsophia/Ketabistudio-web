@@ -27,11 +27,6 @@ INTERIOR_IN = 8.75
 COVER_W_IN, COVER_H_IN = 17.39, 8.75
 TOL_IN = 0.02
 
-# mean abs pixel diff threshold (0-255). Certified baseline is ~0.004 at
-# native res; PDF rasterize + resize adds noise. Wrong skin/hair scores 20+.
-REF_MEAN_MAX = 8.0
-REF_DARK_MIN = 4.0   # guard against blank/white pages "passing"
-
 NAME_RE = re.compile(r"^[A-Za-z][A-Za-z '\-]{0,13}$")
 
 

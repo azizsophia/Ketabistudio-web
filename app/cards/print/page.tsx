@@ -20,9 +20,10 @@ import styles from "./print.module.css";
 // All card config arrives via URL search params (so the render is fully driven
 // by the query string); hence force-dynamic.
 //
-// TODO (phase 2b): a headless renderer (Playwright/Chromium) will hit this route
-// twice per card (face=outside, face=inside), screenshot at 2551 x 1819, and
-// feed the two PNGs to lib/prodigi.ts createOrder as the outside/inside assets.
+// NOTE: production card rendering does NOT use this route — the worker renders
+// print assets directly with PIL (worker/pipeline/card_pipeline.py) and submits
+// via worker/pipeline/prodigi_client.py / cloudprinter_client.py. This page is
+// a design-preview surface only.
 
 export const dynamic = "force-dynamic";
 
