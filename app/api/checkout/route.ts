@@ -104,10 +104,12 @@ export async function POST(req: NextRequest) {
   const childName = order.child_name?.trim();
   let bookName: string;
   if (isPhotobookSlug(order.book_slug)) {
-    // Photo-book keepsake — title comes from the recipient in photo_data.
+    // Photo-book keepsake — matches the printed cover (chosen title for the
+    // custom-title books, recipient-personalised for the rest).
     bookName = photobookOrderTitle(
       order.book_slug,
-      order.photo_data?.recipient_name
+      order.photo_data?.recipient_name,
+      order.photo_data?.cover_title
     );
   } else if (order.book_slug === "i-am" && childName) {
     bookName = `I Am ${childName}`;

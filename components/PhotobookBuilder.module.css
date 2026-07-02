@@ -106,6 +106,28 @@
   margin: 18px 0 6px;
   font-size: 0.95rem;
 }
+/* printed-cover title choice (custom-title keepsakes) — two vetted options */
+.titleChoiceRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.titleChoice {
+  padding: 10px 14px;
+  border: 1.5px solid #d8d2c4;
+  border-radius: 10px;
+  background: #fffdf8;
+  color: var(--ink);
+  font-size: 0.95rem;
+  font-family: inherit;
+  cursor: pointer;
+}
+.titleChoiceOn {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.2);
+  color: var(--forest);
+  font-weight: 600;
+}
 .input {
   width: 100%;
   padding: 12px 14px;

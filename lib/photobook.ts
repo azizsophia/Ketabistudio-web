@@ -51,6 +51,13 @@ export type PhotobookTemplate = {
   slug: PhotobookSlug;
   /** Storefront/product title. */
   title: string;
+  /** Optional printed-cover title choices (custom-title keepsakes only).
+   *  First entry is the default (the classic poetic title); the alternative
+   *  matches the parent books' "Everything … Love About …" form. The chosen
+   *  title prints on the cover/title page/spine AND is used on the Stripe
+   *  receipt + order emails, so the customer sees one name everywhere.
+   *  Mirrors worker/pipeline/photobook_pipeline.py TITLE_OPTIONS — keep in sync. */
+  titleOptions?: string[];
   /** Field labels shown in the builder. */
   recipientLabel: string;
   /** Example placeholder for the recipient name field. */
@@ -245,6 +252,7 @@ const ABOUT_GRANDPA: PhotobookTemplate = {
 const ABOUT_SPOUSE: PhotobookTemplate = {
   slug: "about-spouse",
   title: "The Coolness of My Eyes",
+  titleOptions: ["The Coolness of My Eyes", "Everything I Love About You"],
   recipientLabel: "Their name",
   recipientPlaceholder: "e.g. your husband or wife's name",
   authorLabel: "Your name",
@@ -284,6 +292,7 @@ const ABOUT_SPOUSE: PhotobookTemplate = {
 const ABOUT_BABY: PhotobookTemplate = {
   slug: "about-baby",
   title: "Welcome, Little One",
+  titleOptions: ["Welcome, Little One", "Everything We Love About Our Baby"],
   recipientLabel: "Baby's name",
   recipientPlaceholder: "e.g. Maryam, Yusuf",
   authorLabel: "From",
@@ -323,6 +332,7 @@ const ABOUT_BABY: PhotobookTemplate = {
 const OUR_RAMADAN: PhotobookTemplate = {
   slug: "our-ramadan",
   title: "Thirty Beautiful Nights",
+  titleOptions: ["Thirty Beautiful Nights", "Everything We Love About Ramadan"],
   recipientLabel: "What you're celebrating",
   recipientPlaceholder: "e.g. Ramadan or Eid",
   authorLabel: "Your family",
@@ -400,16 +410,36 @@ export type PhotobookData = {
   pages: PhotobookPage[];
 };
 
-/** The Stripe/receipt product title for a photo-book order. */
+/** Resolve the printed-cover title for a custom-title keepsake: the customer's
+ *  choice if it's one of the vetted options, else the default. */
+export function resolveCoverTitle(
+  slug: string,
+  coverTitle?: string | null
+): string | undefined {
+  const opts = getPhotobookTemplate(slug)?.titleOptions;
+  if (!opts) return undefined;
+  const c = (coverTitle || "").trim();
+  return opts.includes(c) ? c : opts[0];
+}
+
+/** The Stripe/receipt product title for a photo-book order. Matches the
+ *  printed cover exactly (one name everywhere). */
 export function photobookOrderTitle(
   slug: string,
-  recipientName?: string | null
+  recipientName?: string | null,
+  coverTitle?: string | null
 ): string {
   const t = getPhotobookTemplate(slug);
   if (!t) return "Ketabi Studio Keepsake";
   const r = (recipientName || "").trim();
+  const chosen = resolveCoverTitle(slug, coverTitle);
+  if (chosen) {
+    // custom-title keepsake: the chosen title IS the book's name; add the
+    // recipient for clarity except Ramadan (where "for Ramadan" reads oddly).
+    if (slug === "our-ramadan" || !r) return chosen;
+    return `${chosen} — for ${r}`;
+  }
   if (!r) return t.title;
-  if (slug === "our-ramadan") return `Everything I Love About ${r}`;
   const verb = slug === "about-baby" ? "We Love" : "I Love";
   return `Everything ${verb} About ${r}`;
 }

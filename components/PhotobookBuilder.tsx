@@ -92,6 +92,11 @@ export default function PhotobookBuilder({
   const [author, setAuthor] = useState("");
   const [coverPhoto, setCoverPhoto] = useState<Photo | null>(null);
   const [coverCrop, setCoverCrop] = useState<Crop | null>(null);
+  /* printed-cover title — a choice between two vetted titles (custom-title
+     keepsakes only); defaults to the classic poetic title */
+  const [coverTitle, setCoverTitle] = useState(
+    template.titleOptions?.[0] ?? template.title
+  );
 
   /* spreads */
   const [captions, setCaptions] = useState<string[]>([
@@ -295,6 +300,7 @@ export default function PhotobookBuilder({
           template: template.slug,
           recipient_name: recipient.trim(),
           author_name: author.trim(),
+          cover_title: coverTitle,
           cover_photo_url: coverPhoto!.url,
           cover_crop: coverCrop,
           pages: captions.map((c, i) => ({
@@ -346,6 +352,7 @@ export default function PhotobookBuilder({
       template={template}
       recipient={recipient}
       author={author}
+      coverTitle={coverTitle}
       coverPhotoUrl={coverPhoto?.url || null}
       coverCrop={coverCrop}
       pages={captions.map((c, i) => ({ caption: c, url: photos[i]?.url || null, crop: pageCrops[i] }))}
@@ -373,6 +380,28 @@ export default function PhotobookBuilder({
           <p className={styles.stepLabel}>Step 1 of 3</p>
           <h1 className={styles.heading}>{template.title}</h1>
           <p className={styles.sub}>{template.blurb}</p>
+
+          {template.titleOptions && template.titleOptions.length > 1 && (
+            <>
+              <span className={styles.label}>Cover title</span>
+              <div className={styles.titleChoiceRow} role="radiogroup" aria-label="Cover title">
+                {template.titleOptions.map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    role="radio"
+                    aria-checked={coverTitle === t}
+                    className={`${styles.titleChoice} ${
+                      coverTitle === t ? styles.titleChoiceOn : ""
+                    }`}
+                    onClick={() => setCoverTitle(t)}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
 
           <label className={styles.label} htmlFor="recipient">
             {template.recipientLabel}

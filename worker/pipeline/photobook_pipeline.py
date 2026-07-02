@@ -102,6 +102,27 @@ TITLES = {
 # personalised "Everything I/We Love About <name>" form.
 CUSTOM_COVER_TITLE = {"about-spouse", "about-baby", "our-ramadan"}
 
+# Customer-choosable printed-cover titles for the custom-title keepsakes.
+# First entry = the classic default; the alternative matches the parent books'
+# "Everything … Love About …" voice. Mirrors lib/photobook.ts titleOptions —
+# keep in sync. The order API only ever stores one of these vetted strings in
+# photo_data.cover_title (never free text).
+TITLE_OPTIONS = {
+    "about-spouse": ["The Coolness of My Eyes", "Everything I Love About You"],
+    "about-baby": ["Welcome, Little One", "Everything We Love About Our Baby"],
+    "our-ramadan": ["Thirty Beautiful Nights", "Everything We Love About Ramadan"],
+}
+_DEFAULT_TITLES = dict(TITLES)
+
+
+def _set_cover_title(template, chosen):
+    """Apply the customer's chosen cover title for THIS build (or reset to the
+    default). Same per-build pattern as _set_accent: build() always calls this,
+    so a choice can never leak into the next order."""
+    opts = TITLE_OPTIONS.get(template, [])
+    TITLES[template] = (chosen if chosen in opts
+                        else _DEFAULT_TITLES.get(template, ""))
+
 # The heartfelt dedication line (set beneath the recipient's name). Warm and
 # faith-rooted; the recipient's and author's names frame it on the page.
 DEDICATIONS = {
@@ -695,6 +716,8 @@ def build(photo_data, out_dir, cover_type="hardcover", client=None,
     import img2pdf
 
     _set_accent(template)  # swap the line's accent colour to this category
+    # customer's printed-cover title (vetted choice; resets to default if absent)
+    _set_cover_title(template, (photo_data.get("cover_title") or "").strip())
 
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)

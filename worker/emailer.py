@@ -135,16 +135,20 @@ def _book_label(order: dict) -> str:
     if slug in everything_about:
         who = recipient or everything_about[slug]
         return f"Everything I Love About {who}"
-    # Custom-title keepsakes don't carry the name in the title, so "for <name>"
-    # is meaningful here.
-    custom_titles = {
-        "about-spouse": "About You",
-        "about-baby": "About Our Baby",
-        "our-ramadan": "Our Ramadan",
+    # Custom-title keepsakes: use the customer's chosen printed-cover title
+    # (photo_data.cover_title, always one of the vetted options) so the email
+    # matches the printed book and the Stripe receipt exactly. "for <name>"
+    # is added where meaningful (never for Ramadan, where it reads oddly).
+    custom_defaults = {
+        "about-spouse": "The Coolness of My Eyes",
+        "about-baby": "Welcome, Little One",
+        "our-ramadan": "Thirty Beautiful Nights",
     }
-    if slug in custom_titles:
-        base = custom_titles[slug]
-        return f"{base} for {recipient}" if recipient else base
+    if slug in custom_defaults:
+        title = (pd.get("cover_title") or "").strip() or custom_defaults[slug]
+        if slug == "our-ramadan" or not recipient:
+            return title
+        return f"{title} — for {recipient}"
     return {
         "juha-and-the-enormous-pumpkin": "Juha and the Enormous Pumpkin",
         "maryam-is-kind-to-her-parents": "Maryam is Kind to Her Parents",

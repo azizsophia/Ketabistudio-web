@@ -50,6 +50,7 @@ export default function KeepsakeLivePreview({
   template,
   recipient,
   author,
+  coverTitle,
   coverPhotoUrl,
   coverCrop,
   pages,
@@ -57,10 +58,13 @@ export default function KeepsakeLivePreview({
   template: PhotobookTemplate;
   recipient: string;
   author: string;
+  /** Chosen printed-cover title (custom-title keepsakes); defaults to template.title. */
+  coverTitle?: string;
   coverPhotoUrl: string | null;
   coverCrop?: Crop | null;
   pages: Page[];
 }) {
+  const printedTitle = coverTitle?.trim() || template.title;
   const who = recipient.trim() || template.recipientLabel.replace(/'s name$/, "");
   const by = author.trim();
   const verb = template.slug === "about-baby" ? "Everything We Love" : "Everything I Love";
@@ -77,7 +81,7 @@ export default function KeepsakeLivePreview({
       <span className={s.coverOverlay}>
         <span className={s.coverKicker}>A Keepsake</span>
         {customCover ? (
-          <span className={s.coverTitle}>{template.title}</span>
+          <span className={s.coverTitle}>{printedTitle}</span>
         ) : (
           <>
             <span className={s.coverTitle}>{verb}</span>
@@ -95,7 +99,7 @@ export default function KeepsakeLivePreview({
       <Frame />
       <span className={s.kicker}>A Keepsake</span>
       {customCover ? (
-        <span className={s.title}>{template.title}</span>
+        <span className={s.title}>{printedTitle}</span>
       ) : (
         <>
           <span className={s.title}>{verb}</span>

@@ -4,6 +4,7 @@ import {
   getPhotobookTemplate,
   photobookSpreadCount,
   isPhotobookSlug,
+  resolveCoverTitle,
   CAPTION_MAX,
 } from "@/lib/photobook";
 import { type Crop, isValidCrop } from "@/lib/photoCrop";
@@ -172,6 +173,11 @@ export async function POST(req: NextRequest) {
       author_name: authorName,
       cover_photo_url: coverPhotoUrl,
       cover_crop: cropOrNull(body.cover_crop),
+      // printed-cover title: always resolved to a vetted option (never free
+      // text) — resolveCoverTitle falls back to the template default.
+      ...(template.titleOptions
+        ? { cover_title: resolveCoverTitle(slug, String(body.cover_title || "")) }
+        : {}),
       pages,
     },
     status: "awaiting_payment",
