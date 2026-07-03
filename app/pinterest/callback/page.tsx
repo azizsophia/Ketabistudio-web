@@ -42,7 +42,6 @@ export default async function PinterestCallback({
             <textarea
               readOnly
               value={code}
-              onFocus={(e) => e.currentTarget.select()}
               style={{
                 width: "100%",
                 marginTop: 16,
