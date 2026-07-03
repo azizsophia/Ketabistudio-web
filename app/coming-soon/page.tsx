@@ -113,8 +113,9 @@ export default function ComingSoon() {
           <p className={styles.eyebrow}>Available today</p>
           <h2 className={styles.h2}>The Ketabi app is here now</h2>
           <p className={styles.sectionLede}>
-            Stories, adhkar, and gentle daily habits for children — download
-            it free while you wait for the shop.
+            Your daily companion for dhikr and reflection — track your adhkar,
+            journal the Quran, and watch your Garden in Jannah grow. Free,
+            ad-free, and available now while you wait for the shop.
           </p>
           <div className={styles.appShots}>
             {APP_SHOTS.map((s, i) => (
