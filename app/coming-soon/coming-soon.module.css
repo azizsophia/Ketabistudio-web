@@ -151,6 +151,7 @@
   gap: 8px;
   margin: 18px 0 0;
   flex-wrap: wrap;
+  justify-content: center;
 }
 .waitInput {
   flex: 1 1 200px;

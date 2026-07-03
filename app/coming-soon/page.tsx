@@ -113,7 +113,7 @@ export default function ComingSoon() {
           <p className={styles.eyebrow}>Available today</p>
           <h2 className={styles.h2}>The Ketabi app is here now</h2>
           <p className={styles.sectionLede}>
-            Stories, adhkar, and gentle daily habits for little hearts — download
+            Stories, adhkar, and gentle daily habits for children — download
             it free while you wait for the shop.
           </p>
           <div className={styles.appShots}>
