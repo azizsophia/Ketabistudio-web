@@ -25,6 +25,7 @@ const ALLOW = [
   "/cards/print",
   "/c",
   "/admin",
+  "/pinterest/callback", // one-time OAuth landing for the auto-poster
 ];
 
 export function middleware(req: NextRequest) {
