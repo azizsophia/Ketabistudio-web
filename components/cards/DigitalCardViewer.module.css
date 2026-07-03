@@ -403,16 +403,30 @@
   margin: 22px 0 0;
 }
 .made {
-  margin: 26px 0 0;
-  font-size: 0.82rem;
+  margin: 30px 0 4px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(138, 129, 112, 0.22);
+  text-align: center;
 }
-.madeLink {
+.madeLead {
+  margin: 0 0 12px;
+  font-size: 0.9rem;
   color: #8a8170;
-  text-decoration: underline;
-  text-underline-offset: 3px;
 }
-.madeLink:hover {
-  color: #5f5848;
+.madeCta {
+  display: inline-block;
+  padding: 11px 22px;
+  border: 1.5px solid currentColor;
+  border-radius: 999px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+.madeCta:hover {
+  background: color-mix(in srgb, currentColor 10%, transparent);
+  transform: translateY(-1px);
 }
 
 /* ── accessibility: no motion ── */

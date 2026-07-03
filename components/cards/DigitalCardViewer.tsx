@@ -194,11 +194,16 @@ export default function DigitalCardViewer(props: DigitalCardView) {
 
         {sender && <p className={styles.sender}>{sender}</p>}
 
-        <p className={styles.made}>
-          <Link href="/digital-cards" className={styles.madeLink}>
-            Make your own card
+        <div className={styles.made}>
+          <p className={styles.madeLead}>Want to send one like this?</p>
+          <Link
+            href="/digital-cards?utm_source=card&utm_medium=viral&utm_campaign=make-your-own"
+            className={styles.madeCta}
+            style={{ borderColor: accent, color: accent }}
+          >
+            Make your own with Ketabi →
           </Link>
-        </p>
+        </div>
       </article>
 
       {/* keep reduced-motion users from missing the (now-skipped) cover */}
