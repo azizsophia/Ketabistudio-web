@@ -2,25 +2,29 @@ import { NextRequest, NextResponse } from "next/server";
 import { COMING_SOON, PREVIEW_KEY } from "@/lib/flags";
 
 /* ── Coming-soon gate ──────────────────────────────────────────────
-   When COMING_SOON (lib/flags.ts) is true, the public is redirected to
-   /coming-soon (which promotes the app + keeps the legal pages reachable
-   for the App Store / Play listings). The owner browses + places test
-   orders by visiting any page with ?preview=<PREVIEW_KEY> once — that sets
-   a bypass cookie. Flip COMING_SOON to false in lib/flags.ts to go live. */
+   When COMING_SOON (lib/flags.ts) is true, the public sees ONLY the
+   coming-soon page and the privacy policy — every other page is redirected
+   to /coming-soon. The owner browses + places test orders by visiting any
+   page with ?preview=<PREVIEW_KEY> once — that sets a bypass cookie. Flip
+   COMING_SOON to false in lib/flags.ts to go live. */
 
 const COOKIE = "ketabi_preview";
 
-/* Always reachable, even behind the gate. The legal pages are linked from
-   the App Store / Play listings; /cards/print is the chrome-free render the
-   worker screenshots for Prodigi print assets. */
+/* Always reachable, even behind the gate. Pre-launch the public sees ONLY the
+   coming-soon page and the privacy policy (the one legal page the App Store /
+   Play listings link to). Everything else here is a functional endpoint, not a
+   browsable marketing page — gating it would break a live feature, so it stays
+   open:
+     /cards/print — the chrome-free render the worker screenshots for print
+     /c           — delivered digital-card links must open for recipients
+     /admin       — password-protected (ADMIN_KEY); the owner's own tooling
+   Terms, the refund policy and the whole shop stay gated until launch. */
 const ALLOW = [
   "/coming-soon",
   "/privacy-policy",
-  "/terms",
-  "/refund-policy",
   "/cards/print",
-  "/c", // shared digital-card links must open for recipients even pre-launch
-  "/admin", // password-protected (ADMIN_KEY); always reachable for the owner
+  "/c",
+  "/admin",
 ];
 
 export function middleware(req: NextRequest) {

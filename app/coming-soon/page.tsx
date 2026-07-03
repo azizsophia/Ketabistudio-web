@@ -219,8 +219,6 @@ export default function ComingSoon() {
           <nav className={styles.legal} aria-label="Legal">
             <Link href="/privacy-policy">Privacy Policy</Link>
             <span aria-hidden="true">·</span>
-            <Link href="/terms">Terms</Link>
-            <span aria-hidden="true">·</span>
             <a href="mailto:ketabistudio@gmail.com">Contact</a>
           </nav>
           <p className={styles.copyright}>© {new Date().getFullYear()} Ketabi Studio</p>
