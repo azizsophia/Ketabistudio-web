@@ -5,212 +5,226 @@ import styles from "./coming-soon.module.css";
 import WaitlistForm from "./WaitlistForm";
 
 export const metadata: Metadata = {
-  title: "Coming soon",
+  title: "Ketabi Studio — Islamic keepsakes, books & cards, coming soon",
   description:
-    "Ketabi Studio. Personalized Islamic storybooks, hardcover photo keepsakes, and beautifully made greeting cards, each sealed with a dua. Join the founding list and download the Ketabi app today.",
+    "Personalized Islamic storybooks, hardcover photo keepsakes you fill with your own photos, and beautifully made greeting cards — each sealed with a dua. Join the founding list for early access + a founding discount. The Ketabi app is available today.",
 };
 
 const APP_STORE = "https://apps.apple.com/us/app/ketabi/id6768112231";
 const GOOGLE_PLAY =
   "https://play.google.com/store/apps/details?id=com.ketabi.myapp";
 
-const TOUR = [
+/* product showcases — real, photo-filled imagery */
+const KEEPSAKES = [
   {
-    src: "/images/book-amira.jpg",
-    title: "Her Beautiful Hijab",
-    note: "Personalized, with her name on the cover and through every page",
+    src: "/images/coming-soon/keepsake-baba.jpg",
+    title: "Everything I Love About Baba",
   },
   {
-    src: "/images/book-duas.jpg",
-    title: "Beautiful Duas",
-    note: "A dua for every moment, with your child as the star",
+    src: "/images/coming-soon/keepsake-mama.jpg",
+    title: "Everything I Love About Mama",
   },
-  {
-    src: "/images/book-juha.jpg",
-    title: "Juha & the Enormous Pumpkin",
-    note: "A warm, witty folktale to read together",
-  },
-  {
-    src: "/images/book-maryam.jpg",
-    title: "Maryam is Kind to Her Parents",
-    note: "Little hands, big kindness, ending on the Quranic dua",
-  },
+];
+
+const BOOKS = [
+  { src: "/images/coming-soon/iam.jpg", title: "I Am [Your Child]", tag: "Personalized" },
+  { src: "/images/book-amira.jpg", title: "Her Beautiful Hijab", tag: "Personalized" },
+  { src: "/images/book-duas.jpg", title: "My Beautiful Duas", tag: "Personalized" },
+  { src: "/images/book-juha.jpg", title: "Juha & the Enormous Pumpkin", tag: "Storybook" },
+  { src: "/images/book-maryam.jpg", title: "Maryam is Kind to Her Parents", tag: "Storybook" },
 ];
 
 const CARDS = [
   { src: "/images/cards/eid.jpg", title: "Eid" },
   { src: "/images/cards/nikah.jpg", title: "Nikah" },
   { src: "/images/cards/baby.jpg", title: "New Baby" },
-  { src: "/images/cards/wife.jpg", title: "For My Wife" },
+  { src: "/images/cards/ramadan.jpg", title: "Ramadan" },
 ];
 
-const PERKS = [
-  "Early access to shop before we open to everyone",
-  "First look at every new book, keepsake and card",
-  "A founding member welcome when we open, Inshallah",
+const APP_SHOTS = [
+  "/images/app-home.jpg",
+  "/images/app-garden.jpg",
+  "/images/app-adhkar.jpg",
+  "/images/app-journal.jpg",
 ];
 
 export default function ComingSoon() {
   return (
     <div className={styles.screen}>
       <div className={styles.inner}>
-        {/* ── hero ── */}
-        <p className={styles.bismillah}>بِسۡمِ ٱللَّهِ ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ</p>
+        {/* ─────────── HERO ─────────── */}
+        <header className={styles.hero}>
+          <p className={styles.bismillah}>بِسۡمِ ٱللَّهِ ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ</p>
 
-        <Image
-          src="/images/logo-vertical.png"
-          alt="Ketabi Studio"
-          width={170}
-          height={173}
-          className={styles.logo}
-          priority
-        />
+          <Image
+            src="/images/logo-vertical.png"
+            alt="Ketabi Studio"
+            width={132}
+            height={134}
+            className={styles.logo}
+            priority
+          />
 
-        <h1 className={styles.h1}>
-          Something beautiful
-          <br />
-          is coming<span className={styles.gold}>.</span>
-        </h1>
+          <h1 className={styles.h1}>
+            Islamic keepsakes your family
+            <br className={styles.brDesk} /> will treasure forever
+          </h1>
 
-        <p className={styles.lede}>
-          Beautiful, intentional Islamic gifts for the whole family.
-          Personalized storybooks, hardcover photo keepsakes you fill with your
-          own photos, and beautifully made greeting cards, each one sealed with a
-          dua. Opening soon, Inshallah.
-        </p>
-
-        {/* ── waitlist ── */}
-        <div className={styles.waitWrap}>
-          <p className={styles.waitLabel}>Join the founding list</p>
-          <ul className={styles.perks}>
-            {PERKS.map((p) => (
-              <li key={p} className={styles.perk}>
-                <span className={styles.perkMark} aria-hidden="true">
-                  ✦
-                </span>
-                {p}
-              </li>
-            ))}
-          </ul>
-          <WaitlistForm />
-          <p className={styles.waitFine}>
-            One note when we open. No spam, ever.
+          <p className={styles.lede}>
+            Personalized storybooks · hardcover photo keepsakes · greeting cards —
+            each one sealed with a dua. Opening soon, inshaAllah.
           </p>
-        </div>
 
-        {/* ── app available today (above the books) ── */}
-        <p className={styles.appNote}>The Ketabi app is here today</p>
+          {/* the product, front and centre, above the fold */}
+          <div className={styles.heroShowcase}>
+            <div className={styles.heroMain}>
+              <Image
+                src="/images/coming-soon/keepsake-baba.jpg"
+                alt="A hardcover keepsake — Everything I Love About Baba"
+                width={520}
+                height={520}
+                className={styles.heroImg}
+                priority
+              />
+            </div>
+            <div className={styles.heroSide}>
+              <Image src="/images/coming-soon/iam.jpg" alt="Personalized I Am book" width={260} height={260} className={styles.heroThumb} />
+              <Image src="/images/cards/eid.jpg" alt="Eid greeting card" width={260} height={360} className={styles.heroThumbTall} />
+            </div>
+          </div>
 
-        <div className={styles.stores}>
-          <a
-            href={APP_STORE}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.storeBtn}
-          >
-            <span className={styles.storeKicker}>Download on the</span>
-            <span className={styles.storeName}>App Store</span>
-          </a>
-          <a
-            href={GOOGLE_PLAY}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.storeBtn}
-          >
-            <span className={styles.storeKicker}>Get it on</span>
-            <span className={styles.storeName}>Google Play</span>
-          </a>
-        </div>
+          {/* ─── the founding offer + capture, above the fold ─── */}
+          <div className={styles.offer}>
+            <span className={styles.offerBadge}>Founding list</span>
+            <p className={styles.offerHead}>
+              Be first in — and get <span className={styles.gold}>20% off</span> your first order
+            </p>
+            <p className={styles.offerSub}>
+              Join now for early access before we open to everyone, plus your
+              founding-member discount when the shop launches, inshaAllah.
+            </p>
+            <WaitlistForm />
+            <p className={styles.waitFine}>One email when we open. No spam, ever.</p>
+          </div>
+        </header>
 
-        {/* ── a peek at what's coming ── */}
-        <div className={styles.tourHead}>
-          <span className={styles.tourRule} aria-hidden="true" />
-          <span>A peek at what&apos;s coming</span>
-          <span className={styles.tourRule} aria-hidden="true" />
-        </div>
-
-        <p className={styles.peekSub}>Personalized storybooks</p>
-        <p className={styles.tourIntro}>
-          A whole shelf of children&apos;s books, some personalized so your
-          little one becomes the star of their very own story.
-        </p>
-
-        <div className={styles.tourGrid}>
-          {TOUR.map((b) => (
-            <figure key={b.title} className={styles.tourCard}>
-              <span className={styles.tourImgWrap}>
-                <Image
-                  src={b.src}
-                  alt={b.title}
-                  width={300}
-                  height={300}
-                  className={styles.tourImg}
-                />
-                <span className={styles.tourSheen} aria-hidden="true" />
+        {/* ─────────── APP — available today ─────────── */}
+        <section className={styles.appBand}>
+          <p className={styles.eyebrow}>Available today</p>
+          <h2 className={styles.h2}>The Ketabi app is here now</h2>
+          <p className={styles.sectionLede}>
+            Stories, adhkar, and gentle daily habits for little hearts — download
+            it free while you wait for the shop.
+          </p>
+          <div className={styles.appShots}>
+            {APP_SHOTS.map((s, i) => (
+              <span key={s} className={`${styles.phone} ${styles[`phone${i}`]}`}>
+                <Image src={s} alt="Ketabi app" width={220} height={476} />
               </span>
-              <figcaption className={styles.tourCap}>
-                <span className={styles.tourTitle}>{b.title}</span>
-                <span className={styles.tourNote}>{b.note}</span>
-              </figcaption>
-            </figure>
-          ))}
-        </div>
-
-        <p className={styles.peekSub}>Photo keepsakes</p>
-        <p className={styles.tourIntro}>
-          Hardcover books you fill with your own photos, each page with a
-          heartfelt line written for you, for Mama, Baba, grandparents, your
-          spouse, a new baby, and Ramadan. Sealed with a dua.
-        </p>
-
-        <p className={styles.peekSub}>Greeting cards</p>
-        <p className={styles.tourIntro}>
-          Beautifully designed Islamic cards, each with a vetted dua,
-          personalized and posted straight to your loved ones.
-        </p>
-
-        <div className={styles.cardsRow}>
-          {CARDS.map((c) => (
-            <span key={c.title} className={styles.cardThumb}>
-              <Image src={c.src} alt={c.title} width={300} height={420} />
-            </span>
-          ))}
-        </div>
-
-        {/* ── follow us ── */}
-        <div className={styles.followWrap}>
-          <p className={styles.followLabel}>Follow us</p>
-          <div className={styles.socials}>
-            <a
-              href="https://www.youtube.com/@KetabiStudio"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.socialBtn}
-            >
-              YouTube
+            ))}
+          </div>
+          <div className={styles.stores}>
+            <a href={APP_STORE} target="_blank" rel="noopener noreferrer" className={styles.storeBtn}>
+              <span className={styles.storeKicker}>Download on the</span>
+              <span className={styles.storeName}>App Store</span>
             </a>
-            <a
-              href="https://www.tiktok.com/@ketabi.studio"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.socialBtn}
-            >
-              TikTok
+            <a href={GOOGLE_PLAY} target="_blank" rel="noopener noreferrer" className={styles.storeBtn}>
+              <span className={styles.storeKicker}>Get it on</span>
+              <span className={styles.storeName}>Google Play</span>
             </a>
           </div>
-        </div>
+        </section>
 
-        <nav className={styles.legal} aria-label="Legal">
-          <Link href="/privacy-policy">Privacy Policy</Link>
-          <span aria-hidden="true">·</span>
-          <Link href="/terms">Terms</Link>
-          <span aria-hidden="true">·</span>
-          <a href="mailto:ketabistudio@gmail.com">Contact</a>
-        </nav>
+        {/* ─────────── KEEPSAKES ─────────── */}
+        <section className={styles.section}>
+          <p className={styles.eyebrow}>The keepsake collection</p>
+          <h2 className={styles.h2}>Hardcover books, filled with your photos</h2>
+          <p className={styles.sectionLede}>
+            Twenty things you love about them — for Mama, Baba, grandparents, your
+            spouse, a new baby, or Ramadan — each page a heartfelt line, sealed
+            with a dua.
+          </p>
+          <div className={styles.duo}>
+            {KEEPSAKES.map((k) => (
+              <figure key={k.title} className={styles.showCard}>
+                <span className={styles.showImgWrap}>
+                  <Image src={k.src} alt={k.title} width={440} height={440} className={styles.showImg} />
+                </span>
+                <figcaption className={styles.showCap}>{k.title}</figcaption>
+              </figure>
+            ))}
+          </div>
+        </section>
 
-        <p className={styles.copyright}>
-          © {new Date().getFullYear()} Ketabi Studio
-        </p>
+        {/* ─────────── BOOKS ─────────── */}
+        <section className={styles.section}>
+          <p className={styles.eyebrow}>The bookshelf</p>
+          <h2 className={styles.h2}>Books that make your child the hero</h2>
+          <p className={styles.sectionLede}>
+            Personalized Islamic storybooks starring your little one, plus warm
+            folktales to read together.
+          </p>
+          <div className={styles.bookGrid}>
+            {BOOKS.map((b) => (
+              <figure key={b.title} className={styles.bookCard}>
+                <span className={styles.bookImgWrap}>
+                  <Image src={b.src} alt={b.title} width={320} height={320} className={styles.bookImg} />
+                  <span className={styles.tagPill}>{b.tag}</span>
+                </span>
+                <figcaption className={styles.bookCap}>{b.title}</figcaption>
+              </figure>
+            ))}
+          </div>
+        </section>
+
+        {/* ─────────── CARDS ─────────── */}
+        <section className={styles.section}>
+          <p className={styles.eyebrow}>Greeting cards</p>
+          <h2 className={styles.h2}>Sent for you, sealed with a dua</h2>
+          <p className={styles.sectionLede}>
+            Beautiful Islamic cards, personalized and posted straight to your
+            loved ones — or send a digital card in minutes.
+          </p>
+          <div className={styles.cardsRow}>
+            {CARDS.map((c) => (
+              <figure key={c.title} className={styles.cardThumb}>
+                <Image src={c.src} alt={c.title} width={280} height={388} />
+                <figcaption className={styles.cardCap}>{c.title}</figcaption>
+              </figure>
+            ))}
+          </div>
+        </section>
+
+        {/* ─────────── SECOND CAPTURE ─────────── */}
+        <section className={styles.finalCta}>
+          <h2 className={styles.finalHead}>
+            Don&apos;t miss the opening<span className={styles.gold}>.</span>
+          </h2>
+          <p className={styles.finalSub}>
+            Founding members get in first and save 20% on their first order,
+            inshaAllah.
+          </p>
+          <div className={styles.finalForm}>
+            <WaitlistForm />
+          </div>
+          <p className={styles.waitFine}>One email when we open. No spam, ever.</p>
+        </section>
+
+        {/* ─────────── FOOTER ─────────── */}
+        <footer className={styles.footer}>
+          <div className={styles.socials}>
+            <a href="https://www.youtube.com/@KetabiStudio" target="_blank" rel="noopener noreferrer" className={styles.socialBtn}>YouTube</a>
+            <a href="https://www.tiktok.com/@ketabi.studio" target="_blank" rel="noopener noreferrer" className={styles.socialBtn}>TikTok</a>
+          </div>
+          <nav className={styles.legal} aria-label="Legal">
+            <Link href="/privacy-policy">Privacy Policy</Link>
+            <span aria-hidden="true">·</span>
+            <Link href="/terms">Terms</Link>
+            <span aria-hidden="true">·</span>
+            <a href="mailto:ketabistudio@gmail.com">Contact</a>
+          </nav>
+          <p className={styles.copyright}>© {new Date().getFullYear()} Ketabi Studio</p>
+        </footer>
       </div>
     </div>
   );
