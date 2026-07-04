@@ -14,6 +14,7 @@ const GRAPH = "https://graph.facebook.com/v21.0";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
+// deploy: 1
 
 type Config = {
   meta_user_token: string;
