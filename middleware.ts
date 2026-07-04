@@ -22,6 +22,7 @@ const COOKIE = "ketabi_preview";
 const ALLOW = [
   "/coming-soon",
   "/privacy-policy",
+  "/terms", // required as a public URL by the TikTok / Meta developer apps
   "/cards/print",
   "/c",
   "/admin",
