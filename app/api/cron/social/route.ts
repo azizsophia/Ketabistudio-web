@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { runSocialQc } from "@/lib/socialQc";
+import {
+  loadThreadsCreds,
+  refreshedThreadsCreds,
+  publishThreads,
+  type ThreadsCreds,
+} from "@/lib/threads";
 
 // Auto-poster. A daily Vercel cron hits this. It pulls EVERY already-reviewed
 // post that is due today from social_queue, runs the QC gate once more, then
@@ -258,12 +264,19 @@ async function publishFbVideo(
   return d.id;
 }
 
-// Publish one post to whichever platforms it targets. Throws on failure.
-async function publishOne(cfg: Config, token: string, post: Post) {
+// Publish one post to whichever platforms it targets. Throws on failure of a
+// core platform (IG/FB); the Threads mirror is best-effort and never blocks.
+async function publishOne(cfg: Config, token: string, post: Post, th: ThreadsCreds | null) {
   const platforms = String(post.platforms || "ig,fb")
     .split(",")
     .map((s) => s.trim());
-  const out: { ig_media_id?: string; ig_permalink?: string; fb_post_id?: string } = {};
+  const out: {
+    ig_media_id?: string;
+    ig_permalink?: string;
+    fb_post_id?: string;
+    th_post_id?: string;
+    th_error?: string;
+  } = {};
   const urls = mediaUrls(post.image_url);
 
   if (platforms.includes("ig")) {
@@ -283,6 +296,16 @@ async function publishOne(cfg: Config, token: string, post: Post) {
       out.fb_post_id = await publishFbVideo(cfg.meta_page_id, token, urls[0], post.caption);
     } else {
       out.fb_post_id = await publishFbPhoto(cfg.meta_page_id, token, urls[0], post.caption);
+    }
+  }
+  // Threads mirror: same media + de-hashtagged caption. Best-effort — a
+  // Threads hiccup must never fail (and re-run) a post that already went out
+  // on IG/FB.
+  if (th) {
+    try {
+      out.th_post_id = await publishThreads(th, urls[0], post.caption, isReel(post.image_url));
+    } catch (e) {
+      out.th_error = (e instanceof Error ? e.message : "unknown").slice(0, 200);
     }
   }
   return out;
@@ -319,6 +342,10 @@ export async function GET(req: NextRequest) {
   dueRows.sort((a, b) => Number(isReel(a.image_url)) - Number(isReel(b.image_url)));
 
   const token = await currentPageToken(cfg);
+  // Threads is optional: null until the owner completes the one-time connect
+  // at /api/social/threads/connect, after which every post mirrors there.
+  let th = await loadThreadsCreds();
+  if (th) th = await refreshedThreadsCreds(th);
   const results: Array<Record<string, unknown>> = [];
 
   for (const post of dueRows) {
@@ -339,7 +366,7 @@ export async function GET(req: NextRequest) {
     }
 
     try {
-      const out = await publishOne(cfg, token, post);
+      const out = await publishOne(cfg, token, post, th);
       await patchPost(post.id, {
         status: "published",
         qc: verdict,

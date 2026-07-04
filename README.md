@@ -735,6 +735,26 @@ crashed it with a server-side exception).
   (zero fact risk); only add Arabic after careful verification and only
   well-known short phrases. Never any Star of David / six-pointed star.
 
+### Threads mirroring (built 2026-07-04, awaiting owner's one-time connect)
+Every published post can mirror to Threads (same media, caption with the
+hashtag block stripped + 500-char cap + plain `ketabistudio.com` footer —
+see `lib/threads.ts`). Credentials live in a PRIVATE Supabase storage bucket
+(`social-config/threads.json`), not a table column, because DDL isn't
+available without the SQL editor; the cron refreshes the 60-day token weekly.
+The mirror is best-effort: a Threads failure never fails/retries a post that
+already went out on IG/FB. To activate, the owner must (one-time):
+1. developers.facebook.com → Create App → use case **"Access the Threads API"**
+   (Threads apps are separate from the Facebook Login app).
+2. In the Threads app settings: add redirect callback URL
+   `https://www.ketabistudio.com/api/social/threads/connect`, copy the
+   **Threads App ID + secret**.
+3. App roles → add her Threads account (@ketabistudio) as a **Threads Tester**,
+   then accept the invite in the Threads app (Settings → Account → Website
+   permissions) — required while the app is in dev mode.
+4. Vercel env vars: `THREADS_APP_ID`, `THREADS_APP_SECRET` (no whitespace!).
+5. Visit `https://www.ketabistudio.com/api/social/threads/connect` once and
+   authorize. The page confirms "Threads connected ✓" and mirroring is live.
+
 ### Poster capabilities (2026-07-04)
 The daily cron now publishes **images, reels (IG Reels + FB video), AND
 carousels** — post type is inferred from the media URL so no schema columns
