@@ -756,14 +756,28 @@ cadence the owner asked for.
 - QC media checks (`media-https`, `media-reachable`) cover video too; HEAD with
   a ranged-GET fallback.
 
-### Queue state (2026-07-04)
-**Live in the new faceless look:** static s1 (`instagram.com/p/DaYASy4GeoL`) and
-the first silent reel (`instagram.com/reel/DaYAuaakh8M`) — both on IG + FB.
-Statics s2, s3 queued for 07-05 and 07-06 (static-only until more reels are
-rendered). **The reel bank is the bottleneck for a daily reel** — batch-render
-more from `scratchpad/lux/reel/` and enqueue reel+static pairs before it runs
-dry. Enqueue via `POST /api/social/enqueue` (`replace:true` wipes the pending
-queue first).
+### Curated grid (2026-07-04)
+Owner wants a **very curated grid**, not just good individual posts. The system
+is a **checkerboard**: dark filmic reminder/reel ↔ cream card, faceless, one
+warm palette, never repeat a background (see `content-tools/`). With a 3-wide
+grid, strict dark↔light alternation is always a checkerboard. Each day =
+**1 reel (dark) + 1 cream card (light)**.
+
+The first two live posts (a reel + a static) were BOTH dark window-light and
+read as a repeat, so the owner chose to **delete both and start fresh** — note
+**Instagram has no API delete**, so those two must be removed by hand in the app
+(reel `instagram.com/reel/DaYAuaakh8M`, post `instagram.com/p/DaYASy4GeoL`).
+
+**Queue (curated, replace'd 2026-07-04):** 3 reel+card pairs, one pair/day at
+16:00 UTC:
+- 07-05 — cream "Raising little believers" + reel `reel_window` (Allah is nearer)
+- 07-06 — cream "I Am book / your child the hero" + reel `reel_quran` (keep the Qur'an close)
+- 07-07 — cream "A mother's dua is never wasted" + reel `reel_beads` (every dhikr)
+
+**Refill before 07-08.** Batch more reels via `content-tools/batch_reels.py`
+(varied faceless backgrounds in `scratchpad/lux/`: light, c_8164567 Qur'an+beads,
+t_36855575 tasbih, c_34531681 coffee+shadow, c_29100259 open Qur'an, im_18809860
+rose) + cream cards, keep the checkerboard, QC by eye, enqueue reel+card pairs.
 
 ## Pinterest (boards only — pins blocked)
 - @ketabi_studio connected. OAuth app id `1587172`. **8 keyword boards created
