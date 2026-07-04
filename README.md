@@ -697,6 +697,15 @@ crashed it with a server-side exception).
   Generated with PIL + numpy scripts in the session scratchpad (not committed —
   film-grade recipe: `a*0.90+16`, R×1.05 B×0.93, 15% desat, GaussianBlur(14)
   blend 0.13, grain ±8).
+- **Text legibility over photos is ADAPTIVE** (owner flagged washed-out text on
+  pale photos, like her keepsakes). Measure the mean luma of the text band
+  (bottom ~third); set scrim `amax = clamp(1 - 58/band, 0.42, 0.90)` so every
+  photo darkens to ~luma 58 behind the words, plus a blurred black shadow layer
+  under the cream text. Never ship a line you can't read.
+- **Keep the wording genuinely Islamic, not trendy-influencer.** Owner rejected
+  "romanticize your deen" as trivialising worship — avoid it and the
+  softlife/slowliving framing/hashtags. Lean on real Islamic language (turn to
+  Allah, akhlaq, bismillah, amanah, tasbih, adhkar) kept warm and human.
 - **Voice**: NO em dashes. Natural and human, not AI-polished. Premium, not
   discount-y — keep "20% off" OUT of the bio and most posts; mention the
   founding offer sparingly. Every caption ends at the waitlist ("link in bio").
