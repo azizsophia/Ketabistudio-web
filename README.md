@@ -706,6 +706,9 @@ crashed it with a server-side exception).
   "romanticize your deen" as trivialising worship — avoid it and the
   softlife/slowliving framing/hashtags. Lean on real Islamic language (turn to
   Allah, akhlaq, bismillah, amanah, tasbih, adhkar) kept warm and human.
+- **No readable random-book text in the imagery.** A photo showing a random
+  (non-Quran) book's printed words is distracting — use the Qur'an or a scene
+  with no visible text. (Owner flagged a coffee+book flatlay; swapped it.)
 - **Voice**: NO em dashes. Natural and human, not AI-polished. Premium, not
   discount-y — keep "20% off" OUT of the bio and most posts; mention the
   founding offer sparingly. Every caption ends at the waitlist ("link in bio").
