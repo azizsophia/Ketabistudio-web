@@ -768,16 +768,19 @@ read as a repeat, so the owner chose to **delete both and start fresh** — note
 **Instagram has no API delete**, so those two must be removed by hand in the app
 (reel `instagram.com/reel/DaYAuaakh8M`, post `instagram.com/p/DaYASy4GeoL`).
 
-**Queue (curated, replace'd 2026-07-04):** 3 reel+card pairs, one pair/day at
-16:00 UTC:
-- 07-05 — cream "Raising little believers" + reel `reel_window` (Allah is nearer)
-- 07-06 — cream "I Am book / your child the hero" + reel `reel_quran` (keep the Qur'an close)
-- 07-07 — cream "A mother's dua is never wasted" + reel `reel_beads` (every dhikr)
+**Queue (curated, 2026-07-04):** a FULL WEEK — 7 reel+card pairs (14 posts),
+one pair/day at 16:00 UTC, strict checkerboard (verified against a rendered
+grid preview). Reels use varied faceless backgrounds: window light, Qur'an+beads
+(c_8164567), tasbih (t_36855575), coffee+shadow (c_34531681), open Qur'an
+(c_29100259), hand+curtain (hand.jpg), coffee+window (c_13523793).
+- 07-05 window "Allah is nearer" · 07-06 Qur'an "keep the Qur'an close" · 07-07 beads "every dhikr"
+- 07-08 coffee "begin the day with Him" · 07-09 open-Qur'an "one page softens the home"
+- 07-10 hand "on the days you feel unseen" · 07-11 coffee "your quiet moment with Him"
 
-**Refill before 07-08.** Batch more reels via `content-tools/batch_reels.py`
-(varied faceless backgrounds in `scratchpad/lux/`: light, c_8164567 Qur'an+beads,
-t_36855575 tasbih, c_34531681 coffee+shadow, c_29100259 open Qur'an, im_18809860
-rose) + cream cards, keep the checkerboard, QC by eye, enqueue reel+card pairs.
+**Refill before 07-12.** Batch more reels via `content-tools/batch_reels.py` +
+cream cards, keep the checkerboard, **QC every one by eye** (contact sheet —
+watch for line-wrap collisions in reels; keep each beat-line ≲26 chars at 78px),
+enqueue reel+card pairs.
 
 ## Pinterest (boards only — pins blocked)
 - @ketabi_studio connected. OAuth app id `1587172`. **8 keyword boards created
