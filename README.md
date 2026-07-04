@@ -679,14 +679,24 @@ crashed it with a server-side exception).
   da'wah / Islamic-knowledge-reels account into a premium Muslim-mom aesthetic
   brand (owner archived the old reels). Knowledge reels were dropped because
   they need 100% fact accuracy — too risky.
-- **Aesthetic**: cream base, forest/sage green, champagne gold, the cream kaf
-  mark on every post, Playfair (display) + Cormorant italic (subline).
-  **Seasonal palette system** for variety inside cohesion — signature cream,
-  warm sand/terracotta, dark plum (stands out), dusty blush (baby), deep
-  forest (stands out). Row-by-row colour stories on the grid; include a dark
-  tile or two per row for rhythm. 1080×1350, inner hairline frame,
-  `ketabistudio.com` footer. Generated with PIL scripts in the session
-  scratchpad (not committed — regenerate from the palette spec above).
+- **Aesthetic = aesthetic-Islamic-creator / "romanticize your deen" reminder
+  page** (NOT flat beige quote cards — the owner rejected those as generic).
+  The look: dreamy, cinematic lifestyle photography under a consistent **warm
+  film grade** (lifted/faded blacks, warm tint, slight desaturation, soft
+  bloom, film grain), one short **poetic lowercase italic** line (Playfair
+  Italic), Allah pronouns (His/Him) capitalised, and **almost no branding on
+  the image** — just a faint letter-spaced "KETABI STUDIO" wordmark; the brand
+  + soft CTA ("link in bio") live in the CAPTION. Jewel accents (emerald,
+  garnet) used sparingly. Product posts get the SAME warm grade on a soft cream
+  ground with a small italic caption, so they sit in the grid as part of the
+  mood. Grid rhythm = dark filmic reminders alternating with lighter product
+  posts. 1080×1350. Imagery is licensed Pexels stock for now (owner's own
+  clips/photos later). Reels are the real growth lever for this niche (soft
+  b-roll + nasheed + fading text) but the IG API cannot attach trending/licensed
+  audio, so reels are hand-posted by the owner or filmed by her and edited.
+  Generated with PIL + numpy scripts in the session scratchpad (not committed —
+  film-grade recipe: `a*0.90+16`, R×1.05 B×0.93, 15% desat, GaussianBlur(14)
+  blend 0.13, grain ±8).
 - **Voice**: NO em dashes. Natural and human, not AI-polished. Premium, not
   discount-y — keep "20% off" OUT of the bio and most posts; mention the
   founding offer sparingly. Every caption ends at the waitlist ("link in bio").
