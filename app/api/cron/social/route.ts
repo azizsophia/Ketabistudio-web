@@ -1,20 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import { runSocialQc } from "@/lib/socialQc";
 
-// Auto-poster. A daily Vercel cron hits this. It pulls the next due, already
-// human/AI-reviewed post from social_queue, runs the QC gate one more time,
-// then publishes to Instagram + Facebook and refreshes its own Meta token.
+// Auto-poster. A daily Vercel cron hits this. It pulls EVERY already-reviewed
+// post that is due today from social_queue, runs the QC gate once more, then
+// publishes each to Instagram + Facebook and refreshes its own Meta token.
+// Cadence is controlled purely by scheduled_for: enqueue 1 reel + 1 static for
+// the same day and the single daily run ships both.
+//
+// Post type is inferred from the media URL, so no schema columns are needed:
+//   image_url ends in .mp4                  -> Reel  (IG Reels + FB video)
+//   image_url has multiple whitespace URLs  -> Carousel (IG carousel; FB 1st)
+//   otherwise                               -> single image
 
 const SB = process.env.SUPABASE_URL?.replace(/\s/g, "").replace(/\/$/, "");
 const KEY = process.env.SUPABASE_SERVICE_KEY?.replace(/\s/g, "");
-const CRON_SECRET = process.env.CRON_SECRET;
+const CRON_SECRET = process.env.CRON_SECRET?.trim();
 const ADMIN = process.env.ADMIN_KEY;
 const GRAPH = "https://graph.facebook.com/v21.0";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-export const maxDuration = 60;
-// deploy: 1
+export const maxDuration = 300;
+
+// Safety cap: never fire more than this many posts in one run, even if more are
+// somehow due (guards against a bad enqueue flooding the feed).
+const MAX_PER_RUN = 4;
 
 type Config = {
   meta_user_token: string;
@@ -34,7 +44,7 @@ type Post = {
 };
 
 function authorized(req: NextRequest): boolean {
-  const auth = req.headers.get("authorization") || "";
+  const auth = (req.headers.get("authorization") || "").trim();
   if (CRON_SECRET && auth === `Bearer ${CRON_SECRET}`) return true;
   const k = req.nextUrl.searchParams.get("key");
   if (ADMIN && k && k === ADMIN) return true;
@@ -54,15 +64,22 @@ function sb(path: string, init?: RequestInit) {
 }
 
 async function patchPost(id: string, patch: Record<string, unknown>) {
-  await sb(`social_queue?id=eq.${id}`, {
-    method: "PATCH",
-    body: JSON.stringify(patch),
-  });
+  await sb(`social_queue?id=eq.${id}`, { method: "PATCH", body: JSON.stringify(patch) });
 }
 
-// Extend the long-lived user token (keeps the login alive), derive a fresh
-// page token, and persist both. Falls back to the stored page token on any
-// hiccup so a transient error never blocks a post.
+// media-type helpers ────────────────────────────────────────────────
+function mediaUrls(imageUrl: string): string[] {
+  return imageUrl.trim().split(/\s+/).filter(Boolean);
+}
+function isReel(imageUrl: string): boolean {
+  return /\.mp4(\?|$)/i.test(imageUrl.trim());
+}
+function isCarousel(imageUrl: string): boolean {
+  return !isReel(imageUrl) && mediaUrls(imageUrl).length > 1;
+}
+
+// Extend the long-lived user token, derive a fresh page token, persist both.
+// Falls back to the stored page token on any hiccup.
 async function currentPageToken(cfg: Config): Promise<string> {
   try {
     const ex = await fetch(
@@ -89,6 +106,15 @@ async function currentPageToken(cfg: Config): Promise<string> {
   }
 }
 
+async function igPermalink(id: string, token: string): Promise<string> {
+  try {
+    const pl = await fetch(`${GRAPH}/${id}?fields=permalink&access_token=${token}`);
+    return ((await pl.json()) as { permalink?: string }).permalink || "";
+  } catch {
+    return "";
+  }
+}
+
 async function publishIg(
   ig: string,
   token: string,
@@ -110,17 +136,97 @@ async function publishIg(
   });
   const pd = (await p.json()) as { id?: string; error?: unknown };
   if (!pd.id) throw new Error("ig publish: " + JSON.stringify(pd.error || pd));
-  let permalink = "";
-  try {
-    const pl = await fetch(`${GRAPH}/${pd.id}?fields=permalink&access_token=${token}`);
-    permalink = ((await pl.json()) as { permalink?: string }).permalink || "";
-  } catch {
-    /* permalink is best-effort */
-  }
-  return { mediaId: pd.id, permalink };
+  return { mediaId: pd.id, permalink: await igPermalink(pd.id, token) };
 }
 
-async function publishFb(
+// Wait for an IG container to finish server-side processing (reels/video).
+async function waitForContainer(containerId: string, token: string, budgetMs: number) {
+  const started = Date.now();
+  while (Date.now() - started < budgetMs) {
+    await new Promise((r) => setTimeout(r, 6000));
+    const s = await fetch(
+      `${GRAPH}/${containerId}?fields=status_code&access_token=${token}`
+    );
+    const sd = (await s.json()) as { status_code?: string };
+    if (sd.status_code === "FINISHED") return;
+    if (sd.status_code === "ERROR" || sd.status_code === "EXPIRED") {
+      throw new Error("ig container status: " + sd.status_code);
+    }
+  }
+  throw new Error("ig container not ready in time");
+}
+
+async function publishReelIg(
+  ig: string,
+  token: string,
+  videoUrl: string,
+  caption: string
+): Promise<{ mediaId: string; permalink: string }> {
+  const c = await fetch(`${GRAPH}/${ig}/media`, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      media_type: "REELS",
+      video_url: videoUrl,
+      caption,
+      share_to_feed: "true",
+      access_token: token,
+    }),
+  });
+  const cd = (await c.json()) as { id?: string; error?: unknown };
+  if (!cd.id) throw new Error("ig reel container: " + JSON.stringify(cd.error || cd));
+  await waitForContainer(cd.id, token, 210000);
+  const p = await fetch(`${GRAPH}/${ig}/media_publish`, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ creation_id: cd.id, access_token: token }),
+  });
+  const pd = (await p.json()) as { id?: string; error?: unknown };
+  if (!pd.id) throw new Error("ig reel publish: " + JSON.stringify(pd.error || pd));
+  return { mediaId: pd.id, permalink: await igPermalink(pd.id, token) };
+}
+
+async function publishCarouselIg(
+  ig: string,
+  token: string,
+  urls: string[],
+  caption: string
+): Promise<{ mediaId: string; permalink: string }> {
+  const children: string[] = [];
+  for (const u of urls.slice(0, 10)) {
+    const c = await fetch(`${GRAPH}/${ig}/media`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ image_url: u, is_carousel_item: "true", access_token: token }),
+    });
+    const cd = (await c.json()) as { id?: string; error?: unknown };
+    if (!cd.id) throw new Error("ig carousel child: " + JSON.stringify(cd.error || cd));
+    children.push(cd.id);
+  }
+  const parent = await fetch(`${GRAPH}/${ig}/media`, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      media_type: "CAROUSEL",
+      children: children.join(","),
+      caption,
+      access_token: token,
+    }),
+  });
+  const pd = (await parent.json()) as { id?: string; error?: unknown };
+  if (!pd.id) throw new Error("ig carousel parent: " + JSON.stringify(pd.error || pd));
+  await new Promise((r) => setTimeout(r, 5000));
+  const pub = await fetch(`${GRAPH}/${ig}/media_publish`, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ creation_id: pd.id, access_token: token }),
+  });
+  const pubd = (await pub.json()) as { id?: string; error?: unknown };
+  if (!pubd.id) throw new Error("ig carousel publish: " + JSON.stringify(pubd.error || pubd));
+  return { mediaId: pubd.id, permalink: await igPermalink(pubd.id, token) };
+}
+
+async function publishFbPhoto(
   page: string,
   token: string,
   imageUrl: string,
@@ -132,8 +238,54 @@ async function publishFb(
     body: new URLSearchParams({ url: imageUrl, caption, access_token: token }),
   });
   const d = (await r.json()) as { id?: string; post_id?: string; error?: unknown };
-  if (!d.id && !d.post_id) throw new Error("fb: " + JSON.stringify(d.error || d));
+  if (!d.id && !d.post_id) throw new Error("fb photo: " + JSON.stringify(d.error || d));
   return d.post_id || (d.id as string);
+}
+
+async function publishFbVideo(
+  page: string,
+  token: string,
+  videoUrl: string,
+  caption: string
+): Promise<string> {
+  const r = await fetch(`${GRAPH}/${page}/videos`, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ file_url: videoUrl, description: caption, access_token: token }),
+  });
+  const d = (await r.json()) as { id?: string; error?: unknown };
+  if (!d.id) throw new Error("fb video: " + JSON.stringify(d.error || d));
+  return d.id;
+}
+
+// Publish one post to whichever platforms it targets. Throws on failure.
+async function publishOne(cfg: Config, token: string, post: Post) {
+  const platforms = String(post.platforms || "ig,fb")
+    .split(",")
+    .map((s) => s.trim());
+  const out: { ig_media_id?: string; ig_permalink?: string; fb_post_id?: string } = {};
+  const urls = mediaUrls(post.image_url);
+
+  if (platforms.includes("ig")) {
+    let ig: { mediaId: string; permalink: string };
+    if (isReel(post.image_url)) {
+      ig = await publishReelIg(cfg.meta_ig_id, token, urls[0], post.caption);
+    } else if (isCarousel(post.image_url)) {
+      ig = await publishCarouselIg(cfg.meta_ig_id, token, urls, post.caption);
+    } else {
+      ig = await publishIg(cfg.meta_ig_id, token, urls[0], post.caption);
+    }
+    out.ig_media_id = ig.mediaId;
+    out.ig_permalink = ig.permalink;
+  }
+  if (platforms.includes("fb") && cfg.meta_page_id) {
+    if (isReel(post.image_url)) {
+      out.fb_post_id = await publishFbVideo(cfg.meta_page_id, token, urls[0], post.caption);
+    } else {
+      out.fb_post_id = await publishFbPhoto(cfg.meta_page_id, token, urls[0], post.caption);
+    }
+  }
+  return out;
 }
 
 export async function GET(req: NextRequest) {
@@ -153,59 +305,56 @@ export async function GET(req: NextRequest) {
   const nowIso = new Date().toISOString();
   const dueRows = (await (
     await sb(
-      `social_queue?status=eq.queued&scheduled_for=lte.${nowIso}&order=scheduled_for.asc&limit=1&select=*`
+      `social_queue?status=eq.queued&scheduled_for=lte.${nowIso}&order=scheduled_for.asc&limit=${MAX_PER_RUN}&select=*`
     )
   ).json()) as Post[];
   if (!Array.isArray(dueRows) || dueRows.length === 0) {
     return NextResponse.json({ ok: true, message: "nothing due" });
   }
-  const post = dueRows[0];
 
-  // Gate 1: must have been reviewed (by me/Claude) when it was queued.
-  if (!post.qc_reviewed) {
-    await patchPost(post.id, { status: "blocked", error: "not qc_reviewed" });
-    return NextResponse.json({ ok: false, blocked: post.id, reason: "not reviewed" });
-  }
-
-  // Gate 2: automated QC (deterministic + optional Claude proofread).
-  const verdict = await runSocialQc(post.caption, post.image_url);
-  if (!verdict.pass) {
-    await patchPost(post.id, { status: "blocked", qc: verdict, error: "qc failed" });
-    return NextResponse.json({ ok: false, blocked: post.id, verdict });
-  }
+  // Publish quick posts (images/carousels) first so they always land; reels go
+  // last since their server-side processing eats the remaining time budget. If
+  // the platform caps the function mid-reel, the reel stays queued and retries
+  // on the next run — a safe, self-healing failure mode.
+  dueRows.sort((a, b) => Number(isReel(a.image_url)) - Number(isReel(b.image_url)));
 
   const token = await currentPageToken(cfg);
-  const platforms = String(post.platforms || "ig,fb")
-    .split(",")
-    .map((s) => s.trim());
-  const out: {
-    id: string;
-    ig_media_id?: string;
-    ig_permalink?: string;
-    fb_post_id?: string;
-  } = { id: post.id };
+  const results: Array<Record<string, unknown>> = [];
 
-  try {
-    if (platforms.includes("ig")) {
-      const ig = await publishIg(cfg.meta_ig_id, token, post.image_url, post.caption);
-      out.ig_media_id = ig.mediaId;
-      out.ig_permalink = ig.permalink;
+  for (const post of dueRows) {
+    // Gate 1: must have been reviewed when it was queued.
+    if (!post.qc_reviewed) {
+      await patchPost(post.id, { status: "blocked", error: "not qc_reviewed" });
+      results.push({ id: post.id, blocked: "not reviewed" });
+      continue;
     }
-    if (platforms.includes("fb") && cfg.meta_page_id) {
-      out.fb_post_id = await publishFb(cfg.meta_page_id, token, post.image_url, post.caption);
+    // Gate 2: automated QC (deterministic + optional Claude proofread).
+    // Video QC only checks the caption (the image reachability check is skipped
+    // for .mp4, which the QC treats as a non-image asset).
+    const verdict = await runSocialQc(post.caption, isReel(post.image_url) ? "" : mediaUrls(post.image_url)[0]);
+    if (!verdict.pass) {
+      await patchPost(post.id, { status: "blocked", qc: verdict, error: "qc failed" });
+      results.push({ id: post.id, blocked: verdict });
+      continue;
     }
-    await patchPost(post.id, {
-      status: "published",
-      qc: verdict,
-      ig_media_id: out.ig_media_id ?? null,
-      ig_permalink: out.ig_permalink ?? null,
-      fb_post_id: out.fb_post_id ?? null,
-      published_at: new Date().toISOString(),
-    });
-    return NextResponse.json({ ok: true, published: out, qc: verdict });
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : "unknown";
-    await patchPost(post.id, { status: "failed", error: msg });
-    return NextResponse.json({ ok: false, failed: post.id, error: msg }, { status: 500 });
+
+    try {
+      const out = await publishOne(cfg, token, post);
+      await patchPost(post.id, {
+        status: "published",
+        qc: verdict,
+        ig_media_id: out.ig_media_id ?? null,
+        ig_permalink: out.ig_permalink ?? null,
+        fb_post_id: out.fb_post_id ?? null,
+        published_at: new Date().toISOString(),
+      });
+      results.push({ id: post.id, published: out });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "unknown";
+      await patchPost(post.id, { status: "failed", error: msg });
+      results.push({ id: post.id, failed: msg });
+    }
   }
+
+  return NextResponse.json({ ok: true, count: results.length, results });
 }
