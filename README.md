@@ -679,24 +679,26 @@ crashed it with a server-side exception).
   da'wah / Islamic-knowledge-reels account into a premium Muslim-mom aesthetic
   brand (owner archived the old reels). Knowledge reels were dropped because
   they need 100% fact accuracy — too risky.
-- **Aesthetic = aesthetic-Islamic-creator / "romanticize your deen" reminder
-  page** (NOT flat beige quote cards — the owner rejected those as generic).
-  The look: dreamy, cinematic lifestyle photography under a consistent **warm
-  film grade** (lifted/faded blacks, warm tint, slight desaturation, soft
-  bloom, film grain), one short **poetic lowercase italic** line (Playfair
-  Italic), Allah pronouns (His/Him) capitalised, and **almost no branding on
-  the image** — just a faint letter-spaced "KETABI STUDIO" wordmark; the brand
-  + soft CTA ("link in bio") live in the CAPTION. Jewel accents (emerald,
-  garnet) used sparingly. Product posts get the SAME warm grade on a soft cream
-  ground with a small italic caption, so they sit in the grid as part of the
-  mood. Grid rhythm = dark filmic reminders alternating with lighter product
-  posts. 1080×1350. Imagery is licensed Pexels stock for now (owner's own
-  clips/photos later). Reels are the real growth lever for this niche (soft
-  b-roll + nasheed + fading text) but the IG API cannot attach trending/licensed
-  audio, so reels are hand-posted by the owner or filmed by her and edited.
-  Generated with PIL + numpy scripts in the session scratchpad (not committed —
-  film-grade recipe: `a*0.90+16`, R×1.05 B×0.93, 15% desat, GaussianBlur(14)
-  blend 0.13, grain ±8).
+- **Aesthetic = filmic Islamic-creator reminder page** (NOT flat beige quote
+  cards — the owner rejected those as generic). The look: dreamy, cinematic
+  photography under a consistent **warm film grade** (lifted/faded blacks, warm
+  tint, slight desaturation, soft bloom, film grain), one short **poetic italic**
+  line (Playfair Italic), Allah pronouns (His/Him) capitalised, and **almost no
+  branding on the image** — just a faint letter-spaced "KETABI STUDIO" wordmark
+  + gold rule; the brand + soft CTA ("link in bio") live in the CAPTION. Product
+  posts get the SAME warm grade so they sit in the grid as part of the mood.
+  1080×1350 for feed stills. Film-grade recipe: `a*0.90+16`, R×1.05 B×0.93, 15%
+  desat, GaussianBlur(14) blend 0.13, grain ±8 (PIL+numpy, `scratchpad/lux/
+  genstatic.py`).
+- **NO identifiable people in the imagery — this is the hard rule.** A stock
+  photo of a mother/family reads as *some individual's personal account*, so
+  nobody reposts it and it doesn't build the brand (owner's call: "they won't
+  repost it thinking it's a person's actual account"). The shareable unit is
+  either **the words** (heartfelt reminder over a faceless background — window
+  light, fabric, a hand, an open Qur'an, prayer beads, dried florals) or **the
+  product** (the actual books/keepsakes/cards). Faceless backgrounds live in
+  `scratchpad/lux/` (light.jpg, morning.jpg, hand.jpg, …). Both feed stills and
+  reels share ONE look so the grid is cohesive.
 - **Text legibility over photos is ADAPTIVE** (owner flagged washed-out text on
   pale photos, like her keepsakes). Measure the mean luma of the text band
   (bottom ~third); set scrim `amax = clamp(1 - 58/band, 0.42, 0.90)` so every
@@ -709,6 +711,21 @@ crashed it with a server-side exception).
 - **No readable random-book text in the imagery.** A photo showing a random
   (non-Quran) book's printed words is distracting — use the Qur'an or a scene
   with no visible text. (Owner flagged a coffee+book flatlay; swapped it.)
+- **Reels are SILENT and fully auto-posted.** The owner deliberately avoids
+  audio ("slippery slope"), which removes the only thing the IG API couldn't do
+  (attach trending/licensed audio). So reels are now generated + posted by the
+  pipeline just like stills: a filmic faceless background, a heartfelt Islamic
+  line revealed in beats (Playfair italic on a soft radial band scrim so the
+  light type stays legible over bright areas), Ken-burns drift, and a gentle
+  KETABI STUDIO end card that fades in slow and is HELD to the finish (an early
+  version flashed the wordmark too fast/high — don't). 1080×1920, 15s, 25fps.
+  Rendered via HTML + `window.__seek(t)` → Playwright frames → ffmpeg libx264,
+  encoded **under 4.5 MB** (`-crf 25 -maxrate 2200k`) so it fits Vercel's
+  serverless upload limit. Source in `scratchpad/lux/reel/` (reel.html + cap.py).
+- **I (Claude) QC every single post, carousel, and reel before it ships** —
+  standing owner instruction. Build a frame/contact sheet, read it back, and
+  confirm legibility + the faceless rule + the held end card + correct copy with
+  my own eyes. Never queue something I haven't looked at rendered.
 - **Voice**: NO em dashes. Natural and human, not AI-polished. Premium, not
   discount-y — keep "20% off" OUT of the bio and most posts; mention the
   founding offer sparingly. Every caption ends at the waitlist ("link in bio").
@@ -718,13 +735,35 @@ crashed it with a server-side exception).
   (zero fact risk); only add Arabic after careful verification and only
   well-known short phrases. Never any Star of David / six-pointed star.
 
+### Poster capabilities (2026-07-04)
+The daily cron now publishes **images, reels (IG Reels + FB video), AND
+carousels** — post type is inferred from the media URL so no schema columns
+were needed:
+- `image_url` ends in `.mp4` → **reel** (IG REELS container with status polling
+  → media_publish; FB `/videos` via file_url).
+- `image_url` has multiple whitespace-separated URLs → **carousel** (IG child
+  containers → CAROUSEL parent; FB posts the first image).
+- otherwise → single image.
+Each run ships **every post due that day** (images/carousels first, reels last
+so a platform time-cap only ever strands a reel, which then retries), so
+enqueuing 1 reel + 1 static for the same day gives the **1 reel + 1 post/day**
+cadence the owner asked for.
+
+- **Reel/video hosting**: `POST /api/social/video` (Bearer CRON_SECRET, multipart
+  field `file`) stores the mp4 to Supabase `card-assets/reels/…mp4` and returns
+  the public URL. Keep reels **under 4.5 MB** (Vercel body limit) — the encode
+  recipe above already does.
+- QC media checks (`media-https`, `media-reachable`) cover video too; HEAD with
+  a ranged-GET fallback.
+
 ### Queue state (2026-07-04)
-Post 1 live on IG + FB (manual). p2–p5 + w1–w7 queued (~11 days), one/day at
-16:00 UTC, first auto-post 2026-07-05. **Refill via the enqueue endpoint before
-it runs dry.** Owner asked to keep making very visually appealing, unique
-posts, research what's working, and grow the waitlist fast (carousels + reels
-are the highest-reach next step; the poster is single-image only today —
-carousel support is an open build).
+**Live in the new faceless look:** static s1 (`instagram.com/p/DaYASy4GeoL`) and
+the first silent reel (`instagram.com/reel/DaYAuaakh8M`) — both on IG + FB.
+Statics s2, s3 queued for 07-05 and 07-06 (static-only until more reels are
+rendered). **The reel bank is the bottleneck for a daily reel** — batch-render
+more from `scratchpad/lux/reel/` and enqueue reel+static pairs before it runs
+dry. Enqueue via `POST /api/social/enqueue` (`replace:true` wipes the pending
+queue first).
 
 ## Pinterest (boards only — pins blocked)
 - @ketabi_studio connected. OAuth app id `1587172`. **8 keyword boards created
