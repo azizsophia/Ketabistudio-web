@@ -603,3 +603,146 @@ environment) — committer identity is correct; nothing to fix.
   card-shipped email (`worker/emailer.py send_card_shipped`) once said "blind
   and white-label, with no Ketabi or printer branding" — removed. Keep the
   drop-ship/white-label wording to internal code comments only.
+
+# Social media growth engine (auto-poster) — added 2026-07-04
+
+Automated organic posting to grow the waitlist. **Instagram + Facebook are
+LIVE and posting daily, fully hands-off.** Pinterest is partial (boards only),
+TikTok is built but pending review. All content funnels to the waitlist
+(coming-soon page) via "link in bio".
+
+## LIVE: Instagram + Facebook auto-poster
+
+- **Daily cron** `app/api/cron/social/route.ts` — `vercel.json` schedules
+  `0 16 * * *` (16:00 UTC). Pulls the next due, pre-reviewed post from
+  `social_queue`, runs the QC gate, publishes to IG + the FB Page together,
+  and refreshes the Meta token on every run.
+- **QC gate** `lib/socialQc.ts` — always runs deterministic checks: caption
+  length ≤2200, ≤30 hashtags, **no Star of David / six-pointed star**, Arabic
+  integrity (rejects mojibake / broken shaping), reachable https image.
+  Optional Claude proofread of **MSA Arabic + English + Islamic accuracy** if
+  `ANTHROPIC_API_KEY` is set — it is NOT (owner declined the cost; captions are
+  kept English-first so it isn't needed). Nothing posts unless the row is
+  `qc_reviewed=true` AND the gate passes.
+- **Enqueue endpoint** `app/api/social/enqueue/route.ts` — POST, auth
+  `Authorization: Bearer $CRON_SECRET` (or `x-admin-key`). Body
+  `{posts:[{image_url, caption, platforms?, scheduled_for?}]}`. This is how a
+  session adds content WITHOUT hand-written SQL. Rows land `qc_reviewed=true`.
+- **Image hosting** — post images must be at a public URL for Meta. Upload via
+  `POST /api/photobook/photo` (multipart field `file`) → `{url}` (public
+  Supabase `card-assets` URL). Feed that url to the enqueue endpoint.
+- **Supabase tables** (source of truth; owner ran the seed SQL once):
+  - `social_config` (single row `id=1`): `meta_user_token`, `meta_page_token`,
+    `meta_page_id`, `meta_ig_id`, `meta_app_id`, `meta_app_secret`. The cron
+    reads and rewrites the refreshed tokens here.
+  - `social_queue`: `id, image_url, caption, platforms, scheduled_for,
+    status(queued|published|blocked|failed), qc_reviewed, qc(jsonb),
+    ig_media_id, ig_permalink, fb_post_id, error, published_at`.
+- **`CRON_SECRET = ketabi-cron-2027`** (Vercel env). Authorizes both the cron
+  (Vercel auto-sends it as the Authorization header) and the enqueue endpoint.
+  Must have NO whitespace (a trailing space once failed the Vercel build).
+
+### Meta connection facts
+- App **"Ketabi Studio Poster", App ID `1341497080739424`** — the owner made
+  ~3 duplicate same-named apps; THIS is the wired one. Its secret is in
+  `social_config.meta_app_secret`. Uses **classic Facebook Login** (the other
+  duplicate `3599700743516513` had "Login for Business" and its dialog errored).
+- Assets: FB Page **"Ketabi Studio" `1238819849308549`**, IG business
+  **`17841467093722066` @ketabistudio (~1580 followers)**, inside business
+  portfolio **"Ketabi" `1644502502789145`**.
+- **The Page lives in a business portfolio**, so `me/accounts` returns empty
+  without `business_management`. Reach it via `me/businesses` →
+  `{biz}/owned_pages{...,instagram_business_account}`.
+- **Reconnect / refresh** (token lasts ~60 days; cron extends it; if it lapses
+  re-auth): OAuth dialog
+  `https://www.facebook.com/v21.0/dialog/oauth?client_id=1341497080739424&redirect_uri=https%3A%2F%2Fwww.ketabistudio.com%2Fpinterest%2Fcallback&response_type=code&scope=instagram_basic,instagram_content_publish,instagram_manage_comments,instagram_manage_insights,pages_show_list,pages_read_engagement,pages_read_user_content,pages_manage_posts,pages_manage_metadata,pages_manage_engagement,read_insights,business_management`
+  → owner approves (must tick the Ketabi Page + IG) → lands on
+  `/pinterest/callback` with the `?code` → exchange (`oauth/access_token`),
+  extend to long-lived, derive page token, write both into `social_config`.
+- **Capabilities**: post to IG + FB ✓, read/hide comments ✓, insights ✓, set FB
+  Page About/description/cover ✓ (via `pages_manage_metadata`; New Pages
+  Experience has a read-back lag but writes stick). **DMs = needs Meta review
+  (not done).** **Profile pictures (FB + IG) and the IG bio are NOT settable via
+  any Meta API — manual only.**
+
+### The shared OAuth callback
+`app/pinterest/callback/page.tsx` — a public "You're connected ✓" page that
+surfaces `?code`. Allowlisted in middleware. Reused by Pinterest, Meta, AND
+TikTok (the "pinterest" name is historical; it's the generic connect page). It
+is a Server Component — do NOT add event handlers to it (an `onFocus` once
+crashed it with a server-side exception).
+
+## Content: what to make + the voice (HARD RULES)
+
+- **Audience**: the established Muslim mom (gifts for her kids, her own mama,
+  her sisters at Eid) with young-mum appeal. IG was repositioned from a
+  da'wah / Islamic-knowledge-reels account into a premium Muslim-mom aesthetic
+  brand (owner archived the old reels). Knowledge reels were dropped because
+  they need 100% fact accuracy — too risky.
+- **Aesthetic**: cream base, forest/sage green, champagne gold, the cream kaf
+  mark on every post, Playfair (display) + Cormorant italic (subline).
+  **Seasonal palette system** for variety inside cohesion — signature cream,
+  warm sand/terracotta, dark plum (stands out), dusty blush (baby), deep
+  forest (stands out). Row-by-row colour stories on the grid; include a dark
+  tile or two per row for rhythm. 1080×1350, inner hairline frame,
+  `ketabistudio.com` footer. Generated with PIL scripts in the session
+  scratchpad (not committed — regenerate from the palette spec above).
+- **Voice**: NO em dashes. Natural and human, not AI-polished. Premium, not
+  discount-y — keep "20% off" OUT of the bio and most posts; mention the
+  founding offer sparingly. Every caption ends at the waitlist ("link in bio").
+  "Sealed with a dua" is the signature line — use it once, not on everything.
+- **Islamic accuracy (non-negotiable)**: never a false claim. No hadith or
+  Qur'an unless verbatim and verified. No rulings. Keep captions ENGLISH-FIRST
+  (zero fact risk); only add Arabic after careful verification and only
+  well-known short phrases. Never any Star of David / six-pointed star.
+
+### Queue state (2026-07-04)
+Post 1 live on IG + FB (manual). p2–p5 + w1–w7 queued (~11 days), one/day at
+16:00 UTC, first auto-post 2026-07-05. **Refill via the enqueue endpoint before
+it runs dry.** Owner asked to keep making very visually appealing, unique
+posts, research what's working, and grow the waitlist fast (carousels + reels
+are the highest-reach next step; the poster is single-image only today —
+carousel support is an open build).
+
+## Pinterest (boards only — pins blocked)
+- @ketabi_studio connected. OAuth app id `1587172`. **8 keyword boards created
+  via API** (Islamic Gifts for Kids, Muslim Family Keepsakes, Eid Cards & Gifts,
+  Nikah & Muslim Weddings, Muslim Baby Gifts, Ramadan Ideas, Islamic Books for
+  Kids, Muslim Daily Habits & Dhikr).
+- **Pins CANNOT post via API on Trial access** (error 29 "may not create Pins
+  in production" — needs Standard access / audit). 9 finished pins + a copy
+  sheet were delivered to the owner to post manually or via Tailwind.
+
+## TikTok (@shop.ketabi — built, pending review)
+- App **"Ketabi Studio Poster"**, **Production client key `awjkfi0rki35d0j4`**,
+  client secret `QtvqCmNKDsT9Fj0MNJRtKLfkpl6zIBqJ`. Products: Login Kit +
+  Content Posting API (Direct Post on). Scopes: `user.info.basic`,
+  `video.upload`, `video.publish`. Redirect `/pinterest/callback`. Domain
+  verified via `public/tiktokhDMTIexJvX7PvUvnZ68GBIej21DWawFv.txt`.
+- **Blocked**: Production OAuth returns a "client_key" error because the app is
+  an unaudited Draft. Testing needs the **Sandbox** tab (separate keys + add
+  shop.ketabi as a target user), which the owner found too fiddly on mobile.
+  Owner **submitted for review** with the walkthrough demo video
+  (`scratchpad/ttdemo/ketabi-tiktok-demo.mp4`) + the scope explanation text. If
+  TikTok bounces it wanting a real sandbox demo, do the sandbox flow (easier on
+  desktop), record a real capture, resubmit. No auto-posting until approved.
+- Auth URL: `https://www.tiktok.com/v2/auth/authorize/?client_key=<key>&scope=user.info.basic,video.upload,video.publish&response_type=code&redirect_uri=https://www.ketabistudio.com/pinterest/callback&state=ketabi-tt`.
+  Token exchange: `https://open.tiktokapis.com/v2/oauth/token/`. **TikTok API
+  cannot attach trending audio** (owner doesn't use it, so fine for them).
+- Owner keeps a separate ~70k main TikTok/YouTube for education content +
+  occasional ads; shop.ketabi is the product account for us to run.
+
+## Other 2026-07-04 changes
+- **Coming-soon redesigned** (`app/coming-soon/`): product-first, above-fold
+  waitlist, "Founding list + 20% off", app framed for **ADULTS** (dhikr/adhkar,
+  not children — that was a correction). Distinct Muslim-family Pexels renders
+  for `public/images/coming-soon/{keepsake-baba,keepsake-mama,iam}.jpg`.
+  Waitlist button centred; "little hearts" removed from the app blurb.
+- **Waitlist verified collecting** — `POST /api/waitlist` → Supabase `waitlist`
+  table. Apex `ketabistudio.com` 307-redirects to `www` and preserves the POST.
+- **Viral loop CTA** strengthened on `components/cards/DigitalCardViewer.tsx` —
+  accent pill "Make your own with Ketabi", UTM-tagged.
+- **Gating** — `middleware.ts` ALLOW = `/coming-soon, /privacy-policy, /terms,
+  /cards/print, /c, /admin, /pinterest/callback`. `/terms` un-gated for the
+  TikTok/Meta apps' required Terms URL. TikTok verification `.txt` is served
+  because dotted paths skip the gate.
