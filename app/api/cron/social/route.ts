@@ -328,10 +328,10 @@ export async function GET(req: NextRequest) {
       results.push({ id: post.id, blocked: "not reviewed" });
       continue;
     }
-    // Gate 2: automated QC (deterministic + optional Claude proofread).
-    // Video QC only checks the caption (the image reachability check is skipped
-    // for .mp4, which the QC treats as a non-image asset).
-    const verdict = await runSocialQc(post.caption, isReel(post.image_url) ? "" : mediaUrls(post.image_url)[0]);
+    // Gate 2: automated QC (deterministic + optional Claude proofread). The QC
+    // media checks work for both images and reel videos, so pass the first
+    // media URL as-is (a reel's .mp4 is https + reachable just like an image).
+    const verdict = await runSocialQc(post.caption, mediaUrls(post.image_url)[0]);
     if (!verdict.pass) {
       await patchPost(post.id, { status: "blocked", qc: verdict, error: "qc failed" });
       results.push({ id: post.id, blocked: verdict });

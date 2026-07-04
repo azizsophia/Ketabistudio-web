@@ -102,15 +102,21 @@ export async function runSocialQc(
   const ar = arabicLooksValid(caption);
   checks.push({ name: "arabic-integrity", pass: ar.pass, detail: ar.detail });
 
-  checks.push({ name: "image-https", pass: /^https:\/\//.test(imageUrl) });
+  // Media asset (image OR reel video). HEAD first; some CDNs answer HEAD with
+  // 405, so fall back to a tiny ranged GET before deciding it is unreachable.
+  checks.push({ name: "media-https", pass: /^https:\/\//.test(imageUrl) });
   let reachable = false;
   try {
     const r = await fetch(imageUrl, { method: "HEAD" });
     reachable = r.ok;
+    if (!reachable) {
+      const g = await fetch(imageUrl, { headers: { Range: "bytes=0-1023" } });
+      reachable = g.ok;
+    }
   } catch {
     reachable = false;
   }
-  checks.push({ name: "image-reachable", pass: reachable });
+  checks.push({ name: "media-reachable", pass: reachable });
 
   let reviewedByAi = false;
   const anthKey = process.env.ANTHROPIC_API_KEY;
