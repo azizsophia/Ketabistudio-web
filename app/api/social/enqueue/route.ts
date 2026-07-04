@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "not configured" }, { status: 500 });
   }
 
-  let body: { posts?: IncomingPost[] };
+  let body: { posts?: IncomingPost[]; replace?: boolean };
   try {
     body = await req.json();
   } catch {
@@ -46,6 +46,15 @@ export async function POST(req: NextRequest) {
   const posts = Array.isArray(body.posts) ? body.posts : [];
   if (posts.length === 0) {
     return NextResponse.json({ error: "no posts" }, { status: 400 });
+  }
+
+  // replace mode: clear the not-yet-published queue before inserting the new
+  // batch (published rows are kept as history).
+  if (body.replace) {
+    await fetch(`${SB}/rest/v1/social_queue?status=eq.queued`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${KEY}`, apikey: KEY, Prefer: "return=minimal" },
+    });
   }
 
   const rows = posts
