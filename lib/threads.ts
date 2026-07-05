@@ -146,3 +146,83 @@ export async function publishThreads(
   if (!pd.id) throw new Error("threads publish: " + JSON.stringify(pd.error || pd));
   return pd.id;
 }
+
+// ── Replies (needs threads_manage_replies on the token) ──────────────
+export type ThreadReply = {
+  post_id: string;
+  post_text: string;
+  post_permalink: string;
+  reply_id: string;
+  username: string;
+  text: string;
+  timestamp: string;
+  is_reply_to_us: boolean;
+};
+
+// Pull replies on our recent posts so we can read + answer them. Skips our own
+// replies (username === our own) and anything we've already hidden.
+export async function recentReplies(
+  creds: ThreadsCreds,
+  limitPosts = 10
+): Promise<ThreadReply[]> {
+  const t = await fetch(
+    `${TH_GRAPH}/${creds.user_id}/threads?fields=id,text,permalink,timestamp,username&limit=${limitPosts}&access_token=${creds.token}`
+  );
+  const td = (await t.json()) as {
+    data?: { id: string; text?: string; permalink?: string; username?: string }[];
+    error?: { message?: string };
+  };
+  if (!td.data) throw new Error("threads list: " + JSON.stringify(td.error || td));
+  const me = td.data[0]?.username || "";
+  const out: ThreadReply[] = [];
+  for (const p of td.data) {
+    const r = await fetch(
+      `${TH_GRAPH}/${p.id}/replies?fields=id,text,username,timestamp,hide_status&access_token=${creds.token}`
+    );
+    const rd = (await r.json()) as {
+      data?: { id: string; text?: string; username?: string; timestamp?: string; hide_status?: string }[];
+    };
+    for (const rep of rd.data || []) {
+      if (rep.hide_status === "HIDDEN") continue;
+      out.push({
+        post_id: p.id,
+        post_text: (p.text || "").slice(0, 90),
+        post_permalink: p.permalink || "",
+        reply_id: rep.id,
+        username: rep.username || "",
+        text: rep.text || "",
+        timestamp: rep.timestamp || "",
+        is_reply_to_us: (rep.username || "") === me,
+      });
+    }
+  }
+  return out;
+}
+
+// Post a reply to a specific comment (reply_to_id). Text-only.
+export async function postReply(
+  creds: ThreadsCreds,
+  replyToId: string,
+  text: string
+): Promise<string> {
+  const c = await fetch(`${TH_GRAPH}/${creds.user_id}/threads`, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      media_type: "TEXT",
+      text,
+      reply_to_id: replyToId,
+      access_token: creds.token,
+    }),
+  });
+  const cd = (await c.json()) as { id?: string; error?: { message?: string } };
+  if (!cd.id) throw new Error("threads reply container: " + JSON.stringify(cd.error || cd));
+  const p = await fetch(`${TH_GRAPH}/${creds.user_id}/threads_publish`, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ creation_id: cd.id, access_token: creds.token }),
+  });
+  const pd = (await p.json()) as { id?: string; error?: { message?: string } };
+  if (!pd.id) throw new Error("threads reply publish: " + JSON.stringify(pd.error || pd));
+  return pd.id;
+}
