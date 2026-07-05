@@ -1,0 +1,24 @@
+name: Social poster
+# Reliable trigger for the daily auto-poster. Vercel's free-tier cron fires
+# late/unreliably, so this pings the poster endpoint at the two slot times
+# (10:00 + 19:00 UTC = 5am + 2pm Central) plus a catch-up hour after each.
+# The endpoint only publishes posts whose scheduled_for is already due and
+# marks them published, so extra/overlapping runs never double-post.
+on:
+  schedule:
+    - cron: '0 10 * * *'   # 5am Central slot (dark reel)
+    - cron: '5 11 * * *'   # catch-up if the 10:00 run is delayed/skipped
+    - cron: '0 19 * * *'   # 2pm Central slot (cream card)
+    - cron: '5 20 * * *'   # catch-up
+  workflow_dispatch: {}     # lets you (or me) trigger it by hand anytime
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger poster
+        run: |
+          code=$(curl -s -o /tmp/out.json -w "%{http_code}" --max-time 280 \
+            "https://www.ketabistudio.com/api/cron/social" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}")
+          echo "HTTP $code"; cat /tmp/out.json; echo
+          test "$code" = "200"
