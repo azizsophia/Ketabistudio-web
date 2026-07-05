@@ -837,8 +837,12 @@ remember PIL renders RTL natively), owner pastes into Substack (first image in
 the body becomes the cover) and uses Substack's own scheduler. Repurpose each
 insight carousel into an essay (~500-700 words, structure in voice-style.md,
 sources cited INSIDE the post). Strategy: nurture + slow discovery channel, not
-a growth spike; cross-link it from IG bio + captions. Ask the owner for the
-publication URL (not yet recorded here).
+a growth spike; cross-link from captions/Notes. **URL: `ketabi.substack.com`**
+(publication "Ketabi Studio", launched 07-05). Cross-link plan: the IG bio's
+single link stays the WAITLIST (priority); Substack posts already funnel to the
+waitlist in their sign-off; mention "full essay on our Substack" in occasional
+captions. Consider a link-in-bio (Beacons/Linktree) later to hold waitlist +
+Substack + shop together (needs owner setup).
 
 ## Pinterest (boards only — pins blocked)
 - @ketabi_studio connected. OAuth app id `1587172`. **8 keyword boards created
