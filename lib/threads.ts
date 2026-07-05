@@ -217,12 +217,19 @@ export async function postReply(
   });
   const cd = (await c.json()) as { id?: string; error?: { message?: string } };
   if (!cd.id) throw new Error("threads reply container: " + JSON.stringify(cd.error || cd));
-  const p = await fetch(`${TH_GRAPH}/${creds.user_id}/threads_publish`, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({ creation_id: cd.id, access_token: creds.token }),
-  });
-  const pd = (await p.json()) as { id?: string; error?: { message?: string } };
-  if (!pd.id) throw new Error("threads reply publish: " + JSON.stringify(pd.error || pd));
-  return pd.id;
+  // The container needs a beat to become publishable; publishing instantly
+  // returns "Media Not Found". Wait, then retry a couple times.
+  let lastErr: unknown = null;
+  for (let attempt = 0; attempt < 4; attempt++) {
+    await new Promise((r) => setTimeout(r, 3000));
+    const p = await fetch(`${TH_GRAPH}/${creds.user_id}/threads_publish`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ creation_id: cd.id, access_token: creds.token }),
+    });
+    const pd = (await p.json()) as { id?: string; error?: { message?: string } };
+    if (pd.id) return pd.id;
+    lastErr = pd.error || pd;
+  }
+  throw new Error("threads reply publish: " + JSON.stringify(lastErr));
 }
