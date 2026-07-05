@@ -26,7 +26,10 @@ the Bismillah that opens 113 of the Qur'an's 114 surahs.
 root: corpus.quran.com (ر ح م) · basmala opens all surahs but At-Tawbah (9).
 **Response so far:** Carousel 01 (live 07-04). Substack post 1 "Mercy, in its
 mother tongue" (live 07-05); drew a deeply personal reader comment (Siti Rahmah)
-we answered. Strong emotional resonance. **Flagship chapter.**
+we answered. **Insight reel live 07-05 on IG/FB/Threads** (IG reel/DabSmVvEw7B),
+Amiri hero + verified Tirmidhi 1907, repost-optimized caption. Strong emotional
+resonance. **Flagship chapter.** NOTE: reel background (warm curtain-light still,
+reel_window_bg) is RETIRED after this single use per the never-repeat grid rule.
 
 ## Spread 02 — قلب · the heart that turns
 **Hook:** The Arabic word for "heart" comes from a root meaning: to turn over.
@@ -41,10 +44,30 @@ hearts: "Ya Muqallib al-qulub, thabbit qalbi ala dinik."
 
 ---
 
-## Verified leads not yet made (from insight-bank.md)
-- **ج ن ن — everything hidden:** jannah (Paradise), janīn (fetus), jinn, majnūn,
-  junna (shield), all from the "concealed" root. (SOLID)
-- **و د د — Al-Wadūd:** the love that is *enacted/visible* (wudd, not ḥubb). (SOLID)
-- **أ م ن — īmān = amn:** faith and safety, one root. (SOLID)
-- **ص د ق — ṣadaqah = ṣidq:** charity as the proof of truthful faith. (SOLID)
-- Full bank + DO-NOT-POST list in `insight-bank.md`.
+## Approved roadmap (owner-approved 07-05) — build order for the batch
+Root of the week: reel (Arabic hero) -> carousel (saves) -> Substack (nurture).
+Grid = dark reel alternating with cream carousel, no background ever repeats,
+skinless/faceless stills only (owner flagged bare-arm shots as inappropriate).
+
+- **ق ل ب — qalb (heart = to turn over):** payoff = its restlessness is its
+  nature; du'a Ya Muqallib al-qulub (Tirmidhi 2140, ḥasan). bg: garnet Qur'an +
+  tasbih (have). (SOLID)
+- **ج ن ن — the hidden:** REFRAMED per owner: build around *jannah* (hidden
+  garden), *janīn* (child hidden in the womb), *junna* (the shield that hides to
+  protect). DROP jinn + majnūn (fear-crowd + mental-health misread). Payoff =
+  the most precious things are still concealed; faith trusts the hidden good.
+  bg: candle/lantern glow (TO SOURCE). (SOLID)
+- **و د د — Al-Wadūd:** love that is *enacted/visible* (wudd, not ḥubb); Hud
+  11:90, Al-Burūj 85:14. bg: sage/olive linen (have). (SOLID)
+- **ص د ق — ṣadaqah = ṣidq:** charity is the proof of truthful faith;
+  "aṣ-ṣadaqatu burhān" (Muslim 223). bg: misbaha on dark marble (TO SOURCE). (SOLID)
+- **أ م ن — īmān = amn:** faith and safety, one root; Al-Mu'min. bg: dried rose
+  on linen (have). (SOLID)
+
+### Owner-approved future chapters (final source pass before build)
+salām (peace/Islam/silm), nūr (light), ṣabr (patience), shukr (gratitude),
+fiṭra, dhikr (remembrance), khalq + khuluq (creation & character, one root),
+kitāb / maktūb (the written decree — on-brand for a book), barakah, rizq,
+tawba (return/repentance), ḥamd / Muḥammad / Aḥmad (praise), ʿilm (knowledge).
+Target book size ~24-30 chapters; stop before folk-etymology territory.
+Full bank + DO-NOT-POST list in `insight-bank.md`.
