@@ -52,6 +52,30 @@ human.
 - Reel beat-lines: 3 beats, each ≲26 chars at 78px, e.g. "The tea goes cold, /
   the dua does not. / He heard you."
 
+## Engagement (grow the community + sales) — bake into EVERY post
+The algorithm pushes what gets SAVED and SHARED, and comments signal reach.
+So every post is built to earn one of those, on purpose:
+1. **Hook in the first line / first slide.** The "wait, really?" that stops the
+   scroll. Never bury it.
+2. **One clear CTA per post, rotated** (not every post begs the same thing):
+   - *Save* it ("save this for the days your heart won't hold still")
+   - *Share* it ("send this to someone who needs the reminder")
+   - *Follow* the series ("we share one root every week")
+   - *Reply-bait* a question ("which word surprised you most?") — comments =
+     reach, and they're the people we then reply to (see the comment system)
+   - *Waitlist* ("be first when we open, link in bio") — the sales CTA, used on
+     product-leaning posts, not every reminder
+3. **Name the series.** "The Root Series / the language of the Qur'an" — people
+   follow a series, not one-off posts. Reference it so they come back.
+4. **Seed the first comment yourself** on carousels/essays (a question or a
+   second gem). Priming a post with one comment lifts it and invites replies.
+5. **Reply fast to every comment** in the first hours (the comment system does
+   this) — early engagement compounds reach, and a seen commenter becomes a
+   follower/subscriber/customer.
+6. **Carousels:** slide 1 must earn the swipe; last slide = a follow/save CTA.
+7. Sales stay soft and rare-ish: weave the product/waitlist into ~1 in 4 posts,
+   never salesy on the pure reminders. Community first, buying follows trust.
+
 ## Structures
 **Caption:** hook line + 🤍 → 2-3 sentence unfolding → one-line payoff →
 "Ketabi Studio is coming soon... link in bio" → 10 hashtags (mix niche+broad).
