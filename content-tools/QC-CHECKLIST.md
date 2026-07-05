@@ -28,7 +28,29 @@ the final gate under time pressure. The gate is non-negotiable.
 - [ ] Nothing clipped by the frame edges; consistent centering; safe margins.
 - [ ] Legible over the busiest background frame.
 
-## 4. Voice + brand rules (see voice-style.md)
+## 4. Visuals + aesthetic (owner's directives, non-negotiable)
+- [ ] **Premium "aesthetic Islamic creator" look, NEVER "beige mom vibe."**
+      Elevated, filmic, editorial. If unsure, research what aesthetic Islamic
+      creators are doing and beat it (not quiet-luxury-for-abayas).
+- [ ] **Faceless. No identifiable people** — stock faces read as someone's
+      personal account and do not get reposted. Words or product are the
+      shareable unit.
+- [ ] **Text readable over EVERY part of the image** (adaptive scrim). Never
+      ship a line you cannot read (owner: "some is clear and some are not").
+- [ ] **No readable random-book text.** Qur'an or no visible text only; random
+      print is distracting.
+- [ ] **Curated grid / checkerboard.** Dark reel/reminder alternating with cream
+      card, one warm palette, no two similar tiles adjacent, NEVER repeat a
+      background. Grid order + cohesion matter (owner archives repeats for it).
+- [ ] **End card gentle, held to the finish, low-center, never flashing fast or
+      too high**; must fully clear the payoff (see section 3).
+- [ ] **Warm film grade + brand system:** faded blacks, warm tint, slight
+      desaturation, soft bloom, grain; Playfair italic; Amiri for Arabic (keep
+      this font, owner likes it); faint letter-spaced KETABI STUDIO wordmark +
+      gold rule; palette emerald / cream / gold / slate-green ink.
+- [ ] **No Star of David / six-pointed star** in any design.
+
+## 5. Voice + brand rules (see voice-style.md)
 - [ ] NO em dashes anywhere.
 - [ ] His/Him/He capitalized for Allah.
 - [ ] English-first; Arabic only with transliteration + translation.
@@ -38,7 +60,7 @@ the final gate under time pressure. The gate is non-negotiable.
 - [ ] A clear CTA (save / share / follow / reply-bait / waitlist), rotated.
 - [ ] Caption <=2200 chars, <=30 hashtags; reel/Threads text within limits.
 
-## 5. Process
+## 6. Process
 - [ ] Full contact sheet built AND every sampled frame actually scrutinized
       against 1-4 above (do not skim).
 - [ ] For reels: sample the hook (0-2s), every card transition, and the final 3s.
