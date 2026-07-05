@@ -719,9 +719,12 @@ crashed it with a server-side exception).
   light type stays legible over bright areas), Ken-burns drift, and a gentle
   KETABI STUDIO end card that fades in slow and is HELD to the finish (an early
   version flashed the wordmark too fast/high — don't). 1080×1920, 15s, 25fps.
-  Rendered via HTML + `window.__seek(t)` → Playwright frames → ffmpeg libx264,
-  encoded **under 4.5 MB** (`-crf 25 -maxrate 2200k`) so it fits Vercel's
-  serverless upload limit. Source in `scratchpad/lux/reel/` (reel.html + cap.py).
+  **Render with `content-tools/gen_reel_pil.py`** (browser-free PIL/numpy +
+  ffmpeg, ~30s/reel, auto-uploads each finished mp4 and logs the URL to
+  reel_manifest.txt). The old Playwright pipeline (reel.html + cap.py /
+  batch_reels.py) is legacy: container restarts kill long browser renders and
+  a throttled box runs ~7min/reel. Encode stays **under 4.5 MB**
+  (`-crf 25 -maxrate 2200k`) to fit Vercel's serverless upload limit.
 - **I (Claude) QC every single post, carousel, and reel before it ships** —
   standing owner instruction. Build a frame/contact sheet, read it back, and
   confirm legibility + the faceless rule + the held end card + correct copy with
@@ -783,24 +786,59 @@ warm palette, never repeat a background (see `content-tools/`). With a 3-wide
 grid, strict dark↔light alternation is always a checkerboard. Each day =
 **1 reel (dark) + 1 cream card (light)**.
 
-The first two live posts (a reel + a static) were BOTH dark window-light and
-read as a repeat, so the owner chose to **delete both and start fresh** — note
-**Instagram has no API delete**, so those two must be removed by hand in the app
-(reel `instagram.com/reel/DaYAuaakh8M`, post `instagram.com/p/DaYASy4GeoL`).
+The owner deleted the 3 pre-checkerboard posts by hand (IG has no API delete),
+so the grid is curated from tile one. **Tile one = the ر ح م insight carousel**
+(posted 07-04, IG `instagram.com/p/DaYf_z0lAOY`).
 
-**Queue (curated, 2026-07-04):** a FULL WEEK — 7 reel+card pairs (14 posts),
-one pair/day at 16:00 UTC, strict checkerboard (verified against a rendered
-grid preview). Reels use varied faceless backgrounds: window light, Qur'an+beads
-(c_8164567), tasbih (t_36855575), coffee+shadow (c_34531681), open Qur'an
-(c_29100259), hand+curtain (hand.jpg), coffee+window (c_13523793).
-- 07-05 window "Allah is nearer" · 07-06 Qur'an "keep the Qur'an close" · 07-07 beads "every dhikr"
-- 07-08 coffee "begin the day with Him" · 07-09 open-Qur'an "one page softens the home"
-- 07-10 hand "on the days you feel unseen" · 07-11 coffee "your quiet moment with Him"
+### Posting schedule + reliable trigger (2026-07-05)
+Two slots daily: **10:00 UTC (5am Central, dark reel)** and **19:00 UTC (2pm
+Central, cream card / carousel)**. Times are set for Central DAYLIGHT time —
+shift the crons +1h when US clocks fall back in November so the owner's 5am
+stays 5am. Vercel crons exist (vercel.json) **but the free-tier cron fires
+late/unreliably** (missed the 07-05 morning slot). The REAL trigger is a
+**GitHub Action** `.github/workflows/social-poster.yml`: pings the poster at
+both slots + a catch-up run an hour after each, auth via repo secret
+`CRON_SECRET` (added by owner, test run green). Safe because the endpoint only
+publishes rows whose scheduled_for is due, so overlapping runs never
+double-post. Manual fire any time:
+`curl -H "Authorization: Bearer $CRON_SECRET" https://www.ketabistudio.com/api/cron/social`
 
-**Refill before 07-12.** Batch more reels via `content-tools/batch_reels.py` +
-cream cards, keep the checkerboard, **QC every one by eye** (contact sheet —
-watch for line-wrap collisions in reels; keep each beat-line ≲26 chars at 78px),
-enqueue reel+card pairs.
+### Content strategy (updated 2026-07-05, owner-approved)
+- **The growth engine is VERIFIED INSIGHT content** (the "wait, really?"
+  carousels), not generic quotes. Bank of 13 fact-checked items + a DO-NOT-POST
+  list: `content-tools/insight-bank.md`. Carousel 01 = ر ح م (live), Carousel
+  02 = qalb (queued 07-08 anchor, `content-tools/gencarousel_qalb.py`). Next
+  up: ج ن ن "everything hidden", Al-Wadūd.
+- **Gender: insight content stays UNIVERSAL** (whole ummah reposts it);
+  mama-framing only on parenting/product posts. Neutral tagline on visuals:
+  "for hearts that remember Him". (Owner flagged this 07-05.)
+- **Voice: `content-tools/voice-style.md` — READ IT BEFORE WRITING ANYTHING.**
+  One person's voice, always. No em dashes anywhere (including chat replies to
+  the owner). QC every visual by eye (RTL direction! PIL+raqm lays Arabic
+  right-to-left already, do NOT pre-reverse), grep copy for em dashes, verify
+  every claim (quote hadith verbatim + grading; sunnah.com is proxy-blocked
+  from this environment, cross-verify via mirrors like hadithunlocked.com).
+
+### Queue state (as of 2026-07-05)
+Queued through **07-21**, one dark reel 10:00 + one light card 19:00 daily;
+07-08 19:00 is the qalb carousel (light slot). Live so far: ر ح م carousel,
+"Raising little believers" card, "Allah is nearer" reel. **Refill before
+07-22** using `content-tools/gen_reel_pil.py` (browser-free, ~30s/reel,
+auto-uploads + writes reel_manifest.txt) + `gen_cream_card.py`, then enqueue
+pairs via /api/social/enqueue (reels at T10:00:00Z, cards at T19:00:00Z).
+Keep the checkerboard; QC contact sheets first.
+
+## Substack (live 2026-07-05)
+Owner created the publication and hand-published **post 1: "Mercy, in its
+mother tongue"** (`content-tools/substack/post1-rahma.md` + banner recipe in
+the session scratchpad). Substack has **NO publishing API** — flow is: Claude
+writes + verifies + generates the cream banner (1456×816, Arabic root in Amiri;
+remember PIL renders RTL natively), owner pastes into Substack (first image in
+the body becomes the cover) and uses Substack's own scheduler. Repurpose each
+insight carousel into an essay (~500-700 words, structure in voice-style.md,
+sources cited INSIDE the post). Strategy: nurture + slow discovery channel, not
+a growth spike; cross-link it from IG bio + captions. Ask the owner for the
+publication URL (not yet recorded here).
 
 ## Pinterest (boards only — pins blocked)
 - @ketabi_studio connected. OAuth app id `1587172`. **8 keyword boards created
