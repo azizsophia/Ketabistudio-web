@@ -10,7 +10,15 @@ numpy, playwright, imageio-ffmpeg. Fonts live in `../worker/fonts`.
   held KETABI STUDIO footer.
 - `gen_cream_card.py "<line\\nline>" <out.jpg> ["<sub>"]` — cream typographic
   card (the LIGHT grid tile). Gold frame, Playfair, domain footer.
-- `batch_reels.py` — edit the `VARIANTS` list (name, background, 3 beat-lines,
+- `gen_reel_pil.py` — **the reliable reel renderer** (browser-free). Renders the
+  silent 1080x1920 reel entirely in PIL/numpy (film-graded faceless bg, ken-burns,
+  3 beat-lines on a radial band scrim, held KETABI STUDIO end card) then ffmpeg,
+  ~30s/reel, and uploads each to /api/social/video on finish (writes reel_manifest.txt).
+  Edit its VARIANTS list. USE THIS, not the Playwright `batch_reels.py` — long
+  browser renders get killed by container restarts and are ~7min/reel when the
+  box is throttled. Run: `python3 gen_reel_pil.py [reel_name ...]` (no args = all,
+  skips any .mp4 that already exists so it resumes safely).
+- `batch_reels.py` — (legacy, browser-based; prefer gen_reel_pil.py) edit the `VARIANTS` list (name, background, 3 beat-lines,
   end sub), renders each to an <4.5 MB silent 1080×1920 mp4 via Playwright +
   ffmpeg. Same aesthetic as the stills so feed + reels are one grid.
 
