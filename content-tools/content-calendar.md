@@ -26,12 +26,30 @@ the turn (fact->feeling) -> payoff naming a person/moment -> held KETABI end car
 ONE rotated CTA (save / share / follow / reply-bait / waitlist). Caption mirrors it,
 always ends on send-to-someone + series follow + verified source.
 
-## Visual system
-Low-light, moody, filmic, warm; faceless AND skinless (owner flagged bare skin);
-never repeat a background; no six-point star; Amiri hero + Playfair; gold rule +
-KETABI wordmark. **Match the image to the meaning** (noted per root). Backgrounds
-marked (source) need a fresh skinless still — build the background board and show
-owner BEFORE any render (QC gate).
+## Visual system — PREMIUM (locked 07-05, owner "I love all 3 directions")
+Elevated / editorial / expensive, made to stop the thumb. NOT beige-mom. Rotates
+3 directions unified by one signature so the grid never feels samey:
+  A. cinematic light (shaft of light, carved screen, oud/incense smoke)
+  B. jewel still life (Dutch-master: pomegranate, roses, dates, silver, velvet)
+  C. gold / textile minimal (gold silk, single object on black, negative space)
+**Signature = GOLD Amiri** (not cream) with a soft glow — this one change is most
+of the premium jump. Premium grade recipe (in gen_insight_reel prem path):
+faded deep blacks (a*0.88+6), warm R*1.06 B*0.90, desat 0.80, contrast 1.06,
+GaussianBlur bloom 0.12, strong radial vignette (edges to ~0.25), fine grain ~7.
+Cream Amiri only on gold/bright bases (e.g. gold silk) for contrast.
+Rules still hold: faceless AND skinless (owner flagged bare skin), never repeat a
+background, no six-point star (verify carved-screen / lantern cutwork per frame),
+gold rule + KETABI wordmark, match image to meaning. Show board before render (done).
+
+### Locked backgrounds (Pexels free-license id, or own asset) + vibe
+qalb=candle 37764589 (C) · nūr=light-through-carved-screen+smoke 7568336 (A) ·
+ṣabr=cup by window 18006779 (B/moody) · salām=gold silk 4938321 (C, CREAM text) ·
+jann=arched doorway light 30335237 (A) · wadūd=moody garden roses 6434312 (B) ·
+ṣadaqah=dates 37417612 (B) · shukr=Dutch fruit bowl 34525395 (B) ·
+khalq=clay vessels 15923679 (B/earth) · kitāb=Qur'an+tasbih own reel_quran_bg (B) ·
+īmān=brass wall sconce 38280667 (A/warm) · dhikr=red tasbih 34522113 (B).
+Retired: window curtain (rahma launch reel). Pexels = free license, no attribution
+required; keep ids on file. Re-fetch large2x/original of the chosen id at render.
 
 ---
 
