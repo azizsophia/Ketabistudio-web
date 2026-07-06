@@ -69,22 +69,32 @@ def _fit(text, path, sizes, maxw, max_lines):
     f = ImageFont.truetype(path, sizes[-1])
     return f, _wrap(text, f, maxw)
 
-def _base(theme, W, H):
+def _base(theme, W, H, arch=False):
     t = THEMES[theme]
+    dark = theme in ("dark", "night")
     im = Image.new("RGB", (W, H), t["bg"])
     a = np.asarray(im).astype(np.float32)
     yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
     d = ((xx - .5 * W) / (.72 * W)) ** 2 + ((yy - .44 * H) / (.60 * H)) ** 2
-    if theme == "dark":
+    if dark:
         glow = np.clip(1 - np.clip(d, 0, 1), 0, 1)[..., None]
         a[..., 0] += glow[..., 0] * 14; a[..., 1] += glow[..., 0] * 11; a[..., 2] += glow[..., 0] * 6
         a = a * np.clip(1 - 0.55 * np.clip(d, 0, 1), 0.35, 1)[..., None] + np.random.default_rng(5).normal(0, 4.5, (H, W, 1))
     else:
         a = a * np.clip(1 - 0.09 * np.clip(d, 0, 1), 0.91, 1)[..., None] + np.random.default_rng(3).normal(0, 3.2, (H, W, 1))
     im = Image.fromarray(np.clip(a, 0, 255).astype("uint8"))
+    dr = ImageDraw.Draw(im)
     bw = max(2, round(2 * (W / BW)))
-    ImageDraw.Draw(im).rectangle([round(46 * W / BW), round(46 * H / BH), W - round(46 * W / BW), H - round(46 * H / BH)],
-                                 outline=t["border"], width=bw)
+    ml, mt = round(46 * W / BW), round(46 * H / BH)
+    x0, y0, x1, y1 = ml, mt, W - ml, H - mt
+    if arch:
+        rise = round(150 * W / BW)  # shallow dome across the top (mihrab feel)
+        dr.arc([x0, y0, x1, y0 + 2 * rise], 180, 360, fill=t["border"], width=bw)
+        dr.line([(x0, y0 + rise), (x0, y1)], fill=t["border"], width=bw)
+        dr.line([(x1, y0 + rise), (x1, y1)], fill=t["border"], width=bw)
+        dr.line([(x0, y1), (x1, y1)], fill=t["border"], width=bw)
+    else:
+        dr.rectangle([x0, y0, x1, y1], outline=t["border"], width=bw)
     return im
 
 def _bh(lines, font, lg):
@@ -109,7 +119,8 @@ def render_keepsake(entry, out_path, theme="ivory", sc=1.0):
     W, H = round(BW * sc), round(BH * sc)
     t = THEMES[theme]; GOLD, INK, SOFT = t["gold"], t["ink"], t["soft"]
     def S(x): return round(x * sc)
-    im = _base(theme, W, H); d = ImageDraw.Draw(im)
+    arch = entry.get("arch", False)
+    im = _base(theme, W, H, arch=arch); d = ImageDraw.Draw(im)
 
     f_tag = ImageFont.truetype(PLAY, S(24))
     f_ar, ar = _fit(entry["arabic"], AMIRI, [S(n) for n in (60, 54, 48, 42, 37, 33)], W - S(170), 3)
@@ -119,7 +130,7 @@ def render_keepsake(entry, out_path, theme="ivory", sc=1.0):
     ded = entry.get("dedication", "")
     f_ded, dedl = _fit(ded, PLAY_IT, [S(n) for n in (40, 36, 32)], W - S(220), 2) if ded else (None, [])
 
-    _draw(d, [entry["tag"].upper()], f_tag, GOLD, S(104), 1.0, W, ls=S(5))
+    _draw(d, [entry["tag"].upper()], f_tag, GOLD, S(150 if arch else 104), 1.0, W, ls=S(5))
 
     GAP_AR, GAP_TR, GAP_DIV, GAP_SRC, GAP_DED = S(60), S(32), S(54), S(50), S(46)
     blocks = [(ar, f_ar, GOLD, 1.5, GAP_AR), (tr, f_tr, INK, 1.28, GAP_TR), (en, f_en, INK, 1.3, GAP_DIV)]
