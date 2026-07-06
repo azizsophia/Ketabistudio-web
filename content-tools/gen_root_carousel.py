@@ -102,7 +102,7 @@ def slide_close(lines, cta):
 SLIDES = [
     slide_hook(["In Arabic,", "the word for your heart", "means: the thing that turns."]),
     slide_root("ق ل ب", ["qalb, the heart", "qalaba, to turn over", "taqallub, the turning between states"]),
-    slide_text(["So your heart", "was made to move.", "", "Close to Him one day,", "far the next."]),
+    slide_text(["So your heart was made to turn,", "not to stay still.", "", "Close to Him one day,", "far the next."]),
     slide_text(["That restlessness", "is not weak faith.", "", "It is a heart,", "doing what a heart does."]),
     slide_dua("يا مقلب القلوب ثبت قلبي على دينك",
               ["Ya Muqallib al-qulub,", "thabbit qalbi ala dinik."],
