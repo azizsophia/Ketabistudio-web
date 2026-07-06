@@ -219,8 +219,13 @@ export type DraftListing = {
   is_supply?: boolean;
   when_made?: string; // e.g. "made_to_order" | "2020_2025"
   taxonomy_id?: number; // 68887887 = Digital Prints (verify via getTaxonomy)
+  is_personalizable?: boolean;
+  personalization_is_required?: boolean;
+  personalization_instructions?: string;
 };
 
+// Creates the listing in DRAFT state (Etsy's createDraftListing default) — it is
+// never public until publishListing() is called. Honors the show-owner-first rule.
 export async function createDraftListing(d: DraftListing): Promise<{ ok: boolean; listing_id?: number; detail?: string }> {
   const shop = await getShopId();
   if (!shop) return { ok: false, detail: "no shop id" };
@@ -235,6 +240,13 @@ export async function createDraftListing(d: DraftListing): Promise<{ ok: boolean
     is_supply: String(d.is_supply ?? false),
     type: "download", // digital listing
   });
+  if (d.is_personalizable) {
+    body.set("is_personalizable", "true");
+    body.set("personalization_is_required", String(d.personalization_is_required ?? true));
+    body.set("personalization_char_count_max", "256");
+    if (d.personalization_instructions)
+      body.set("personalization_instructions", d.personalization_instructions);
+  }
   for (const t of d.tags.slice(0, 13)) body.append("tags", t);
   const r = await etsyFetch(`/shops/${shop}/listings`, {
     method: "POST",
