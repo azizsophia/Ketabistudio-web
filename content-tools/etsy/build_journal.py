@@ -14,17 +14,35 @@ PLAY, PLAY_IT, AMIRI = J.PLAY, J.PLAY_IT, J.AMIRI
 INK, SOFT, GOLD, MARK = J.INK, J.SOFT, J.GOLD, J.MARK
 
 def title_page(out):
+    # measured, optically balanced stack: whole block centered between the top
+    # border and the brand/copyright footer, with even rhythm.
     im = J._base(); d = ImageDraw.Draw(im)
-    J._center(d, "T H I R T Y   D A Y S   ·   T H I R T Y   R O O T S", ImageFont.truetype(PLAY, 36), GOLD, 480, ls=4)
-    f_ar = ImageFont.truetype(AMIRI, 260)
+    f_tag = ImageFont.truetype(PLAY, 36)
+    f_ar  = ImageFont.truetype(AMIRI, 250)
+    f_ti  = ImageFont.truetype(PLAY_IT, 148)
+    f_su  = ImageFont.truetype(PLAY_IT, 54)
+    f_ve  = ImageFont.truetype(PLAY, 40)
+    f_mk  = ImageFont.truetype(PLAY, 34)
+    f_cp  = ImageFont.truetype(PLAY, 28)
     ar = "من جذر واحد"
     bb = d.textbbox((0, 0), ar, font=f_ar)
-    d.text(((PW - (bb[2]-bb[0]))/2 - bb[0], 640 - bb[1]), ar, font=f_ar, fill=GOLD)
-    J._center(d, "From One Root", ImageFont.truetype(PLAY_IT, 150), INK, 1050)
-    J._center(d, "a thirty-day journey through the language of the Qur'an", ImageFont.truetype(PLAY_IT, 54), SOFT, 1290)
-    d.line([(PW//2-60, 1450), (PW//2+60, 1450)], fill=GOLD, width=3)
-    J._center(d, "every root verified · every source cited", ImageFont.truetype(PLAY, 40), SOFT, 1520)
-    J._center(d, "K E T A B I   S T U D I O", ImageFont.truetype(PLAY, 34), MARK, PH-220, ls=8)
+    ar_h = bb[3] - bb[1]
+    G1, G2, G3, G4, G5 = 130, 150, 60, 90, 70  # tag→ar→title→sub→div→verified
+    tag_h = sum(f_tag.getmetrics()); ti_h = sum(f_ti.getmetrics())
+    su_h = sum(f_su.getmetrics()); ve_h = sum(f_ve.getmetrics())
+    total = tag_h + G1 + ar_h + G2 + ti_h + G3 + su_h + G4 + 3 + G5 + ve_h
+    top, bot = 220, PH - 420  # leave room for footer block
+    y = top + ((bot - top) - total) / 2
+    J._center(d, "T H I R T Y   D A Y S   ·   T H I R T Y   R O O T S", f_tag, GOLD, y, ls=4); y += tag_h + G1
+    d.text(((PW - (bb[2]-bb[0]))/2 - bb[0], y - bb[1]), ar, font=f_ar, fill=GOLD); y += ar_h + G2
+    J._center(d, "From One Root", f_ti, INK, y); y += ti_h + G3
+    J._center(d, "a thirty-day journey through the language of the Qur'an", f_su, SOFT, y); y += su_h + G4
+    d.line([(PW//2-60, int(y)), (PW//2+60, int(y))], fill=GOLD, width=3); y += 3 + G5
+    J._center(d, "every root verified · every source cited", f_ve, SOFT, y)
+    # footer block: brand + copyright
+    J._center(d, "K E T A B I   S T U D I O", f_mk, MARK, PH - 300, ls=8)
+    J._center(d, "© 2026 Ketabi Studio · ketabistudio.com · All rights reserved", f_cp, SOFT, PH - 225)
+    J._center(d, "For personal use only. May not be reproduced, resold, or redistributed.", f_cp, SOFT, PH - 180)
     im.save(out)
 
 HOWTO = ("This journal moves one root at a time. Each day gives you three letters of "
@@ -34,9 +52,9 @@ HOWTO = ("This journal moves one root at a time. Each day gives you three letter
  "ask for memories, some for plans, one or two for courage.\n \n"
  "You can walk the thirty days in a month, or take a root a week and live with it "
  "longer. There is no falling behind here.\n \n"
- "Everything in these pages is verified. Every etymology was checked against the "
- "classical lexicons, every ayah against the Qur'an, every hadith against its "
- "grading, and the sources are cited on the page where they are used. Where a "
+ "Everything in these pages is verified. Every root was checked against the "
+ "classical dictionaries of Arabic, every ayah against the Qur'an, every hadith "
+ "against its grading, and the sources are cited on the page where they are used. Where a "
  "connection is a classical scholar's insight rather than settled fact, the page "
  "says so. That is a promise we keep across everything we make.\n \n"
  "Begin with mercy. It was always the beginning.")
@@ -59,10 +77,11 @@ def sources_page(out):
     J._center(d, "SOURCES", ImageFont.truetype(PLAY, 40), GOLD, 240, ls=10)
     f = ImageFont.truetype(PLAY, 40); fs = ImageFont.truetype(PLAY, 36)
     y = 420
-    intro = ("Roots and meanings were checked against the classical lexicons: Lane's "
-     "Arabic-English Lexicon, Lisan al-Arab, and Raghib al-Isfahani's al-Mufradat, "
-     "with root occurrences confirmed at corpus.quran.com. Hadith are cited with "
-     "collection, number, and grading. Qur'an references were verified at quran.com.")
+    intro = ("Roots and meanings were checked against the classical dictionaries of "
+     "the Arabic language: Lane's Arabic-English Lexicon, Lisan al-Arab, and Raghib "
+     "al-Isfahani's al-Mufradat, with root occurrences confirmed at corpus.quran.com. "
+     "Hadith are cited with collection, number, and grading. Qur'an references were "
+     "verified at quran.com.")
     y = J._block(d, J._wrap(intro, f, PW-420), f, INK, y, lg=1.42)
     y += 70
     for i, day in enumerate(DAYS, 1):

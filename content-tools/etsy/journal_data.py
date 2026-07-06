@@ -79,7 +79,7 @@ DAYS = [
    "Character is built in small repetitions. What tiny repetition will you start this week?"]),
  # ---------------- WEEK 2 — THE PRACTICE ----------------
  dict(letters="ذ ك ر", translit="dhikr", gloss="to remember · with the tongue",
-  story=("The lexicons split dhikr in two: remembering Him with the heart, and mentioning Him "
+  story=("The classical dictionaries split dhikr in two: remembering Him with the heart, and mentioning Him "
    "with the tongue. In Arabic, remembrance is allowed to be audible. It can sit in your mouth on "
    "a commute, under your breath in a waiting room. And the promise attached to it is about the "
    "heart finding what it has been looking for everywhere else."),
@@ -133,7 +133,7 @@ DAYS = [
    "Where in your week do you feel most exposed? Write what taqwa would look like there.",
    "Awareness of Him as armor, not anxiety. How does that change the way you re-enter tomorrow?"]),
  dict(letters="ب ر ك", translit="barakah", gloss="blessing that settles",
-  story=("The root picture of barakah is a camel kneeling down to stay. The lexicons tie it to "
+  story=("The root picture of barakah is a camel kneeling down to stay. The early scholars of Arabic tie it to "
    "steadiness: good that settles in a place and keeps increasing there. Barakah is not more. It "
    "is what makes the little you have sit down, stay, and stretch. Some homes have less and hold "
    "more. Now you know the word for why."),
@@ -200,7 +200,7 @@ DAYS = [
    "If this life is the near one, what are you doing here that the far one will thank you for?",
    "Write what you would loosen your grip on if you truly believed better is coming."]),
  dict(letters="ر ز ق", translit="rizq", gloss="provision · wider than money",
-  story=("The lexicons define rizq as anything that reaches you and benefits you, and they name "
+  story=("The classical dictionaries of Arabic define rizq as anything that reaches you and benefits you, and they name "
    "two kinds: the apparent, like food for the body, and the hidden, like knowledge for the "
    "heart. Your rizq includes the friend who arrived at the right time, the ayah that found you, "
    "the sleep that finally came. It was all allotted, and none of it was owed."),
@@ -219,7 +219,7 @@ DAYS = [
    "Whose love for you is quiet but provable? Write their proof.",
    "Make your love visible today, one act. Write what it will be before you do it."]),
  dict(letters="ل ط ف", translit="Al-Latif", gloss="gentle · with the hidden",
-  story=("Al-Latif holds two meanings the lexicons refuse to separate: utterly gentle, and aware "
+  story=("Al-Latif holds two meanings the early dictionaries refuse to separate: utterly gentle, and aware "
    "of the subtlest hidden things. His gentleness is not generic. He is gentle with you because "
    "He sees the weight you never mention, the thing under the thing. Should He not know, the ayah "
    "asks, when He is the Subtle, the Acquainted."),
@@ -255,7 +255,7 @@ DAYS = [
    "Where are you generous only when it is convenient? What would noble giving change?",
    "Do one thing this week that is generous beyond reason. Plan it here."]),
  dict(letters="ع ل م", translit="'ilm", gloss="knowledge · a world of signs",
-  story=("Classical lexicographers explain that 'alam, the world, sits under the root of 'ilm, "
+  story=("The classical scholars of Arabic explain that 'alam, the world, sits under the root of 'ilm, "
    "knowledge: the world is that by which its Maker is known, the way an 'alamah, a signpost, "
    "points past itself. Read that way, every leaf is literature. Study was never separate from "
    "worship. The universe is course material."),
