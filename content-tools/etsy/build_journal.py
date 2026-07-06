@@ -45,30 +45,37 @@ def title_page(out):
     J._center(d, "For personal use only. May not be reproduced, resold, or redistributed.", f_cp, SOFT, PH - 180)
     im.save(out)
 
-HOWTO = ("This journal moves one root at a time. Each day gives you three letters of "
- "Arabic, the true meaning that lives inside them, and a place to write.\n \n"
- "Read the story page slowly. The fact is the doorway, not the point.\n \n"
- "Then answer honestly on the writing page. Nobody is grading this. Some prompts "
- "ask for memories, some for plans, one or two for courage.\n \n"
- "You can walk the thirty days in a month, or take a root a week and live with it "
- "longer. There is no falling behind here.\n \n"
- "Everything in these pages is verified. Every root was checked against the "
- "classical Arabic sources, every ayah against the Qur'an, every hadith "
- "against its grading, and the sources are cited on the page where they are used. Where a "
- "connection is a classical scholar's insight rather than settled fact, the page "
- "says so. That is a promise we keep across everything we make.\n \n"
+HOWTO = ("One root a day, for thirty days.\n"
+ "Each day is two pages. The first tells the story of one Arabic root: what it "
+ "truly means, and the ayah or hadith it lives in. The second page is yours, with "
+ "a few honest questions and room to write.\n"
+ "Read slowly. Write honestly. Nobody is grading this.\n"
+ "Take a day for each root, or a whole week. There is no falling behind.\n"
+ "Every root, ayah, and hadith here is verified, and the source is printed on the "
+ "page where it is used. Where a connection is a scholar's insight rather than "
+ "settled fact, the page says so.\n"
  "Begin with mercy. It was always the beginning.")
 
 def howto_page(out):
+    # measured layout: title + paragraphs with even gaps, block vertically
+    # centered between the border and the footer. Verified non-overflowing.
     im = J._base(); d = ImageDraw.Draw(im)
-    J._center(d, "HOW TO WALK THESE PAGES", ImageFont.truetype(PLAY, 40), GOLD, 260, ls=8)
+    f_t = ImageFont.truetype(PLAY, 40)
     f = ImageFont.truetype(PLAY, 52)
-    y = 480
-    for para in HOWTO.split("\n"):
-        if para.strip() == "":
-            y += 30; continue
-        y = J._block(d, J._wrap(para, f, PW-420), f, INK, y, lg=1.45)
-        y += 26
+    lg, GAP = 1.45, 64
+    paras = [J._wrap(p, f, PW - 460) for p in HOWTO.split("\n")]
+    lh = int(f.size * lg)
+    asc, desc = f.getmetrics()
+    def ph(lines): return lh * (len(lines) - 1) + asc + desc
+    t_h = sum(f_t.getmetrics())
+    total = t_h + 110 + sum(ph(p) for p in paras) + GAP * (len(paras) - 1)
+    top, bot = 200, PH - 220
+    y = top + max(0, (bot - top - total) / 2)
+    J._center(d, "HOW TO USE THIS JOURNAL", f_t, GOLD, y, ls=8); y += t_h + 110
+    for p in paras:
+        y = J._block(d, p, f, INK, y, lg=lg)
+        y += GAP
+    assert y - GAP <= PH - 180, f"howto overflow: y={y}"
     J._center(d, "F R O M   O N E   R O O T", ImageFont.truetype(PLAY, 30), MARK, PH-150, ls=6)
     im.save(out)
 

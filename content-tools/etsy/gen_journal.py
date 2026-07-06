@@ -98,21 +98,30 @@ def render_story_page(day, e, out):
     im.save(out); return out
 
 def render_writing_page(day, e, out):
-    """e: {prompts: [str, ...]} — prompts + ruled lines."""
+    """e: {prompts: [str, ...]} — prompts + ruled lines. MEASURED layout: the
+    number of ruled lines per prompt is solved so the page can never overflow
+    the footer (every page verified by measurement, not eyeball)."""
     im = _base(); d = ImageDraw.Draw(im)
     f_day = ImageFont.truetype(PLAY, 30)
-    f_pr  = ImageFont.truetype(PLAY_IT, 46)
+    f_pr  = ImageFont.truetype(PLAY_IT, 44)
     _center(d, f"DAY {DAY_WORDS[day-1]}  ·  {e['translit'].upper()}", f_day, GOLD, 150, ls=6)
-    y = 300
     n = len(e["prompts"])
-    lines_per = 7 if n == 2 else 5
-    for p in e["prompts"]:
-        y = _block(d, _wrap(p, f_pr, PW - 400), f_pr, INK, y, lg=1.35)
-        y += 46
+    TOP, BOTTOM = 290, PH - 200      # content must clear the footer mark at PH-150
+    LH, G_P, LINE_SP, G_AFTER = int(44 * 1.35), 40, 88, 54
+    wraps = [_wrap(p, f_pr, PW - 400) for p in e["prompts"]]
+    fixed = sum(len(w) * LH for w in wraps) + n * G_P + (n - 1) * G_AFTER
+    lines_per = max(3, min(7, (BOTTOM - TOP - fixed) // (n * LINE_SP)))
+    total = fixed + n * lines_per * LINE_SP + (n - 1) * 0
+    y = TOP + max(0, (BOTTOM - TOP - total) / 2)
+    for i, w in enumerate(wraps):
+        y = _block(d, w, f_pr, INK, y, lg=1.35)
+        y += G_P
         for _ in range(lines_per):
-            d.line([(200, y), (PW - 200, y)], fill=RULE, width=2)
-            y += 92
-        y += 60
+            d.line([(200, int(y)), (PW - 200, int(y))], fill=RULE, width=2)
+            y += LINE_SP
+        if i < n - 1:
+            y += G_AFTER
+    assert y <= PH - 165, f"writing page overflow day {day}: y={y}"
     _center(d, "F R O M   O N E   R O O T", ImageFont.truetype(PLAY, 30), MARK, PH - 150, ls=6)
     im.save(out); return out
 
