@@ -114,18 +114,65 @@ async function waitForThreadsContainer(
 }
 
 // Publish one image or video post. Returns the published Threads media id.
+// mediaUrls: one url = single image/video; 2+ (images only) = a Threads carousel.
 export async function publishThreads(
   creds: ThreadsCreds,
-  mediaUrl: string,
+  mediaUrls: string | string[],
   caption: string,
   isVideo: boolean
 ): Promise<string> {
+  const urls = (Array.isArray(mediaUrls) ? mediaUrls : [mediaUrls]).filter(Boolean);
+  const text = threadsText(caption);
+
+  // Carousel: a child container per image (is_carousel_item), then a CAROUSEL
+  // parent that carries the text, then publish. Threads allows up to 20 items.
+  if (!isVideo && urls.length > 1) {
+    const children: string[] = [];
+    for (const u of urls.slice(0, 20)) {
+      const cc = await fetch(`${TH_GRAPH}/${creds.user_id}/threads`, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          media_type: "IMAGE",
+          image_url: u,
+          is_carousel_item: "true",
+          access_token: creds.token,
+        }),
+      });
+      const ccd = (await cc.json()) as { id?: string; error?: { message?: string } };
+      if (!ccd.id) throw new Error("threads carousel child: " + JSON.stringify(ccd.error || ccd));
+      await waitForThreadsContainer(ccd.id, creds.token, 30000);
+      children.push(ccd.id);
+    }
+    const cp = await fetch(`${TH_GRAPH}/${creds.user_id}/threads`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        media_type: "CAROUSEL",
+        children: children.join(","),
+        text,
+        access_token: creds.token,
+      }),
+    });
+    const cpd = (await cp.json()) as { id?: string; error?: { message?: string } };
+    if (!cpd.id) throw new Error("threads carousel parent: " + JSON.stringify(cpd.error || cpd));
+    await waitForThreadsContainer(cpd.id, creds.token, 30000);
+    const pp = await fetch(`${TH_GRAPH}/${creds.user_id}/threads_publish`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ creation_id: cpd.id, access_token: creds.token }),
+    });
+    const ppd = (await pp.json()) as { id?: string; error?: { message?: string } };
+    if (!ppd.id) throw new Error("threads carousel publish: " + JSON.stringify(ppd.error || ppd));
+    return ppd.id;
+  }
+
   const params = new URLSearchParams({
     media_type: isVideo ? "VIDEO" : "IMAGE",
-    text: threadsText(caption),
+    text,
     access_token: creds.token,
   });
-  params.set(isVideo ? "video_url" : "image_url", mediaUrl);
+  params.set(isVideo ? "video_url" : "image_url", urls[0]);
   const c = await fetch(`${TH_GRAPH}/${creds.user_id}/threads`, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },

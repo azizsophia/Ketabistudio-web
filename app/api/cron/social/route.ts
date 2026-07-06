@@ -303,7 +303,12 @@ async function publishOne(cfg: Config, token: string, post: Post, th: ThreadsCre
   // on IG/FB.
   if (th) {
     try {
-      out.th_post_id = await publishThreads(th, urls[0], post.caption, isReel(post.image_url));
+      out.th_post_id = await publishThreads(
+        th,
+        isCarousel(post.image_url) ? urls : urls[0],
+        post.caption,
+        isReel(post.image_url)
+      );
     } catch (e) {
       out.th_error = (e instanceof Error ? e.message : "unknown").slice(0, 200);
     }
