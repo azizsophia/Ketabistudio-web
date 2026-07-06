@@ -14,3 +14,5 @@ __pycache__/
 content-tools/_iframes/
 content-tools/*.mp4
 content-tools/_*.png
+content-tools/q.png
+content-tools/*.log
