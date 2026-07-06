@@ -163,9 +163,36 @@ PROTECT = {  # ungendered, verbatim (Muslim 2708) — safe default for one child
     "dedication": "Watch over Aisha",
 }
 
+PARENTS = {
+    "tag": "A Prayer for My Parents",
+    "arabic": "رَبِّ ارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا",
+    "translit": "Rabbi irhamhuma kama rabbayani saghira",
+    "translation": "“My Lord, have mercy upon them as they raised me when I was small.”",
+    "source": "Qur'an 17:24",
+    "dedication": "For Mama & Baba",
+}
+WEDDING = {
+    "tag": "Mawaddah wa Rahmah",
+    "arabic": "وَجَعَلَ بَيْنَكُمْ مَوَدَّةً وَرَحْمَةً",
+    "translit": "wa ja'ala baynakum mawaddatan wa rahmah",
+    "translation": "“and He placed between you love and mercy.”",
+    "source": "Qur'an 30:21",
+    "dedication": "Ahmad & Aisha · 2026",
+}
+GETWELL = {
+    "tag": "A Prayer for Your Healing",
+    "arabic": "لَا بَأْسَ طَهُورٌ إِنْ شَاءَ اللَّهُ",
+    "translit": "La ba'sa, tahurun in sha Allah",
+    "translation": "“No harm, it is a purification, if Allah wills.”",
+    "source": "Sahih al-Bukhari 3616",
+    "dedication": "For Yusuf, with prayers for your shifa",
+}
+
 if __name__ == "__main__":
     import sys
     out = sys.argv[1] if len(sys.argv) > 1 else "/tmp"
-    for nm, e in [("teacher", TEACHER), ("hajj", HAJJ), ("birth", BIRTH), ("home", HOME), ("protect", PROTECT)]:
+    allk = [("teacher", TEACHER), ("hajj", HAJJ), ("birth", BIRTH), ("home", HOME),
+            ("protect", PROTECT), ("parents", PARENTS), ("wedding", WEDDING), ("getwell", GETWELL)]
+    for nm, e in allk:
         render_keepsake(e, f"{out}/keepsake_{nm}.png")
     print("rendered")
