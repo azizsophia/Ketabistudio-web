@@ -47,6 +47,19 @@ export async function loadThreadsCreds(): Promise<ThreadsCreds | null> {
   }
 }
 
+// Delete a published Threads post by its media id (Threads API supports DELETE).
+export async function deleteThreadsPost(
+  creds: ThreadsCreds,
+  postId: string
+): Promise<{ ok: boolean; detail?: string }> {
+  const r = await fetch(`${TH_GRAPH}/${postId}?access_token=${encodeURIComponent(creds.token)}`, {
+    method: "DELETE",
+  });
+  const d = (await r.json().catch(() => ({}))) as { success?: boolean; error?: { message?: string } };
+  if (!r.ok || d.error) return { ok: false, detail: JSON.stringify(d.error || d).slice(0, 200) };
+  return { ok: true };
+}
+
 export async function saveThreadsCreds(c: ThreadsCreds): Promise<void> {
   await ensureBucket();
   await fetch(`${SB}/storage/v1/object/${BUCKET}/${OBJECT}`, {
