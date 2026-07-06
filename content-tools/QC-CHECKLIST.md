@@ -50,6 +50,15 @@ the final gate under time pressure. The gate is non-negotiable.
       gold rule; palette emerald / cream / gold / slate-green ink.
 - [ ] **No Star of David / six-pointed star** in any design.
 
+## 4b. Clarity — EASY TO FOLLOW (owner rule, added 2026-07-06)
+- [ ] A first-time viewer gets the point on ONE watch, no rewatch needed.
+- [ ] Read the cards in order, cold: each follows logically from the last.
+- [ ] The payoff is SPELLED OUT, never a clever leap the viewer must solve.
+      (Caught: qalb's "that is not your failing / it is the meaning of the word"
+      was vague -> fixed to "that is not weakness, it is a heart doing what its
+      name means.")
+- [ ] No term/reference that assumes prior knowledge without a plain gloss.
+
 ## 5. Voice + brand rules (see voice-style.md)
 - [ ] NO em dashes anywhere.
 - [ ] His/Him/He capitalized for Allah.

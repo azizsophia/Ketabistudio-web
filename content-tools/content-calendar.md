@@ -128,7 +128,11 @@ candle flame, light-through-lattice, blue-hour window, dawn linen, deep-shadow
 shaft, dates+coins, warm lamp still, warm earth-tone, sheltered interior, tasbih
 on marble. Have: olive/sage linen, ink+paper/Qur'an. Retired: window curtain.
 
-## Cadence note
-1 post/day, dark reel alternating cream carousel. Reels carry reach; ~every 4th
-slot is a soft product tile. 1 Substack essay/week -> also a Threads text-thread
-(the format that already over-performed for us). Build + QC + post in WEEKLY waves.
+## Cadence note (owner-set 2026-07-06)
+**2 posts/day, one root per day**: CAROUSEL at 5am Central (scheduled_for 10:00
+UTC) + REEL at 2pm Central (scheduled_for 19:00 UTC). Same root both slots (reel
+= reach, carousel = saves/reinforce). Poster GitHub Action already fires 10:00 &
+19:00 UTC and ships carousels-before-reels, so set each row's scheduled_for to
+its slot. Reels carry reach; ~every 4th day the 2nd post can be a soft product
+tile instead of a carousel. 1 Substack essay/week -> also a Threads text-thread
+(over-performed). Build + QC + SHOW OWNER, then schedule, in WEEKLY waves.
