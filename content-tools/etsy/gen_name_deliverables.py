@@ -33,7 +33,7 @@ def _wrap(d, text, font, maxw):
         out.append(cur)
     return out
 
-def make_howitworks_pdf(out_path):
+def make_howitworks_pdf(out_path, product="name print"):
     W, H = 1275, 1650  # ~8.5x11 at 150dpi
     im = Image.new("RGB", (W, H), BG)
     a = np.asarray(im).astype(np.float32)
@@ -62,7 +62,7 @@ def make_howitworks_pdf(out_path):
     C("KETABI STUDIO", f_mark, MARK, 150, ls=8)
     C("Thank you", f_h, INK, 300)
     d.line([(W // 2 - 40, 430), (W // 2 + 40, 430)], fill=GOLD, width=2)
-    C("Your personalized name print is on its way", f_sub, SOFT, 470)
+    C(f"Your personalized {product} is on its way", f_sub, SOFT, 470)
 
     steps = [
         ("1.", "Your print is hand-finished with your name, its meaning, and the",
