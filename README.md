@@ -963,6 +963,12 @@ render Week 1 (qalb + nūr) as motion, QC per QC-CHECKLIST.md, show owner, sched
   `.github/workflows/social-poster.yml` (free Vercel cron is unreliable).
 - `POST /api/social/video` — uploads an mp4 to Supabase card-assets, returns URL.
 - `GET /api/social/ig/stats` — real reach/saves/shares/views per post.
+- `POST /api/social/threads/delete` `{post_id}` — deletes a Threads post. NOTE:
+  the current Threads token lacks the **`threads_delete`** scope, so this returns
+  "Application does not have permission" (code 10). To enable auto-delete, owner
+  must re-generate the Threads token WITH threads_delete added (User Token
+  Generator / OAuth scope). Until then, delete stray Threads posts by hand.
+  Threads carousels now post fully (publishThreads builds child containers).
 - Comment reply systems LIVE both platforms: `/api/social/threads/replies` and
   `/api/social/ig/comments` (GET open comments, POST approved replies — "read, I
   draft, you approve, I post"). Threads creds in private storage bucket.
@@ -989,3 +995,84 @@ until verified; flagship pieces shown first.
   /cards/print, /c, /admin, /pinterest/callback`. `/terms` un-gated for the
   TikTok/Meta apps' required Terms URL. TikTok verification `.txt` is served
   because dotted paths skip the gate.
+
+# Etsy digital products (2026-07-06)
+
+> Goal: sell UNIQUE, non-saturated personalized Islamic digital downloads. Etsy
+> API key (`5ls9u9croiqu7q6klowiru15`) **APPROVED 2026-07-06** (status flipped to
+> "Personal Access", 5 QPS / 5K QPD). API integration is BUILT (see below); needs
+> a prod deploy + 3 activation steps to go live.
+
+## Etsy API — BUILT (`lib/etsy.ts` + `app/api/etsy/*`), needs activation
+OAuth2 + PKCE, mirrors the Threads pattern: keystring/secret/tokens live in the
+private `social-config/etsy.json` bucket (NEVER git). Access token auto-refreshes
+(1h life, 90-day refresh). Routes: `POST /api/etsy/config` (store keystring+secret,
+Bearer CRON_SECRET), `GET /api/etsy/authorize?key=CRON_SECRET` (owner opens →
+Etsy consent), `GET /api/etsy/callback` (token swap, the URL to register),
+`GET /api/etsy/status` (Bearer, health check → shop name). `lib/etsy.ts` helpers:
+`createDraftListing`, `uploadListingImage`, `uploadListingFile`, `publishListing`,
+`getShopId`, `etsyFetch`. **Digital listing = `type:"download"`, taxonomy_id
+68887887 (Digital Prints — verify).**
+ACTIVATION (in order): (1) merge to main / deploy to prod (callback is hardcoded
+to www.ketabistudio.com). (2) Owner registers `https://www.ketabistudio.com/api/etsy/callback`
+as an app callback URL in Etsy app settings. (3) Claude POSTs /api/etsy/config
+with keystring+secret (curl, Bearer CRON_SECRET=`ketabi-cron-2027`). (4) Owner
+opens /api/etsy/authorize?key=ketabi-cron-2027 and approves. (5) Claude verifies
+via /api/etsy/status. Then listing creation is fully automatable.
+
+## PRINT-FILE RULE (non-negotiable)
+No "claude", "AI", "Anthropic", or any tool name in filenames OR PDF/PNG
+metadata — owner's rule ("so people can't see"). All generators set PDF
+title/author/producer/creator = "Ketabi Studio". Verify each deliverable:
+`grep -ai "claude\|anthropic\|openai"` + check `fitz` metadata + confirm no
+AI provenance in extractable text (compressed-stream byte-hits on "AI" are
+fine; readable text must be clean).
+
+## Product 1 — "A Name Written Into the Qur'an" (personalized name print) — BUILT
+The wide-open, first-mover product. Wins NOT on meaning (parents often know it)
+but on the **verified Qur'anic connection** (the cited ayah the name's root sits
+in) + new-baby/Aqiqah gifting. Files in `content-tools/etsy/`:
+- **`gen_name_print.py`** — premium ivory 4:5 renderer. Gold Amiri name sized to
+  true glyph bbox (harakat never clip), measured vertically-centered stack,
+  auto-wraps so nothing overflows the border. Root letters render in **Amiri**
+  (Latin fonts show them as tofu boxes — the bug that was fixed). `render_name(entry,out,sc)`.
+- **`name_data.py`** — verified name library (`NAMES` dict, `LAUNCH_SET`). Every
+  entry source-checked vs quran.com by an adversarial verify pass (it caught
+  Yusuf's citation — 12:3 doesn't hold the name — now reframed). **THREE honest
+  tiers, NEVER blurred:**
+  - `tier "in"` — name literally in the Qur'an (Maryam, Yusuf, prophets, Zayd) →
+    tag "A Name Allah Placed in the Qur'an".
+  - `tier "root"` — name's root appears in a cited ayah (Noor, Aisha, Huda…) →
+    tag "A Name Written Into the Qur'an", "from the root ___". NEVER say the name
+    itself is in the Qur'an.
+  - `tier "meaning"` — Arabic name whose root is NOT in the Qur'an (e.g. Aws) →
+    tag "The Meaning of a Name": root + meaning + verified heritage note, **no
+    ayah, no Qur'anic claim ever**. This is how any Arabic name is accepted.
+  Accuracy guardrail: never conflate "root appears in the Qur'an" with "name
+  appears in the Qur'an." 24 names live; **grow the library on demand** (owner's
+  call) — each new name source-checked before it ships.
+- **`gen_name_deliverables.py`** — `make_howitworks_pdf()` (the small branded PDF
+  Etsy auto-delivers on purchase; real custom file sent per order), `make_frame_mockup()`
+  (matted frame on soft wall = listing hero), `make_print_files()` (per-order
+  print-ready PDF at 5x7/8x10/A4 300dpi + framing PNG). Needs
+  `from PIL import JpegImagePlugin; Image.init()` (JPEG codec).
+- **`listing-guide-name-print.md`** — full Etsy copy (title/tags/description) +
+  the 3-tier delivery model. **Pricing = an Etsy Variation "Print style":**
+  "With verified ayah $14" / "Name & meaning $9". Personalization ON, made-to-
+  order, 1-business-day processing. Buyer types any name → we render + send in 24h.
+
+## Product research (2026-07-06, IN FLIGHT)
+Owner (rightly) pushed back that nikah prints, khatm certificates, shahada
+keepsakes, name-tracing sheets are **all already saturated** on Etsy — my first
+pitches were intuition, not data. Running a **deep-research** workflow on real
+Etsy saturation + genuinely underserved premium gaps + whether the name-ayah
+concept is already common. NEXT: read that report, then pitch only concepts the
+data supports (differentiation = own the premium/verified-depth top of a crowded
+category, not chase "empty" niches that don't exist at Etsy's scale).
+
+## Etsy Deck 1 — "For the Hard Moments" dua deck (PUBLISHED, likely saturated)
+`content-tools/etsy/deck_data.py` (`DECK1` = 14 verified duas) +
+`content-tools/gen_dua_card.py` (ivory+dark renderer, auto-fit long duas) +
+`listing-guide-dua-deck.md`. Owner published it but flagged adhkar/dua decks as
+saturated — deprioritized in favor of personalized. Deck 2 (adhkar) parked; see
+`ACCURACY_FLAGS` in deck_data.py (drop the da'if 7x-reward claim if ever built).
