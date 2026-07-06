@@ -5,6 +5,8 @@ import {
   uploadListingImage,
   uploadListingFile,
   publishListing,
+  listListingImages,
+  deleteListingImage,
   type DraftListing,
 } from "@/lib/etsy";
 
@@ -40,6 +42,7 @@ export async function POST(req: NextRequest) {
     listing_id?: number; // if set, EDIT this existing listing instead of creating
     listing?: DraftListing;
     update_fields?: Record<string, string>; // PATCH these fields on an existing listing
+    replace_images?: boolean; // edit mode: delete existing images before uploading new
     images?: { b64: string; rank?: number }[];
     file?: { b64: string; name: string };
     publish?: boolean;
@@ -59,6 +62,12 @@ export async function POST(req: NextRequest) {
     if (body.update_fields && Object.keys(body.update_fields).length) {
       const u = await updateListing(id, body.update_fields);
       steps.update = u.ok ? "ok" : `fail: ${u.detail}`;
+    }
+    if (body.replace_images) {
+      const existing = await listListingImages(id);
+      let del = 0;
+      for (const imgId of existing) if (await deleteListingImage(id, imgId)) del++;
+      steps.deleted_images = String(del);
     }
   } else {
     // CREATE mode.

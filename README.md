@@ -1020,6 +1020,42 @@ with keystring+secret (curl, Bearer CRON_SECRET=`ketabi-cron-2027`). (4) Owner
 opens /api/etsy/authorize?key=ketabi-cron-2027 and approves. (5) Claude verifies
 via /api/etsy/status. Then listing creation is fully automatable.
 
+### STATUS: LIVE + working (2026-07-06)
+Connected to shop **KetabiStudio (shop_id 48938263)**, token auto-refreshing.
+Full CRUD confirmed end-to-end. TWO GOTCHAS learned the hard way:
+- **`x-api-key` MUST be `keystring:shared_secret`** (colon-separated), NOT the
+  keystring alone — else every authed call fails with "Shared secret is required
+  in x-api-key header" and getShopId silently returns null.
+- **Legacy personalization fields are DEPRECATED** on the listing PATCH
+  (`is_personalizable`, `personalization_is_required`, `personalization_char_count_max`).
+  Setting "required" now needs Etsy's dedicated personalization endpoints
+  (developers.etsy.com/documentation/tutorials/personalization-mig) — not yet
+  built. Owner can toggle "Required" by hand in the listing editor.
+`POST /api/etsy/listing` (Bearer): CREATE mode (pass `listing`) or EDIT mode
+(pass `listing_id` + `update_fields`/`images`/`file`). Assets inline base64
+(keep payload <4.5MB — JPEG ~1600px, NOT PNG which blew to 38MB). Creates DRAFTS
+by default; only publishes if `publish:true`. **Listings (check before creating — DON'T duplicate):**
+- 4533437576 — name print (LIVE, 5 imgs, $13). Title now front-loads "Quran Name Meaning" (39-competitor gap).
+- 4533400292 — dua deck (LIVE).
+- 4533510568 — Qur'an teacher gift keepsake (DRAFT, $13, hadith Bukhari 5027).
+- 4533497225 — Hajj Mabrūr keepsake (DRAFT, $13, hadith Bukhari 1773/Muslim 1349).
+- 4533503399 — Muslim baby birth keepsake (DRAFT, $13, Qur'an 37:100 Ibrahim's du'a).
+- 4533517158 — Family blessed-home print (DRAFT, $13, Qur'an 23:29 Nuh's du'a).
+- 4533517194 — Islamic nursery child-protection print (DRAFT, $13, Sahih Muslim 2708).
+- 4533521396 — Dua for Parents print (DRAFT, $13, Qur'an 17:24).
+- 4533507807 — Muslim wedding "mawaddah wa rahmah" print (DRAFT, $13, Qur'an 30:21, mushaf spelling).
+- 4533521470 — Get Well / Shifa print (DRAFT, $13, Sahih al-Bukhari 5656).
+All 5 keepsake drafts: 3 imgs (framed mockup + ivory + dark) + how-it-works file,
+personalization NOT yet enabled (Etsy deprecation → owner toggles by hand).
+Content ALL verified by adversarial pass (hadith + ayat verbatim, translit fixed).
+Keepsakes rendered by `content-tools/etsy/gen_keepsake.py` (verified hadith,
+ivory+dark, personalized dedication line). Renders via `render_keepsake(entry,out,theme,sc)`.
+**Personalization can't be set via API** (Etsy deprecated the legacy fields on
+BOTH create and update) — owner toggles "Personalization: On + Required" by hand
+in the editor for the 3 personalized listings. Title rule learned: "&" allowed
+only ONCE per title. Etsy market-competition counts (supply, not demand): "quran
+name meaning" 39, "hajj mabrur gift" 7, "quran teacher gift" 333 — all low.
+
 ## PRINT-FILE RULE (non-negotiable)
 No "claude", "AI", "Anthropic", or any tool name in filenames OR PDF/PNG
 metadata — owner's rule ("so people can't see"). All generators set PDF

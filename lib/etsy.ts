@@ -309,6 +309,23 @@ export async function updateListing(
   return { ok: true };
 }
 
+// List the image ids currently on a listing.
+export async function listListingImages(listingId: number): Promise<number[]> {
+  const shop = await getShopId();
+  if (!shop) return [];
+  const r = await etsyFetch(`/shops/${shop}/listings/${listingId}/images`);
+  if (!r.ok) return [];
+  const d = (await r.json()) as { results?: { listing_image_id: number }[] };
+  return (d.results || []).map((x) => x.listing_image_id);
+}
+
+export async function deleteListingImage(listingId: number, imageId: number): Promise<boolean> {
+  const shop = await getShopId();
+  if (!shop) return false;
+  const r = await etsyFetch(`/shops/${shop}/listings/${listingId}/images/${imageId}`, { method: "DELETE" });
+  return r.ok;
+}
+
 export async function publishListing(listingId: number): Promise<{ ok: boolean; detail?: string }> {
   const shop = await getShopId();
   if (!shop) return { ok: false, detail: "no shop id" };
