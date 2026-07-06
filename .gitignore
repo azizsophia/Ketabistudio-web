@@ -13,3 +13,4 @@ __pycache__/
 # social render artifacts
 content-tools/_iframes/
 content-tools/*.mp4
+content-tools/_*.png
