@@ -950,6 +950,14 @@ render Week 1 (qalb + nūr) as motion, QC per QC-CHECKLIST.md, show owner, sched
 ## Endpoints (all Bearer `CRON_SECRET` = `ketabi-cron-2027`)
 - `POST /api/social/enqueue` `{posts:[{image_url,caption,platforms,scheduled_for}],replace?}`
   — replace:true wipes queued rows first. Refuses empty posts.
+  - **CAROUSEL image_url = SPACE-separated list of image URLs** (the poster's
+    mediaUrls() splits on `/\s+/`; isReel keys off a `.mp4` url; single url = photo).
+    Images must be JPEG (IG rejects PNG) and each publicly reachable. Host slide
+    JPEGs via `POST /api/cards/photo` (open, returns a public card-assets URL) —
+    it only stores files, cannot affect the card product. 07-06: fixed
+    lib/socialQc.ts (media-https/reachable checked the joined string, not each
+    url) + confirmed space-separated is canonical. On QC block the row is set
+    status='blocked' (inert, won't retry) — re-enqueue a fresh row to retry.
 - `GET /api/cron/social` — ships all due posts (images/carousels first, reels
   last; IG+FB, best-effort Threads mirror). Triggered by GitHub Action
   `.github/workflows/social-poster.yml` (free Vercel cron is unreliable).
