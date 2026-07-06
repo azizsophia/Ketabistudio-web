@@ -1042,6 +1042,9 @@ by default; only publishes if `publish:true`. **Listings (check before creating 
 - 4533503399 — Muslim baby birth keepsake (DRAFT, $13, Qur'an 37:100 Ibrahim's du'a).
 - 4533517158 — Family blessed-home print (DRAFT, $13, Qur'an 23:29 Nuh's du'a).
 - 4533517194 — Islamic nursery child-protection print (DRAFT, $13, Sahih Muslim 2708).
+- 4533521396 — Dua for Parents print (DRAFT, $13, Qur'an 17:24).
+- 4533507807 — Muslim wedding "mawaddah wa rahmah" print (DRAFT, $13, Qur'an 30:21, mushaf spelling).
+- 4533521470 — Get Well / Shifa print (DRAFT, $13, Sahih al-Bukhari 5656).
 All 5 keepsake drafts: 3 imgs (framed mockup + ivory + dark) + how-it-works file,
 personalization NOT yet enabled (Etsy deprecation → owner toggles by hand).
 Content ALL verified by adversarial pass (hadith + ayat verbatim, translit fixed).
