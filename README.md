@@ -1034,9 +1034,18 @@ Full CRUD confirmed end-to-end. TWO GOTCHAS learned the hard way:
 `POST /api/etsy/listing` (Bearer): CREATE mode (pass `listing`) or EDIT mode
 (pass `listing_id` + `update_fields`/`images`/`file`). Assets inline base64
 (keep payload <4.5MB — JPEG ~1600px, NOT PNG which blew to 38MB). Creates DRAFTS
-by default; only publishes if `publish:true`. **Existing live listings:** name
-print = 4533437576 (5 images, $13, personalization on), dua deck = 4533400292.
-DO NOT create duplicates — check active listings first (owner already listed both).
+by default; only publishes if `publish:true`. **Listings (check before creating — DON'T duplicate):**
+- 4533437576 — name print (LIVE, 5 imgs, $13). Title now front-loads "Quran Name Meaning" (39-competitor gap).
+- 4533400292 — dua deck (LIVE).
+- 4533510568 — Qur'an teacher gift keepsake (DRAFT, $13, hadith Bukhari 5027).
+- 4533497225 — Hajj Mabrūr keepsake (DRAFT, $13, hadith Bukhari 1773/Muslim 1349).
+Keepsakes rendered by `content-tools/etsy/gen_keepsake.py` (verified hadith,
+ivory+dark, personalized dedication line). Renders via `render_keepsake(entry,out,theme,sc)`.
+**Personalization can't be set via API** (Etsy deprecated the legacy fields on
+BOTH create and update) — owner toggles "Personalization: On + Required" by hand
+in the editor for the 3 personalized listings. Title rule learned: "&" allowed
+only ONCE per title. Etsy market-competition counts (supply, not demand): "quran
+name meaning" 39, "hajj mabrur gift" 7, "quran teacher gift" 333 — all low.
 
 ## PRINT-FILE RULE (non-negotiable)
 No "claude", "AI", "Anthropic", or any tool name in filenames OR PDF/PNG
