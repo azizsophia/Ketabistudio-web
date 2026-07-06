@@ -182,9 +182,9 @@ def render(name, bg_file, cards, end_lines, gold_arabic=True):
 CARDS = [
     {"in": 0.3, "out": 4.2, "lines": ["In Arabic, the word", "for the heart", "means: the thing that turns."]},
     {"in": 4.2, "out": 7.9, "arabic": "ق ل ب", "lines": ["qalb, the heart", "qalaba, to turn over"]},
-    {"in": 7.9, "out": 11.3, "lines": ["It is named", "after its own nature:", "always turning, never still."]},
-    {"in": 11.3, "out": 13.7, "lines": ["so when yours", "will not hold still,"]},
-    {"in": 13.7, "out": 16.3, "lines": ["that is not your failing.", "it is the meaning of the word."]},
+    {"in": 7.9, "out": 11.3, "lines": ["The heart is named", "for what it does:", "it turns, and will not stay still."]},
+    {"in": 11.3, "out": 13.7, "lines": ["so when your faith", "wavers, then steadies,", "then wavers again,"]},
+    {"in": 13.7, "out": 16.3, "lines": ["that is not weakness.", "it is a heart,", "doing what its name means."]},
 ]
 
 if __name__ == "__main__":
