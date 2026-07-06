@@ -1106,6 +1106,37 @@ concept is already common. NEXT: read that report, then pitch only concepts the
 data supports (differentiation = own the premium/verified-depth top of a crowded
 category, not chase "empty" niches that don't exist at Etsy's scale).
 
+# Gumroad (2026-07-06) — second sales channel
+Connected via a **personal access token** (owner generated it; used directly against
+`api.gumroad.com/v2` — NO server code, nothing to deploy). Token is NOT in git;
+if it leaks, regenerate in Gumroad app settings. Account: ketabistudio.gumroad.com.
+- **Product create/edit/delete WORKS via API** (`POST/PUT/DELETE /v2/products`).
+- **File upload flow** (the API tells you if you guess wrong): `POST /v2/files/presign`
+  {filename, file_size, content_type} → PUT each part to the returned S3 `presigned_url`
+  (capture ETag) → `POST /v2/files/complete` {upload_id, key, parts:[{part_number,etag}]}
+  → attach with `PUT /v2/products/:id` `files[][url]=<complete's file_url>`.
+- **Cover image CANNOT be set via v2 API** (preview_url/cover_url/asset_previews all
+  silently ignored) — owner drags the cover in via the Gumroad UI.
+- **Custom fields (personalization) CAN be set via API** — dedicated resource, NOT a
+  product param: `POST /v2/products/:id/custom_fields` {name, required} ·
+  `GET` same path · `DELETE /v2/products/:id/custom_fields/:NAME` (by field NAME,
+  url-encoded, not id). `custom_receipt` IS a plain product param on PUT.
+- **Personalized flow on Gumroad:** required custom field collects the name at
+  checkout → value appears on the sale (`GET /v2/sales`) → render + email the
+  real file within 24h; the instant download is the how-it-works welcome note.
+- **Fit note:** Gumroad = instant download, so ONLY fixed products (dua deck), NOT the
+  made-to-order personalized prints.
+- **Products created (all UNPUBLISHED, pending owner cover-upload + publish):**
+  - Dua deck — id `kyS7fZV9SquPoD7HiZnekg==`, `/l/pjekt`, $14, 3 files.
+  - Names Written Into the Qur'an (24-name collection PDF+zip) — `MLWYiEIeUP8gKUm5kxmeEw==`, `/l/iimpcu`, $14.
+  - Ayat for the Lock Screen (8 verified du'a/ayah wallpapers) — `lpkBCxnNjTKdBVfvqSrfew==`, `/l/odbbf`, $6.
+  - Personalized name print — `QR2k-3a5T4dMqJEQSRqcMw==`, `/l/hztxdz`, $14,
+    REQUIRED name custom field set via API, made-to-order receipt set, how-it-works
+    PDF attached. Owner: cover + publish only.
+  All fixed (non-personalized); wallpapers/names repurpose the verified renderers.
+  Light editorial covers rendered v3 (contained cards, unified soft shadow, bottom
+  breathing room — owner uploads each in the Gumroad UI). custom_receipt set on ALL products via API.
+
 ## Etsy Deck 1 — "For the Hard Moments" dua deck (PUBLISHED, likely saturated)
 `content-tools/etsy/deck_data.py` (`DECK1` = 14 verified duas) +
 `content-tools/gen_dua_card.py` (ivory+dark renderer, auto-fit long duas) +
