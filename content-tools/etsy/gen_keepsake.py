@@ -138,9 +138,34 @@ HAJJ = {
     "dedication": "For Ahmad · Hajj 1447 AH",
 }
 
+BIRTH = {
+    "tag": "A Gift From Allah",
+    "arabic": "رَبِّ هَبْ لِي مِنَ الصَّالِحِينَ",
+    "translit": "Rabbi hab li min as-salihin",
+    "translation": "“My Lord, grant me a child from among the righteous.”",
+    "source": "Qur'an 37:100 · the du'a of Ibrahim",
+    "dedication": "Ahmad · born 12 Rajab 1447",
+}
+HOME = {
+    "tag": "A Blessed Home",
+    "arabic": "رَبِّ أَنْزِلْنِي مُنْزَلًا مُبَارَكًا وَأَنْتَ خَيْرُ الْمُنْزِلِينَ",
+    "translit": "Rabbi anzilni munzalan mubarakan wa anta khayru al-munzilin",
+    "translation": "“My Lord, cause me to land at a blessed landing place, for You are the best to accommodate.”",
+    "source": "Qur'an 23:29",
+    "dedication": "The Yusuf Family · est. 2026",
+}
+PROTECT = {  # ungendered, verbatim (Muslim 2708) — safe default for one child
+    "tag": "Under Allah's Protection",
+    "arabic": "أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ",
+    "translit": "A'udhu bikalimatillahi at-tammati min sharri ma khalaq",
+    "translation": "“I seek refuge in the perfect words of Allah from the evil of what He has created.”",
+    "source": "Sahih Muslim 2708",
+    "dedication": "Watch over Aisha",
+}
+
 if __name__ == "__main__":
     import sys
     out = sys.argv[1] if len(sys.argv) > 1 else "/tmp"
-    render_keepsake(TEACHER, f"{out}/keepsake_teacher.png")
-    render_keepsake(HAJJ, f"{out}/keepsake_hajj.png")
+    for nm, e in [("teacher", TEACHER), ("hajj", HAJJ), ("birth", BIRTH), ("home", HOME), ("protect", PROTECT)]:
+        render_keepsake(e, f"{out}/keepsake_{nm}.png")
     print("rendered")
