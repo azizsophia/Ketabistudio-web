@@ -102,20 +102,26 @@ export async function runSocialQc(
   const ar = arabicLooksValid(caption);
   checks.push({ name: "arabic-integrity", pass: ar.pass, detail: ar.detail });
 
-  // Media asset (image OR reel video). HEAD first; some CDNs answer HEAD with
-  // 405, so fall back to a tiny ranged GET before deciding it is unreachable.
-  checks.push({ name: "media-https", pass: /^https:\/\//.test(imageUrl) });
-  let reachable = false;
-  try {
-    const r = await fetch(imageUrl, { method: "HEAD" });
-    reachable = r.ok;
-    if (!reachable) {
-      const g = await fetch(imageUrl, { headers: { Range: "bytes=0-1023" } });
-      reachable = g.ok;
+  // Media asset (image OR reel video). image_url may be a comma-separated list
+  // for a carousel, so check EACH url, not the joined string. HEAD first; some
+  // CDNs answer HEAD with 405, so fall back to a tiny ranged GET.
+  const mediaUrls = imageUrl.split(",").map((u) => u.trim()).filter(Boolean);
+  checks.push({
+    name: "media-https",
+    pass: mediaUrls.length > 0 && mediaUrls.every((u) => /^https:\/\//.test(u)),
+  });
+  async function isReachable(u: string): Promise<boolean> {
+    try {
+      const r = await fetch(u, { method: "HEAD" });
+      if (r.ok) return true;
+      const g = await fetch(u, { headers: { Range: "bytes=0-1023" } });
+      return g.ok;
+    } catch {
+      return false;
     }
-  } catch {
-    reachable = false;
   }
+  const reach = await Promise.all(mediaUrls.map(isReachable));
+  const reachable = mediaUrls.length > 0 && reach.every(Boolean);
   checks.push({ name: "media-reachable", pass: reachable });
 
   let reviewedByAi = false;
