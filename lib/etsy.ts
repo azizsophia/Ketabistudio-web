@@ -24,7 +24,9 @@ const API = "https://openapi.etsy.com/v3/application";
 export const ETSY_REDIRECT = "https://www.ketabistudio.com/api/etsy/callback";
 // Scopes: read/write listings (create, update, upload files+images, publish) and
 // read shop (to resolve shop_id + user). transactions_r left out until needed.
-export const ETSY_SCOPES = "listings_r listings_w shops_r";
+// transactions_r lets us read paid orders + the buyer's personalization (the
+// typed name) so personalized orders can be pulled programmatically.
+export const ETSY_SCOPES = "listings_r listings_w shops_r transactions_r";
 
 export type EtsyConfig = {
   keystring?: string;
@@ -192,6 +194,38 @@ export async function etsyFetch(
   headers.set("x-api-key", apiKey);
   headers.set("Authorization", `Bearer ${auth.token}`);
   return fetch(`${API}${path}`, { ...init, headers });
+}
+
+// Read recent paid orders + the buyer's personalization (needs transactions_r).
+// Returns a compact list: what to make, for whom, and the typed name.
+export async function getShopOrders(limit = 25): Promise<{ ok: boolean; orders?: unknown[]; detail?: string }> {
+  const shop = await getShopId();
+  if (!shop) return { ok: false, detail: "no shop id" };
+  const r = await etsyFetch(`/shops/${shop}/receipts?limit=${limit}&was_paid=true`);
+  if (!r.ok) return { ok: false, detail: (await r.text()).slice(0, 200) };
+  const d = (await r.json()) as {
+    results?: {
+      receipt_id: number; name?: string; buyer_email?: string; is_shipped?: boolean;
+      status?: string; grandtotal?: { amount: number; divisor: number };
+      created_timestamp?: number;
+      transactions?: { title?: string; variations?: { formatted_name?: string; formatted_value?: string }[] }[];
+    }[];
+  };
+  const orders = (d.results || []).map((rc) => ({
+    receipt_id: rc.receipt_id,
+    buyer: rc.name || null,
+    email: rc.buyer_email || null,
+    created: rc.created_timestamp || null,
+    total: rc.grandtotal ? rc.grandtotal.amount / rc.grandtotal.divisor : null,
+    items: (rc.transactions || []).map((t) => ({
+      product: t.title || null,
+      // personalization comes through as a transaction variation
+      personalization: (t.variations || [])
+        .map((v) => `${v.formatted_name || ""}: ${v.formatted_value || ""}`)
+        .join(" | ") || null,
+    })),
+  }));
+  return { ok: true, orders };
 }
 
 // Resolve + cache the shop id for the connected user.
