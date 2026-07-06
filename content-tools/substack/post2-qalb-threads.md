@@ -17,7 +17,7 @@ taqallub is the turning of a thing back and forth between states.
 so the heart isn't named for love or warmth. it's named for its motion. the one organ that will not sit still.
 
 **3/**
-here's the part that undoes me:
+so sit with this for a second:
 
 if the word for your heart means "the thing that turns," then a heart that keeps turning was never broken. it was working.
 

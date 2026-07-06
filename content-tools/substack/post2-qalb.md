@@ -10,9 +10,9 @@ In Arabic, the word for the heart is *qalb* (قلب). It comes from a root, ق �
 
 So the heart is not named for love, or for warmth, or for depth. It is named for its motion. The one organ that will not sit still. The classical scholars said it is called *qalb* precisely because of its *taqallub*, its constant turning.
 
-Here is the part that undoes me.
+That one detail quietly rearranged how I hear my own heart.
 
-If the very word for your heart means the thing that turns, then a heart that keeps turning was never broken. It was working. The restlessness you have been apologizing for, the nearness that comes and goes, the faith that rises and falls: that is not a defect in your religion. It is settled belief that iman itself increases and decreases. You were never promised a still heart. You were given a turning one.
+Because if the very word for your heart means the thing that turns, then a heart that keeps turning was never broken. It was working. The restlessness you have been apologizing for, the nearness that comes and goes, the faith that rises and falls: that is not a defect in your religion. It is settled belief that iman itself increases and decreases. You were never promised a still heart. You were given a turning one.
 
 And the Prophet ﷺ, who carried the most steadfast heart of anyone who ever lived, did not pretend otherwise. Of everything he could have asked for, he asked, again and again: *Ya Muqallib al-qulub, thabbit qalbi ala dinik.* O Turner of hearts, keep my heart firm upon Your religion. He did not ask for a heart that would never move. He asked the One who turns it to hold it steady.
 

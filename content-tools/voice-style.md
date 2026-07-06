@@ -82,7 +82,12 @@ So every post is built to earn one of those, on purpose:
 **Carousel:** slide 1 hook claim → root/evidence slides → emotional turn →
 verified du'a/ayah if applicable → brand close slide.
 **Substack essay (~500-700 words):** question hook → the linguistic unfolding
-with Arabic inline → "here is the part that undoes me" turn → the payoff for
-the reader's actual life → founder sign-off with waitlist link → Sources list.
+with Arabic inline → the fact->feeling TURN → the payoff for the reader's actual
+life → founder sign-off with waitlist link → Sources list.
+  - **The turn: write a FRESH, natural bridge every single essay.** NEVER reuse a
+    stock signpost across posts (e.g. "here is the part that undoes me",
+    "once you see it you can't unsee it") — repetition reads as an AI formula.
+    Best is often no signpost at all; just let the sentence land. Make it human
+    and specific to THIS word/idea.
 **Reel:** beat 1 + beat 2 (setup, shown together) → beat 3 (payoff) → held
 KETABI STUDIO end card.
