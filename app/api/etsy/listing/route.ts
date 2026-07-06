@@ -43,6 +43,7 @@ export async function POST(req: NextRequest) {
     listing?: DraftListing;
     update_fields?: Record<string, string>; // PATCH these fields on an existing listing
     replace_images?: boolean; // edit mode: delete existing images before uploading new
+    delete_image_ids?: number[]; // edit mode: delete these exact image ids (lag-proof)
     images?: { b64: string; rank?: number }[];
     file?: { b64: string; name: string };
     publish?: boolean;
@@ -68,6 +69,12 @@ export async function POST(req: NextRequest) {
       let del = 0;
       for (const imgId of existing) if (await deleteListingImage(id, imgId)) del++;
       steps.deleted_images = String(del);
+    }
+    // Lag-proof: caller supplies exact image ids (from the reliable public read).
+    if (body.delete_image_ids?.length) {
+      let del = 0;
+      for (const imgId of body.delete_image_ids) if (await deleteListingImage(id, imgId)) del++;
+      steps.deleted_explicit = String(del);
     }
   } else {
     // CREATE mode.
