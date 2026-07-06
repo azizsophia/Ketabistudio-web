@@ -105,7 +105,9 @@ export async function runSocialQc(
   // Media asset (image OR reel video). image_url may be a comma-separated list
   // for a carousel, so check EACH url, not the joined string. HEAD first; some
   // CDNs answer HEAD with 405, so fall back to a tiny ranged GET.
-  const mediaUrls = imageUrl.split(",").map((u) => u.trim()).filter(Boolean);
+  // Carousel image_url is a whitespace-separated list (matches the poster's
+  // mediaUrls()); tolerate commas too so the two never disagree.
+  const mediaUrls = imageUrl.split(/[\s,]+/).map((u) => u.trim()).filter(Boolean);
   checks.push({
     name: "media-https",
     pass: mediaUrls.length > 0 && mediaUrls.every((u) => /^https:\/\//.test(u)),
