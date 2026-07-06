@@ -173,7 +173,7 @@ PARENTS = {
 }
 WEDDING = {
     "tag": "Mawaddah wa Rahmah",
-    "arabic": "وَجَعَلَ بَيْنَكُمْ مَوَدَّةً وَرَحْمَةً",
+    "arabic": "وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً",
     "translit": "wa ja'ala baynakum mawaddatan wa rahmah",
     "translation": "“and He placed between you love and mercy.”",
     "source": "Qur'an 30:21",
@@ -184,7 +184,7 @@ GETWELL = {
     "arabic": "لَا بَأْسَ طَهُورٌ إِنْ شَاءَ اللَّهُ",
     "translit": "La ba'sa, tahurun in sha Allah",
     "translation": "“No harm, it is a purification, if Allah wills.”",
-    "source": "Sahih al-Bukhari 3616",
+    "source": "Sahih al-Bukhari 5656",
     "dedication": "For Yusuf, with prayers for your shifa",
 }
 
