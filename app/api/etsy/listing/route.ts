@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   createDraftListing,
+  updateListing,
   uploadListingImage,
   uploadListingFile,
   publishListing,
@@ -36,7 +37,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
   let body: {
+    listing_id?: number; // if set, EDIT this existing listing instead of creating
     listing?: DraftListing;
+    update_fields?: Record<string, string>; // PATCH these fields on an existing listing
     images?: { b64: string; rank?: number }[];
     file?: { b64: string; name: string };
     publish?: boolean;
@@ -46,14 +49,27 @@ export async function POST(req: NextRequest) {
   } catch {
     return NextResponse.json({ error: "invalid json" }, { status: 400 });
   }
-  if (!body.listing?.title) return NextResponse.json({ error: "listing.title required" }, { status: 400 });
 
-  const created = await createDraftListing(body.listing);
-  if (!created.ok || !created.listing_id) {
-    return NextResponse.json({ error: "create failed", detail: created.detail }, { status: 502 });
+  let id: number;
+  const steps: Record<string, string> = {};
+  if (body.listing_id) {
+    // EDIT mode: operate on the existing listing.
+    id = body.listing_id;
+    steps.mode = "edit";
+    if (body.update_fields && Object.keys(body.update_fields).length) {
+      const u = await updateListing(id, body.update_fields);
+      steps.update = u.ok ? "ok" : `fail: ${u.detail}`;
+    }
+  } else {
+    // CREATE mode.
+    if (!body.listing?.title) return NextResponse.json({ error: "listing.title or listing_id required" }, { status: 400 });
+    const created = await createDraftListing(body.listing);
+    if (!created.ok || !created.listing_id) {
+      return NextResponse.json({ error: "create failed", detail: created.detail }, { status: 502 });
+    }
+    id = created.listing_id;
+    steps.create = "ok";
   }
-  const id = created.listing_id;
-  const steps: Record<string, string> = { create: "ok" };
 
   // images (first = thumbnail)
   const imgs = body.images || [];

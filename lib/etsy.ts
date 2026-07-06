@@ -292,6 +292,23 @@ export async function uploadListingFile(
   return { ok: true };
 }
 
+// Patch fields on an existing listing (price, personalization flags, tags, etc.).
+export async function updateListing(
+  listingId: number,
+  fields: Record<string, string>
+): Promise<{ ok: boolean; detail?: string }> {
+  const shop = await getShopId();
+  if (!shop) return { ok: false, detail: "no shop id" };
+  const body = new URLSearchParams(fields);
+  const r = await etsyFetch(`/shops/${shop}/listings/${listingId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body,
+  });
+  if (!r.ok) return { ok: false, detail: (await r.text()).slice(0, 300) };
+  return { ok: true };
+}
+
 export async function publishListing(listingId: number): Promise<{ ok: boolean; detail?: string }> {
   const shop = await getShopId();
   if (!shop) return { ok: false, detail: "no shop id" };
