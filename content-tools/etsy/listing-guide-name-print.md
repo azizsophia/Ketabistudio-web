@@ -80,9 +80,18 @@ This is the honesty that lets us accept any name without ever overclaiming.
 >
 > *Digital download. No physical item is shipped. For personal use; please don't resell or redistribute the files. Colors vary slightly by screen and printer.*
 
-## 8. Price
-- **$15.00** (personalized keepsake; unlimited quantity for digital).
-  Intro option: list at **$12** for the first 2 weeks to gather reviews, then raise.
+## 8. Price — two options via a Variation
+Add a **Variation** (Listings -> Variations -> add a custom variation named
+"Print style"), with two values and prices:
+- **With verified ayah — $14.00** (tier 1 & 2: name has a Qur'anic connection)
+- **Name & meaning — $9.00** (tier 3: any Arabic name, no ayah)
+
+Set the listing base price to **$14** and let the variation drive the price.
+Buyers who aren't sure pick "With verified ayah"; if their name turns out to
+have no Qur'anic root, we message them, switch to the $9 version, and refund the
+$5 difference. (Add this exact line to the personalization box so it's upfront.)
+
+Unlimited quantity for digital.
 
 ## 9. Tags (all 13)
 personalized name print, muslim baby gift, islamic name art, aqiqah gift,
