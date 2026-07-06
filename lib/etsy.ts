@@ -311,9 +311,8 @@ export async function updateListing(
 
 // List the image ids currently on a listing.
 export async function listListingImages(listingId: number): Promise<number[]> {
-  const shop = await getShopId();
-  if (!shop) return [];
-  const r = await etsyFetch(`/shops/${shop}/listings/${listingId}/images`);
+  // NOTE: get-images is NOT shop-scoped in Etsy v3 (delete IS). Wrong path 404s.
+  const r = await etsyFetch(`/listings/${listingId}/images`);
   if (!r.ok) return [];
   const d = (await r.json()) as { results?: { listing_image_id: number }[] };
   return (d.results || []).map((x) => x.listing_image_id);
