@@ -16,3 +16,5 @@ content-tools/*.mp4
 content-tools/_*.png
 content-tools/q.png
 content-tools/*.log
+content-tools/_carousel_*/
+content-tools/_carousel_*preview.jpg
