@@ -29,8 +29,8 @@ human.
 7. **No "romanticize your deen" / softlife framing.** Keep it genuinely
    Islamic: turn to Allah, dhikr, amanah, tawakkul, kept warm and human.
 8. **Premium, not discount-y.** No "20% off" in bios or most posts. Soft CTA:
-   "Be first when we open, link in bio." Signature line "sealed with a dua"
-   used rarely, never on everything.
+   "Be first when we open, link in bio." (RETIRED: do not use "sealed with
+   a dua" anywhere — owner asked to stop it.)
 9. **No Star of David / six-pointed star. No identifiable people in imagery.**
 10. **QC EVERYTHING with your own eyes before it ships**: contact sheet for
     visuals (check RTL direction of Arabic, diacritics, collisions, legibility),

@@ -22,7 +22,7 @@ So the next time your heart swings away from Him, do not read it as a verdict on
 
 ---
 
-We are building Ketabi Studio for exactly these moments: keepsakes and words that keep the language of the Qur'an close. If you would like to be first when we open, the waitlist is at [ketabistudio.com](https://www.ketabistudio.com). Sealed with a dua. 🤍
+We are building Ketabi Studio for exactly these moments: keepsakes and words that keep the language of the Qur'an close. If you would like to be first when we open, the waitlist is at [ketabistudio.com](https://www.ketabistudio.com).
 
 **Sources**
 - Root ق ل ب (to turn / overturn): corpus.quran.com; Lane's Lexicon.

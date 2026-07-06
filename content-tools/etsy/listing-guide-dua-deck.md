@@ -45,7 +45,7 @@ Set **Digital download** (instant). Category: search "Digital Prints" ->
 >
 > **Why this deck is different:** every single du'a is verified against the Qur'an and the authentic Sunnah, and the source is printed right on the card. Beautiful enough to frame, trustworthy enough to teach from.
 >
-> Designed by Ketabi Studio. Sealed with a dua. 🤍
+> Designed by Ketabi Studio.
 >
 > *This is a digital download. No physical item is shipped. Colors may vary slightly by screen and printer. For personal use; please do not resell or redistribute the files.*
 
