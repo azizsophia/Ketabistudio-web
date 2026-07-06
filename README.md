@@ -963,6 +963,12 @@ render Week 1 (qalb + nūr) as motion, QC per QC-CHECKLIST.md, show owner, sched
   `.github/workflows/social-poster.yml` (free Vercel cron is unreliable).
 - `POST /api/social/video` — uploads an mp4 to Supabase card-assets, returns URL.
 - `GET /api/social/ig/stats` — real reach/saves/shares/views per post.
+- `POST /api/social/threads/delete` `{post_id}` — deletes a Threads post. NOTE:
+  the current Threads token lacks the **`threads_delete`** scope, so this returns
+  "Application does not have permission" (code 10). To enable auto-delete, owner
+  must re-generate the Threads token WITH threads_delete added (User Token
+  Generator / OAuth scope). Until then, delete stray Threads posts by hand.
+  Threads carousels now post fully (publishThreads builds child containers).
 - Comment reply systems LIVE both platforms: `/api/social/threads/replies` and
   `/api/social/ig/comments` (GET open comments, POST approved replies — "read, I
   draft, you approve, I post"). Threads creds in private storage bucket.
