@@ -89,7 +89,7 @@ DAYS = [
    "Write the state of your heart right now in three honest words. Then say alhamdulillah and write three more."]),
  dict(letters="د ع و", translit="du'a", gloss="to call out",
   story=("Du'a is not a ritual word. Its root simply means to call someone, the way you call a "
-   "name across a house. In one single ayah about du'a, Allah uses this root four times, and "
+   "name across a house. In one single ayah about du'a, Allah uses this root three times, and "
    "answers before the asking is even finished: I am near. You are not filing a request. You are "
    "calling out, and Someone is already listening."),
   anchor="“When My servants ask you about Me, indeed I am near. I answer the call of the caller when he calls on Me.”",
@@ -144,7 +144,7 @@ DAYS = [
    "Write three places you will ask Him to put barakah this month: a thing, a person, a span of time."]),
  # ---------------- WEEK 3 — THE TRIALS ----------------
  dict(letters="ص ب ر", translit="sabr", gloss="patience that holds",
-  story=("Sabr is not gritting your teeth until it passes. Its root means to hold, to bind, to "
+  story=("Sabr is not gritting your teeth until it passes. Its root means to hold, to restrain, to "
    "keep something in place. Patience is the strength that keeps you where you are supposed to "
    "stand while the storm argues with you. And it is the one deed whose reward the Qur'an leaves "
    "uncounted."),
