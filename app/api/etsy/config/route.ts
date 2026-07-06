@@ -13,17 +13,21 @@ export async function POST(req: NextRequest) {
   if (!CRON_SECRET || auth !== `Bearer ${CRON_SECRET}`) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
-  let body: { keystring?: string; shared_secret?: string };
+  let body: { keystring?: string; shared_secret?: string; shop_id?: number };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "invalid json" }, { status: 400 });
   }
-  const keystring = body.keystring?.trim();
-  const shared_secret = body.shared_secret?.trim();
-  if (!keystring) return NextResponse.json({ error: "keystring required" }, { status: 400 });
-  await saveEtsyConfig({ keystring, shared_secret });
-  return NextResponse.json({ ok: true, stored: "keystring" + (shared_secret ? "+secret" : "") });
+  const patch: { keystring?: string; shared_secret?: string; shop_id?: number } = {};
+  if (body.keystring?.trim()) patch.keystring = body.keystring.trim();
+  if (body.shared_secret?.trim()) patch.shared_secret = body.shared_secret.trim();
+  if (body.shop_id) patch.shop_id = Number(body.shop_id);
+  if (!Object.keys(patch).length) {
+    return NextResponse.json({ error: "nothing to store" }, { status: 400 });
+  }
+  await saveEtsyConfig(patch);
+  return NextResponse.json({ ok: true, stored: Object.keys(patch).join("+") });
 }
 
 // GET (Bearer) reports connection status without leaking secrets.

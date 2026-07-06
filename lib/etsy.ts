@@ -183,7 +183,13 @@ export async function etsyFetch(
   const auth = await getValidToken();
   if (!auth) throw new Error("etsy not connected");
   const headers = new Headers(init.headers);
-  headers.set("x-api-key", auth.cfg.keystring as string);
+  // Etsy requires the x-api-key header to be "keystring:shared_secret" (colon-
+  // separated) — the keystring alone returns "Shared secret is required in
+  // x-api-key header". The secret still never leaves the server.
+  const apiKey = auth.cfg.shared_secret
+    ? `${auth.cfg.keystring}:${auth.cfg.shared_secret}`
+    : (auth.cfg.keystring as string);
+  headers.set("x-api-key", apiKey);
   headers.set("Authorization", `Bearer ${auth.token}`);
   return fetch(`${API}${path}`, { ...init, headers });
 }
