@@ -19,8 +19,9 @@
 #   citation   Surah name + number:ayah
 #   verify     internal note: exact source to confirm (not printed)
 
-TAG_IN   = "A Name Allah Placed in the Qur'an"
-TAG_ROOT = "A Name Written Into the Qur'an"
+TAG_IN      = "A Name Allah Placed in the Qur'an"
+TAG_ROOT    = "A Name Written Into the Qur'an"
+TAG_MEANING = "The Meaning of a Name"  # tier 3: no Qur'anic claim, ever
 
 NAMES = {
     # ---------- TIER: ROOT (name's root sits inside a cited ayah) ----------
@@ -232,6 +233,19 @@ NAMES = {
         "ayah": "“And mention Idris. Indeed, he was a man of truth, a prophet. And We raised him to a high station.”",
         "citation": "Surah Maryam · 19:56-57",
         "verify": "19:56-57 innahu kana siddiqan nabiyya wa rafa'nahu makanan 'aliyya",
+    },
+    # ---------- TIER: MEANING (Arabic name, root NOT in the Qur'an) ----------
+    # No ayah, no citation, never a Qur'anic claim. Meaning + (verified) heritage
+    # note only. This is how we cover any Arabic name honestly (e.g. Aws).
+    "aws": {
+        "tier": "meaning", "tag": TAG_MEANING,
+        "arabic": "أَوْس", "translit": "Aws",
+        "root_letters": "أ و س", "root_gloss": "a gift, a bestowal",
+        "line1": "carried by one of the Ansar tribes of Madinah",
+        "ayah": "", "citation": "",
+        "verify": "meaning 'gift/bestowal' (Aws/aws); Banu Aws = one of the two "
+                  "Ansar tribes of Madinah (with Khazraj). Root not in Qur'an. "
+                  "Confirm meaning + heritage line before ship.",
     },
 }
 

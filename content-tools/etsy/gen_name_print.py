@@ -100,9 +100,12 @@ def render_name(entry, out_path, sc=1.0):
     f_rootA= ImageFont.truetype(AMIRI, S(40))     # root letters in Amiri
     f_cite = ImageFont.truetype(PLAY, S(30))
     maxw   = W - S(180)
+    has_ayah = bool(entry.get("ayah"))
+    has_cite = bool(entry.get("citation"))
+    has_line = bool(entry.get("line1"))
     # auto-fit the wrapping lines so nothing runs past the border
-    f_line, line1 = _fit(entry["line1"], PLAY_IT, [S(n) for n in (42, 38, 34)], maxw, 2)
-    f_ayah, ayah  = _fit(entry["ayah"],  PLAY_IT, [S(n) for n in (46, 42, 38, 34, 30)], maxw, 3)
+    f_line, line1 = _fit(entry.get("line1") or " ", PLAY_IT, [S(n) for n in (42, 38, 34)], maxw, 2)
+    f_ayah, ayah  = _fit(entry.get("ayah") or " ",  PLAY_IT, [S(n) for n in (46, 42, 38, 34, 30)], maxw, 3)
 
     # header tag + brand (fixed anchors)
     _center(d, entry["tag"].upper(), f_tag, TAG, S(104), W, ls=S(5))
@@ -118,14 +121,19 @@ def render_name(entry, out_path, sc=1.0):
     tr_h   = th([entry["translit"]], f_tr, 1.0)
     l1_h   = th(line1, f_line)
     ay_h   = th(ayah, f_ayah)
-    cite_h = th([entry["citation"]], f_cite, 1.0)
+    cite_h = th([entry["citation"]], f_cite, 1.0) if has_cite else 0
 
     G_NAME, G_TR, G_DIV, G_ROOT, G_L1, G_AY = S(52), S(40), S(40), S(48), S(30), S(44)
     root_h = th([entry.get("root_gloss") or "x"], f_root, 1.0) if has_root else 0
     stack = name_h + G_NAME + tr_h + G_TR + 2 + G_DIV
     if has_root:
         stack += root_h + G_ROOT
-    stack += l1_h + G_L1 + ay_h + G_AY + cite_h
+    if has_line:
+        stack += l1_h + G_L1
+    if has_ayah:
+        stack += ay_h + G_AY
+    if has_cite:
+        stack += cite_h
 
     top = S(150); bot = H - S(165)
     y = top + ((bot - top) - stack) / 2
@@ -138,12 +146,16 @@ def render_name(entry, out_path, sc=1.0):
     y += 2 + G_DIV
     if has_root:
         segs = [("from the root  ", f_root, INK),
-                (entry["root_letters"], f_rootA, INK),
-                ("  ·  " + entry["root_gloss"], f_root, INK)]
+                (entry["root_letters"], f_rootA, INK)]
+        if entry.get("root_gloss"):
+            segs.append(("  ·  " + entry["root_gloss"], f_root, INK))
         _center_mixed(d, segs, y, W); y += root_h + G_ROOT
-    _draw_block(d, line1, f_line, INK, y, W); y += l1_h + G_L1
-    _draw_block(d, ayah, f_ayah, INK, y, W);  y += ay_h + G_AY
-    _center(d, entry["citation"], f_cite, SOFT, y, W)
+    if has_line:
+        _draw_block(d, line1, f_line, INK, y, W); y += l1_h + G_L1
+    if has_ayah:
+        _draw_block(d, ayah, f_ayah, INK, y, W);  y += ay_h + G_AY
+    if has_cite:
+        _center(d, entry["citation"], f_cite, SOFT, y, W)
 
     im.save(out_path)
     return out_path
