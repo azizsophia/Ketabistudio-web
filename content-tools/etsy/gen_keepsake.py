@@ -12,11 +12,37 @@ PLAY_IT = os.path.join(FONTS, "PlayfairDisplay-Italic.ttf")
 AMIRI   = os.path.join(FONTS, "Amiri-Bold.ttf")
 BW, BH = 1080, 1350
 
+# A collection, not a template: each occasion gets a distinct but muted palette,
+# unified by the gold Amiri thread. All light palettes keep dark ink for contrast.
 THEMES = {
-    "ivory": dict(bg=(240, 234, 223), ink=(42, 60, 52), soft=(112, 120, 108),
-                  gold=(176, 140, 66), mark=(150, 132, 96), border=(196, 170, 110)),
-    "dark":  dict(bg=(20, 23, 20), ink=(238, 232, 219), soft=(150, 150, 136),
-                  gold=(214, 180, 112), mark=(150, 134, 96), border=(150, 122, 60)),
+    "ivory":   dict(bg=(240, 234, 223), ink=(42, 60, 52), soft=(112, 120, 108),
+                    gold=(176, 140, 66), mark=(150, 132, 96), border=(196, 170, 110)),
+    "dark":    dict(bg=(20, 23, 20), ink=(238, 232, 219), soft=(150, 150, 136),
+                    gold=(214, 180, 112), mark=(150, 134, 96), border=(150, 122, 60)),
+    # teacher — quiet scholarly green
+    "sage":    dict(bg=(226, 231, 220), ink=(40, 58, 46), soft=(112, 126, 106),
+                    gold=(166, 146, 80), mark=(132, 140, 108), border=(176, 176, 120)),
+    # hajj — night sky over the sacred journey (dark, deeper gold)
+    "night":   dict(bg=(18, 22, 30), ink=(232, 230, 222), soft=(146, 150, 158),
+                    gold=(210, 178, 112), mark=(140, 146, 158), border=(120, 122, 96)),
+    # birth — soft warm cream
+    "warm":    dict(bg=(243, 232, 218), ink=(66, 56, 44), soft=(140, 124, 102),
+                    gold=(178, 142, 70), mark=(152, 132, 96), border=(202, 172, 112)),
+    # home — grounded sand / earth
+    "sand":    dict(bg=(236, 226, 209), ink=(64, 54, 40), soft=(138, 122, 96),
+                    gold=(168, 134, 66), mark=(148, 128, 92), border=(194, 164, 106)),
+    # protection — calm protective blue-grey
+    "mist":    dict(bg=(222, 229, 232), ink=(40, 56, 64), soft=(112, 126, 132),
+                    gold=(158, 148, 108), mark=(126, 138, 144), border=(172, 182, 184)),
+    # parents — warm, tender rose-taupe
+    "rose":    dict(bg=(240, 227, 223), ink=(72, 50, 52), soft=(146, 118, 116),
+                    gold=(188, 148, 96), mark=(158, 126, 118), border=(208, 170, 142)),
+    # wedding — soft blush with rose-gold
+    "blush":   dict(bg=(242, 228, 226), ink=(78, 52, 56), soft=(152, 120, 120),
+                    gold=(196, 152, 104), mark=(164, 128, 124), border=(212, 172, 148)),
+    # get well — gentle healing seafoam
+    "seafoam": dict(bg=(222, 232, 226), ink=(38, 60, 52), soft=(110, 128, 118),
+                    gold=(162, 148, 92), mark=(128, 142, 130), border=(168, 182, 168)),
 }
 _M = ImageDraw.Draw(Image.new("RGB", (4, 4)))
 
