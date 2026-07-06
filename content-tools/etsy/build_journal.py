@@ -53,7 +53,7 @@ HOWTO = ("This journal moves one root at a time. Each day gives you three letter
  "You can walk the thirty days in a month, or take a root a week and live with it "
  "longer. There is no falling behind here.\n \n"
  "Everything in these pages is verified. Every root was checked against the "
- "classical dictionaries of Arabic, every ayah against the Qur'an, every hadith "
+ "classical Arabic sources, every ayah against the Qur'an, every hadith "
  "against its grading, and the sources are cited on the page where they are used. Where a "
  "connection is a classical scholar's insight rather than settled fact, the page "
  "says so. That is a promise we keep across everything we make.\n \n"
