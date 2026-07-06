@@ -1106,6 +1106,22 @@ concept is already common. NEXT: read that report, then pitch only concepts the
 data supports (differentiation = own the premium/verified-depth top of a crowded
 category, not chase "empty" niches that don't exist at Etsy's scale).
 
+# Gumroad (2026-07-06) — second sales channel
+Connected via a **personal access token** (owner generated it; used directly against
+`api.gumroad.com/v2` — NO server code, nothing to deploy). Token is NOT in git;
+if it leaks, regenerate in Gumroad app settings. Account: ketabistudio.gumroad.com.
+- **Product create/edit/delete WORKS via API** (`POST/PUT/DELETE /v2/products`).
+- **File upload flow** (the API tells you if you guess wrong): `POST /v2/files/presign`
+  {filename, file_size, content_type} → PUT each part to the returned S3 `presigned_url`
+  (capture ETag) → `POST /v2/files/complete` {upload_id, key, parts:[{part_number,etag}]}
+  → attach with `PUT /v2/products/:id` `files[][url]=<complete's file_url>`.
+- **Cover image CANNOT be set via v2 API** (preview_url/cover_url/asset_previews all
+  silently ignored) — owner drags the cover in via the Gumroad UI.
+- **Fit note:** Gumroad = instant download, so ONLY fixed products (dua deck), NOT the
+  made-to-order personalized prints.
+- **LIVE-ish:** Dua deck product created (id `kyS7fZV9SquPoD7HiZnekg==`, `/l/pjekt`,
+  $14, 3 files attached, 5 tags) — **UNPUBLISHED** pending owner review + cover upload.
+
 ## Etsy Deck 1 — "For the Hard Moments" dua deck (PUBLISHED, likely saturated)
 `content-tools/etsy/deck_data.py` (`DECK1` = 14 verified duas) +
 `content-tools/gen_dua_card.py` (ivory+dark renderer, auto-fit long duas) +
