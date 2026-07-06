@@ -9,3 +9,7 @@ next-env.d.ts
 # Python
 __pycache__/
 *.pyc
+
+# social render artifacts
+content-tools/_iframes/
+content-tools/*.mp4
