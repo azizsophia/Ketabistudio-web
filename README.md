@@ -1039,6 +1039,12 @@ by default; only publishes if `publish:true`. **Listings (check before creating 
 - 4533400292 — dua deck (LIVE).
 - 4533510568 — Qur'an teacher gift keepsake (DRAFT, $13, hadith Bukhari 5027).
 - 4533497225 — Hajj Mabrūr keepsake (DRAFT, $13, hadith Bukhari 1773/Muslim 1349).
+- 4533503399 — Muslim baby birth keepsake (DRAFT, $13, Qur'an 37:100 Ibrahim's du'a).
+- 4533517158 — Family blessed-home print (DRAFT, $13, Qur'an 23:29 Nuh's du'a).
+- 4533517194 — Islamic nursery child-protection print (DRAFT, $13, Sahih Muslim 2708).
+All 5 keepsake drafts: 3 imgs (framed mockup + ivory + dark) + how-it-works file,
+personalization NOT yet enabled (Etsy deprecation → owner toggles by hand).
+Content ALL verified by adversarial pass (hadith + ayat verbatim, translit fixed).
 Keepsakes rendered by `content-tools/etsy/gen_keepsake.py` (verified hadith,
 ivory+dark, personalized dedication line). Renders via `render_keepsake(entry,out,theme,sc)`.
 **Personalization can't be set via API** (Etsy deprecated the legacy fields on
