@@ -35,6 +35,10 @@ human.
 10. **QC EVERYTHING with your own eyes before it ships**: contact sheet for
     visuals (check RTL direction of Arabic, diacritics, collisions, legibility),
     em-dash grep for copy, source check for claims. The owner's standing rule.
+11. **ALWAYS SHOW THE OWNER FIRST — never publish anything live without her
+    explicit go.** Applies everywhere: social posts (schedule but show first),
+    Substack, and Etsy. **Etsy listings are created as DRAFTS only**; the owner
+    reviews, then approves the flip to public. No auto-publish, ever.
 
 ## Sentence music (how it actually sounds)
 - Short declaratives that land, then one long line that breathes. Example
