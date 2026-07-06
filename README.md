@@ -417,6 +417,13 @@ the domain is switched in Vercel.
   ($49.99 hardcover, $6.99 voice card, etc.), commit, merge to `main`.
 - `COMING_SOON` (`lib/flags.ts`) is still `true` — public site gated to
   `/coming-soon`; preview cookie `ketabi_preview=ketabi-preview-2026` bypasses it.
+- **SOCIAL (active work, 2026-07-05):** the "From One Root" 30-day campaign is
+  the live front. Owner is approving the premium hero frames (board in session
+  scratchpad `premium/MONTH_premium_v2.jpg`). On approval the week starts the
+  next Monday at **2 posts/day**, shown to owner before scheduling. See the
+  "From One Root — premium relaunch" section at the very bottom for full state.
+  DO NEXT: bake the premium grade + gold Amiri into the reel renderer, build
+  Week 1 (qalb + nūr), QC, show owner, schedule via `/api/social/enqueue`.
 
 ## The four product lines
 
@@ -871,6 +878,94 @@ Substack + shop together (needs owner setup).
   cannot attach trending audio** (owner doesn't use it, so fine for them).
 - Owner keeps a separate ~70k main TikTok/YouTube for education content +
   occasional ads; shop.ketabi is the product account for us to run.
+
+---
+
+# From One Root — premium relaunch (current state, 2026-07-05)
+
+> This is the live social front. A new session should read this + the five docs
+> in `content-tools/` (content-calendar.md, voice-style.md, QC-CHECKLIST.md,
+> root-series-book.md, insight-bank.md) and it will know exactly where we ended.
+
+## The series
+"**From One Root**" (renamed from "The Root Series" on 07-05 after an originality
+scan: the *facts* are public-domain scripture/linguistics — zero plagiarism risk —
+but the name "The Root Series" collided with *The Root* media + *The ROOT Brands*
+wellness, hurting discoverability. Owner may switch to the even-more-ownable
+"**Three Letters**"; swap the wordmark everywhere if so). One Arabic/Qur'anic root
+per post: reveal the shared root of several words, land on an emotional payoff.
+
+## What's LIVE
+- **ر ح م raḥma launch reel** posted 07-05 to IG (`instagram.com/reel/DabSmVvEw7B`),
+  FB, and Threads (mirror worked). Its window/curtain background is **RETIRED**
+  (never-repeat grid rule). Caption in `scratchpad/lux/reel/caption_rahim.txt`.
+- Old `social_queue` was **cleared** (replace-mode enqueue). Queue currently holds
+  only the launched reel.
+
+## Strategy locked from REAL stats (via `GET /api/social/ig/stats`)
+Followers ~1,584 (warming from a 2-yr dormancy). Best-ever reel = 2,033 views /
+121 likes / 10 shares; best-ever carousel = 12 reach. So: **reels lead reach**,
+carousels are a saves+grid play. The all-time hit was *relatable/relational*
+("someone on your mind may be making dua for you" → people sent it to that
+person). Account has **0 comments ever** → add reply-bait + seed first comment.
+Rules that fall out: every root lands **fact → feeling → "send this to someone,"**
+and every root ties to a **life moment + keepsake** (birth, marriage, grief,
+home) — the moat an etymology page can't copy. Funnel: reel → bio link →
+Substack subscribe (own the email) → waitlist → product; ~3 of 4 posts pure
+value, every 4th soft product.
+
+## The plan
+`content-tools/content-calendar.md` = the full **30-day calendar (Jul 6–Aug 4)**:
+12 roots (qalb, nūr, ṣabr, salām, jann[reframed], wadūd, ṣadaqah, shukr, khalq,
+kitāb, īmān, dhikr), each = 1 reel + 1 carousel, weekly Substack essay ALSO
+posted as a **Threads text-thread** (the format that over-performed). Owner set
+cadence to **2 posts/day**, week starts the Monday after she approves the frames.
+jann is reframed to jannah/janīn/junna (owner OK'd jinn if it's better; drop
+majnūn either way; accuracy pass decides).
+
+## PREMIUM visual system (owner approved "all 3 directions", 07-05)
+- **Signature = GOLD Amiri** (not cream) with soft glow — biggest premium lift.
+- Rotates 3 directions unified by the grade: (A) cinematic light, (B) jewel
+  still life, (C) gold/textile minimal. Deep jewel grade recipe (documented in
+  content-calendar.md): faded blacks `a*0.88+6`, warm `R*1.06 B*0.90`, desat
+  0.80, contrast 1.06, bloom 0.12, strong vignette (edges→~0.25), grain ~7.
+  Cream Amiri only on bright/gold bases (e.g. gold silk salām).
+- **Skinless AND faceless** — owner flagged bare arms/hands as inappropriate,
+  not just faces. Also: no fruit/dates/food, no six-point star (verify carved
+  screens + lantern cutwork per frame), never repeat a background.
+- **Locked background per root** (Pexels free-license id, or own asset) listed in
+  content-calendar.md. Board renders: `scratchpad/premium/MONTH_premium_v2.jpg`.
+  Source new stills with `scratchpad/pexels_fetch.py` (Pexels key inside);
+  re-fetch `large2x`/`original` of the chosen id at render.
+
+## Renderer state (IMPORTANT for the next build step)
+The insight-reel renderer is `scratchpad/lux/reel/gen_insight_reel.py` (PIL/numpy,
+browser-free, ~30s/reel, auto-uploads to `/api/social/video`). It already has the
+**text-layer clipping fix** (Amiri descenders were being cut — size the layer to
+the real glyph bbox) but the **premium grade + gold Amiri are only in the ad-hoc
+board scripts so far** (`scratchpad/premium/*.py`). NEXT: fold `prem_grade()` +
+gold glow text into gen_insight_reel.py, **commit it to `content-tools/`**, then
+render Week 1 (qalb + nūr) as motion, QC per QC-CHECKLIST.md, show owner, schedule.
+
+## Endpoints (all Bearer `CRON_SECRET` = `ketabi-cron-2027`)
+- `POST /api/social/enqueue` `{posts:[{image_url,caption,platforms,scheduled_for}],replace?}`
+  — replace:true wipes queued rows first. Refuses empty posts.
+- `GET /api/cron/social` — ships all due posts (images/carousels first, reels
+  last; IG+FB, best-effort Threads mirror). Triggered by GitHub Action
+  `.github/workflows/social-poster.yml` (free Vercel cron is unreliable).
+- `POST /api/social/video` — uploads an mp4 to Supabase card-assets, returns URL.
+- `GET /api/social/ig/stats` — real reach/saves/shares/views per post.
+- Comment reply systems LIVE both platforms: `/api/social/threads/replies` and
+  `/api/social/ig/comments` (GET open comments, POST approved replies — "read, I
+  draft, you approve, I post"). Threads creds in private storage bucket.
+
+## Owner workflow rules (non-negotiable)
+Approve **frames** (not videos) → week starts Monday → schedule 2/day but **show
+owner before it goes live** → **run the full QC-CHECKLIST on every asset** myself
+(accuracy w/ primary sources + verbatim graded hadith; Arabic RTL/diacritics
+zoomed; no overlaps incl. end-card-clears-payoff; premium skinless visuals;
+voice: no em dashes, His/Him capitalized, send-to-someone CTA). Nothing live
+until verified; flagship pieces shown first.
 
 ## Other 2026-07-04 changes
 - **Coming-soon redesigned** (`app/coming-soon/`): product-first, above-fold

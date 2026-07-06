@@ -43,11 +43,12 @@ gold rule + KETABI wordmark, match image to meaning. Show board before render (d
 
 ### Locked backgrounds (Pexels free-license id, or own asset) + vibe
 qalb=candle 37764589 (C) · nūr=light-through-carved-screen+smoke 7568336 (A) ·
-ṣabr=cup by window 18006779 (B/moody) · salām=gold silk 4938321 (C, CREAM text) ·
+ṣabr=rainy window at night 35289998 (B/moody) · salām=gold silk 4938321 (C, CREAM text) ·
 jann=arched doorway light 30335237 (A) · wadūd=moody garden roses 6434312 (B) ·
-ṣadaqah=dates 37417612 (B) · shukr=Dutch fruit bowl 34525395 (B) ·
+ṣadaqah=humble bowl in low light 20439091 (B) · shukr=warm golden light 10695255 (B) ·
 khalq=clay vessels 15923679 (B/earth) · kitāb=Qur'an+tasbih own reel_quran_bg (B) ·
 īmān=brass wall sconce 38280667 (A/warm) · dhikr=red tasbih 34522113 (B).
+(07-05 swap: owner rejected fruit/dates/plastic-cup — ṣabr/ṣadaqah/shukr replaced.)
 Retired: window curtain (rahma launch reel). Pexels = free license, no attribution
 required; keep ids on file. Re-fetch large2x/original of the chosen id at render.
 
