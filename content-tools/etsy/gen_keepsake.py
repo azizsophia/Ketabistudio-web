@@ -141,7 +141,7 @@ HAJJ = {
 BIRTH = {
     "tag": "A Gift From Allah",
     "arabic": "رَبِّ هَبْ لِي مِنَ الصَّالِحِينَ",
-    "translit": "Rabbi hab li min as-salihin",
+    "translit": "Rabbi hab li mina as-salihin",
     "translation": "“My Lord, grant me a child from among the righteous.”",
     "source": "Qur'an 37:100 · the du'a of Ibrahim",
     "dedication": "Ahmad · born 12 Rajab 1447",
