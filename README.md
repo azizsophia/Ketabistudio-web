@@ -999,11 +999,26 @@ until verified; flagship pieces shown first.
 # Etsy digital products (2026-07-06)
 
 > Goal: sell UNIQUE, non-saturated personalized Islamic digital downloads. Etsy
-> API key (`5ls9u9croiqu7q6klowiru15`) is **Pending Personal Approval** — until it
-> clears, listings are manual (guides below) and personalized orders are hand-
-> delivered. When it approves: store keystring/secret server-side (NEVER git),
-> send owner ONE OAuth "Authorize" link, then automate createDraftListing →
-> uploadListingFile → uploadListingImage → publish.
+> API key (`5ls9u9croiqu7q6klowiru15`) **APPROVED 2026-07-06** (status flipped to
+> "Personal Access", 5 QPS / 5K QPD). API integration is BUILT (see below); needs
+> a prod deploy + 3 activation steps to go live.
+
+## Etsy API — BUILT (`lib/etsy.ts` + `app/api/etsy/*`), needs activation
+OAuth2 + PKCE, mirrors the Threads pattern: keystring/secret/tokens live in the
+private `social-config/etsy.json` bucket (NEVER git). Access token auto-refreshes
+(1h life, 90-day refresh). Routes: `POST /api/etsy/config` (store keystring+secret,
+Bearer CRON_SECRET), `GET /api/etsy/authorize?key=CRON_SECRET` (owner opens →
+Etsy consent), `GET /api/etsy/callback` (token swap, the URL to register),
+`GET /api/etsy/status` (Bearer, health check → shop name). `lib/etsy.ts` helpers:
+`createDraftListing`, `uploadListingImage`, `uploadListingFile`, `publishListing`,
+`getShopId`, `etsyFetch`. **Digital listing = `type:"download"`, taxonomy_id
+68887887 (Digital Prints — verify).**
+ACTIVATION (in order): (1) merge to main / deploy to prod (callback is hardcoded
+to www.ketabistudio.com). (2) Owner registers `https://www.ketabistudio.com/api/etsy/callback`
+as an app callback URL in Etsy app settings. (3) Claude POSTs /api/etsy/config
+with keystring+secret (curl, Bearer CRON_SECRET=`ketabi-cron-2027`). (4) Owner
+opens /api/etsy/authorize?key=ketabi-cron-2027 and approves. (5) Claude verifies
+via /api/etsy/status. Then listing creation is fully automatable.
 
 ## PRINT-FILE RULE (non-negotiable)
 No "claude", "AI", "Anthropic", or any tool name in filenames OR PDF/PNG
