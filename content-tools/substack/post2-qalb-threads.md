@@ -1,4 +1,4 @@
-# qalb — Threads text-thread (paste as connected posts, ≤500 chars each)
+# qalb Threads text-thread (paste as connected posts, ≤500 chars each)
 
 **1/**
 In Arabic, the word for your heart is qalb.
