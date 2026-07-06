@@ -1020,6 +1020,24 @@ with keystring+secret (curl, Bearer CRON_SECRET=`ketabi-cron-2027`). (4) Owner
 opens /api/etsy/authorize?key=ketabi-cron-2027 and approves. (5) Claude verifies
 via /api/etsy/status. Then listing creation is fully automatable.
 
+### STATUS: LIVE + working (2026-07-06)
+Connected to shop **KetabiStudio (shop_id 48938263)**, token auto-refreshing.
+Full CRUD confirmed end-to-end. TWO GOTCHAS learned the hard way:
+- **`x-api-key` MUST be `keystring:shared_secret`** (colon-separated), NOT the
+  keystring alone — else every authed call fails with "Shared secret is required
+  in x-api-key header" and getShopId silently returns null.
+- **Legacy personalization fields are DEPRECATED** on the listing PATCH
+  (`is_personalizable`, `personalization_is_required`, `personalization_char_count_max`).
+  Setting "required" now needs Etsy's dedicated personalization endpoints
+  (developers.etsy.com/documentation/tutorials/personalization-mig) — not yet
+  built. Owner can toggle "Required" by hand in the listing editor.
+`POST /api/etsy/listing` (Bearer): CREATE mode (pass `listing`) or EDIT mode
+(pass `listing_id` + `update_fields`/`images`/`file`). Assets inline base64
+(keep payload <4.5MB — JPEG ~1600px, NOT PNG which blew to 38MB). Creates DRAFTS
+by default; only publishes if `publish:true`. **Existing live listings:** name
+print = 4533437576 (5 images, $13, personalization on), dua deck = 4533400292.
+DO NOT create duplicates — check active listings first (owner already listed both).
+
 ## PRINT-FILE RULE (non-negotiable)
 No "claude", "AI", "Anthropic", or any tool name in filenames OR PDF/PNG
 metadata — owner's rule ("so people can't see"). All generators set PDF
