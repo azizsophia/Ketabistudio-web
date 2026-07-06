@@ -1119,8 +1119,12 @@ if it leaks, regenerate in Gumroad app settings. Account: ketabistudio.gumroad.c
   silently ignored) — owner drags the cover in via the Gumroad UI.
 - **Fit note:** Gumroad = instant download, so ONLY fixed products (dua deck), NOT the
   made-to-order personalized prints.
-- **LIVE-ish:** Dua deck product created (id `kyS7fZV9SquPoD7HiZnekg==`, `/l/pjekt`,
-  $14, 3 files attached, 5 tags) — **UNPUBLISHED** pending owner review + cover upload.
+- **Products created (all UNPUBLISHED, pending owner cover-upload + publish):**
+  - Dua deck — id `kyS7fZV9SquPoD7HiZnekg==`, `/l/pjekt`, $14, 3 files.
+  - Names Written Into the Qur'an (24-name collection PDF+zip) — `MLWYiEIeUP8gKUm5kxmeEw==`, `/l/iimpcu`, $14.
+  - Ayat for the Lock Screen (8 verified du'a/ayah wallpapers) — `lpkBCxnNjTKdBVfvqSrfew==`, `/l/odbbf`, $6.
+  All fixed (non-personalized); wallpapers/names repurpose the verified renderers.
+  Cohesive dark covers rendered (owner uploads each in the Gumroad UI).
 
 ## Etsy Deck 1 — "For the Hard Moments" dua deck (PUBLISHED, likely saturated)
 `content-tools/etsy/deck_data.py` (`DECK1` = 14 verified duas) +
