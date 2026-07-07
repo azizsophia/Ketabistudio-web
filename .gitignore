@@ -9,7 +9,6 @@ next-env.d.ts
 # Python
 __pycache__/
 *.pyc
-
 # social render artifacts
 content-tools/_iframes/
 content-tools/*.mp4
@@ -19,5 +18,6 @@ content-tools/*.log
 content-tools/_carousel_*/
 content-tools/_carousel_*preview.jpg
 content-tools/z.png
-content-tools/_*.png
 content-tools/*_show.jpg
+content-tools/_reel_covers/
+content-tools/_reel_covers_sheet.jpg
