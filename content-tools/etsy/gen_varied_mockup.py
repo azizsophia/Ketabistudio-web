@@ -83,7 +83,7 @@ def leaning(art, out, wall, frame_style, ledge=(196, 176, 150), fw=520, text_bot
     im = Image.fromarray(np.clip(la, 0, 255).astype("uint8")).convert("RGBA")
     fl = _framed(art, fw, frame_style)
     fx = (W - fl.width) // 2 + 6
-    fy = ly - fl.height + 6
+    fy = max(ly - fl.height + 6, text_bottom + 24)
     # contact shadow under the frame on the ledge + soft cast up the wall
     im = Image.alpha_composite(im, _shadow((fl.width, 40), (fx - 4, ly - 10), 16, 120))
     im = Image.alpha_composite(im, _shadow((fl.width, fl.height), (fx + 22, fy + 8), 26, 55))
@@ -97,18 +97,18 @@ def _ink_for(wall):
     return (46, 42, 36)
 
 
-def callout(im, headline, benefits):
+def callout(im, headline, benefits, draw=True):
     """Bold, thumbnail-legible marketing text at the top: a short headline over
-    a gold rule over a spaced benefits line. This is what tells a scrolling
-    buyer what the product IS in one second."""
+    a gold rule over a spaced benefits line. Returns the bottom y of the block.
+    With draw=False it only measures (so the frame can be placed below it)."""
     d = ImageDraw.Draw(im)
     ink = (46, 42, 36)
     gold = (176, 140, 66)
-    # headline (Playfair), auto-shrink to fit one or two lines
+    # headline (Playfair), auto-shrink so it fits in at most two lines
     size = 62
     f = ImageFont.truetype(PLAY, size)
     words = headline.split()
-    # wrap to <= 2 lines within margins
+
     def wrap(font):
         lines, cur = [], ""
         for w in words:
@@ -126,11 +126,13 @@ def callout(im, headline, benefits):
     y = 60
     for ln in lines:
         w = d.textlength(ln, font=f)
-        d.text(((W - w) / 2, y), ln, font=f, fill=ink)
+        if draw:
+            d.text(((W - w) / 2, y), ln, font=f, fill=ink)
         y += int(size * 1.12)
     # gold rule (clearly BELOW the headline block, not under a word)
     y += 26
-    d.line([(W / 2 - 46, y), (W / 2 + 46, y)], fill=gold, width=3)
+    if draw:
+        d.line([(W / 2 - 46, y), (W / 2 + 46, y)], fill=gold, width=3)
     y += 22
     # benefits, letter-spaced small caps
     fb = ImageFont.truetype(PLAY, 27)
@@ -138,7 +140,9 @@ def callout(im, headline, benefits):
     tw = sum(d.textlength(c, font=fb) + 3 for c in txt) - 3
     x = (W - tw) / 2
     for c in txt:
-        d.text((x, y), c, font=fb, fill=(96, 88, 76)); x += d.textlength(c, font=fb) + 3
+        if draw:
+            d.text((x, y), c, font=fb, fill=(96, 88, 76))
+        x += d.textlength(c, font=fb) + 3
     return int(y + 46)  # bottom of the text block
 
 
@@ -173,11 +177,14 @@ def render(key, out):
     art_path, wall, fstyle, comp = CONFIG[key]
     art = Image.open(art_path).convert("RGB")
     headline, benefits = COPY[key]
-    tb = 250  # reserve the top strip for the callout
+    # measure the real callout height (1- or 2-line headline) so the frame
+    # always sits BELOW the text instead of running through it
+    scratch = Image.new("RGB", (W, H))
+    tb = callout(scratch, headline, benefits, draw=False)
     if comp == "hung":
-        hung(art, out, wall, fstyle, fw=480, text_bottom=tb)
+        hung(art, out, wall, fstyle, fw=460, text_bottom=tb)
     else:
-        leaning(art, out, wall, fstyle, fw=430, text_bottom=tb)
+        leaning(art, out, wall, fstyle, fw=400, text_bottom=tb)
     im = Image.open(out).convert("RGBA")
     callout(im, headline, benefits)
     im.convert("RGB").save(out, quality=92)
