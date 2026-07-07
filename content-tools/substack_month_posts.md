@@ -1,4 +1,4 @@
-# Ketabi Studio — Substack month (8 SEO posts)
+# Ketabi Studio, Substack month (8 SEO posts)
 
 Voice rules: warm, plain, personal. No em dashes. His/Him/He capitalised for Allah.
 Every Qur'an reference is surah:ayah. Hadith are named with collection + number and
@@ -10,7 +10,7 @@ a real article, not a caption.
 
 ---
 
-## POST 1 — Tuesday, week 1
+## POST 1, Tuesday, week 1
 **SEO title:** What Does Rahma Mean? Why Mercy and the Womb Share One Arabic Root
 **Subtitle:** The word behind Bismillah, and what it quietly tells you about God
 **Target keyword:** meaning of rahma / ar-Rahman ar-Raheem meaning
@@ -53,7 +53,7 @@ naming.
 
 ---
 
-## POST 2 — Friday, week 1
+## POST 2, Friday, week 1
 **SEO title:** 6 Authentic Duas for Anxiety and a Heavy Heart (With Sources)
 **Subtitle:** Short, memorisable, and every one traced to Qur'an or Sahih hadith
 **Target keyword:** dua for anxiety / dua for stress and worry
@@ -98,7 +98,7 @@ He is nearer than the worry. "Truly, in the remembrance of Allah do hearts find 
 
 ---
 
-## POST 3 — Tuesday, week 2
+## POST 3, Tuesday, week 2
 **SEO title:** What Does Fitra Mean in Islam? The Faith You Were Born Knowing
 **Subtitle:** Not something you build. Something you return to.
 **Target keyword:** fitra meaning / what is fitra in islam
@@ -135,7 +135,7 @@ You were born knowing. The work is remembering.
 
 ---
 
-## POST 4 — Friday, week 2
+## POST 4, Friday, week 2
 **SEO title:** How to Start Quran Journaling: A Gentle 30-Day Method
 **Subtitle:** For anyone who opens the Qur'an, means to reflect, and then just reads and closes it
 **Target keyword:** quran journaling / how to journal the quran
@@ -177,7 +177,7 @@ You do not need to be a scholar to reflect on the Qur'an. You need a small door 
 
 ---
 
-## POST 5 — Tuesday, week 3
+## POST 5, Tuesday, week 3
 **SEO title:** Teaching Children the Names of Allah: Where to Actually Begin
 **Subtitle:** Start with the two your child already needs, not all ninety nine at once
 **Target keyword:** teaching kids the names of Allah / 99 names of Allah for kids
@@ -215,7 +215,7 @@ with the names that make that easy.
 
 ---
 
-## POST 6 — Friday, week 3
+## POST 6, Friday, week 3
 **SEO title:** Meaningful Islamic Gift Ideas: Presents That Carry a Dua
 **Subtitle:** For the people you want to give something with weight, not just a thing
 **Target keyword:** islamic gift ideas / meaningful muslim gifts
@@ -252,7 +252,7 @@ instead. You can see our keepsakes, cards, and journals on our Etsy and in our s
 
 ---
 
-## POST 7 — Tuesday, week 4
+## POST 7, Tuesday, week 4
 **SEO title:** Islamic Wishes and Duas for a New Baby (What to Say and Write)
 **Subtitle:** The words to say to new parents, and what to write in the card
 **Target keyword:** islamic new baby wishes / dua for newborn baby
@@ -291,7 +291,7 @@ carry it well.
 
 ---
 
-## POST 8 — Friday, week 4
+## POST 8, Friday, week 4
 **SEO title:** What to Write in an Islamic (Nikah) Wedding Card
 **Subtitle:** The Prophet's own wedding dua, and how to say it in your own words
 **Target keyword:** nikah card wishes / islamic wedding dua

@@ -5,7 +5,7 @@ import styles from "./coming-soon.module.css";
 import WaitlistForm from "./WaitlistForm";
 
 export const metadata: Metadata = {
-  title: "Ketabi Studio — Islamic keepsakes, books & cards, coming soon",
+  title: "Ketabi Studio, Islamic keepsakes, books & cards, coming soon",
   description:
     "From One Root, a 30-day Qur'an journal (one Arabic root a day, every source cited) is available now on Etsy. Plus personalized Islamic storybooks, hardcover photo keepsakes, and greeting cards coming soon. Join the founding list for early access. The Ketabi app is available today.",
 };
@@ -16,7 +16,7 @@ const GOOGLE_PLAY =
 const ETSY_JOURNAL =
   "https://www.etsy.com/listing/4533628130/quran-journal-printable-30-day-arabic";
 
-/* product showcases — real, photo-filled imagery */
+/* product showcases, real, photo-filled imagery */
 const KEEPSAKES = [
   {
     src: "/images/coming-soon/keepsake-baba.jpg",
@@ -73,7 +73,7 @@ export default function ComingSoon() {
           </h1>
 
           <p className={styles.lede}>
-            Personalized storybooks · hardcover photo keepsakes · greeting cards —
+            Personalized storybooks · hardcover photo keepsakes · greeting cards, 
             each one sealed with a dua. Opening soon, inshaAllah.
           </p>
 
@@ -82,7 +82,7 @@ export default function ComingSoon() {
             <div className={styles.heroMain}>
               <Image
                 src="/images/coming-soon/keepsake-baba.jpg"
-                alt="A hardcover keepsake — Everything I Love About Baba"
+                alt="A hardcover keepsake, Everything I Love About Baba"
                 width={520}
                 height={520}
                 className={styles.heroImg}
@@ -99,7 +99,7 @@ export default function ComingSoon() {
           <div className={styles.offer}>
             <span className={styles.offerBadge}>Founding list</span>
             <p className={styles.offerHead}>
-              Be first in — and get <span className={styles.gold}>20% off</span> your first order
+              Be first in, and get <span className={styles.gold}>20% off</span> your first order
             </p>
             <p className={styles.offerSub}>
               Join now for early access before we open to everyone, plus your
@@ -110,12 +110,12 @@ export default function ComingSoon() {
           </div>
         </header>
 
-        {/* ─────────── APP — available today ─────────── */}
+        {/* ─────────── APP, available today ─────────── */}
         <section className={styles.appBand}>
           <p className={styles.eyebrow}>Available today</p>
           <h2 className={styles.h2}>The Ketabi app is here now</h2>
           <p className={styles.sectionLede}>
-            Your daily companion for dhikr and reflection — track your adhkar,
+            Your daily companion for dhikr and reflection, track your adhkar,
             journal the Quran, and watch your Garden in Jannah grow. Free,
             ad-free, and available now while you wait for the shop.
           </p>
@@ -138,15 +138,15 @@ export default function ComingSoon() {
           </div>
         </section>
 
-        {/* ─────────── JOURNAL — available now on Etsy ─────────── */}
+        {/* ─────────── JOURNAL, available now on Etsy ─────────── */}
         <section className={styles.journalBand}>
           <p className={styles.eyebrow}>Available now on Etsy</p>
           <h2 className={styles.h2}>
-            From One Root — the language of the Qur&apos;an, one root at a time
+            From One Root, the language of the Qur&apos;an, one root at a time
           </h2>
           <p className={styles.sectionLede}>
             A 30-day journal. One Arabic root a day, traced back to its classical
-            source, with room to reflect. Every source cited — a quiet study of
+            source, with room to reflect. Every source cited, a quiet study of
             the words your prayers are already made of.
           </p>
           <a
@@ -157,7 +157,7 @@ export default function ComingSoon() {
           >
             <Image
               src="/images/journal-from-one-root.jpg"
-              alt="From One Root — a 30-day journal through the language of the Qur'an"
+              alt="From One Root, a 30-day journal through the language of the Qur'an"
               width={720}
               height={450}
               className={styles.journalImg}
@@ -181,8 +181,8 @@ export default function ComingSoon() {
           <p className={styles.eyebrow}>The keepsake collection</p>
           <h2 className={styles.h2}>Hardcover books, filled with your photos</h2>
           <p className={styles.sectionLede}>
-            Twenty things you love about them — for Mama, Baba, grandparents, your
-            spouse, a new baby, or Ramadan — each page a heartfelt line, sealed
+            Twenty things you love about them, for Mama, Baba, grandparents, your
+            spouse, a new baby, or Ramadan, each page a heartfelt line, sealed
             with a dua.
           </p>
           <div className={styles.duo}>
@@ -224,7 +224,7 @@ export default function ComingSoon() {
           <h2 className={styles.h2}>Sent for you, sealed with a dua</h2>
           <p className={styles.sectionLede}>
             Beautiful Islamic cards, personalized and posted straight to your
-            loved ones — or send a digital card in minutes.
+            loved ones, or send a digital card in minutes.
           </p>
           <div className={styles.cardsRow}>
             {CARDS.map((c) => (
