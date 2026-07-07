@@ -52,7 +52,7 @@ def card(letters, translit, defs, branches, line, cite, num, out):
     # transliteration lines up exactly beneath it. Arabic is RTL, so the first
     # root letter sits at the RIGHTMOST centre.
     f_root = ImageFont.truetype(AMIRI, 190)
-    f_tr = ImageFont.truetype(SANS, 30)
+    f_tr = ImageFont.truetype(SANS, 38)
     ry = 300
     al = letters.split()                              # ['ر','ح','م'] root order
     tl = [t.strip() for t in translit.split("·")]     # ['r','h','m']
@@ -117,10 +117,11 @@ def card(letters, translit, defs, branches, line, cite, num, out):
         w = d.textlength(t, font=f_line)
         d.text(((W - w) / 2, ly), t, font=f_line, fill=INK); ly += 46
 
-    # footer: value-prop line (its own row so it never collides), then the
-    # source citation left + wordmark right
-    _sp(d, "VERIFIED AGAINST THE CLASSICAL DICTIONARIES OF ARABIC",
-        ImageFont.truetype(SANS, 16), FAINT, W / 2, H - 196, 3)
+    # footer: an aesthetic italic line (shareable), then source + wordmark
+    f_tag = ImageFont.truetype(os.path.join(F, "Cormorant-Italic.ttf"), 40)
+    tag = "the language of the Qur'an, one root at a time"
+    tw = d.textlength(tag, font=f_tag)
+    d.text(((W - tw) / 2, H - 210), tag, font=f_tag, fill=(96, 90, 80))
     d.line([(M, H - 150), (W - M, H - 150)], fill=INK, width=2)
     f_cite = ImageFont.truetype(SANS, 20)
     _sp(d, cite, f_cite, FAINT, M, H - 128, 2, "l")
@@ -129,9 +130,9 @@ def card(letters, translit, defs, branches, line, cite, num, out):
     return out
 
 
-AR_TR = {"ء": "'", "أ": "'", "ب": "b", "ت": "t", "ث": "th", "ج": "j", "ح": "h",
+AR_TR = {"ء": "ʾ", "أ": "ʾ", "ب": "b", "ت": "t", "ث": "th", "ج": "j", "ح": "h",
          "خ": "kh", "د": "d", "ذ": "dh", "ر": "r", "ز": "z", "س": "s", "ش": "sh",
-         "ص": "s", "ض": "d", "ط": "t", "ظ": "z", "ع": "'", "غ": "gh", "ف": "f",
+         "ص": "s", "ض": "d", "ط": "t", "ظ": "z", "ع": "ʿ", "غ": "gh", "ف": "f",
          "ق": "q", "ك": "k", "ل": "l", "م": "m", "ن": "n", "ه": "h", "و": "w", "ي": "y"}
 
 
