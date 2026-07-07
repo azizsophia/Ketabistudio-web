@@ -24,6 +24,15 @@ from pathlib import Path
 import requests
 from PIL import Image, ImageOps
 
+# iPhones save photos as HEIC by default; register the decoder so Image.open
+# handles them transparently (a customer's iPhone upload must not fail at print).
+# Silently no-op if the wheel isn't installed so JPEG/PNG orders always render.
+try:
+    from pillow_heif import register_heif_opener
+    register_heif_opener()
+except Exception:  # noqa: BLE001
+    pass
+
 # Embed photos at print resolution (not the customer's full multi-megapixel
 # originals) so the rendered PDF stays a sane size — 8.5in at 300 DPI ≈ 2550px,
 # so ~2800px on the long edge is plenty even full-bleed.
