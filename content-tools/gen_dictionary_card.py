@@ -81,19 +81,25 @@ def card(letters, translit, defs, branches, line, cite, num, out):
         _sp(d, f"{i}.  {dfn}", f_def, INK, W / 2, dy, 0)
         dy += 56
 
-    # ROOT TREE — the signature device
-    tree_top = dy + 40
-    d.line([(W / 2, tree_top), (W / 2, tree_top + 34)], fill=ACCENT, width=2)
-    n = len(branches)
-    span = 720
-    xs = [int(W / 2 - span / 2 + span * (k + 0.5) / n) for k in range(n)]
-    d.line([(xs[0], tree_top + 34), (xs[-1], tree_top + 34)], fill=ACCENT, width=2)
-    f_br = ImageFont.truetype(LORA, 34)
-    f_brg = ImageFont.truetype(SANS, 19)
-    for x, (bt, bg) in zip(xs, branches):
-        d.line([(x, tree_top + 34), (x, tree_top + 68)], fill=ACCENT, width=2)
-        _sp(d, bt, f_br, INK, x, tree_top + 80, 0)
-        _sp(d, bg.upper(), f_brg, FAINT, x, tree_top + 128, 3)
+    # ROOT TREE — the signature device (only when we have VERIFIED branches)
+    if branches:
+        tree_top = dy + 40
+        d.line([(W / 2, tree_top), (W / 2, tree_top + 34)], fill=ACCENT, width=2)
+        n = len(branches)
+        span = 720
+        xs = [int(W / 2 - span / 2 + span * (k + 0.5) / n) for k in range(n)]
+        d.line([(xs[0], tree_top + 34), (xs[-1], tree_top + 34)], fill=ACCENT, width=2)
+        f_br = ImageFont.truetype(LORA, 34)
+        f_brg = ImageFont.truetype(SANS, 19)
+        for x, (bt, bg) in zip(xs, branches):
+            d.line([(x, tree_top + 34), (x, tree_top + 68)], fill=ACCENT, width=2)
+            _sp(d, bt, f_br, INK, x, tree_top + 80, 0)
+            _sp(d, bg.upper(), f_brg, FAINT, x, tree_top + 128, 3)
+        line_anchor = tree_top + 230
+    else:
+        # no tree yet: a small centred rule, then the sentence
+        d.line([(W / 2 - 46, dy + 40), (W / 2 + 46, dy + 40)], fill=ACCENT, width=3)
+        line_anchor = dy + 100
 
     # editorial sentence
     f_line = ImageFont.truetype(os.path.join(F, "Lora.ttf"), 33)
@@ -106,7 +112,7 @@ def card(letters, translit, defs, branches, line, cite, num, out):
             ln.append(cur); cur = w
     if cur:
         ln.append(cur)
-    ly = tree_top + 230
+    ly = line_anchor
     for t in ln:
         w = d.textlength(t, font=f_line)
         d.text(((W - w) / 2, ly), t, font=f_line, fill=INK); ly += 46
@@ -120,17 +126,36 @@ def card(letters, translit, defs, branches, line, cite, num, out):
     return out
 
 
+AR_TR = {"ء": "'", "أ": "'", "ب": "b", "ت": "t", "ث": "th", "ج": "j", "ح": "h",
+         "خ": "kh", "د": "d", "ذ": "dh", "ر": "r", "ز": "z", "س": "s", "ش": "sh",
+         "ص": "s", "ض": "d", "ط": "t", "ظ": "z", "ع": "'", "غ": "gh", "ف": "f",
+         "ق": "q", "ك": "k", "ل": "l", "م": "m", "ن": "n", "ه": "h", "و": "w", "ي": "y"}
+
+
+def _defs(gloss):
+    parts = [p.strip().lstrip("and ").strip() for p in gloss.split("·")]
+    return [p for p in parts if p][:2]
+
+
+def build_all(outdir):
+    import sys
+    sys.path.insert(0, os.path.join(D, "etsy"))
+    from journal_data import DAYS
+    made = []
+    for i, day in enumerate(DAYS, 1):
+        letters = day["letters"]
+        tr = " · ".join(AR_TR.get(c, c) for c in letters.split())
+        line = day["story"].split(". ")[0].rstrip(".") + "."
+        cite = day["citation"].split("·")[0].strip() + "  ·  classical dictionaries of Arabic"
+        key = day["translit"].lower().split("·")[0].strip().replace("al-", "").replace("'", "").split()[0]
+        out = os.path.join(outdir, f"day_{i:02d}_{key}.jpg")
+        card(letters, tr, _defs(day["gloss"]), [], line, cite, i, out)  # [] = no tree yet
+        made.append((i, key, out))
+    return made
+
+
 if __name__ == "__main__":
-    outdir = os.path.join(D, "_dict")
+    outdir = os.path.join(D, "_dict_daily")
     os.makedirs(outdir, exist_ok=True)
-    card("ر ح م", "r · h · m", ["mercy", "the womb"],
-         [("rahma", "mercy"), ("rahim", "the womb"), ("ar-Rahman", "the most merciful")],
-         "Mercy and the womb are the same three letters. Your first home was named after His mercy.",
-         "Qur'an 7:156  ·  classical dictionaries of Arabic", 1,
-         os.path.join(outdir, "dict_rahma.jpg"))
-    card("ص ب ر", "s · b · r", ["to restrain", "to hold in place"],
-         [("sabr", "patience"), ("sabir", "one who endures"), ("sabbar", "deeply steadfast")],
-         "Patience is not waiting. Its root means to hold something firmly in place.",
-         "Qur'an 39:10  ·  classical dictionaries of Arabic", 15,
-         os.path.join(outdir, "dict_sabr.jpg"))
-    print("wrote dict cards ->", outdir)
+    m = build_all(outdir)
+    print("wrote", len(m), "daily dictionary cards ->", outdir)
