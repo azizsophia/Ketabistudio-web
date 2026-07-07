@@ -140,6 +140,42 @@ def _defs(gloss):
     return [p for p in parts if p][:2]
 
 
+# Hand-written per root: real definitions (not etymology metaphors) + one
+# standalone, heartfelt, sensible line. Meanings match the verified journal.
+CONTENT = {
+    "rahma":   (["mercy", "the womb"], "Mercy and the womb share one root. Your first home was named after His mercy."),
+    "qalb":    (["the heart", "to turn over"], "The heart is named for its turning. If yours keeps turning, it is working, not broken."),
+    "fitra":   (["original nature"], "Your fitra is the faith you were born knowing. You do not build it, you return to it."),
+    "nur":     (["light"], "You do not look at light. You look by it. His guidance works the same way."),
+    "huda":    (["guidance"], "Guidance is a companion who knows the road, walking ahead of you in the dark."),
+    "kataba":  (["to write", "to decree"], "In Arabic, to write and to decree are one word. Your story has an Author."),
+    "khalq":   (["creation", "character"], "Creation and character share a root. Your character is a made thing, and it can be remade."),
+    "dhikr":   (["remembrance"], "In the remembrance of Allah, hearts find the rest they were looking for everywhere else."),
+    "dua":     (["to call out"], "Du'a means to call out. You are not filing a request, you are calling, and He is near."),
+    "ibadah":  (["worship", "devotion"], "A road grows smooth the more it is walked. So does worship. Keep walking."),
+    "shukr":   (["gratitude"], "Gratitude is not the receipt for a blessing. It is the seed of the next one."),
+    "sadaqah": (["charity", "truthfulness"], "Charity shares a root with truthfulness. Giving is faith caught being honest."),
+    "taqwa":   (["God-consciousness"], "Taqwa is not fear. Its root is a shield: awareness of Him carried close, like armour."),
+    "barakah": (["blessing"], "Barakah is what makes a little go far. Some homes have less, and hold so much more."),
+    "sabr":    (["patience"], "Sabr means to hold firm. It is the strength that keeps you standing while the storm argues."),
+    "yusr":    (["ease"], "The Qur'an does not say ease comes after hardship. It says ease is with it, on the same road."),
+    "tawakkul":(["trust", "reliance"], "Tie your camel, do your work, then hand Allah the one part that was never yours: the outcome."),
+    "sakinah": (["tranquility"], "Sakinah is a calm that moves in and stays, sent down into hearts in the middle of the storm."),
+    "iman":    (["faith", "safety"], "Faith and safety are one root. Belief is not a stance you defend, it is a shelter you live in."),
+    "dunya":   (["the worldly life"], "Arabic calls this life the nearer one, beautiful sometimes, but never the destination."),
+    "rizq":    (["provision"], "Rizq is anything that reaches you and does you good. All of it given, none of it owed."),
+    "wadud":   (["the Loving"], "Al-Wadud is love you can point to. His love for you leaves evidence, go and find it today."),
+    "latif":   (["the Subtle", "gentle"], "Al-Latif is gentle with the hidden. He is tender with the weight you never mention."),
+    "hanan":   (["tenderness"], "Your softness is not a flaw. The Qur'an calls it a gift, tenderness from His presence."),
+    "jamil":   (["beauty"], "Yaqub called his grief a beautiful patience. Arabic lets a wound and beauty share a sentence."),
+    "karim":   (["noble", "generous"], "Karam is generosity from greatness of soul. Give beyond reason, and you resemble something high."),
+    "ilm":     (["knowledge"], "The world shares a root with knowledge: it is how its Maker is known. Every sign is a lesson."),
+    "jannah":  (["the Garden"], "The Garden's root means hidden. What you cannot see is not missing, it is being kept for you."),
+    "salam":   (["peace", "wholeness"], "Salam means wholeness, not just quiet. To greet someone with it is to wish them unbroken."),
+    "ridwan":  (["His good pleasure"], "The Qur'an says His pleasure is greater than Paradise itself. That is where the language leads."),
+}
+
+
 def build_all(outdir):
     import sys
     sys.path.insert(0, os.path.join(D, "etsy"))
@@ -148,14 +184,11 @@ def build_all(outdir):
     for i, day in enumerate(DAYS, 1):
         letters = day["letters"]
         tr = " · ".join(AR_TR.get(c, c) for c in letters.split())
-        # use the heartfelt payoff (the story's closing line), not the blunt
-        # opener; if the closing line is a short fragment, keep the one before it
-        _sents = [s for s in day["story"].rstrip(".").split(". ") if s]
-        line = (_sents[-1] if len(_sents[-1]) >= 32 else ". ".join(_sents[-2:])) + "."
-        cite = day["citation"].split("·")[0].strip()   # source only; value prop is its own footer line
+        cite = day["citation"].split("·")[0].strip()   # source only
         key = day["translit"].lower().split("·")[0].strip().replace("al-", "").replace("'", "").split()[0]
+        defs, line = CONTENT[key]
         out = os.path.join(outdir, f"day_{i:02d}_{key}.jpg")
-        card(letters, tr, _defs(day["gloss"]), [], line, cite, i, out)  # [] = no tree yet
+        card(letters, tr, defs, [], line, cite, i, out)  # [] = no tree yet
         made.append((i, key, out))
     return made
 
