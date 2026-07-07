@@ -48,19 +48,35 @@ def card(letters, translit, defs, branches, line, cite, num, out):
     _sp(d, f"N.º {num:02d}", f_lab, FAINT, W - M, 84, 4, "r")
     d.line([(M, 128), (W - M, 128)], fill=INK, width=2)
 
-    # the root, large, structural
-    f_root = ImageFont.truetype(AMIRI, 200)
-    bb = d.textbbox((0, 0), letters, font=f_root)
-    rw = d.textlength(letters, font=f_root)
+    # the root, large and structural. Draw each letter at a fixed centre so its
+    # transliteration lines up exactly beneath it. Arabic is RTL, so the first
+    # root letter sits at the RIGHTMOST centre.
+    f_root = ImageFont.truetype(AMIRI, 190)
+    f_tr = ImageFont.truetype(SANS, 30)
     ry = 300
-    d.text(((W - rw) / 2, ry - bb[1]), letters, font=f_root, fill=INK)
-    # transliteration under it
-    f_tr = ImageFont.truetype(SANS, 26)
-    _sp(d, translit.upper(), f_tr, ACCENT, W / 2, ry + 190, 8)
+    al = letters.split()                              # ['ر','ح','م'] root order
+    tl = [t.strip() for t in translit.split("·")]     # ['r','h','m']
+    nL = len(al)
+    gap = 178
+    xs = [W / 2 + gap * (k - (nL - 1) / 2) for k in range(nL)]  # left->right
+    maxbot = ry
+    letters_x = []
+    for k in range(nL):
+        x = xs[nL - 1 - k]                            # RTL: root[k] -> right side
+        w = d.textlength(al[k], font=f_root)
+        d.text((x - w / 2, ry), al[k], font=f_root, fill=INK)
+        bb = d.textbbox((x - w / 2, ry), al[k], font=f_root)
+        maxbot = max(maxbot, bb[3])
+        letters_x.append(x)
+    # transliteration, aligned under each letter, clear of the glyph bodies
+    tr_y = maxbot + 26
+    for k in range(nL):
+        if k < len(tl):
+            _sp(d, tl[k].upper(), f_tr, ACCENT, xs[nL - 1 - k], tr_y, 4)
 
     # definitions, numbered like a dictionary entry
     f_def = ImageFont.truetype(LORA, 40)
-    dy = ry + 250
+    dy = tr_y + 66
     for i, dfn in enumerate(defs, 1):
         _sp(d, f"{i}.  {dfn}", f_def, INK, W / 2, dy, 0)
         dy += 56
