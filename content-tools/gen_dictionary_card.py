@@ -68,11 +68,17 @@ def card(letters, translit, defs, branches, line, cite, num, out):
         bb = d.textbbox((x - w / 2, ry), al[k], font=f_root)
         maxbot = max(maxbot, bb[3])
         letters_x.append(x)
-    # per-letter transliteration under each root letter (clear ayn/hamza glyphs)
+    # per-letter transliteration under each root letter. ayn/hamza are tiny
+    # half-ring glyphs, so draw them larger and slightly raised to read as letters.
     tr_y = maxbot + 28
+    f_mark = ImageFont.truetype(SANS, 58)
     for k in range(nL):
         if k < len(tl):
-            _sp(d, tl[k].upper(), f_tr, ACCENT, xs[nL - 1 - k], tr_y, 4)
+            ch = tl[k].upper()
+            if ch in ("ʿ", "ʾ"):
+                _sp(d, ch, f_mark, ACCENT, xs[nL - 1 - k], tr_y - 16, 0)
+            else:
+                _sp(d, ch, f_tr, ACCENT, xs[nL - 1 - k], tr_y, 4)
 
     # definitions, numbered like a dictionary entry
     f_def = ImageFont.truetype(LORA, 40)
