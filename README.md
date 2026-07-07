@@ -1198,3 +1198,71 @@ fast. Claude-side: comment-reply drafts, more reels from journal roots (every
 root = an ad), Substack essay per week ends with journal CTA, watch
 /api/etsy/orders (needs one re-auth for transactions_r — STILL PENDING) and
 Gumroad /v2/sales for personalized orders to render+deliver.
+
+---
+
+# LIVING DICTIONARY REBRAND + SOCIAL ENGINE (2026-07-07, evening)
+
+Owner felt the beige/gold/Playfair look (and the dark filmic social posts) read
+as "AI / same as everyone" (esp. vs niyatapp.com, an adjacent Islamic app). New
+content identity = **"A Living Dictionary"**: ink on warm paper, editorial serif
+(Cormorant italic for the shareable line, Lora for defs), oxblood/terracotta
+accent, NO photo-quote formula. The SITE palette (forest/cream/gold in
+`app/globals.css`) is KEPT per owner ("I kind of like what I have"); only a
+luxury-font swap is pending + shown-first.
+
+## Renderers (content-tools/)
+- `gen_dictionary_card.py` — the daily Threads card. 1080x1350, root letters
+  (RTL, verified from `journal_data`), per-letter translit (ayn/hamza = clear
+  apostrophe, option B), numbered real definitions + heartfelt line (both
+  HAND-WRITTEN in the `CONTENT` dict — do NOT auto-extract from story, that
+  shipped nonsense once), footer tagline "the language of the Qur'an, one root at
+  a time" + source citation. `build_all()` renders all 30.
+- `gen_dict_carousel.py` — IG/FB 4-slide carousel (hook / meaning / line / CTA),
+  same identity. CTA slide can pitch the journal.
+- `gen_dict_reel.py` — LIGHT reel (kinetic typography on paper), replaces the old
+  DARK `gen_root_reel.py` (that dark style is retired — off-brand now). Scenes:
+  root -> meaning -> line -> journal CTA. ~11s, cross-faded, subtle zoom.
+- `gen_varied_mockup.py` — Etsy listing heroes with a bold readable headline +
+  benefits callout (thumbnail-legible). LIVE on all 9 listings.
+- Reel COVERS: `gen_reel_cover.py` (30, gold Amiri, unique bg each).
+
+## What is LIVE / SCHEDULED
+- **Etsy:** 11 titles rewritten (front-loaded buyer phrases, Aug-2025 SEO) +
+  9 captioned varied mockups pushed live as rank-1 heroes.
+- **Threads schedule:** 30 dictionary cards, 1/day at **22:00 UTC (5pm CDT)**,
+  Jul 7 (fitra) -> Aug 5. Order front-loads wide-resonating roots; **rahma +
+  qalb LAST** (owner felt overdone). platforms=`th` only.
+- **IG/FB:** moving to 2/day — carousel 13:00 UTC (8am CDT) + reel 19:00 UTC
+  (2pm CDT). First carousel (sabr) went out 07-07. Reels render in batches
+  (video ~2min each). Old dark qalb reel to be PULLED.
+- **Substack:** 30 paste-ready Notes (`substack_notes_month.md`).
+
+## Poster changes (app/api/cron/social) — all merged (PR #90/#91/#92)
+- Threads gated on `platforms.includes("th")` so ig,fb stays OFF Threads.
+- IG reel `cover_url` = 2nd (image) URL space-separated in `image_url`.
+- 4 cron windows (10/13/19/22 UTC) in vercel.json + GH action.
+- `/api/social/photo` gated image host (also reuse live `/api/cards/photo`).
+- HEIC decode in worker (pillow-heif); storybook price-display fix.
+
+## Journal promotion (in progress)
+Carousel/reel CTA slides pitch the journal ("one of thirty roots, full journal on
+Etsy"); ~1-in-5 sell ratio; weekly journal spotlight planned.
+
+## PENDING when owner usage resets (owner asked, deferred honestly)
+1. Journal LANDING PAGE on own site + **Stripe checkout** (Substack voice, link
+   Substack). 2. Journal section on `/coming-soon`, pretty. 3. **SEO** (titles,
+   meta, OG, keywords). 4. **Luxury font** on live site (show-first). 5. Root-TREE
+   branches back on cards (needs the derived-word verification agent — it hit the
+   session limit; do NOT ship unverified Arabic). 6. Batch remaining reels +
+   carousels for the 2/day IG.
+
+## HONEST verdict logged — "Muslim intentional travel guide/journal" idea
+Owner asked (07-07). NOT blue-ocean: Muslim city guides (HalalTrip etc.) +
+travel journals (one of Etsy's most saturated categories) both exist; "aesthetic
+Muslim travel journal" lane has players. Bigger issues for Ketabi: departs from
+the verified-language moat, heavy/again-stale accuracy burden (brand promise is
+"every source cited"), and splits focus mid-launch. Advice: not next; sell the
+journal first; a "bridge" product should EXTEND the language edge. Offer standing:
+run the adversarial refute-search (like the journal "first of its kind" check)
+before any build.
