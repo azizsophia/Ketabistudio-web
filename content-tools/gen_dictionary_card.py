@@ -117,7 +117,10 @@ def card(letters, translit, defs, branches, line, cite, num, out):
         w = d.textlength(t, font=f_line)
         d.text(((W - w) / 2, ly), t, font=f_line, fill=INK); ly += 46
 
-    # footer: citation like a scholarly source line
+    # footer: value-prop line (its own row so it never collides), then the
+    # source citation left + wordmark right
+    _sp(d, "VERIFIED AGAINST THE CLASSICAL DICTIONARIES OF ARABIC",
+        ImageFont.truetype(SANS, 16), FAINT, W / 2, H - 196, 3)
     d.line([(M, H - 150), (W - M, H - 150)], fill=INK, width=2)
     f_cite = ImageFont.truetype(SANS, 20)
     _sp(d, cite, f_cite, FAINT, M, H - 128, 2, "l")
@@ -149,7 +152,7 @@ def build_all(outdir):
         # opener; if the closing line is a short fragment, keep the one before it
         _sents = [s for s in day["story"].rstrip(".").split(". ") if s]
         line = (_sents[-1] if len(_sents[-1]) >= 32 else ". ".join(_sents[-2:])) + "."
-        cite = day["citation"].split("·")[0].strip() + "  ·  classical dictionaries of Arabic"
+        cite = day["citation"].split("·")[0].strip()   # source only; value prop is its own footer line
         key = day["translit"].lower().split("·")[0].strip().replace("al-", "").replace("'", "").split()[0]
         out = os.path.join(outdir, f"day_{i:02d}_{key}.jpg")
         card(letters, tr, _defs(day["gloss"]), [], line, cite, i, out)  # [] = no tree yet
