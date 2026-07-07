@@ -71,12 +71,12 @@ def card(letters, translit, defs, branches, line, cite, num, out):
     # per-letter transliteration under each root letter. ayn/hamza are tiny
     # half-ring glyphs, so draw them larger and slightly raised to read as letters.
     tr_y = maxbot + 28
-    f_mark = ImageFont.truetype(SANS, 58)
+    f_mark = ImageFont.truetype(SANS, 52)
     for k in range(nL):
         if k < len(tl):
             ch = tl[k].upper()
-            if ch in ("ʿ", "ʾ"):
-                _sp(d, ch, f_mark, ACCENT, xs[nL - 1 - k], tr_y - 16, 0)
+            if ch == "'":   # ayn / hamza -> a clear apostrophe (option B)
+                _sp(d, "’", f_mark, ACCENT, xs[nL - 1 - k], tr_y - 12, 0)
             else:
                 _sp(d, ch, f_tr, ACCENT, xs[nL - 1 - k], tr_y, 4)
 
@@ -137,9 +137,9 @@ def card(letters, translit, defs, branches, line, cite, num, out):
     return out
 
 
-AR_TR = {"ء": "ʾ", "أ": "ʾ", "ب": "b", "ت": "t", "ث": "th", "ج": "j", "ح": "h",
+AR_TR = {"ء": "'", "أ": "'", "ب": "b", "ت": "t", "ث": "th", "ج": "j", "ح": "h",
          "خ": "kh", "د": "d", "ذ": "dh", "ر": "r", "ز": "z", "س": "s", "ش": "sh",
-         "ص": "s", "ض": "d", "ط": "t", "ظ": "z", "ع": "ʿ", "غ": "gh", "ف": "f",
+         "ص": "s", "ض": "d", "ط": "t", "ظ": "z", "ع": "'", "غ": "gh", "ف": "f",
          "ق": "q", "ك": "k", "ل": "l", "م": "m", "ن": "n", "ه": "h", "و": "w", "ي": "y"}
 
 
