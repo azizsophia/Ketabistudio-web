@@ -82,8 +82,8 @@ def slide_text(lines, italic=True, size=66):
     draw_center(d, lines, ImageFont.truetype(PLAY_IT if italic else PLAY, size), INK, H * 0.47, gap=1.32)
     wordmark(d); return im
 
-def slide_dua(arabic, translit_lines, en_lines, cite):
-    im = base(); d = ImageDraw.Draw(im); tag(d, "A DU'A FOR THE TURNING HEART")
+def slide_dua(arabic, translit_lines, en_lines, cite, tag_text="A DU'A FOR THE TURNING HEART"):
+    im = base(); d = ImageDraw.Draw(im); tag(d, tag_text)
     fa = ImageFont.truetype(AMIRI, 64)
     draw_center(d, [arabic], fa, GOLD, H * 0.30, gap=1.2)
     draw_center(d, translit_lines, ImageFont.truetype(PLAY_IT, 42), INK, H * 0.46, gap=1.3)

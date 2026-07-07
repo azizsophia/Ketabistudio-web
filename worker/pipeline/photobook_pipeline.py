@@ -46,6 +46,15 @@ from pathlib import Path
 import requests
 from PIL import Image, ImageDraw, ImageFont, ImageOps, ImageFilter
 
+# iPhones save photos as HEIC by default; register the decoder so Image.open
+# handles them transparently (a customer's iPhone upload must not fail at print).
+# Silently no-op if the wheel isn't installed so JPEG/PNG orders always render.
+try:
+    from pillow_heif import register_heif_opener
+    register_heif_opener()
+except Exception:  # noqa: BLE001
+    pass
+
 # Reuse the verified Arabic shaping + full-bleed helpers + geometry from the
 # duas engine so the dua renders identically (exact glyphs, correct RTL) and
 # the page geometry matches the existing books exactly. We deliberately do NOT

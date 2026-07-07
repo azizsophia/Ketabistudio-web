@@ -1143,3 +1143,58 @@ if it leaks, regenerate in Gumroad app settings. Account: ketabistudio.gumroad.c
 `listing-guide-dua-deck.md`. Owner published it but flagged adhkar/dua decks as
 saturated — deprioritized in favor of personalized. Deck 2 (adhkar) parked; see
 `ACCURACY_FLAGS` in deck_data.py (drop the da'if 7x-reward claim if ever built).
+
+# LAUNCH STATE (2026-07-07) — everything is LIVE
+
+## The storefront (10 products, 2 platforms)
+**Etsy (KetabiStudio, shop_id 48938263):** name print 4533437576 · dua deck
+4533400292 · **From One Root journal 4533628130 ($19, 16.9MB PDF attached via
+direct API, byte-verified)** · plus the 8 keepsake listings (teacher/hajj/birth/
+home/protect/parents/wedding/getwell — see IDs above; palette designs, $13).
+**Gumroad (5, all published, ROOTS20 = 20% off code live on all):** dua deck
+/l/pjekt · names collection /l/iimpcu · lock-screen wallpapers /l/odbbf ·
+personalized name print /l/hztxdz (REQUIRED name field) · journal /l/bzwxm $19.
+
+## The journal (flagship, both platforms)
+`content-tools/etsy/{journal_data.py, gen_journal.py, build_journal.py}` →
+64-page US-Letter PDF. 30 verified roots (two adversarial passes; hubb/"seed"
+REJECTED as fake etymology; day-9 "three times", day-15 "restrain" fixes).
+Writing pages use measured auto-fit + render-time asserts + pixel guard-band
+scan (ALL 30 overflowed before — never eyeball layout, MEASURE). Title page has
+© notice. "Lexicon" wording varied per page (owner: sounds biblical).
+Never claim bare "first of its kind": Quran Trace's "Quran Roots" journal is
+adjacent (root-based vocab journal). Safe framing: "I have never seen anything
+like it" / "the first 30-day one-root-a-day devotional with verified etymology".
+
+## Launch marketing shipped (2026-07-07)
+- Threads text post (owner-posted) + launch REEL on IG/FB/Threads.
+  IG: instagram.com/reel/DaeKGVZjBv7 (sabr hook → journal reveal; bg = Pexels
+  14503515 rain-window, now USED/retired; hires at scratchpad/premium/hires_sabr.jpg).
+- Reel CTA = "comment ROOT for the link" → reply via the comment system; canned
+  reply text in session notes. TikTok bulletin copy delivered to owner.
+- Reel renderer lesson: MEASURE every caption line (PlayfairIt 74px, max 960px
+  wide) before render; three lines clipped at first pass.
+
+## HARD-WON GOTCHAS (do not relearn)
+- **Gumroad wipes a product's FILES whenever the owner edits it in the UI**
+  (cover drag, etc.). After ANY UI edit: re-check files on all products and
+  re-attach via presign flow. Happened 5+ times.
+- Gumroad v2 API: CAN set bio (PUT /v2/user {bio}), custom_receipt, offer codes
+  (POST /products/:id/offer_codes {name,amount_off,offer_type:percent}), custom
+  fields (dedicated endpoint; DELETE by NAME). CANNOT set covers or publish.
+- Poster platform aliases: social_queue.platforms must be `ig,fb` (aliases
+  instagram/facebook now normalized in cron/social — they used to silently
+  match NOTHING and the post shipped Threads-only, which is how the launch reel
+  initially missed IG/FB).
+- Out-of-band publishing: `GET /api/social/token` + `GET /api/etsy/token`
+  (Bearer CRON_SECRET) return live creds so big uploads / long video processing
+  run from tooling, not serverless. IG reel flow: POST /{ig}/media
+  media_type=REELS → poll status_code=FINISHED → /media_publish.
+
+## SALES PLAYBOOK (current levers)
+Owner-side: Etsy sale 15-20% 2wks + Etsy Ads $2-3/day (journal+name print) +
+share to personal groups (early velocity → Etsy algo) + reply to ROOT comments
+fast. Claude-side: comment-reply drafts, more reels from journal roots (every
+root = an ad), Substack essay per week ends with journal CTA, watch
+/api/etsy/orders (needs one re-auth for transactions_r — STILL PENDING) and
+Gumroad /v2/sales for personalized orders to render+deliver.
