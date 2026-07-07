@@ -35,3 +35,8 @@ content-tools/_reels_light/
 content-tools/_qc_*
 content-tools/_qc_rf/
 content-tools/_ig_package_payload.json
+content-tools/_threads_extra/
+content-tools/_qc_*.jpg
+content-tools/_url_cache.json
+content-tools/_master_payload.json
+content-tools/_reels_needed.log
