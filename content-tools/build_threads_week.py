@@ -137,6 +137,8 @@ def build(days, start_date):
 
 
 if __name__ == "__main__":
+    # args: [start_date] [start_root_idx] [ndays]
     start = sys.argv[1] if len(sys.argv) > 1 else "2026-07-08"
-    ndays = int(sys.argv[2]) if len(sys.argv) > 2 else 7
-    build(DAYS[:ndays], start)
+    idx = int(sys.argv[2]) if len(sys.argv) > 2 else 0
+    ndays = int(sys.argv[3]) if len(sys.argv) > 3 else 7
+    build(DAYS[idx:idx + ndays], start)
