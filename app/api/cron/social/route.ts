@@ -302,10 +302,11 @@ async function publishOne(cfg: Config, token: string, post: Post, th: ThreadsCre
       out.fb_post_id = await publishFbPhoto(cfg.meta_page_id, token, urls[0], post.caption);
     }
   }
-  // Threads mirror: same media + de-hashtagged caption. Best-effort — a
-  // Threads hiccup must never fail (and re-run) a post that already went out
-  // on IG/FB.
-  if (th) {
+  // Threads: only when the post explicitly targets "th". This keeps the
+  // Threads schedule and the IG/FB schedule independent (an ig,fb post must
+  // NOT also appear on Threads). Best-effort — a Threads hiccup must never
+  // fail (and re-run) a post that already went out on IG/FB.
+  if (th && platforms.includes("th")) {
     try {
       out.th_post_id = await publishThreads(
         th,

@@ -4,8 +4,12 @@
 # composition (hung on a wall vs leaning on a wood ledge) so the shop GRID reads
 # as distinct products. Brand-controlled, no stock photos. 1080x1080 hero.
 import os
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 import numpy as np
+
+_HERE = os.path.dirname(os.path.abspath(__file__))
+_FONTS = os.path.join(_HERE, "..", "..", "worker", "fonts")
+PLAY = os.path.join(_FONTS, "PlayfairDisplay.ttf")
 
 SCR = "/tmp/claude-0/-home-user-Ketabistudio-web/cd7de56a-bf46-5546-8ecd-6e0295c3376d/scratchpad"
 W = H = 1080
@@ -55,18 +59,19 @@ def _shadow(size, offset, blur, alpha):
     return sh.filter(ImageFilter.GaussianBlur(blur))
 
 
-def hung(art, out, wall, frame_style, fw=600):
-    """Print hung centred on a wall."""
+def hung(art, out, wall, frame_style, fw=520, text_bottom=0):
+    """Print hung centred on a wall (nudged below any top callout text)."""
     im = _wall(wall).convert("RGBA")
     fl = _framed(art, fw, frame_style)
-    fx, fy = (W - fl.width) // 2, (H - fl.height) // 2 - 8
+    fx = (W - fl.width) // 2
+    fy = max((H - fl.height) // 2 - 8, text_bottom + 20)
     im = Image.alpha_composite(im, _shadow((fl.width, fl.height), (fx + 14, fy + 20), 20, 80))
     im.alpha_composite(fl, (fx, fy))
     im.convert("RGB").save(out, quality=92)
     return out
 
 
-def leaning(art, out, wall, frame_style, ledge=(196, 176, 150), fw=560):
+def leaning(art, out, wall, frame_style, ledge=(196, 176, 150), fw=520, text_bottom=0):
     """Print leaning on a wood ledge, gallery style."""
     # build wall + ledge in RGB, then move to RGBA for compositing
     ly = int(H * 0.80)
@@ -78,7 +83,7 @@ def leaning(art, out, wall, frame_style, ledge=(196, 176, 150), fw=560):
     im = Image.fromarray(np.clip(la, 0, 255).astype("uint8")).convert("RGBA")
     fl = _framed(art, fw, frame_style)
     fx = (W - fl.width) // 2 + 6
-    fy = ly - fl.height + 6
+    fy = max(ly - fl.height + 6, text_bottom + 24)
     # contact shadow under the frame on the ledge + soft cast up the wall
     im = Image.alpha_composite(im, _shadow((fl.width, 40), (fx - 4, ly - 10), 16, 120))
     im = Image.alpha_composite(im, _shadow((fl.width, fl.height), (fx + 22, fy + 8), 26, 55))
@@ -86,6 +91,73 @@ def leaning(art, out, wall, frame_style, ledge=(196, 176, 150), fw=560):
     im.convert("RGB").save(out, quality=92)
     return out
 
+
+def _ink_for(wall):
+    # dark ink that reads on a light wall; keep it warm-neutral
+    return (46, 42, 36)
+
+
+def callout(im, headline, benefits, draw=True):
+    """Bold, thumbnail-legible marketing text at the top: a short headline over
+    a gold rule over a spaced benefits line. Returns the bottom y of the block.
+    With draw=False it only measures (so the frame can be placed below it)."""
+    d = ImageDraw.Draw(im)
+    ink = (46, 42, 36)
+    gold = (176, 140, 66)
+    # headline (Playfair), auto-shrink so it fits in at most two lines
+    size = 62
+    f = ImageFont.truetype(PLAY, size)
+    words = headline.split()
+
+    def wrap(font):
+        lines, cur = [], ""
+        for w in words:
+            t = (cur + " " + w).strip()
+            if d.textlength(t, font=font) <= W - 130:
+                cur = t
+            else:
+                lines.append(cur); cur = w
+        if cur:
+            lines.append(cur)
+        return lines
+    lines = wrap(f)
+    while len(lines) > 2 and size > 40:
+        size -= 4; f = ImageFont.truetype(PLAY, size); lines = wrap(f)
+    y = 60
+    for ln in lines:
+        w = d.textlength(ln, font=f)
+        if draw:
+            d.text(((W - w) / 2, y), ln, font=f, fill=ink)
+        y += int(size * 1.12)
+    # gold rule (clearly BELOW the headline block, not under a word)
+    y += 26
+    if draw:
+        d.line([(W / 2 - 46, y), (W / 2 + 46, y)], fill=gold, width=3)
+    y += 22
+    # benefits, letter-spaced small caps
+    fb = ImageFont.truetype(PLAY, 27)
+    txt = benefits.upper()
+    tw = sum(d.textlength(c, font=fb) + 3 for c in txt) - 3
+    x = (W - tw) / 2
+    for c in txt:
+        if draw:
+            d.text((x, y), c, font=fb, fill=(96, 88, 76))
+        x += d.textlength(c, font=fb) + 3
+    return int(y + 46)  # bottom of the text block
+
+
+# per-product marketing copy for the hero: (headline, benefits line)
+COPY = {
+    "teacher": ("For the One Who Taught You Qur'an", "personalized  ·  hadith sourced  ·  printable"),
+    "hajj":    ("Hajj Mabrur, Made Personal", "their name & year  ·  instant download"),
+    "birth":   ("A Name Written for Your Baby", "birth date  ·  qur'an dua  ·  printable"),
+    "home":    ("A Blessing Over Your Home", "family name  ·  qur'an 23:29  ·  printable"),
+    "protect": ("A Dua of Protection, Named", "child's name  ·  sahih hadith  ·  printable"),
+    "parents": ("For the Ones Who Raised You", "qur'an 17:24  ·  personalized  ·  printable"),
+    "wedding": ("The Nikah Verse, Personalized", "mawaddah wa rahmah  ·  qur'an 30:21"),
+    "getwell": ("A Shifa Dua, Personalized", "their name  ·  sahih al-bukhari  ·  printable"),
+    "name":    ("A Name Written Into the Qur'an", "verified ayah  ·  personalized  ·  instant download"),
+}
 
 # product -> (source art, wall tone, frame style, composition)
 CONFIG = {
@@ -104,9 +176,19 @@ CONFIG = {
 def render(key, out):
     art_path, wall, fstyle, comp = CONFIG[key]
     art = Image.open(art_path).convert("RGB")
+    headline, benefits = COPY[key]
+    # measure the real callout height (1- or 2-line headline) so the frame
+    # always sits BELOW the text instead of running through it
+    scratch = Image.new("RGB", (W, H))
+    tb = callout(scratch, headline, benefits, draw=False)
     if comp == "hung":
-        return hung(art, out, wall, fstyle)
-    return leaning(art, out, wall, fstyle)
+        hung(art, out, wall, fstyle, fw=460, text_bottom=tb)
+    else:
+        leaning(art, out, wall, fstyle, fw=400, text_bottom=tb)
+    im = Image.open(out).convert("RGBA")
+    callout(im, headline, benefits)
+    im.convert("RGB").save(out, quality=92)
+    return out
 
 
 if __name__ == "__main__":
