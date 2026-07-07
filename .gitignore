@@ -31,3 +31,7 @@ content-tools/_dict_daily/
 content-tools/_carousels/
 content-tools/_reelframes/
 content-tools/_reel_*.mp4
+content-tools/_reels_light/
+content-tools/_qc_*
+content-tools/_qc_rf/
+content-tools/_ig_package_payload.json
