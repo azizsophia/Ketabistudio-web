@@ -68,10 +68,11 @@ def card(letters, translit, defs, branches, line, cite, num, out):
         bb = d.textbbox((x - w / 2, ry), al[k], font=f_root)
         maxbot = max(maxbot, bb[3])
         letters_x.append(x)
-    # the transliterated WORD, centred and readable (e.g. DUA, IMAN) — not the
-    # per-letter root consonants, which read as broken gibberish to most people
-    tr_y = maxbot + 32
-    _sp(d, translit.upper(), f_tr, ACCENT, W / 2, tr_y, 8)
+    # per-letter transliteration under each root letter (clear ayn/hamza glyphs)
+    tr_y = maxbot + 28
+    for k in range(nL):
+        if k < len(tl):
+            _sp(d, tl[k].upper(), f_tr, ACCENT, xs[nL - 1 - k], tr_y, 4)
 
     # definitions, numbered like a dictionary entry
     f_def = ImageFont.truetype(LORA, 40)
@@ -100,12 +101,13 @@ def card(letters, translit, defs, branches, line, cite, num, out):
         d.line([(W / 2 - 46, dy + 40), (W / 2 + 46, dy + 40)], fill=ACCENT, width=3)
         line_anchor = dy + 100
 
-    # editorial sentence
-    f_line = ImageFont.truetype(os.path.join(F, "Lora.ttf"), 33)
+    # editorial sentence — the quotable heart of the card, set larger in an
+    # elegant italic serif so it is the thing people screenshot and share
+    f_line = ImageFont.truetype(os.path.join(F, "Cormorant-Italic.ttf"), 52)
     words, ln, cur = line.split(), [], ""
     for w in words:
         t = (cur + " " + w).strip()
-        if d.textlength(t, font=f_line) <= W - 2 * M - 60:
+        if d.textlength(t, font=f_line) <= W - 2 * M - 10:
             cur = t
         else:
             ln.append(cur); cur = w
@@ -114,7 +116,7 @@ def card(letters, translit, defs, branches, line, cite, num, out):
     ly = line_anchor
     for t in ln:
         w = d.textlength(t, font=f_line)
-        d.text(((W - w) / 2, ly), t, font=f_line, fill=INK); ly += 46
+        d.text(((W - w) / 2, ly), t, font=f_line, fill=INK); ly += 58
 
     # footer: an aesthetic italic line (shareable), then source + wordmark
     f_tag = ImageFont.truetype(os.path.join(F, "Cormorant-Italic.ttf"), 40)
@@ -183,11 +185,12 @@ def build_all(outdir):
     made = []
     for i, day in enumerate(DAYS, 1):
         letters = day["letters"]
+        tr = " · ".join(AR_TR.get(c, c) for c in letters.split())
         cite = day["citation"].split("·")[0].strip()   # source only
         key = day["translit"].lower().split("·")[0].strip().replace("al-", "").replace("'", "").split()[0]
         defs, line = CONTENT[key]
         out = os.path.join(outdir, f"day_{i:02d}_{key}.jpg")
-        card(letters, key, defs, [], line, cite, i, out)  # key = readable word; [] = no tree yet
+        card(letters, tr, defs, [], line, cite, i, out)  # per-letter translit; [] = no tree yet
         made.append((i, key, out))
     return made
 
