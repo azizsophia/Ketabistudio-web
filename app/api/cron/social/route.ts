@@ -267,9 +267,13 @@ async function publishFbVideo(
 // Publish one post to whichever platforms it targets. Throws on failure of a
 // core platform (IG/FB); the Threads mirror is best-effort and never blocks.
 async function publishOne(cfg: Config, token: string, post: Post, th: ThreadsCreds | null) {
+  // Normalize aliases so "instagram"/"facebook" behave like "ig"/"fb" — the
+  // long names used to silently match nothing and the post shipped to Threads only.
+  const ALIAS: Record<string, string> = { instagram: "ig", facebook: "fb", threads: "th" };
   const platforms = String(post.platforms || "ig,fb")
     .split(",")
-    .map((s) => s.trim());
+    .map((s) => s.trim().toLowerCase())
+    .map((s) => ALIAS[s] || s);
   const out: {
     ig_media_id?: string;
     ig_permalink?: string;
