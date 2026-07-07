@@ -103,43 +103,89 @@ def cover(letters, bg_path, out_path, size=300):
     return out_path
 
 
-# ── SHOWCASE: one cover per themed root, each on a DISTINCT background ────────
-BG = os.path.join(os.path.dirname(D), "..") if False else \
-    "/tmp/claude-0/-home-user-Ketabistudio-web/cd7de56a-bf46-5546-8ecd-6e0295c3376d/scratchpad/bgboard"
+# ── ALL 30 roots, each on a DISTINCT background (no repeats — owner rule) ─────
+SCR = "/tmp/claude-0/-home-user-Ketabistudio-web/cd7de56a-bf46-5546-8ecd-6e0295c3376d/scratchpad"
+BGBOARD = os.path.join(SCR, "bgboard")
+PREMIUM = os.path.join(SCR, "premium")
 
-SHOWCASE = [
-    ("sabr",    "ص ب ر", "sabr_bluehour_18006779.jpg"),
-    ("nur",     "ن و ر", "nur_light_19149954.jpg"),
-    ("qalb",    "ق ل ب", "qalb_candle_37764589.jpg"),
-    ("iman",    "أ م ن", "iman_lantern_29898798.jpg"),
-    ("shukr",   "ش ك ر", "shukr_lamp_26611510.jpg"),
-    ("dhikr",   "ذ ك ر", "dhikr_tasbih_36855575.jpg"),
-    ("sadaqah", "ص د ق", "sadaqah_dates_37417612.jpg"),
-    ("salam",   "س ل م", "salam_dawn_27671434.jpg"),
-    ("khalq",   "خ ل ق", "khalq_earth_29047311.jpg"),
-    ("jannah",  "ج ن ن", "jann_shaft_30335237.jpg"),
-]
+# Roots that have a hand-matched themed background get one explicitly.
+THEMED = {
+    "sabr":    (BGBOARD, "sabr_bluehour_18006779.jpg"),
+    "nur":     (BGBOARD, "nur_light_19149954.jpg"),
+    "qalb":    (BGBOARD, "qalb_candle_37764589.jpg"),
+    "iman":    (BGBOARD, "iman_lantern_29898798.jpg"),
+    "shukr":   (BGBOARD, "shukr_lamp_26611510.jpg"),
+    "dhikr":   (BGBOARD, "dhikr_tasbih_36855575.jpg"),
+    "sadaqah": (BGBOARD, "sadaqah_dates_37417612.jpg"),
+    "salam":   (BGBOARD, "salam_dawn_27671434.jpg"),
+    "khalq":   (BGBOARD, "khalq_earth_29047311.jpg"),
+    "jannah":  (BGBOARD, "jann_shaft_30335237.jpg"),
+}
+
+
+# Hand-picked overrides for roots whose auto-assigned generic bg was off-brand
+# (a face, alcohol imagery) or repetitive. These still consume a pool slot so
+# every OTHER root keeps its original background — no reshuffle.
+OVERRIDE = {
+    "barakah": (BGBOARD, "qalb_candle_35410294.jpg"),   # was a woman's face
+    "rizq":    (BGBOARD, "sadaqah_dates_37417614.jpg"),  # was a wine bottle; dates = provision
+    "taqwa":   (BGBOARD, "nur_light_5909957.jpg"),       # was a shower head
+    "latif":   (BGBOARD, "jann_shaft_17703543.jpg"),     # was a twin of wadud's gold fabric
+}
+
+
+def _translit_key(translit):
+    # journal translit -> our short key (e.g. "Al-Wadud" -> "wadud", "du'a"->"dua")
+    t = translit.lower().split("·")[0].strip()
+    t = t.replace("al-", "").replace("'", "").replace("·", "").strip()
+    return t.split()[0]
+
 
 if __name__ == "__main__":
+    import sys
+    sys.path.insert(0, os.path.join(D, "etsy"))
+    from journal_data import DAYS
+
     outdir = os.path.join(D, "_reel_covers")
     os.makedirs(outdir, exist_ok=True)
+
+    # generic pool: numbered premium photos, sorted for determinism
+    pool = sorted(
+        os.path.join(PREMIUM, f) for f in os.listdir(PREMIUM)
+        if f[0].isdigit() and f.endswith(".jpg")
+    )
+    used = set(v[1] for v in THEMED.values())
+    pool = [p for p in pool if os.path.basename(p) not in used]
+    pi = 0
+
     made = []
-    for name, letters, bg in SHOWCASE:
-        bgp = os.path.join(BG, bg)
+    for day in DAYS:
+        key = _translit_key(day["translit"])
+        letters = day["letters"]
+        if key in THEMED:
+            base, fn = THEMED[key]
+            bgp = os.path.join(base, fn)
+        elif key in OVERRIDE:
+            base, fn = OVERRIDE[key]
+            bgp = os.path.join(base, fn)
+            pi += 1  # still consume a pool slot so other roots don't shift
+        else:
+            bgp = pool[pi]; pi += 1  # unique generic bg, never reused
         if not os.path.exists(bgp):
-            print("MISSING BG", bg); continue
-        out = os.path.join(outdir, f"cover_{name}.jpg")
+            print("MISSING BG for", key, bgp); continue
+        out = os.path.join(outdir, f"cover_{key}.jpg")
         cover(letters, bgp, out)
-        made.append(out)
-        print("OK", name, letters)
-    # contact sheet
-    cols, tw = 5, 300
+        made.append((key, out))
+        print("OK", key, letters, "<-", os.path.basename(bgp))
+
+    # contact sheet (6 cols)
+    cols, tw = 6, 250
     th = int(tw * H / W)
     rows = (len(made) + cols - 1) // cols
-    sheet = Image.new("RGB", (tw * cols + (cols + 1) * 10, th * rows + (rows + 1) * 10), (18, 18, 18))
-    for i, p in enumerate(made):
+    sheet = Image.new("RGB", (tw * cols + (cols + 1) * 8, th * rows + (rows + 1) * 8), (18, 18, 18))
+    for i, (k, p) in enumerate(made):
         r, c = divmod(i, cols)
         sheet.paste(Image.open(p).resize((tw, th), Image.LANCZOS),
-                    (10 + c * (tw + 10), 10 + r * (th + 10)))
-    sheet.save(os.path.join(D, "_reel_covers_sheet.jpg"), quality=92)
+                    (8 + c * (tw + 8), 8 + r * (th + 8)))
+    sheet.save(os.path.join(D, "_reel_covers_sheet.jpg"), quality=90)
     print("SHEET", len(made), "covers ->", outdir)
