@@ -29,12 +29,16 @@ human.
 7. **No "romanticize your deen" / softlife framing.** Keep it genuinely
    Islamic: turn to Allah, dhikr, amanah, tawakkul, kept warm and human.
 8. **Premium, not discount-y.** No "20% off" in bios or most posts. Soft CTA:
-   "Be first when we open, link in bio." Signature line "sealed with a dua"
-   used rarely, never on everything.
+   "Be first when we open, link in bio." (RETIRED: do not use "sealed with
+   a dua" anywhere — owner asked to stop it.)
 9. **No Star of David / six-pointed star. No identifiable people in imagery.**
 10. **QC EVERYTHING with your own eyes before it ships**: contact sheet for
     visuals (check RTL direction of Arabic, diacritics, collisions, legibility),
     em-dash grep for copy, source check for claims. The owner's standing rule.
+11. **ALWAYS SHOW THE OWNER FIRST — never publish anything live without her
+    explicit go.** Applies everywhere: social posts (schedule but show first),
+    Substack, and Etsy. **Etsy listings are created as DRAFTS only**; the owner
+    reviews, then approves the flip to public. No auto-publish, ever.
 
 ## Sentence music (how it actually sounds)
 - Short declaratives that land, then one long line that breathes. Example
@@ -82,7 +86,12 @@ So every post is built to earn one of those, on purpose:
 **Carousel:** slide 1 hook claim → root/evidence slides → emotional turn →
 verified du'a/ayah if applicable → brand close slide.
 **Substack essay (~500-700 words):** question hook → the linguistic unfolding
-with Arabic inline → "here is the part that undoes me" turn → the payoff for
-the reader's actual life → founder sign-off with waitlist link → Sources list.
+with Arabic inline → the fact->feeling TURN → the payoff for the reader's actual
+life → founder sign-off with waitlist link → Sources list.
+  - **The turn: write a FRESH, natural bridge every single essay.** NEVER reuse a
+    stock signpost across posts (e.g. "here is the part that undoes me",
+    "once you see it you can't unsee it") — repetition reads as an AI formula.
+    Best is often no signpost at all; just let the sentence land. Make it human
+    and specific to THIS word/idea.
 **Reel:** beat 1 + beat 2 (setup, shown together) → beat 3 (payoff) → held
 KETABI STUDIO end card.

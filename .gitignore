@@ -9,7 +9,6 @@ next-env.d.ts
 # Python
 __pycache__/
 *.pyc
-
 # social render artifacts
 content-tools/_iframes/
 content-tools/*.mp4
@@ -19,5 +18,27 @@ content-tools/*.log
 content-tools/_carousel_*/
 content-tools/_carousel_*preview.jpg
 content-tools/z.png
-content-tools/_*.png
 content-tools/*_show.jpg
+content-tools/_reel_covers/
+content-tools/_reel_covers_sheet.jpg
+content-tools/etsy/_mockups/
+content-tools/etsy/_mockups_sheet.jpg
+content-tools/_threads_week/
+content-tools/_threads_week_sheet.jpg
+content-tools/_ig_month/
+content-tools/_dict/
+content-tools/_dict_daily/
+content-tools/_carousels/
+content-tools/_reelframes/
+content-tools/_reel_*.mp4
+content-tools/_reels_light/
+content-tools/_qc_*
+content-tools/_qc_rf/
+content-tools/_ig_package_payload.json
+content-tools/_threads_extra/
+content-tools/_qc_*.jpg
+content-tools/_url_cache.json
+content-tools/_master_payload.json
+content-tools/_reels_needed.log
+content-tools/_dua_wallpaper_sample.jpg
+content-tools/_dua_wallpapers/

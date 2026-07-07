@@ -7,6 +7,7 @@ import styles from "./OrderSection.module.css";
 import {
   SOFTCOVER_PRICE_DISPLAY,
   HARDCOVER_PRICE_DISPLAY,
+  bookPriceDisplay,
 } from "@/lib/pricing";
 
 const MAX_NAME = 14;
@@ -531,7 +532,7 @@ export default function OrderSection({ slug, personalized }: Props) {
               <span>
                 {personalized && coverType === "hardcover"
                   ? HARDCOVER_PRICE_DISPLAY
-                  : SOFTCOVER_PRICE_DISPLAY}
+                  : bookPriceDisplay(slug)}
               </span>
             </div>
             <div className={styles.priceRow}>
@@ -543,7 +544,7 @@ export default function OrderSection({ slug, personalized }: Props) {
               <span>
                 {(personalized && coverType === "hardcover"
                   ? HARDCOVER_PRICE_DISPLAY
-                  : SOFTCOVER_PRICE_DISPLAY) + (isInternational ? " + shipping" : "")}
+                  : bookPriceDisplay(slug)) + (isInternational ? " + shipping" : "")}
               </span>
             </div>
             <p className={styles.priceNote}>

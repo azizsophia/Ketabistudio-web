@@ -1,5 +1,6 @@
 psd-tools==1.10.4
 Pillow>=10.0
+pillow-heif>=0.16
 reportlab>=4.0
 pypdf>=4.0
 numpy>=1.26

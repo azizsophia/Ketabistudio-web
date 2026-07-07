@@ -963,6 +963,12 @@ render Week 1 (qalb + nūr) as motion, QC per QC-CHECKLIST.md, show owner, sched
   `.github/workflows/social-poster.yml` (free Vercel cron is unreliable).
 - `POST /api/social/video` — uploads an mp4 to Supabase card-assets, returns URL.
 - `GET /api/social/ig/stats` — real reach/saves/shares/views per post.
+- `POST /api/social/threads/delete` `{post_id}` — deletes a Threads post. NOTE:
+  the current Threads token lacks the **`threads_delete`** scope, so this returns
+  "Application does not have permission" (code 10). To enable auto-delete, owner
+  must re-generate the Threads token WITH threads_delete added (User Token
+  Generator / OAuth scope). Until then, delete stray Threads posts by hand.
+  Threads carousels now post fully (publishThreads builds child containers).
 - Comment reply systems LIVE both platforms: `/api/social/threads/replies` and
   `/api/social/ig/comments` (GET open comments, POST approved replies — "read, I
   draft, you approve, I post"). Threads creds in private storage bucket.
@@ -989,3 +995,274 @@ until verified; flagship pieces shown first.
   /cards/print, /c, /admin, /pinterest/callback`. `/terms` un-gated for the
   TikTok/Meta apps' required Terms URL. TikTok verification `.txt` is served
   because dotted paths skip the gate.
+
+# Etsy digital products (2026-07-06)
+
+> Goal: sell UNIQUE, non-saturated personalized Islamic digital downloads. Etsy
+> API key (`5ls9u9croiqu7q6klowiru15`) **APPROVED 2026-07-06** (status flipped to
+> "Personal Access", 5 QPS / 5K QPD). API integration is BUILT (see below); needs
+> a prod deploy + 3 activation steps to go live.
+
+## Etsy API — BUILT (`lib/etsy.ts` + `app/api/etsy/*`), needs activation
+OAuth2 + PKCE, mirrors the Threads pattern: keystring/secret/tokens live in the
+private `social-config/etsy.json` bucket (NEVER git). Access token auto-refreshes
+(1h life, 90-day refresh). Routes: `POST /api/etsy/config` (store keystring+secret,
+Bearer CRON_SECRET), `GET /api/etsy/authorize?key=CRON_SECRET` (owner opens →
+Etsy consent), `GET /api/etsy/callback` (token swap, the URL to register),
+`GET /api/etsy/status` (Bearer, health check → shop name). `lib/etsy.ts` helpers:
+`createDraftListing`, `uploadListingImage`, `uploadListingFile`, `publishListing`,
+`getShopId`, `etsyFetch`. **Digital listing = `type:"download"`, taxonomy_id
+68887887 (Digital Prints — verify).**
+ACTIVATION (in order): (1) merge to main / deploy to prod (callback is hardcoded
+to www.ketabistudio.com). (2) Owner registers `https://www.ketabistudio.com/api/etsy/callback`
+as an app callback URL in Etsy app settings. (3) Claude POSTs /api/etsy/config
+with keystring+secret (curl, Bearer CRON_SECRET=`ketabi-cron-2027`). (4) Owner
+opens /api/etsy/authorize?key=ketabi-cron-2027 and approves. (5) Claude verifies
+via /api/etsy/status. Then listing creation is fully automatable.
+
+### STATUS: LIVE + working (2026-07-06)
+Connected to shop **KetabiStudio (shop_id 48938263)**, token auto-refreshing.
+Full CRUD confirmed end-to-end. TWO GOTCHAS learned the hard way:
+- **`x-api-key` MUST be `keystring:shared_secret`** (colon-separated), NOT the
+  keystring alone — else every authed call fails with "Shared secret is required
+  in x-api-key header" and getShopId silently returns null.
+- **Legacy personalization fields are DEPRECATED** on the listing PATCH
+  (`is_personalizable`, `personalization_is_required`, `personalization_char_count_max`).
+  Setting "required" now needs Etsy's dedicated personalization endpoints
+  (developers.etsy.com/documentation/tutorials/personalization-mig) — not yet
+  built. Owner can toggle "Required" by hand in the listing editor.
+`POST /api/etsy/listing` (Bearer): CREATE mode (pass `listing`) or EDIT mode
+(pass `listing_id` + `update_fields`/`images`/`file`). Assets inline base64
+(keep payload <4.5MB — JPEG ~1600px, NOT PNG which blew to 38MB). Creates DRAFTS
+by default; only publishes if `publish:true`. **Listings (check before creating — DON'T duplicate):**
+- 4533437576 — name print (LIVE, 5 imgs, $13). Title now front-loads "Quran Name Meaning" (39-competitor gap).
+- 4533400292 — dua deck (LIVE).
+- 4533510568 — Qur'an teacher gift keepsake (DRAFT, $13, hadith Bukhari 5027).
+- 4533497225 — Hajj Mabrūr keepsake (DRAFT, $13, hadith Bukhari 1773/Muslim 1349).
+- 4533503399 — Muslim baby birth keepsake (DRAFT, $13, Qur'an 37:100 Ibrahim's du'a).
+- 4533517158 — Family blessed-home print (DRAFT, $13, Qur'an 23:29 Nuh's du'a).
+- 4533517194 — Islamic nursery child-protection print (DRAFT, $13, Sahih Muslim 2708).
+- 4533521396 — Dua for Parents print (DRAFT, $13, Qur'an 17:24).
+- 4533507807 — Muslim wedding "mawaddah wa rahmah" print (DRAFT, $13, Qur'an 30:21, mushaf spelling).
+- 4533521470 — Get Well / Shifa print (DRAFT, $13, Sahih al-Bukhari 5656).
+All 5 keepsake drafts: 3 imgs (framed mockup + ivory + dark) + how-it-works file,
+personalization NOT yet enabled (Etsy deprecation → owner toggles by hand).
+Content ALL verified by adversarial pass (hadith + ayat verbatim, translit fixed).
+Keepsakes rendered by `content-tools/etsy/gen_keepsake.py` (verified hadith,
+ivory+dark, personalized dedication line). Renders via `render_keepsake(entry,out,theme,sc)`.
+**Personalization can't be set via API** (Etsy deprecated the legacy fields on
+BOTH create and update) — owner toggles "Personalization: On + Required" by hand
+in the editor for the 3 personalized listings. Title rule learned: "&" allowed
+only ONCE per title. Etsy market-competition counts (supply, not demand): "quran
+name meaning" 39, "hajj mabrur gift" 7, "quran teacher gift" 333 — all low.
+
+## PRINT-FILE RULE (non-negotiable)
+No "claude", "AI", "Anthropic", or any tool name in filenames OR PDF/PNG
+metadata — owner's rule ("so people can't see"). All generators set PDF
+title/author/producer/creator = "Ketabi Studio". Verify each deliverable:
+`grep -ai "claude\|anthropic\|openai"` + check `fitz` metadata + confirm no
+AI provenance in extractable text (compressed-stream byte-hits on "AI" are
+fine; readable text must be clean).
+
+## Product 1 — "A Name Written Into the Qur'an" (personalized name print) — BUILT
+The wide-open, first-mover product. Wins NOT on meaning (parents often know it)
+but on the **verified Qur'anic connection** (the cited ayah the name's root sits
+in) + new-baby/Aqiqah gifting. Files in `content-tools/etsy/`:
+- **`gen_name_print.py`** — premium ivory 4:5 renderer. Gold Amiri name sized to
+  true glyph bbox (harakat never clip), measured vertically-centered stack,
+  auto-wraps so nothing overflows the border. Root letters render in **Amiri**
+  (Latin fonts show them as tofu boxes — the bug that was fixed). `render_name(entry,out,sc)`.
+- **`name_data.py`** — verified name library (`NAMES` dict, `LAUNCH_SET`). Every
+  entry source-checked vs quran.com by an adversarial verify pass (it caught
+  Yusuf's citation — 12:3 doesn't hold the name — now reframed). **THREE honest
+  tiers, NEVER blurred:**
+  - `tier "in"` — name literally in the Qur'an (Maryam, Yusuf, prophets, Zayd) →
+    tag "A Name Allah Placed in the Qur'an".
+  - `tier "root"` — name's root appears in a cited ayah (Noor, Aisha, Huda…) →
+    tag "A Name Written Into the Qur'an", "from the root ___". NEVER say the name
+    itself is in the Qur'an.
+  - `tier "meaning"` — Arabic name whose root is NOT in the Qur'an (e.g. Aws) →
+    tag "The Meaning of a Name": root + meaning + verified heritage note, **no
+    ayah, no Qur'anic claim ever**. This is how any Arabic name is accepted.
+  Accuracy guardrail: never conflate "root appears in the Qur'an" with "name
+  appears in the Qur'an." 24 names live; **grow the library on demand** (owner's
+  call) — each new name source-checked before it ships.
+- **`gen_name_deliverables.py`** — `make_howitworks_pdf()` (the small branded PDF
+  Etsy auto-delivers on purchase; real custom file sent per order), `make_frame_mockup()`
+  (matted frame on soft wall = listing hero), `make_print_files()` (per-order
+  print-ready PDF at 5x7/8x10/A4 300dpi + framing PNG). Needs
+  `from PIL import JpegImagePlugin; Image.init()` (JPEG codec).
+- **`listing-guide-name-print.md`** — full Etsy copy (title/tags/description) +
+  the 3-tier delivery model. **Pricing = an Etsy Variation "Print style":**
+  "With verified ayah $14" / "Name & meaning $9". Personalization ON, made-to-
+  order, 1-business-day processing. Buyer types any name → we render + send in 24h.
+
+## Product research (2026-07-06, IN FLIGHT)
+Owner (rightly) pushed back that nikah prints, khatm certificates, shahada
+keepsakes, name-tracing sheets are **all already saturated** on Etsy — my first
+pitches were intuition, not data. Running a **deep-research** workflow on real
+Etsy saturation + genuinely underserved premium gaps + whether the name-ayah
+concept is already common. NEXT: read that report, then pitch only concepts the
+data supports (differentiation = own the premium/verified-depth top of a crowded
+category, not chase "empty" niches that don't exist at Etsy's scale).
+
+# Gumroad (2026-07-06) — second sales channel
+Connected via a **personal access token** (owner generated it; used directly against
+`api.gumroad.com/v2` — NO server code, nothing to deploy). Token is NOT in git;
+if it leaks, regenerate in Gumroad app settings. Account: ketabistudio.gumroad.com.
+- **Product create/edit/delete WORKS via API** (`POST/PUT/DELETE /v2/products`).
+- **File upload flow** (the API tells you if you guess wrong): `POST /v2/files/presign`
+  {filename, file_size, content_type} → PUT each part to the returned S3 `presigned_url`
+  (capture ETag) → `POST /v2/files/complete` {upload_id, key, parts:[{part_number,etag}]}
+  → attach with `PUT /v2/products/:id` `files[][url]=<complete's file_url>`.
+- **Cover image CANNOT be set via v2 API** (preview_url/cover_url/asset_previews all
+  silently ignored) — owner drags the cover in via the Gumroad UI.
+- **Custom fields (personalization) CAN be set via API** — dedicated resource, NOT a
+  product param: `POST /v2/products/:id/custom_fields` {name, required} ·
+  `GET` same path · `DELETE /v2/products/:id/custom_fields/:NAME` (by field NAME,
+  url-encoded, not id). `custom_receipt` IS a plain product param on PUT.
+- **Personalized flow on Gumroad:** required custom field collects the name at
+  checkout → value appears on the sale (`GET /v2/sales`) → render + email the
+  real file within 24h; the instant download is the how-it-works welcome note.
+- **Fit note:** Gumroad = instant download, so ONLY fixed products (dua deck), NOT the
+  made-to-order personalized prints.
+- **Products created (all UNPUBLISHED, pending owner cover-upload + publish):**
+  - Dua deck — id `kyS7fZV9SquPoD7HiZnekg==`, `/l/pjekt`, $14, 3 files.
+  - Names Written Into the Qur'an (24-name collection PDF+zip) — `MLWYiEIeUP8gKUm5kxmeEw==`, `/l/iimpcu`, $14.
+  - Ayat for the Lock Screen (8 verified du'a/ayah wallpapers) — `lpkBCxnNjTKdBVfvqSrfew==`, `/l/odbbf`, $6.
+  - Personalized name print — `QR2k-3a5T4dMqJEQSRqcMw==`, `/l/hztxdz`, $14,
+    REQUIRED name custom field set via API, made-to-order receipt set, how-it-works
+    PDF attached. Owner: cover + publish only.
+  All fixed (non-personalized); wallpapers/names repurpose the verified renderers.
+  Light editorial covers rendered v3 (contained cards, unified soft shadow, bottom
+  breathing room — owner uploads each in the Gumroad UI). custom_receipt set on ALL products via API.
+
+## Etsy Deck 1 — "For the Hard Moments" dua deck (PUBLISHED, likely saturated)
+`content-tools/etsy/deck_data.py` (`DECK1` = 14 verified duas) +
+`content-tools/gen_dua_card.py` (ivory+dark renderer, auto-fit long duas) +
+`listing-guide-dua-deck.md`. Owner published it but flagged adhkar/dua decks as
+saturated — deprioritized in favor of personalized. Deck 2 (adhkar) parked; see
+`ACCURACY_FLAGS` in deck_data.py (drop the da'if 7x-reward claim if ever built).
+
+# LAUNCH STATE (2026-07-07) — everything is LIVE
+
+## The storefront (10 products, 2 platforms)
+**Etsy (KetabiStudio, shop_id 48938263):** name print 4533437576 · dua deck
+4533400292 · **From One Root journal 4533628130 ($19, 16.9MB PDF attached via
+direct API, byte-verified)** · plus the 8 keepsake listings (teacher/hajj/birth/
+home/protect/parents/wedding/getwell — see IDs above; palette designs, $13).
+**Gumroad (5, all published, ROOTS20 = 20% off code live on all):** dua deck
+/l/pjekt · names collection /l/iimpcu · lock-screen wallpapers /l/odbbf ·
+personalized name print /l/hztxdz (REQUIRED name field) · journal /l/bzwxm $19.
+
+## The journal (flagship, both platforms)
+`content-tools/etsy/{journal_data.py, gen_journal.py, build_journal.py}` →
+64-page US-Letter PDF. 30 verified roots (two adversarial passes; hubb/"seed"
+REJECTED as fake etymology; day-9 "three times", day-15 "restrain" fixes).
+Writing pages use measured auto-fit + render-time asserts + pixel guard-band
+scan (ALL 30 overflowed before — never eyeball layout, MEASURE). Title page has
+© notice. "Lexicon" wording varied per page (owner: sounds biblical).
+Never claim bare "first of its kind": Quran Trace's "Quran Roots" journal is
+adjacent (root-based vocab journal). Safe framing: "I have never seen anything
+like it" / "the first 30-day one-root-a-day devotional with verified etymology".
+
+## Launch marketing shipped (2026-07-07)
+- Threads text post (owner-posted) + launch REEL on IG/FB/Threads.
+  IG: instagram.com/reel/DaeKGVZjBv7 (sabr hook → journal reveal; bg = Pexels
+  14503515 rain-window, now USED/retired; hires at scratchpad/premium/hires_sabr.jpg).
+- Reel CTA = "comment ROOT for the link" → reply via the comment system; canned
+  reply text in session notes. TikTok bulletin copy delivered to owner.
+- Reel renderer lesson: MEASURE every caption line (PlayfairIt 74px, max 960px
+  wide) before render; three lines clipped at first pass.
+
+## HARD-WON GOTCHAS (do not relearn)
+- **Gumroad wipes a product's FILES whenever the owner edits it in the UI**
+  (cover drag, etc.). After ANY UI edit: re-check files on all products and
+  re-attach via presign flow. Happened 5+ times.
+- Gumroad v2 API: CAN set bio (PUT /v2/user {bio}), custom_receipt, offer codes
+  (POST /products/:id/offer_codes {name,amount_off,offer_type:percent}), custom
+  fields (dedicated endpoint; DELETE by NAME). CANNOT set covers or publish.
+- Poster platform aliases: social_queue.platforms must be `ig,fb` (aliases
+  instagram/facebook now normalized in cron/social — they used to silently
+  match NOTHING and the post shipped Threads-only, which is how the launch reel
+  initially missed IG/FB).
+- Out-of-band publishing: `GET /api/social/token` + `GET /api/etsy/token`
+  (Bearer CRON_SECRET) return live creds so big uploads / long video processing
+  run from tooling, not serverless. IG reel flow: POST /{ig}/media
+  media_type=REELS → poll status_code=FINISHED → /media_publish.
+
+## SALES PLAYBOOK (current levers)
+Owner-side: Etsy sale 15-20% 2wks + Etsy Ads $2-3/day (journal+name print) +
+share to personal groups (early velocity → Etsy algo) + reply to ROOT comments
+fast. Claude-side: comment-reply drafts, more reels from journal roots (every
+root = an ad), Substack essay per week ends with journal CTA, watch
+/api/etsy/orders (needs one re-auth for transactions_r — STILL PENDING) and
+Gumroad /v2/sales for personalized orders to render+deliver.
+
+---
+
+# LIVING DICTIONARY REBRAND + SOCIAL ENGINE (2026-07-07, evening)
+
+Owner felt the beige/gold/Playfair look (and the dark filmic social posts) read
+as "AI / same as everyone" (esp. vs niyatapp.com, an adjacent Islamic app). New
+content identity = **"A Living Dictionary"**: ink on warm paper, editorial serif
+(Cormorant italic for the shareable line, Lora for defs), oxblood/terracotta
+accent, NO photo-quote formula. The SITE palette (forest/cream/gold in
+`app/globals.css`) is KEPT per owner ("I kind of like what I have"); only a
+luxury-font swap is pending + shown-first.
+
+## Renderers (content-tools/)
+- `gen_dictionary_card.py` — the daily Threads card. 1080x1350, root letters
+  (RTL, verified from `journal_data`), per-letter translit (ayn/hamza = clear
+  apostrophe, option B), numbered real definitions + heartfelt line (both
+  HAND-WRITTEN in the `CONTENT` dict — do NOT auto-extract from story, that
+  shipped nonsense once), footer tagline "the language of the Qur'an, one root at
+  a time" + source citation. `build_all()` renders all 30.
+- `gen_dict_carousel.py` — IG/FB 4-slide carousel (hook / meaning / line / CTA),
+  same identity. CTA slide can pitch the journal.
+- `gen_dict_reel.py` — LIGHT reel (kinetic typography on paper), replaces the old
+  DARK `gen_root_reel.py` (that dark style is retired — off-brand now). Scenes:
+  root -> meaning -> line -> journal CTA. ~11s, cross-faded, subtle zoom.
+- `gen_varied_mockup.py` — Etsy listing heroes with a bold readable headline +
+  benefits callout (thumbnail-legible). LIVE on all 9 listings.
+- Reel COVERS: `gen_reel_cover.py` (30, gold Amiri, unique bg each).
+
+## What is LIVE / SCHEDULED
+- **Etsy:** 11 titles rewritten (front-loaded buyer phrases, Aug-2025 SEO) +
+  9 captioned varied mockups pushed live as rank-1 heroes.
+- **Threads schedule:** 30 dictionary cards, 1/day at **22:00 UTC (5pm CDT)**,
+  Jul 7 (fitra) -> Aug 5. Order front-loads wide-resonating roots; **rahma +
+  qalb LAST** (owner felt overdone). platforms=`th` only.
+- **IG/FB:** moving to 2/day — carousel 13:00 UTC (8am CDT) + reel 19:00 UTC
+  (2pm CDT). First carousel (sabr) went out 07-07. Reels render in batches
+  (video ~2min each). Old dark qalb reel to be PULLED.
+- **Substack:** 30 paste-ready Notes (`substack_notes_month.md`).
+
+## Poster changes (app/api/cron/social) — all merged (PR #90/#91/#92)
+- Threads gated on `platforms.includes("th")` so ig,fb stays OFF Threads.
+- IG reel `cover_url` = 2nd (image) URL space-separated in `image_url`.
+- 4 cron windows (10/13/19/22 UTC) in vercel.json + GH action.
+- `/api/social/photo` gated image host (also reuse live `/api/cards/photo`).
+- HEIC decode in worker (pillow-heif); storybook price-display fix.
+
+## Journal promotion (in progress)
+Carousel/reel CTA slides pitch the journal ("one of thirty roots, full journal on
+Etsy"); ~1-in-5 sell ratio; weekly journal spotlight planned.
+
+## PENDING when owner usage resets (owner asked, deferred honestly)
+1. Journal LANDING PAGE on own site + **Stripe checkout** (Substack voice, link
+   Substack). 2. Journal section on `/coming-soon`, pretty. 3. **SEO** (titles,
+   meta, OG, keywords). 4. **Luxury font** on live site (show-first). 5. Root-TREE
+   branches back on cards (needs the derived-word verification agent — it hit the
+   session limit; do NOT ship unverified Arabic). 6. Batch remaining reels +
+   carousels for the 2/day IG.
+
+## HONEST verdict logged — "Muslim intentional travel guide/journal" idea
+Owner asked (07-07). NOT blue-ocean: Muslim city guides (HalalTrip etc.) +
+travel journals (one of Etsy's most saturated categories) both exist; "aesthetic
+Muslim travel journal" lane has players. Bigger issues for Ketabi: departs from
+the verified-language moat, heavy/again-stale accuracy burden (brand promise is
+"every source cited"), and splits focus mid-launch. Advice: not next; sell the
+journal first; a "bridge" product should EXTEND the language edge. Offer standing:
+run the adversarial refute-search (like the journal "first of its kind" check)
+before any build.

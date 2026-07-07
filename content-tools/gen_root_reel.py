@@ -63,7 +63,7 @@ def center_scrim():
     ov[..., 0] = 10; ov[..., 1] = 11; ov[..., 2] = 9; ov[..., 3] = a * 255
     return ov
 
-def text_block(lines, font, fill, gap=1.18, glow=False):
+def text_block(lines, font, fill, gap=1.18, glow=False, cushion=False):
     # layer sized to real glyph extent (Amiri descenders were clipping); centered
     tmp = ImageDraw.Draw(Image.new("RGBA", (4, 4)))
     fs = font.size
@@ -84,6 +84,16 @@ def text_block(lines, font, fill, gap=1.18, glow=False):
         y = i * lh + off
         d.text((x, y + 2), ln, font=font, fill=(0, 0, 0, 150))
         d.text((x, y), ln, font=font, fill=fill)
+    if cushion:
+        # soft dark halo that follows the letters, so cream text stays legible
+        # even over the bright candle/flame. Built from the text's own alpha.
+        solid = Image.new("RGBA", layer.size, (7, 8, 6, 255))
+        solid.putalpha(layer.split()[3])
+        halo = solid.filter(ImageFilter.GaussianBlur(13))
+        base = Image.new("RGBA", layer.size, (0, 0, 0, 0))
+        base.alpha_composite(halo); base.alpha_composite(halo); base.alpha_composite(halo)
+        base.alpha_composite(layer)
+        return base
     if glow:
         g = layer.filter(ImageFilter.GaussianBlur(14))
         base = Image.new("RGBA", layer.size, (0, 0, 0, 0))
@@ -106,14 +116,14 @@ def render(name, bg_file, cards, end_lines, gold_arabic=True):
     for cd in cards:
         p = dict(cd)
         if cd.get("arabic"):
-            p["arabic_l"] = text_block([cd["arabic"]], f_ar, ar_fill, gap=1.0, glow=True)
-            p["small_l"] = text_block(cd["lines"], f_small, SOFT) if cd.get("lines") else None
+            p["arabic_l"] = text_block([cd["arabic"]], f_ar, ar_fill, gap=1.0, glow=True, cushion=True)
+            p["small_l"] = text_block(cd["lines"], f_small, SOFT, cushion=True) if cd.get("lines") else None
         else:
-            p["main_l"] = text_block(cd["lines"], f_en, CREAM)
+            p["main_l"] = text_block(cd["lines"], f_en, CREAM, cushion=True)
         prepped.append(p)
 
-    MK = text_block(["K E T A B I   S T U D I O"], f_mk, (224, 208, 168, 255))
-    SBL = text_block(end_lines, f_sub, SOFT)
+    MK = text_block(["K E T A B I   S T U D I O"], f_mk, (224, 208, 168, 255), cushion=True)
+    SBL = text_block(end_lines, f_sub, SOFT, cushion=True)
 
     fr = os.path.join(D, "_iframes")
     os.makedirs(fr, exist_ok=True)

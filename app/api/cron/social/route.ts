@@ -166,18 +166,23 @@ async function publishReelIg(
   ig: string,
   token: string,
   videoUrl: string,
-  caption: string
+  caption: string,
+  coverUrl?: string
 ): Promise<{ mediaId: string; permalink: string }> {
+  const params: Record<string, string> = {
+    media_type: "REELS",
+    video_url: videoUrl,
+    caption,
+    share_to_feed: "true",
+    access_token: token,
+  };
+  // A second URL on the post (space-separated in image_url) is the reel's cover
+  // image — set it so the thumbnail is our gold-letter cover, not a random frame.
+  if (coverUrl && /\.(jpe?g|png)(\?|$)/i.test(coverUrl)) params.cover_url = coverUrl;
   const c = await fetch(`${GRAPH}/${ig}/media`, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      media_type: "REELS",
-      video_url: videoUrl,
-      caption,
-      share_to_feed: "true",
-      access_token: token,
-    }),
+    body: new URLSearchParams(params),
   });
   const cd = (await c.json()) as { id?: string; error?: unknown };
   if (!cd.id) throw new Error("ig reel container: " + JSON.stringify(cd.error || cd));
@@ -267,9 +272,13 @@ async function publishFbVideo(
 // Publish one post to whichever platforms it targets. Throws on failure of a
 // core platform (IG/FB); the Threads mirror is best-effort and never blocks.
 async function publishOne(cfg: Config, token: string, post: Post, th: ThreadsCreds | null) {
+  // Normalize aliases so "instagram"/"facebook" behave like "ig"/"fb" — the
+  // long names used to silently match nothing and the post shipped to Threads only.
+  const ALIAS: Record<string, string> = { instagram: "ig", facebook: "fb", threads: "th" };
   const platforms = String(post.platforms || "ig,fb")
     .split(",")
-    .map((s) => s.trim());
+    .map((s) => s.trim().toLowerCase())
+    .map((s) => ALIAS[s] || s);
   const out: {
     ig_media_id?: string;
     ig_permalink?: string;
@@ -282,7 +291,8 @@ async function publishOne(cfg: Config, token: string, post: Post, th: ThreadsCre
   if (platforms.includes("ig")) {
     let ig: { mediaId: string; permalink: string };
     if (isReel(post.image_url)) {
-      ig = await publishReelIg(cfg.meta_ig_id, token, urls[0], post.caption);
+      // urls[0] = video, optional urls[1] = cover image
+      ig = await publishReelIg(cfg.meta_ig_id, token, urls[0], post.caption, urls[1]);
     } else if (isCarousel(post.image_url)) {
       ig = await publishCarouselIg(cfg.meta_ig_id, token, urls, post.caption);
     } else {
@@ -298,10 +308,11 @@ async function publishOne(cfg: Config, token: string, post: Post, th: ThreadsCre
       out.fb_post_id = await publishFbPhoto(cfg.meta_page_id, token, urls[0], post.caption);
     }
   }
-  // Threads mirror: same media + de-hashtagged caption. Best-effort — a
-  // Threads hiccup must never fail (and re-run) a post that already went out
-  // on IG/FB.
-  if (th) {
+  // Threads: only when the post explicitly targets "th". This keeps the
+  // Threads schedule and the IG/FB schedule independent (an ig,fb post must
+  // NOT also appear on Threads). Best-effort — a Threads hiccup must never
+  // fail (and re-run) a post that already went out on IG/FB.
+  if (th && platforms.includes("th")) {
     try {
       out.th_post_id = await publishThreads(
         th,

@@ -7,12 +7,14 @@ import WaitlistForm from "./WaitlistForm";
 export const metadata: Metadata = {
   title: "Ketabi Studio — Islamic keepsakes, books & cards, coming soon",
   description:
-    "Personalized Islamic storybooks, hardcover photo keepsakes you fill with your own photos, and beautifully made greeting cards — each sealed with a dua. Join the founding list for early access + a founding discount. The Ketabi app is available today.",
+    "From One Root, a 30-day Qur'an journal (one Arabic root a day, every source cited) is available now on Etsy. Plus personalized Islamic storybooks, hardcover photo keepsakes, and greeting cards coming soon. Join the founding list for early access. The Ketabi app is available today.",
 };
 
 const APP_STORE = "https://apps.apple.com/us/app/ketabi/id6768112231";
 const GOOGLE_PLAY =
   "https://play.google.com/store/apps/details?id=com.ketabi.myapp";
+const ETSY_JOURNAL =
+  "https://www.etsy.com/listing/4533628130/quran-journal-printable-30-day-arabic";
 
 /* product showcases — real, photo-filled imagery */
 const KEEPSAKES = [
@@ -132,6 +134,44 @@ export default function ComingSoon() {
             <a href={GOOGLE_PLAY} target="_blank" rel="noopener noreferrer" className={styles.storeBtn}>
               <span className={styles.storeKicker}>Get it on</span>
               <span className={styles.storeName}>Google Play</span>
+            </a>
+          </div>
+        </section>
+
+        {/* ─────────── JOURNAL — available now on Etsy ─────────── */}
+        <section className={styles.journalBand}>
+          <p className={styles.eyebrow}>Available now on Etsy</p>
+          <h2 className={styles.h2}>
+            From One Root — the language of the Qur&apos;an, one root at a time
+          </h2>
+          <p className={styles.sectionLede}>
+            A 30-day journal. One Arabic root a day, traced back to its classical
+            source, with room to reflect. Every source cited — a quiet study of
+            the words your prayers are already made of.
+          </p>
+          <a
+            href={ETSY_JOURNAL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.journalImgLink}
+          >
+            <Image
+              src="/images/journal-from-one-root.jpg"
+              alt="From One Root — a 30-day journal through the language of the Qur'an"
+              width={720}
+              height={450}
+              className={styles.journalImg}
+            />
+          </a>
+          <div className={styles.stores}>
+            <a
+              href={ETSY_JOURNAL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.storeBtn}
+            >
+              <span className={styles.storeKicker}>Shop the journal on</span>
+              <span className={styles.storeName}>Etsy</span>
             </a>
           </div>
         </section>
