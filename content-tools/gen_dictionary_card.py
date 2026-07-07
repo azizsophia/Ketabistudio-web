@@ -145,7 +145,10 @@ def build_all(outdir):
     for i, day in enumerate(DAYS, 1):
         letters = day["letters"]
         tr = " · ".join(AR_TR.get(c, c) for c in letters.split())
-        line = day["story"].split(". ")[0].rstrip(".") + "."
+        # use the heartfelt payoff (the story's closing line), not the blunt
+        # opener; if the closing line is a short fragment, keep the one before it
+        _sents = [s for s in day["story"].rstrip(".").split(". ") if s]
+        line = (_sents[-1] if len(_sents[-1]) >= 32 else ". ".join(_sents[-2:])) + "."
         cite = day["citation"].split("·")[0].strip() + "  ·  classical dictionaries of Arabic"
         key = day["translit"].lower().split("·")[0].strip().replace("al-", "").replace("'", "").split()[0]
         out = os.path.join(outdir, f"day_{i:02d}_{key}.jpg")
