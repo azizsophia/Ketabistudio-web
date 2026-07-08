@@ -8,6 +8,8 @@ import {
   publishListing,
   listListingImages,
   deleteListingImage,
+  getShopId,
+  etsyFetch,
   type DraftListing,
 } from "@/lib/etsy";
 
@@ -28,6 +30,40 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 const CRON_SECRET = process.env.CRON_SECRET?.trim();
+
+// Read all active listings (id, title, tags, price, description) so the whole
+// shop can be audited. GET /api/etsy/listing?key=CRON_SECRET
+export async function GET(req: NextRequest) {
+  const key = req.nextUrl.searchParams.get("key");
+  if (!CRON_SECRET || key !== CRON_SECRET) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+  const shop = await getShopId();
+  if (!shop) return NextResponse.json({ error: "no shop id" }, { status: 500 });
+  const r = await etsyFetch(`/shops/${shop}/listings/active?limit=100&includes=Images`);
+  if (!r.ok) return NextResponse.json({ error: "fetch failed", detail: (await r.text()).slice(0, 300) }, { status: 502 });
+  const d = (await r.json()) as {
+    results?: Array<{
+      listing_id: number;
+      title: string;
+      description: string;
+      tags: string[];
+      price?: { amount: number; divisor: number; currency_code: string };
+      state: string;
+      images?: Array<{ listing_image_id: number; rank: number }>;
+    }>;
+  };
+  const listings = (d.results || []).map((l) => ({
+    listing_id: l.listing_id,
+    title: l.title,
+    tags: l.tags,
+    price: l.price ? l.price.amount / l.price.divisor : null,
+    state: l.state,
+    num_images: l.images?.length ?? null,
+    description: l.description,
+  }));
+  return NextResponse.json({ ok: true, count: listings.length, listings });
+}
 
 function b64ToBlob(b64: string, type: string): Blob {
   const clean = b64.includes(",") ? b64.slice(b64.indexOf(",") + 1) : b64;
