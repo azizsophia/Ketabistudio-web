@@ -53,33 +53,48 @@ def _wrap(d, t, f, mw):
 def wallpaper(key, out):
     day = BYKEY[key]; line = G.CONTENT[key][1]
     im = _paper(); d = ImageDraw.Draw(im)
-    _ctext(d, "ONE WORD FROM THE QUR'AN", ImageFont.truetype(SANS, 24), GOLD, 440, 6)
-    d.line([(W / 2 - 40, 490), (W / 2 + 40, 490)], fill=GOLD, width=2)
+
+    f_k = ImageFont.truetype(SANS, 24)
     f_ar = ImageFont.truetype(AMIRI, 168)
+    f_tr = ImageFont.truetype(PLAY, 60)
+    f_gl = ImageFont.truetype(ITAL, 50)
     bb = d.textbbox((0, 0), day["letters"], font=f_ar); arh = bb[3] - bb[1]
-    ary = 600
-    d.text(((W - (bb[2] - bb[0])) / 2 - bb[0], ary - bb[1]), day["letters"], font=f_ar, fill=GREEN)
-    y = ary + arh + 70
-    _ctext(d, key.upper(), ImageFont.truetype(PLAY, 60), INK, y, 6); y += 108
-    _ctext(d, day["gloss"], ImageFont.truetype(ITAL, 50), SOFT, y); y += 120
-    # adaptive editorial line: shrink to fit between here and the footer
-    top, bot = y, H - 300
-    chosen = None
+
+    # Vertical rhythm between blocks. We measure the full stack, then center it
+    # in the writable band so top and bottom margins are equal, no dead space.
+    FOOT_TOP = 1690           # brand block lives below this
+    TOP, BOT = 250, FOOT_TOP - 70
+    f_ln, ln, lgap = None, None, 0
+    KICK_H, RULE1_G = 24, 24 + 30            # kicker text, then gap to top rule
+    ARAB_G = 118                             # rule -> arabic
+    TR_G = 84                                # arabic -> translit
+    GL_G = 58                                # translit -> gloss
+    LINE_G = 104                            # gloss -> first editorial line
     for s in (60, 56, 52, 48, 44):
-        f = ImageFont.truetype(ITAL, s); ln = _wrap(d, line, f, W - 190)
-        gap = int(s * 1.24); hgt = gap * len(ln)
-        if top + hgt <= bot:
-            chosen = (f, ln, gap, hgt); break
-    if chosen is None:
-        f = ImageFont.truetype(ITAL, 44); ln = _wrap(d, line, f, W - 190); gap = 55; hgt = gap * len(ln)
-        chosen = (f, ln, gap, hgt)
-    f, ln, gap, hgt = chosen
-    cy = (top + bot) / 2 - hgt / 2
+        f = ImageFont.truetype(ITAL, s); w = _wrap(d, line, f, W - 190); g = int(s * 1.26)
+        stack = (KICK_H + RULE1_G + ARAB_G + arh + TR_G + 60 + GL_G + 50
+                 + LINE_G + g * len(w))
+        if stack <= BOT - TOP:
+            f_ln, ln, lgap = f, w, g; break
+    else:
+        f_ln = ImageFont.truetype(ITAL, 44); ln = _wrap(d, line, f_ln, W - 190); lgap = 56
+
+    stack_h = (KICK_H + RULE1_G + ARAB_G + arh + TR_G + 60 + GL_G + 50
+               + LINE_G + lgap * len(ln))
+    y = TOP + max(0, (BOT - TOP - stack_h) / 2)
+
+    _ctext(d, "ONE WORD FROM THE QUR'AN", f_k, GOLD, y, 6); y += RULE1_G
+    d.line([(W / 2 - 40, y), (W / 2 + 40, y)], fill=GOLD, width=2); y += ARAB_G
+    d.text(((W - (bb[2] - bb[0])) / 2 - bb[0], y - bb[1]), day["letters"], font=f_ar, fill=GREEN)
+    y += arh + TR_G
+    _ctext(d, key.upper(), f_tr, INK, y, 6); y += 60 + GL_G
+    _ctext(d, day["gloss"], f_gl, SOFT, y); y += 50 + LINE_G
     for t in ln:
-        _ctext(d, t, f, INK, cy); cy += gap
-    d.line([(W / 2 - 46, cy + 26), (W / 2 + 46, cy + 26)], fill=GOLD, width=3)
-    _ctext(d, "K E T A B I   S T U D I O", ImageFont.truetype(SANS, 24), GOLD, 1720, 4)
-    _ctext(d, "ketabistudio.com", ImageFont.truetype(SANS, 20), SOFT, 1760)
+        _ctext(d, t, f_ln, INK, y); y += lgap
+    d.line([(W / 2 - 46, y + 26), (W / 2 + 46, y + 26)], fill=GOLD, width=3)
+
+    _ctext(d, "K E T A B I   S T U D I O", ImageFont.truetype(SANS, 24), GOLD, 1740, 4)
+    _ctext(d, "ketabistudio.com", ImageFont.truetype(SANS, 20), SOFT, 1780)
     im.save(out, quality=94); return out
 
 
