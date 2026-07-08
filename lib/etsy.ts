@@ -343,6 +343,57 @@ export async function updateListing(
   return { ok: true };
 }
 
+// Set a listing's price. Etsy stores price in the listing INVENTORY, not on the
+// listing itself, so updateListing() silently ignores a "price" field. We read
+// the current inventory, change only the offering price (preserving quantity,
+// enabled state, and any variations), and PUT it back. The PUT is all-or-nothing:
+// a malformed body 400s and leaves the listing untouched, so this is safe.
+type EtsyOffering = { price: number | { amount: number; divisor: number }; quantity: number; is_enabled: boolean };
+type EtsyPropValue = { property_id: number; value_ids?: number[]; values?: string[]; scale_id?: number | null };
+type EtsyProduct = { sku?: string; property_values?: EtsyPropValue[]; offerings?: EtsyOffering[] };
+type EtsyInventory = {
+  products?: EtsyProduct[];
+  price_on_property?: number[];
+  quantity_on_property?: number[];
+  sku_on_property?: number[];
+};
+
+export async function setListingPrice(
+  listingId: number,
+  price: number
+): Promise<{ ok: boolean; detail?: string }> {
+  const gr = await etsyFetch(`/listings/${listingId}/inventory`);
+  if (!gr.ok) return { ok: false, detail: "get inventory: " + (await gr.text()).slice(0, 200) };
+  const inv = (await gr.json()) as EtsyInventory;
+  const products = (inv.products || []).map((p) => ({
+    sku: p.sku || "",
+    property_values: (p.property_values || []).map((pv) => ({
+      property_id: pv.property_id,
+      value_ids: pv.value_ids || [],
+      values: pv.values || [],
+      ...(pv.scale_id != null ? { scale_id: pv.scale_id } : {}),
+    })),
+    offerings: (p.offerings || []).map((o) => ({
+      price, // Etsy accepts a plain float here on PUT
+      quantity: o.quantity,
+      is_enabled: o.is_enabled,
+    })),
+  }));
+  const body = {
+    products,
+    price_on_property: inv.price_on_property || [],
+    quantity_on_property: inv.quantity_on_property || [],
+    sku_on_property: inv.sku_on_property || [],
+  };
+  const pr = await etsyFetch(`/listings/${listingId}/inventory`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!pr.ok) return { ok: false, detail: "put inventory: " + (await pr.text()).slice(0, 300) };
+  return { ok: true };
+}
+
 // List the image ids currently on a listing.
 export async function listListingImages(listingId: number): Promise<number[]> {
   // NOTE: get-images is NOT shop-scoped in Etsy v3 (delete IS). Wrong path 404s.

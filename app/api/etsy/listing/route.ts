@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   createDraftListing,
   updateListing,
+  setListingPrice,
   uploadListingImage,
   uploadListingFile,
   publishListing,
@@ -42,6 +43,7 @@ export async function POST(req: NextRequest) {
     listing_id?: number; // if set, EDIT this existing listing instead of creating
     listing?: DraftListing;
     update_fields?: Record<string, string>; // PATCH these fields on an existing listing
+    set_price?: number; // set price via the inventory endpoint (updateListing ignores price)
     replace_images?: boolean; // edit mode: delete existing images before uploading new
     delete_image_ids?: number[]; // edit mode: delete these exact image ids (lag-proof)
     images?: { b64: string; rank?: number }[];
@@ -63,6 +65,10 @@ export async function POST(req: NextRequest) {
     if (body.update_fields && Object.keys(body.update_fields).length) {
       const u = await updateListing(id, body.update_fields);
       steps.update = u.ok ? "ok" : `fail: ${u.detail}`;
+    }
+    if (typeof body.set_price === "number") {
+      const r = await setListingPrice(id, body.set_price);
+      steps.set_price = r.ok ? "ok" : `fail: ${r.detail}`;
     }
     if (body.replace_images) {
       const existing = await listListingImages(id);
