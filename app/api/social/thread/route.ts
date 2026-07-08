@@ -22,6 +22,32 @@ const JOURNAL_THREAD = [
   `If you have ever felt like a stranger to your own prayers, I made this for you.\n\nFrom One Root. On Etsy now, link in my bio.\n\nOr comment "root" and I will send you the link myself. 🌙`,
 ];
 
+// POST a custom text post or thread chain: { key, parts: string[] }.
+// One element = a single text post; several = a connected thread. Never touches
+// reels/photos, so it can never put a reel on Threads.
+export async function POST(req: NextRequest) {
+  let body: { key?: string; parts?: string[] };
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "invalid json" }, { status: 400 });
+  }
+  if (!CRON_SECRET || body.key !== CRON_SECRET) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+  const parts = (body.parts || []).filter((p) => typeof p === "string" && p.trim());
+  if (!parts.length) return NextResponse.json({ error: "no parts" }, { status: 400 });
+  let creds = await loadThreadsCreds();
+  if (!creds) return NextResponse.json({ error: "threads not connected" }, { status: 500 });
+  creds = await refreshedThreadsCreds(creds);
+  try {
+    const ids = await publishThreadsTextChain(creds, parts);
+    return NextResponse.json({ ok: true, posted: ids.length, ids });
+  } catch (e) {
+    return NextResponse.json({ error: e instanceof Error ? e.message : "unknown" }, { status: 500 });
+  }
+}
+
 export async function GET(req: NextRequest) {
   const key = req.nextUrl.searchParams.get("key");
   if (!CRON_SECRET || key !== CRON_SECRET) {
