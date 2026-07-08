@@ -52,7 +52,10 @@ type Post = {
 function authorized(req: NextRequest): boolean {
   const auth = (req.headers.get("authorization") || "").trim();
   if (CRON_SECRET && auth === `Bearer ${CRON_SECRET}`) return true;
+  // Also accept ?key=CRON_SECRET so a plain URL works in an external cron
+  // service (no custom header needed), e.g. cron-job.org from a phone.
   const k = req.nextUrl.searchParams.get("key");
+  if (CRON_SECRET && k === CRON_SECRET) return true;
   if (ADMIN && k && k === ADMIN) return true;
   return false;
 }
