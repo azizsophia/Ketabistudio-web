@@ -42,3 +42,6 @@ content-tools/_master_payload.json
 content-tools/_reels_needed.log
 content-tools/_dua_wallpaper_sample.jpg
 content-tools/_dua_wallpapers/
+content-tools/_cover_full_*.jpg
+content-tools/_cover_nur_full.jpg
+content-tools/_full_covers.json
