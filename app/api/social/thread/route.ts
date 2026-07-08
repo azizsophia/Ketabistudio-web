@@ -3,6 +3,7 @@ import {
   loadThreadsCreds,
   refreshedThreadsCreds,
   publishThreadsTextChain,
+  deleteThreadsPost,
 } from "@/lib/threads";
 
 // Posts a multi-part text thread to Threads as one connected reply chain.
@@ -31,6 +32,17 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "threads not connected" }, { status: 500 });
   }
   creds = await refreshedThreadsCreds(creds);
+
+  // ?delete=id1,id2,... removes posts (used to undo a duplicate thread)
+  const del = req.nextUrl.searchParams.get("delete");
+  if (del) {
+    const results = [];
+    for (const id of del.split(",").map((s) => s.trim()).filter(Boolean)) {
+      results.push({ id, ...(await deleteThreadsPost(creds, id)) });
+    }
+    return NextResponse.json({ ok: true, deleted: results });
+  }
+
   try {
     const ids = await publishThreadsTextChain(creds, JOURNAL_THREAD);
     return NextResponse.json({ ok: true, posted: ids.length, ids });
