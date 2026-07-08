@@ -57,10 +57,14 @@ export async function POST(req: NextRequest) {
     });
   }
 
+  // A post needs a caption plus EITHER an image, or a Threads-only target (text
+  // post). Text-only posts are Threads-native and store an empty image_url.
+  const isThreadsOnly = (p: IncomingPost) =>
+    (p.platforms || "").split(",").map((s) => s.trim()).filter(Boolean).join(",") === "th";
   const rows = posts
-    .filter((p) => p.image_url && p.caption)
+    .filter((p) => p.caption && (p.image_url || isThreadsOnly(p)))
     .map((p) => ({
-      image_url: p.image_url,
+      image_url: p.image_url || "",
       caption: p.caption,
       platforms: p.platforms || "ig,fb",
       scheduled_for: p.scheduled_for || new Date().toISOString(),
@@ -68,7 +72,7 @@ export async function POST(req: NextRequest) {
       qc_reviewed: true,
     }));
   if (rows.length === 0) {
-    return NextResponse.json({ error: "each post needs image_url and caption" }, { status: 400 });
+    return NextResponse.json({ error: "each post needs a caption plus an image (or platforms=th for text)" }, { status: 400 });
   }
 
   const r = await fetch(`${SB}/rest/v1/social_queue`, {

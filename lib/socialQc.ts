@@ -108,23 +108,27 @@ export async function runSocialQc(
   // Carousel image_url is a whitespace-separated list (matches the poster's
   // mediaUrls()); tolerate commas too so the two never disagree.
   const mediaUrls = imageUrl.split(/[\s,]+/).map((u) => u.trim()).filter(Boolean);
-  checks.push({
-    name: "media-https",
-    pass: mediaUrls.length > 0 && mediaUrls.every((u) => /^https:\/\//.test(u)),
-  });
-  async function isReachable(u: string): Promise<boolean> {
-    try {
-      const r = await fetch(u, { method: "HEAD" });
-      if (r.ok) return true;
-      const g = await fetch(u, { headers: { Range: "bytes=0-1023" } });
-      return g.ok;
-    } catch {
-      return false;
+  // Text-only posts (Threads) legitimately carry no media, so skip the media
+  // checks entirely rather than failing them.
+  const isTextOnly = mediaUrls.length === 0;
+  if (!isTextOnly) {
+    checks.push({
+      name: "media-https",
+      pass: mediaUrls.every((u) => /^https:\/\//.test(u)),
+    });
+    async function isReachable(u: string): Promise<boolean> {
+      try {
+        const r = await fetch(u, { method: "HEAD" });
+        if (r.ok) return true;
+        const g = await fetch(u, { headers: { Range: "bytes=0-1023" } });
+        return g.ok;
+      } catch {
+        return false;
+      }
     }
+    const reach = await Promise.all(mediaUrls.map(isReachable));
+    checks.push({ name: "media-reachable", pass: reach.every(Boolean) });
   }
-  const reach = await Promise.all(mediaUrls.map(isReachable));
-  const reachable = mediaUrls.length > 0 && reach.every(Boolean);
-  checks.push({ name: "media-reachable", pass: reachable });
 
   let reviewedByAi = false;
   const anthKey = process.env.ANTHROPIC_API_KEY;

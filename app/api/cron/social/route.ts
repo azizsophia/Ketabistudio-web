@@ -4,6 +4,7 @@ import {
   loadThreadsCreds,
   refreshedThreadsCreds,
   publishThreads,
+  publishThreadsTextChain,
   type ThreadsCreds,
 } from "@/lib/threads";
 
@@ -346,12 +347,18 @@ async function publishOne(cfg: Config, token: string, post: Post, th: ThreadsCre
   // fail (and re-run) a post that already went out on IG/FB.
   if (th && platforms.includes("th")) {
     try {
-      out.th_post_id = await publishThreads(
-        th,
-        isCarousel(post.image_url) ? urls : urls[0],
-        post.caption,
-        isReel(post.image_url)
-      );
+      if (urls.length === 0) {
+        // text-only Threads post (native, best reach) — no media
+        const ids = await publishThreadsTextChain(th, [post.caption]);
+        out.th_post_id = ids[0];
+      } else {
+        out.th_post_id = await publishThreads(
+          th,
+          isCarousel(post.image_url) ? urls : urls[0],
+          post.caption,
+          isReel(post.image_url)
+        );
+      }
     } catch (e) {
       out.th_error = (e instanceof Error ? e.message : "unknown").slice(0, 200);
     }
@@ -414,7 +421,7 @@ export async function GET(req: NextRequest) {
     // Gate 2: automated QC (deterministic + optional Claude proofread). The QC
     // media checks work for both images and reel videos, so pass the first
     // media URL as-is (a reel's .mp4 is https + reachable just like an image).
-    const verdict = await runSocialQc(post.caption, mediaUrls(post.image_url)[0]);
+    const verdict = await runSocialQc(post.caption, mediaUrls(post.image_url)[0] ?? "");
     if (!verdict.pass) {
       await patchPost(post.id, { status: "blocked", qc: verdict, error: "qc failed" });
       results.push({ id: post.id, blocked: verdict });
