@@ -73,6 +73,31 @@ async function patchPost(id: string, patch: Record<string, unknown>) {
   await sb(`social_queue?id=eq.${id}`, { method: "PATCH", body: JSON.stringify(patch) });
 }
 
+// Atomically claim a queued post: flip status queued -> publishing only if it is
+// still queued. If another concurrent run already claimed it, the conditional
+// filter matches nothing and we get an empty array back, so we skip it. This is
+// what makes it safe to poll from several triggers every couple of minutes
+// without ever posting the same item twice.
+async function claimPost(id: string): Promise<boolean> {
+  const r = await sb(`social_queue?id=eq.${id}&status=eq.queued`, {
+    method: "PATCH",
+    headers: { Prefer: "return=representation" },
+    body: JSON.stringify({ status: "publishing", claimed_at: new Date().toISOString() }),
+  });
+  const rows = (await r.json().catch(() => [])) as unknown[];
+  return Array.isArray(rows) && rows.length > 0;
+}
+
+// Reclaim posts that were claimed but never finished (a run that timed out mid
+// publish), so they are not stuck in "publishing" forever.
+async function resetStaleClaims() {
+  const cutoff = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+  await sb(`social_queue?status=eq.publishing&claimed_at=lt.${cutoff}`, {
+    method: "PATCH",
+    body: JSON.stringify({ status: "queued" }),
+  });
+}
+
 // media-type helpers ────────────────────────────────────────────────
 function mediaUrls(imageUrl: string): string[] {
   return imageUrl.trim().split(/\s+/).filter(Boolean);
@@ -345,6 +370,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "social_config not seeded" }, { status: 500 });
   }
 
+  await resetStaleClaims();
+
   const nowIso = new Date().toISOString();
   const dueRows = (await (
     await sb(
@@ -369,6 +396,12 @@ export async function GET(req: NextRequest) {
   const results: Array<Record<string, unknown>> = [];
 
   for (const post of dueRows) {
+    // Gate 0: atomically claim it. If a concurrent run already grabbed it, skip
+    // silently so it is never posted twice.
+    if (!(await claimPost(post.id))) {
+      results.push({ id: post.id, skipped: "claimed by another run" });
+      continue;
+    }
     // Gate 1: must have been reviewed when it was queued.
     if (!post.qc_reviewed) {
       await patchPost(post.id, { status: "blocked", error: "not qc_reviewed" });
