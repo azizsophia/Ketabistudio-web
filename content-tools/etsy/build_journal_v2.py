@@ -149,7 +149,6 @@ def build(outdir):
         s = os.path.join(outdir, f"p{i:03d}a_story.png"); J.render_story_page(i, day, s); pages.append(s)
         w = os.path.join(outdir, f"p{i:03d}b_write.png"); J.render_writing_page(i, day, w); pages.append(w)
     add("p900_tracker.png", tracker_page)
-    add("p901_insight.png", insight_page)
     # sources (may split into a/b)
     src = os.path.join(outdir, "p902_sources.png"); sources_page(src)
     for cand in (src.replace(".png", "a.png"), src.replace(".png", "b.png"), src):
