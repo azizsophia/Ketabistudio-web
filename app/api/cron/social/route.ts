@@ -78,7 +78,11 @@ function mediaUrls(imageUrl: string): string[] {
   return imageUrl.trim().split(/\s+/).filter(Boolean);
 }
 function isReel(imageUrl: string): boolean {
-  return /\.mp4(\?|$)/i.test(imageUrl.trim());
+  // A reel may carry a cover image as a second, space-separated URL
+  // ("video.mp4 cover.jpg"), so test the FIRST media URL, not the whole string
+  // (otherwise the trailing cover hides the .mp4 and the reel posts as a photo).
+  const first = mediaUrls(imageUrl)[0] || "";
+  return /\.mp4(\?|$)/i.test(first);
 }
 function isCarousel(imageUrl: string): boolean {
   return !isReel(imageUrl) && mediaUrls(imageUrl).length > 1;
