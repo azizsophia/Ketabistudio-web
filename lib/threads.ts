@@ -293,3 +293,52 @@ export async function postReply(
   }
   throw new Error("threads reply publish: " + JSON.stringify(lastErr));
 }
+
+// Publish a chain of text-only posts as a Threads thread (part 1 is the root,
+// each later part replies to the previous, so it renders as one connected
+// thread). Returns the published media ids in order. Each part must fit 500
+// chars; longer parts are truncated defensively.
+export async function publishThreadsTextChain(
+  creds: ThreadsCreds,
+  parts: string[]
+): Promise<string[]> {
+  const ids: string[] = [];
+  let replyTo: string | null = null;
+  for (const raw of parts) {
+    const text = raw.length <= 500 ? raw : raw.slice(0, 499).trimEnd() + "…";
+    const params = new URLSearchParams({
+      media_type: "TEXT",
+      text,
+      access_token: creds.token,
+    });
+    if (replyTo) params.set("reply_to_id", replyTo);
+    const c = await fetch(`${TH_GRAPH}/${creds.user_id}/threads`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: params,
+    });
+    const cd = (await c.json()) as { id?: string; error?: unknown };
+    if (!cd.id) throw new Error("thread chain container: " + JSON.stringify(cd.error || cd));
+    // Containers need a beat before they are publishable; retry a few times.
+    let publishedId: string | null = null;
+    let lastErr: unknown = null;
+    for (let attempt = 0; attempt < 5; attempt++) {
+      await new Promise((r) => setTimeout(r, 3000));
+      const p = await fetch(`${TH_GRAPH}/${creds.user_id}/threads_publish`, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({ creation_id: cd.id, access_token: creds.token }),
+      });
+      const pd = (await p.json()) as { id?: string; error?: unknown };
+      if (pd.id) {
+        publishedId = pd.id;
+        break;
+      }
+      lastErr = pd.error || pd;
+    }
+    if (!publishedId) throw new Error("thread chain publish: " + JSON.stringify(lastErr));
+    ids.push(publishedId);
+    replyTo = publishedId;
+  }
+  return ids;
+}
