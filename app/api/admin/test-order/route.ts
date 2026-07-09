@@ -26,6 +26,23 @@ const ALLOWED_SLUGS = new Set([
   "juha-and-the-enormous-pumpkin",
 ]);
 
+// GET ?id=<orderId> — read back an order's status + QC/cost report (owner).
+export async function GET(req: NextRequest) {
+  const auth = (req.headers.get("authorization") || "").trim();
+  if (!CRON_SECRET || auth !== `Bearer ${CRON_SECRET}`) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+  if (!SB || !KEY) return NextResponse.json({ error: "not configured" }, { status: 500 });
+  const id = req.nextUrl.searchParams.get("id") || "";
+  if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
+  const r = await fetch(
+    `${SB}/rest/v1/orders?id=eq.${encodeURIComponent(id)}&select=id,status,book_slug,qc_report,error,created_at`,
+    { headers: { Authorization: `Bearer ${KEY}`, apikey: KEY }, cache: "no-store" }
+  );
+  const rows = await r.json().catch(() => []);
+  return NextResponse.json({ ok: true, order: Array.isArray(rows) ? rows[0] || null : null });
+}
+
 export async function POST(req: NextRequest) {
   const auth = (req.headers.get("authorization") || "").trim();
   if (!CRON_SECRET || auth !== `Bearer ${CRON_SECRET}`) {
