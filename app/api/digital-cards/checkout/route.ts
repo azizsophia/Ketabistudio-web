@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
       },
     },
   ];
-  if (order.has_voice) {
+  if (order.has_voice && VOICE_ADDON_CENTS > 0) {
     lineItems.push({
       quantity: 1,
       price_data: {

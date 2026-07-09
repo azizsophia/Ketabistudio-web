@@ -14,7 +14,6 @@ import {
 import {
   DIGITAL_CARD_PRICE_DISPLAY,
   VOICE_ADDON_DISPLAY,
-  DIGITAL_CARD_WITH_VOICE_DISPLAY,
 } from "@/lib/pricing";
 import { CardInside } from "./CardArt";
 import { Emblem } from "./DigitalCardViewer";
@@ -379,7 +378,7 @@ export default function DigitalCardMaker() {
 
             <span className={styles.label}>
               Voice note (optional){" "}
-              <span className={styles.addOnTag}>+{VOICE_ADDON_DISPLAY}</span>
+              <span className={styles.addOnTag}>{VOICE_ADDON_DISPLAY}</span>
             </span>
             <p className={styles.hint}>
               Record a short message, they&apos;ll hear it in your own voice
@@ -512,16 +511,10 @@ export default function DigitalCardMaker() {
             <span>{DIGITAL_CARD_PRICE_DISPLAY}</span>
           </div>
           {voiceUrl && (
-            <>
-              <div className={styles.priceRow}>
-                <span>Voice note 🎙️</span>
-                <span>+{VOICE_ADDON_DISPLAY}</span>
-              </div>
-              <div className={`${styles.priceRow} ${styles.priceTotal}`}>
-                <span>Total</span>
-                <span>{DIGITAL_CARD_WITH_VOICE_DISPLAY}</span>
-              </div>
-            </>
+            <div className={styles.priceRow}>
+              <span>Voice note 🎙️</span>
+              <span>{VOICE_ADDON_DISPLAY}</span>
+            </div>
           )}
           <p className={styles.priceNote}>
             Delivered instantly by link · no postage, no waiting · share it
