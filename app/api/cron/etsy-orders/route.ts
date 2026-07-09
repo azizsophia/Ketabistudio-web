@@ -29,6 +29,7 @@ const NOTIFY_EMAIL = process.env.ETSY_NOTIFY_EMAIL || "ketabistudio@gmail.com";
 // for now — those need no buyer personalization step.
 const LISTING_TO_SLUG: Record<string, string> = {
   "4535335357": "maryam-is-kind-to-her-parents",
+  "4535351858": "juha-and-the-enormous-pumpkin",
 };
 
 // Lulu MAIL-serviceable countries (mirrors app/api/orders). US-only listing for
