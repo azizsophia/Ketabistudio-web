@@ -66,7 +66,8 @@ export default async function BookPage({
           <ul className={styles.specs}>
             <li>{PRINT_SPEC.pages} pages · {PRINT_SPEC.trim}</li>
             <li>{PRINT_SPEC.paper} · {PRINT_SPEC.cover}</li>
-            <li>{PRINT_SPEC.shipsFrom}</li>
+            <li>{PRINT_SPEC.shipsFrom} · {PRINT_SPEC.leadTime}</li>
+            <li>{PRINT_SPEC.delivery}</li>
             <li>
               {personalized
                 ? `Personalized on: ${book.personalization.appearsOn.join(", ")}`
@@ -88,6 +89,9 @@ export default async function BookPage({
               </>
             )}
           </div>
+          {!soon && (
+            <p className={styles.deliveryNote}>{PRINT_SPEC.deliveryFriendly}</p>
+          )}
         </div>
       </div>
 

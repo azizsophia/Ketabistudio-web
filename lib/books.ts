@@ -63,7 +63,13 @@ export const PRINT_SPEC = {
   binding: "Perfect bound",
   paper: "Premium color, 80# coated white",
   cover: "Matte softcover",
-  shipsFrom: "Printed to order in the USA",
+  shipsFrom: "Made to order, printed in the USA",
+  // Honest lead + delivery windows, mirrored from the Shipping policy page so
+  // the buyer sees the wait up front (the surprise is what stings, not the days).
+  leadTime: "Ships in 1 to 3 business days",
+  delivery: "Delivery: US 5 to 10 business days, international 10 to 21",
+  deliveryFriendly:
+    "Made to order, so please allow about 2 weeks for delivery in the US (2 to 4 weeks international).",
 } as const;
 
 export type Book = {

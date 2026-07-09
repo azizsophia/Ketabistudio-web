@@ -162,6 +162,13 @@
   color: var(--muted);
 }
 
+.deliveryNote {
+  margin: 12px 0 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
 /* Coming-soon panel (shown instead of the order form for unreleased books) */
 .soonPanel {
   text-align: center;

@@ -423,8 +423,9 @@ export default function OrderSection({ slug, personalized }: Props) {
           </p>
           <h2 className={styles.heading}>Where should we send it?</h2>
           <p className={styles.sub}>
-            We ship worldwide. Your book is printed and shipped directly to
-            you{isInternational ? ". International shipping rates apply" : ""}.
+            We ship worldwide. Your book is made to order and printed in the USA,
+            then shipped directly to you. Please allow about 2 weeks for delivery
+            in the US, 2 to 4 weeks international{isInternational ? ". International shipping rates apply" : ""}.
           </p>
 
           <div className={styles.formGrid}>
