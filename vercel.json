@@ -4,6 +4,6 @@
     { "path": "/api/cron/social", "schedule": "0 13 * * *" },
     { "path": "/api/cron/social", "schedule": "0 19 * * *" },
     { "path": "/api/cron/social", "schedule": "0 22 * * *" },
-    { "path": "/api/cron/etsy-orders", "schedule": "0 */6 * * *" }
+    { "path": "/api/cron/etsy-orders", "schedule": "30 15 * * *" }
   ]
 }

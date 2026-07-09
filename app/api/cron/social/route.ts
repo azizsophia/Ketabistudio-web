@@ -446,5 +446,18 @@ export async function GET(req: NextRequest) {
     }
   }
 
+  // Piggyback the Etsy order check on every social run. Hobby crons are
+  // once-daily, so this is how Etsy orders get picked up several times a day
+  // (4 social runs + the daily etsy-orders cron). Best-effort: an Etsy hiccup
+  // must never fail the social run.
+  try {
+    const base = process.env.NEXT_PUBLIC_SITE_URL || "https://ketabistudio-web.vercel.app";
+    await fetch(`${base.replace(/\/$/, "")}/api/cron/etsy-orders?key=${CRON_SECRET}`, {
+      signal: AbortSignal.timeout(20000),
+    });
+  } catch {
+    /* non-fatal */
+  }
+
   return NextResponse.json({ ok: true, count: results.length, results });
 }
