@@ -145,7 +145,7 @@ def build(outdir):
     add("p000_title.png", title_page)
     add("p001_printguide.png", print_guide)
     add("p002_howto.png", howto_page)
-    add("p003_workedday.png", worked_day)
+    # worked_day page removed (owner call): it repeated the how-to page.
     add("p004_glossary.png", glossary_page)
     for i, day in enumerate(DAYS, 1):
         s = os.path.join(outdir, f"p{i:03d}a_story.png"); J.render_story_page(i, day, s); pages.append(s)

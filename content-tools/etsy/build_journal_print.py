@@ -45,10 +45,11 @@ def belongs_page(out):
     im.save(out); return out
 
 
-def notes_page(out):
+def notes_page(out, titled=True):
     im = J._base(); d = ImageDraw.Draw(im)
-    J._center(d, "N O T E S", ImageFont.truetype(PLAY, 40), GOLD, 220, ls=10)
-    y = 420
+    if titled:
+        J._center(d, "N O T E S", ImageFont.truetype(PLAY, 40), GOLD, 220, ls=10)
+    y = 420 if titled else 300
     while y < PH - 260:
         d.line([(220, y), (PW - 220, y)], fill=RULE, width=2)
         y += 88
@@ -122,14 +123,18 @@ def build(srcdir, outdir):
 
     belongs = os.path.join(outdir, "x_belongs.png"); belongs_page(belongs)
     notes = os.path.join(outdir, "x_notes.png"); notes_page(notes)
+    notes2 = os.path.join(outdir, "x_notes2.png"); notes_page(notes2, titled=False)
     backcv = os.path.join(outdir, "x_back.png"); back_cover(backcv)
 
-    order = [p("p000_title.png"), p("p002_howto.png"), p("p003_workedday.png"),
-             p("p004_glossary.png"), belongs]
+    # Front matter is 5 pages (odd) so every day's story lands on a LEFT page
+    # facing its writing page. The tracker lives up front, where a habit
+    # tracker belongs; the worked-day page was removed (it repeated the how-to).
+    order = [p("p000_title.png"), p("p002_howto.png"),
+             p("p004_glossary.png"), p("p900_tracker.png"), belongs]
     for i in range(1, 31):
         order += [p(f"p{i:03d}a_story.png"), p(f"p{i:03d}b_write.png")]
-    order += [p("p900_tracker.png"), p("p902_sourcesa.png"),
-              p("p902_sourcesb.png"), p("p999_certificate.png"), notes]
+    order += [p("p902_sourcesa.png"), p("p902_sourcesb.png"),
+              p("p999_certificate.png"), notes, notes2]
     for f in order:
         assert os.path.exists(f), f"missing page: {f}"
     assert len(order) % 2 == 0, f"page count must be even, got {len(order)}"
