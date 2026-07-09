@@ -16,8 +16,8 @@ export default function CopyField({
   const to = recipientName?.trim();
 
   const message = to
-    ? `Assalamu alaikum ${to} 🌙 I sent you a little something — open your card here: ${url}`
-    : `Assalamu alaikum 🌙 I sent you a little something — open your card here: ${url}`;
+    ? `Assalamu alaikum ${to} 🌙 I sent you a little something. Open your card here: ${url}`
+    : `Assalamu alaikum 🌙 I sent you a little something. Open your card here: ${url}`;
   const waHref = `https://wa.me/?text=${encodeURIComponent(message)}`;
 
   async function copy() {

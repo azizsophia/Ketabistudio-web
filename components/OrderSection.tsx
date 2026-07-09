@@ -301,7 +301,7 @@ export default function OrderSection({ slug, personalized }: Props) {
             <div className={styles.previewCol}>
               <p className={styles.label}>Your cover</p>
               <DuasPreview name={name} character={effectiveChar} look={look} />
-              <p className={styles.previewHint}>This is the cover we print — it updates as you choose.</p>
+              <p className={styles.previewHint}>This is the cover we print. It updates as you choose.</p>
             </div>
           </div>
 

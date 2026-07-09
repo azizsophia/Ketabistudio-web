@@ -38,10 +38,10 @@ async function sendOpenedEmail(o: OpenedRow): Promise<void> {
     ? `${esc(to)} just opened your card 🌙`
     : "Your card was just opened 🌙";
   const body = to
-    ? `Lovely news — ${esc(
+    ? `Lovely news. ${esc(
         to
       )} has opened the ${esc(title)} card you sent. We hope it brought a smile.`
-    : `Lovely news — the ${esc(
+    : `Lovely news. The ${esc(
         title
       )} card you sent has just been opened. We hope it brought a smile.`;
   const inner = `\

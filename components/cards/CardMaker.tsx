@@ -245,7 +245,7 @@ export default function CardMaker() {
             <p className={styles.stepLabel}>Step 2 of 3</p>
             <h1 className={styles.heading}>{card.title}</h1>
             <p className={styles.sub}>
-              We&apos;ve written a message for you — make it yours.
+              We&apos;ve written a message for you. Make it yours.
             </p>
 
             <label className={styles.label} htmlFor="msg">Your message (inside)</label>

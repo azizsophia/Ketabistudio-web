@@ -163,7 +163,7 @@ async function sendDigitalCardEmail(o: DigitalCardOrder): Promise<boolean> {
   const link = `${SITE_URL}/c/${o.token}`;
   const greeting = to ? `Dear ${esc(to)},` : "You've received a card";
   const fromLine = from
-    ? `<p style="margin:0 0 16px;font-size:15px;line-height:1.6;">Someone is thinking of you — ${esc(
+    ? `<p style="margin:0 0 16px;font-size:15px;line-height:1.6;">Someone is thinking of you. ${esc(
         from
       )} has sent you a ${esc(title)} card.</p>`
     : `<p style="margin:0 0 16px;font-size:15px;line-height:1.6;">Someone is thinking of you and has sent you a ${esc(
@@ -256,7 +256,7 @@ async function sendBuyerReceipt(o: DigitalCardOrder): Promise<void> {
       ? `We'll email it to <strong>${esc(o.recipient_email)}</strong> at the time you scheduled. You can also share your link any time before then.`
       : `We've emailed it to <strong>${esc(o.recipient_email)}</strong>. You can share your link too, anywhere you like.`;
   } else {
-    deliveryLine = `Share your private link by text, WhatsApp, or anywhere you like — it opens to your animated card.`;
+    deliveryLine = `Share your private link by text, WhatsApp, or anywhere you like. It opens to your animated card.`;
   }
 
   const inner = `\
@@ -273,7 +273,7 @@ async function sendBuyerReceipt(o: DigitalCardOrder): Promise<void> {
   </td></tr>
 </table>
 <p style="margin:0;font-size:13px;color:#8a847a;line-height:1.6;">
-  Your private link — keep it safe:<br>${esc(link)}
+  Your private link, keep it safe:<br>${esc(link)}
 </p>`;
   const shell = `<!doctype html><html><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"></head>
