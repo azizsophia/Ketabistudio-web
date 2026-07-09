@@ -77,18 +77,32 @@ def gate_cover_name_fit(child_name: str) -> dict:
 
 # ── Gate 2: spec ────────────────────────────────────────────────────
 def gate_spec(interior_pdf: str, cover_pdf: str, expected_pages: int = INTERIOR_PAGES,
-              cover_type: str = "softcover") -> dict:
+              cover_type: str = "softcover", trim_in=None, cover_mode=None) -> dict:
+    """trim_in: (w_in, h_in) override for non-square books (default 8.75 sq).
+    cover_mode="lulu": the cover was generated to Lulu's /cover-dimensions/
+    answer at run time, so only a plausibility check runs here and Lulu's own
+    validate-cover gate is the authority. Defaults keep every existing book's
+    behavior byte-for-byte unchanged."""
+    exp_w, exp_h = trim_in if trim_in else (INTERIOR_IN, INTERIOR_IN)
     r = PdfReader(interior_pdf)
     if len(r.pages) != expected_pages:
         raise QCFailure(f"interior has {len(r.pages)} pages, expected {expected_pages}")
     w = float(r.pages[0].mediabox.width) / 72
     h = float(r.pages[0].mediabox.height) / 72
-    if abs(w - INTERIOR_IN) > TOL_IN or abs(h - INTERIOR_IN) > TOL_IN:
-        raise QCFailure(f"interior trim {w:.2f}x{h:.2f}, expected {INTERIOR_IN}sq")
+    if abs(w - exp_w) > TOL_IN or abs(h - exp_h) > TOL_IN:
+        raise QCFailure(f"interior trim {w:.2f}x{h:.2f}, expected {exp_w}x{exp_h}")
     rc = PdfReader(cover_pdf)
     cw = float(rc.pages[0].mediabox.width) / 72
     ch = float(rc.pages[0].mediabox.height) / 72
-    if cover_type == "hardcover":
+    if cover_mode == "lulu":
+        # Sized from Lulu's own dimensions endpoint at generation time; assert
+        # only that it is in the same physical ballpark as the trim. Lulu's
+        # validate-cover (gate 4) enforces exactness.
+        if ch < exp_h - 1.0 or ch > exp_h + 2.0 or cw < exp_w - 1.0 or cw > 2.6 * exp_w:
+            raise QCFailure(
+                f"lulu-dimensioned cover {cw:.2f}x{ch:.2f}in implausible for "
+                f"trim {exp_w}x{exp_h}in")
+    elif cover_type == "hardcover":
         # Casewrap (hardcover) wrap dimensions are sized from Lulu's
         # /print-job-cover-dimensions/ endpoint at generation time (they are
         # larger than the softcover wrap and vary by binding), so we do NOT

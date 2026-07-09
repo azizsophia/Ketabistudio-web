@@ -62,6 +62,18 @@ FIXED_ASSETS = {
     "maryam-is-kind-to-her-parents": ("maryam/Maryam_interior.pdf", "maryam/Maryam_cover.pdf"),
 }
 
+# "From One Root" 30-day journal: a fixed 70-page US Letter COIL-BOUND book.
+# The interior ships in the repo (print-ready 8.75x11.25in with bleed, 300dpi);
+# the cover is assembled AT RUN TIME to the exact dimensions Lulu's
+# /cover-dimensions/ endpoint demands for this POD + page count, so the cover
+# spec can never drift from what Lulu actually requires.
+JOURNAL_SLUG = "from-one-root-journal"
+JOURNAL_PAGES = 70
+# 8.5x11 · full color · standard quality · coil · 60# uncoated white (uncoated
+# takes pen ink well, which matters for a writing journal) · matte cover.
+COIL_POD = "0850X1100.FC.STD.CO.060UW444.MXX"
+JOURNAL_DIR = Path(__file__).resolve().parent / "assets" / "journal"
+
 # Per-book print spec. All three current books are 32-page 8.75" square
 # softcover (POD 0850X0850...PB), verified against the production PDFs on
 # 2026-06-11. page_count and pod must match what is sent to Lulu; a new
@@ -83,6 +95,8 @@ BOOK_SPECS = {
     "about-spouse": {"page_count": 24, "pod": HARDCOVER_POD},
     "about-baby": {"page_count": 24, "pod": HARDCOVER_POD},
     "our-ramadan": {"page_count": 24, "pod": HARDCOVER_POD},
+    # From One Root journal — 70pp US Letter, coil-bound, standard color.
+    JOURNAL_SLUG: {"page_count": JOURNAL_PAGES, "pod": COIL_POD},
 }
 
 
@@ -289,6 +303,78 @@ def generate_iam(order, workdir: Path, cover_type="hardcover", client=None):
 
 
 # ── per-order processing ────────────────────────────────────────────
+def generate_journal(order, workdir: Path, client):
+    """From One Root journal: repo-shipped interior + a cover built at run time
+    to Lulu's own /cover-dimensions/ answer for the coil POD. Also fetches the
+    real print+shipping cost so the owner sees it on the order BEFORE approving.
+    Returns (interior_path, cover_path, report)."""
+    from PIL import Image
+
+    interior_src = JOURNAL_DIR / "Journal_interior.pdf"
+    front_src = JOURNAL_DIR / "journal_cover_front.png"
+    back_src = JOURNAL_DIR / "journal_cover_back.png"
+    for f in (interior_src, front_src, back_src):
+        if not f.exists():
+            raise RuntimeError(f"journal asset missing: {f}")
+    interior = workdir / "interior.pdf"
+    interior.write_bytes(interior_src.read_bytes())
+
+    # Lulu's required cover size for THIS binding + page count (points).
+    dims = client.calculate_cover_dimensions(COIL_POD, JOURNAL_PAGES, unit="pt")
+    w_pt, h_pt = float(dims["width"]), float(dims["height"])
+    W, H = round(w_pt / 72 * 300), round(h_pt / 72 * 300)
+    IVORY = (242, 237, 227)
+    front = Image.open(front_src).convert("RGB")
+    back = Image.open(back_src).convert("RGB")
+
+    def sheet(art, w, h, bind):
+        """Art centered on an ivory canvas, nudged away from the coil edge."""
+        cv = Image.new("RGB", (w, h), IVORY)
+        s = min((w * 0.92) / art.width, (h * 0.94) / art.height)
+        aw, ah = int(art.width * s), int(art.height * s)
+        a = art.resize((aw, ah), Image.LANCZOS)
+        shift = max(40, int(w * 0.02))
+        x = (w - aw) // 2 + (shift if bind == "left" else -shift)
+        cv.paste(a, (x, (h - ah) // 2))
+        return cv
+
+    cover = workdir / "cover.pdf"
+    if W > int(1.5 * H):
+        # One-piece wrap: back on the left half, front on the right.
+        cv = Image.new("RGB", (W, H), IVORY)
+        half = W // 2
+        cv.paste(sheet(back, half, H, bind="right"), (0, 0))
+        cv.paste(sheet(front, W - half, H, bind="left"), (half, 0))
+        cv.save(cover, "PDF", resolution=300.0)
+        layout = "one-piece"
+    else:
+        # Separate sheets: front (binds left), back (binds right).
+        pg_front = sheet(front, W, H, bind="left")
+        pg_back = sheet(back, W, H, bind="right")
+        pg_front.save(cover, "PDF", resolution=300.0, save_all=True,
+                      append_images=[pg_back])
+        layout = "two-page"
+
+    report = {"journal": True, "pod": COIL_POD,
+              "lulu_cover_dims_pt": [w_pt, h_pt], "cover_layout": layout}
+    # Real cost, so the owner approves with the actual Lulu price in view.
+    try:
+        cost = client.calculate_cost(JOURNAL_PAGES, order["shipping"],
+                                     pod_package_id=COIL_POD,
+                                     shipping_level="MAIL")
+        report["lulu_cost"] = {
+            "print": (cost.get("line_item_costs") or [{}])[0].get(
+                "total_cost_incl_tax"),
+            "shipping": (cost.get("shipping_cost") or {}).get(
+                "total_cost_incl_tax"),
+            "total": cost.get("total_cost_incl_tax"),
+            "currency": cost.get("currency"),
+        }
+    except Exception as e:  # noqa: BLE001 — cost view is a bonus, not a gate
+        report["lulu_cost"] = {"error": str(e)[:200]}
+    return str(interior), str(cover), report
+
+
 def process(order):
     import lulu_client
     oid = order["id"]
@@ -350,6 +436,9 @@ def process(order):
         cover.write_bytes(storage_download("book-assets", cpath))
         interior, cover = str(interior), str(cover)
         ref_report = {"fixed_book": True}
+    elif slug == JOURNAL_SLUG:
+        # Coil-bound journal — repo interior + cover sized to Lulu's answer.
+        interior, cover, ref_report = generate_journal(order, workdir, client)
     elif slug in PHOTOBOOK_SLUGS:
         # Customer photo-book keepsake — built from uploaded photos + captions.
         interior, cover = generate_photobook(order, workdir,
@@ -375,8 +464,14 @@ def process(order):
             interior, order["skin"], order["hair"], order["hair_style"])
         ref_report["cover_type"] = cover_type
 
-    spec_report = qc.gate_spec(interior, cover, expected_pages=spec["page_count"],
-                               cover_type=cover_type)
+    spec_report = qc.gate_spec(
+        interior, cover, expected_pages=spec["page_count"],
+        cover_type=cover_type,
+        # The journal is US Letter coil (8.75x11.25 with bleed), not the 8.75in
+        # square PB default; its cover is Lulu-dimension-driven so the fixed
+        # PB cover assert does not apply (Lulu's validate-cover is the gate).
+        trim_in=(8.75, 11.25) if slug == JOURNAL_SLUG else None,
+        cover_mode="lulu" if slug == JOURNAL_SLUG else None)
     set_status(oid, "qc_passed",
                qc_report={"spec": spec_report, "reference": ref_report})
 

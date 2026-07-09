@@ -152,6 +152,7 @@ def _book_label(order: dict) -> str:
     return {
         "juha-and-the-enormous-pumpkin": "Juha and the Enormous Pumpkin",
         "maryam-is-kind-to-her-parents": "Maryam is Kind to Her Parents",
+        "from-one-root-journal": "From One Root, 30-Day Journal (coil-bound)",
     }.get(slug, "your Ketabi Studio book")
 
 

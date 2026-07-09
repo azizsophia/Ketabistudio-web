@@ -27,6 +27,7 @@ const SLUG_LABELS: Record<string, string> = {
   "my-beautiful-duas": "My Beautiful Duas",
   "juha-and-the-enormous-pumpkin": "Juha and the Enormous Pumpkin",
   "maryam-is-kind-to-her-parents": "Maryam is Kind to Her Parents",
+  "from-one-root-journal": "From One Root, 30-Day Journal (coil)",
 };
 
 const STATUS_ORDER = [
