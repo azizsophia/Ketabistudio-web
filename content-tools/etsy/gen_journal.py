@@ -107,11 +107,14 @@ def render_writing_page(day, e, out):
     _center(d, f"DAY {DAY_WORDS[day-1]}  ·  {e['translit'].upper()}", f_day, GOLD, 150, ls=6)
     n = len(e["prompts"])
     TOP, BOTTOM = 290, PH - 200      # content must clear the footer mark at PH-150
-    LH, G_P, LINE_SP, G_AFTER = int(44 * 1.35), 40, 88, 54
+    # LINE_SP is the ruled-line pitch (~7.5mm at 200dpi, comfortable to write on).
+    # Solve lines_per to FILL the page rather than leave it sparse, while the
+    # measurement guarantees it can never overflow the footer.
+    LH, G_P, LINE_SP, G_AFTER = int(44 * 1.35), 40, 60, 58
     wraps = [_wrap(p, f_pr, PW - 400) for p in e["prompts"]]
     fixed = sum(len(w) * LH for w in wraps) + n * G_P + (n - 1) * G_AFTER
-    lines_per = max(3, min(7, (BOTTOM - TOP - fixed) // (n * LINE_SP)))
-    total = fixed + n * lines_per * LINE_SP + (n - 1) * 0
+    lines_per = max(4, min(9, (BOTTOM - TOP - fixed) // (n * LINE_SP)))
+    total = fixed + n * lines_per * LINE_SP
     y = TOP + max(0, (BOTTOM - TOP - total) / 2)
     for i, w in enumerate(wraps):
         y = _block(d, w, f_pr, INK, y, lg=1.35)

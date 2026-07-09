@@ -6,7 +6,7 @@ import styles from "./shop.module.css";
 export const metadata: Metadata = {
   title: "Shop: books, keepsakes and cards",
   description:
-    "Hand-illustrated Islamic storybooks, personalized photo keepsakes, and beautifully made greeting cards, printed to order with care.",
+    "Hand-illustrated Islamic storybooks, personalized photo keepsakes, and animated digital cards, made with care.",
 };
 
 type Tile = {
@@ -38,18 +38,10 @@ const TILES: Tile[] = [
     img: "/images/shop/keepsakes.jpg",
   },
   {
-    href: "/cards",
-    tag: "To send with love",
-    title: "Greeting Cards",
-    sub: "Personalized Islamic cards, each carrying an authentic dua, for Eid, Nikah, a new baby, and everyone you love. Printed and posted for you.",
-    cta: "Design a card →",
-    img: "/images/shop/cards.jpg",
-  },
-  {
     href: "/digital-cards",
     tag: "Sent in a moment",
     title: "Digital Cards",
-    sub: "A beautiful animated card delivered by a private link — share it by text, WhatsApp or email, anywhere in the world. Sealed with a dua, opened like real mail.",
+    sub: "A beautiful animated card delivered by a private link. Share it by text, WhatsApp or email, anywhere in the world. Sealed with a dua, opened like real mail.",
     cta: "Send a digital card →",
     img: "/images/shop/digital-cards.jpg",
   },

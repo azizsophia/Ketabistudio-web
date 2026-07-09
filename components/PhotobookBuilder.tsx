@@ -429,7 +429,7 @@ export default function PhotobookBuilder({
             onChange={(e) => setAuthor(e.target.value)}
           />
           <p className={styles.fieldHint}>
-            Who the keepsake is from — appears as &ldquo;by &hellip;&rdquo; on the
+            Who the keepsake is from, appears as &ldquo;by &hellip;&rdquo; on the
             cover and dedication.
           </p>
 
@@ -463,7 +463,7 @@ export default function PhotobookBuilder({
           </p>
           <h2 className={styles.heading}>Your twenty pages</h2>
           <p className={styles.sub}>
-            Each page pairs one of your photos with a line — we&apos;ve filled in
+            Each page pairs one of your photos with a line, we&apos;ve filled in
             beautiful words for you, edit any to make it yours. We&apos;ll take it
             five pages at a time. Some photos fill the whole page, others sit
             framed, for rhythm. Use a wide, high-quality photo for the{" "}
@@ -742,7 +742,7 @@ function dpiMessage(p: Photo | null) {
     return (
       <p className={styles.dpiBlock}>
         This photo is too low-resolution to print sharply. Please upload a
-        high-quality photo — we print at 300 DPI, so one straight from your
+        high-quality photo. We print at 300 DPI, so one straight from your
         phone or camera looks best (screenshots and saved web images usually
         won&apos;t print well).
       </p>
@@ -757,7 +757,7 @@ function dpiMessage(p: Photo | null) {
     );
   }
   if (p.quality === "ok") {
-    return <p className={styles.dpiOk}>Looks great — this will print beautifully.</p>;
+    return <p className={styles.dpiOk}>Looks great. This will print beautifully.</p>;
   }
   // unknown dimensions (e.g. HEIC) — block, but stay friendly
   return (

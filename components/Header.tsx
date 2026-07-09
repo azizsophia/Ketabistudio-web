@@ -9,7 +9,7 @@ const APP_LINKS = [
   { label: "Explore the app", href: "/app" },
   { label: "App Store", href: "https://apps.apple.com/us/app/ketabi/id6768112231", ext: true },
   { label: "Google Play", href: "https://play.google.com/store/apps/details?id=com.ketabi.myapp", ext: true },
-  { label: "Request a feature", href: "mailto:ketabistudio@gmail.com?subject=Feature request — Ketabi app", ext: true },
+  { label: "Request a feature", href: "mailto:ketabistudio@gmail.com?subject=Feature request, Ketabi app", ext: true },
   { label: "Get support", href: "mailto:ketabistudio@gmail.com?subject=Ketabi app support", ext: true },
 ];
 

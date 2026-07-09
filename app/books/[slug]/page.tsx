@@ -118,7 +118,7 @@ export default async function BookPage({
                 This one&apos;s on its way, Inshallah
               </h2>
               <p className={styles.soonText}>
-                {book.title} isn&apos;t quite ready to order yet — we&apos;re
+                {book.title} isn&apos;t quite ready to order yet. We&apos;re
                 putting the finishing touches on it. Join the list and we&apos;ll
                 let you know the moment it opens.
               </p>

@@ -55,8 +55,8 @@ const baloo = Baloo_Bhaijaan_2({
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.ketabistudio.com"),
   title: {
-    default: "Ketabi Studio — Stories that help little hearts grow",
-    template: "%s — Ketabi Studio",
+    default: "Ketabi Studio, stories that help little hearts grow",
+    template: "%s | Ketabi Studio",
   },
   description:
     "Personalized Islamic storybooks, a mindful dhikr app, and a kids corner full of wonder. Made with intention by Ketabi Studio.",

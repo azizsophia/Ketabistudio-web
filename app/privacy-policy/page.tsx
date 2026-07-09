@@ -49,7 +49,7 @@ export default function PrivacyPolicy() {
         to you.
       </p>
       <p>
-        If you choose to delete your account, all associated personal data —
+        If you choose to delete your account, all associated personal data,
         including journal entries and prayer logs, will be permanently erased
         from our servers.
       </p>

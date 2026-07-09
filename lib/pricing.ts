@@ -99,18 +99,18 @@ export function cardShippingLabel(countryCode: string): string {
    including the Gulf where physical card shipping is unavailable. Priced as
    an impulse buy, well below the physical card. ~100% margin minus the Stripe
    fee. In test mode it is $1 like everything else. */
-export const DIGITAL_CARD_PRICE_CENTS = TEST_DOLLAR_PRICING ? 100 : 399; // $1 test / $3.99
-export const DIGITAL_CARD_PRICE_DISPLAY = TEST_DOLLAR_PRICING ? "$1.00" : "$3.99";
+export const DIGITAL_CARD_PRICE_CENTS = TEST_DOLLAR_PRICING ? 100 : 200; // $1 test / $2.00 flat
+export const DIGITAL_CARD_PRICE_DISPLAY = TEST_DOLLAR_PRICING ? "$1.00" : "$2.00";
 
-/* Optional voice-note add-on: the buyer records a short message that plays
-   inside the opened card. Pure upsell (no extra cost to us beyond storage),
-   charged only when a recording is attached. $1 in test mode. */
-export const VOICE_ADDON_CENTS = TEST_DOLLAR_PRICING ? 100 : 300; // $1 test / +$3.00
-export const VOICE_ADDON_DISPLAY = TEST_DOLLAR_PRICING ? "$1.00" : "$3.00";
-/* Total shown when a voice note is included (base + add-on). */
+/* Voice note: a short recorded message that plays inside the opened card. It is
+   INCLUDED in the flat price (no extra charge), so it adds no Stripe line item.
+   Kept as its own constant so the flat price can be split out again later. */
+export const VOICE_ADDON_CENTS = 0; // included free in the flat card price
+export const VOICE_ADDON_DISPLAY = "Included";
+/* Total shown when a voice note is included: same flat price. */
 export const DIGITAL_CARD_WITH_VOICE_DISPLAY = TEST_DOLLAR_PRICING
-  ? "$2.00"
-  : "$6.99";
+  ? "$1.00"
+  : "$2.00";
 
 export const SHIPPING_US_CENTS = 499; // $4.99 domestic
 export const SHIPPING_INTL_CENTS = 1499; // $14.99 international

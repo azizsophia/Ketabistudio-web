@@ -26,7 +26,7 @@ const worlds: World[] = [
     internal: false,
     age: "For the curious",
     title: "Short films",
-    desc: "The Quran's wonders, our history, and the signs of our time — the videos that started it all.",
+    desc: "The Quran's wonders, our history, and the signs of our time, the videos that started it all.",
     img: "/images/door-watch.jpg",
     video: "/videos/hero.mp4",
     poster: "/images/door-watch.jpg",
@@ -76,7 +76,7 @@ export default function Gateway() {
             </h1>
             <p className={`lede ${styles.lede}`}>
               An Islamic studio of short films, children&apos;s storybooks, and a
-              mindful app — three ways for one family to grow closer to Allah,
+              mindful app, three ways for one family to grow closer to Allah,
               each made with intention.
             </p>
             <div className={styles.heroCta}>
@@ -141,7 +141,7 @@ export default function Gateway() {
             <div className={styles.showcaseItem}>
               <FlipBook
                 cover="/images/iam/cover.jpg"
-                title="I Am — your child"
+                title="I Am: your child"
                 pages={[
                   { src: "/images/iam/page06.jpg" },
                   { src: "/images/iam/page07.jpg" },
@@ -226,7 +226,7 @@ export default function Gateway() {
               A card they open like a gift<span className={styles.gold}>.</span>
             </h2>
             <p className={`lede ${styles.showcaseLede}`}>
-              Personalize a beautiful animated card — for Eid, a nikah, a new
+              Personalize a beautiful animated card, for Eid, a nikah, a new
               baby, or just because. Add your photo and message, and we&apos;ll
               seal it with a dua, then deliver it by a private link, anywhere in
               the world.

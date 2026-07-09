@@ -14,7 +14,6 @@ import {
 import {
   DIGITAL_CARD_PRICE_DISPLAY,
   VOICE_ADDON_DISPLAY,
-  DIGITAL_CARD_WITH_VOICE_DISPLAY,
 } from "@/lib/pricing";
 import { CardInside } from "./CardArt";
 import { Emblem } from "./DigitalCardViewer";
@@ -199,7 +198,7 @@ export default function DigitalCardMaker() {
           <p className={styles.stepLabel}>Step 1 of 3</p>
           <h1 className={styles.heading}>Choose a card</h1>
           <p className={styles.sub}>
-            A beautiful animated card, delivered by a private link in minutes —
+            A beautiful animated card, delivered by a private link in minutes,
             ready to share by text, WhatsApp or email, anywhere in the world.{" "}
             <Link href="/c/demo" target="_blank" className={styles.demoLink}>
               See how it opens →
@@ -253,7 +252,7 @@ export default function DigitalCardMaker() {
             <p className={styles.stepLabel}>Step 2 of 3</p>
             <h1 className={styles.heading}>{card.title}</h1>
             <p className={styles.sub}>
-              We&apos;ve written a message for you — make it yours.
+              We&apos;ve written a message for you. Make it yours.
             </p>
 
             <label className={styles.label} htmlFor="to">Who it&apos;s for</label>
@@ -379,10 +378,10 @@ export default function DigitalCardMaker() {
 
             <span className={styles.label}>
               Voice note (optional){" "}
-              <span className={styles.addOnTag}>+{VOICE_ADDON_DISPLAY}</span>
+              <span className={styles.addOnTag}>{VOICE_ADDON_DISPLAY}</span>
             </span>
             <p className={styles.hint}>
-              Record a short message — they&apos;ll hear it in your own voice
+              Record a short message, they&apos;ll hear it in your own voice
               when they open the card.
             </p>
             <VoiceRecorder value={voiceUrl} onChange={setVoiceUrl} />
@@ -415,7 +414,7 @@ export default function DigitalCardMaker() {
         <p className={styles.stepLabel}>Step 3 of 3</p>
         <h1 className={styles.heading}>How should we deliver it?</h1>
         <p className={styles.sub}>
-          The moment you pay, you get a private link to your card — share it by
+          The moment you pay, you get a private link to your card. Share it by
           text, WhatsApp or anywhere you like. We can email it to them too.
         </p>
 
@@ -498,8 +497,8 @@ export default function DigitalCardMaker() {
                 </div>
                 <p className={styles.hint}>
                   {scheduledIso
-                    ? `We'll email it ${describeSchedule(schedLocal, schedTz)}. Your private link works straight away — only the email waits.`
-                    : `Pick the day and time they should receive it — up to ${MAX_SCHEDULE_DAYS} days ahead, perfect for Eid morning.`}
+                    ? `We'll email it ${describeSchedule(schedLocal, schedTz)}. Your private link works straight away, only the email waits.`
+                    : `Pick the day and time they should receive it, up to ${MAX_SCHEDULE_DAYS} days ahead, perfect for Eid morning.`}
                 </p>
               </>
             )}
@@ -512,16 +511,10 @@ export default function DigitalCardMaker() {
             <span>{DIGITAL_CARD_PRICE_DISPLAY}</span>
           </div>
           {voiceUrl && (
-            <>
-              <div className={styles.priceRow}>
-                <span>Voice note 🎙️</span>
-                <span>+{VOICE_ADDON_DISPLAY}</span>
-              </div>
-              <div className={`${styles.priceRow} ${styles.priceTotal}`}>
-                <span>Total</span>
-                <span>{DIGITAL_CARD_WITH_VOICE_DISPLAY}</span>
-              </div>
-            </>
+            <div className={styles.priceRow}>
+              <span>Voice note 🎙️</span>
+              <span>{VOICE_ADDON_DISPLAY}</span>
+            </div>
           )}
           <p className={styles.priceNote}>
             Delivered instantly by link · no postage, no waiting · share it
@@ -638,7 +631,7 @@ function tzOptions(): { value: string; label: string }[] {
   const rest = base.filter((o) => o.value !== detected);
   const detectedLabel =
     base.find((o) => o.value === detected)?.label || detected;
-  return [{ value: detected, label: `${detectedLabel} — your time` }, ...rest];
+  return [{ value: detected, label: `${detectedLabel}, your time` }, ...rest];
 }
 
 /* Convert a wall-clock "YYYY-MM-DDTHH:mm" in `timeZone` to a UTC ISO instant.
@@ -725,7 +718,7 @@ function describeSchedule(local: string, timeZone: string): string {
     const tzLabel =
       tzOptions()
         .find((o) => o.value === timeZone)
-        ?.label.replace(" — your time", "") || timeZone;
+        ?.label.replace(", your time", "") || timeZone;
     return `on ${day} at ${time} (${tzLabel})`;
   } catch {
     return "at the time you chose";

@@ -104,7 +104,7 @@ export default function FlipBook({
       >
         <Image
           src={slides[idx]}
-          alt={isTop ? (idx === 0 ? `${title} cover` : `${title} — inside`) : ""}
+          alt={isTop ? (idx === 0 ? `${title} cover` : `${title} inside`) : ""}
           width={900}
           height={900}
           className={styles.art}
