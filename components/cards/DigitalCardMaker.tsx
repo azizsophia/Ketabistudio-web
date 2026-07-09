@@ -82,37 +82,63 @@ export default function DigitalCardMaker() {
     setError("");
   }
 
+  // Shrink the photo in the browser before upload. iPhone photos are large
+  // (and often HEIC), which blows past the serverless body limit and also
+  // needs converting. Drawing to a canvas downscales to a sane size AND
+  // re-encodes as JPEG, so uploads stay small and universally readable.
+  // Returns the original file if anything about the canvas path fails.
+  async function shrinkForUpload(
+    file: File
+  ): Promise<{ file: File; lowRes: boolean }> {
+    try {
+      const bitmap = await createImageBitmap(file);
+      const lowRes = Math.min(bitmap.width, bitmap.height) < 1000;
+      const maxSide = 1800;
+      const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
+      const w = Math.max(1, Math.round(bitmap.width * scale));
+      const h = Math.max(1, Math.round(bitmap.height * scale));
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return { file, lowRes };
+      ctx.drawImage(bitmap, 0, 0, w, h);
+      bitmap.close?.();
+      const blob = await new Promise<Blob | null>((res) =>
+        canvas.toBlob((b) => res(b), "image/jpeg", 0.85)
+      );
+      if (!blob) return { file, lowRes };
+      return { file: new File([blob], "photo.jpg", { type: "image/jpeg" }), lowRes };
+    } catch {
+      return { file, lowRes: false };
+    }
+  }
+
   async function uploadPhoto(file: File) {
     setError("");
     setPhotoWarn("");
-    if (!file.type.startsWith("image/")) {
+    if (!file.type.startsWith("image/") && !/\.(heic|heif)$/i.test(file.name)) {
       return setError("Please choose an image file.");
     }
+    setPhotoBusy(true);
     try {
-      const dims = await new Promise<{ w: number; h: number }>((res, rej) => {
-        const im = new window.Image();
-        im.onload = () => res({ w: im.naturalWidth, h: im.naturalHeight });
-        im.onerror = rej;
-        im.src = URL.createObjectURL(file);
-      });
-      if (Math.min(dims.w, dims.h) < 1000) {
+      const { file: upload, lowRes } = await shrinkForUpload(file);
+      if (lowRes) {
         setPhotoWarn(
           "This photo is a little low-resolution. A larger, high-quality photo looks best."
         );
       }
-    } catch {
-      /* non-fatal */
-    }
-    setPhotoBusy(true);
-    try {
       const fd = new FormData();
-      fd.append("file", file);
+      fd.append("file", upload);
       const r = await fetch("/api/cards/photo", { method: "POST", body: fd });
-      const data = await r.json();
+      const data = await r.json().catch(() => ({}));
       if (r.ok && data.url) {
         setPhotoUrl(data.url);
       } else {
-        setError(data.error || "Could not upload that photo. Please try again.");
+        setError(
+          (data as { error?: string }).error ||
+            "Could not upload that photo. Please try a different one."
+        );
       }
     } catch {
       setError("Network error uploading the photo. Please try again.");
