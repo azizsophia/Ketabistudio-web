@@ -357,21 +357,24 @@ def generate_journal(order, workdir: Path, client):
 
     report = {"journal": True, "pod": COIL_POD,
               "lulu_cover_dims_pt": [w_pt, h_pt], "cover_layout": layout}
-    # Real cost, so the owner approves with the actual Lulu price in view.
-    try:
-        cost = client.calculate_cost(JOURNAL_PAGES, order["shipping"],
-                                     pod_package_id=COIL_POD,
-                                     shipping_level="MAIL")
-        report["lulu_cost"] = {
-            "print": (cost.get("line_item_costs") or [{}])[0].get(
-                "total_cost_incl_tax"),
-            "shipping": (cost.get("shipping_cost") or {}).get(
-                "total_cost_incl_tax"),
-            "total": cost.get("total_cost_incl_tax"),
-            "currency": cost.get("currency"),
-        }
-    except Exception as e:  # noqa: BLE001 — cost view is a bonus, not a gate
-        report["lulu_cost"] = {"error": str(e)[:200]}
+    # Real cost at EVERY shipping level, so the owner can choose speed with
+    # actual prices in view before approving.
+    report["lulu_cost"] = {}
+    for level in ("MAIL", "GROUND", "EXPEDITED", "EXPRESS"):
+        try:
+            cost = client.calculate_cost(JOURNAL_PAGES, order["shipping"],
+                                         pod_package_id=COIL_POD,
+                                         shipping_level=level)
+            report["lulu_cost"][level] = {
+                "print": (cost.get("line_item_costs") or [{}])[0].get(
+                    "total_cost_incl_tax"),
+                "shipping": (cost.get("shipping_cost") or {}).get(
+                    "total_cost_incl_tax"),
+                "total": cost.get("total_cost_incl_tax"),
+                "currency": cost.get("currency"),
+            }
+        except Exception as e:  # noqa: BLE001 — cost view is a bonus, not a gate
+            report["lulu_cost"][level] = {"error": str(e)[:160]}
     return str(interior), str(cover), report
 
 
@@ -545,7 +548,13 @@ def submit_approved(order):
         interior_url=signed_url("orders", order["interior_path"]),
         cover_url=signed_url("orders", order["cover_path"]),
         pod_package_id=spec["pod"], page_count=spec["page_count"],
-        shipping_address=ship, shipping_level="MAIL",
+        shipping_address=ship,
+        # Owner may pin a faster level on the order (options.shipping_level);
+        # anything unrecognized falls back to MAIL.
+        shipping_level=((order.get("options") or {}).get("shipping_level")
+                        if (order.get("options") or {}).get("shipping_level")
+                        in ("MAIL", "GROUND", "EXPEDITED", "EXPRESS")
+                        else "MAIL"),
         contact_email=order["customer_email"])
     set_status(oid, "submitted", lulu_print_job_id=str(job.get("id")))
     print(f"[{oid}] submitted to Lulu as job {job.get('id')}")

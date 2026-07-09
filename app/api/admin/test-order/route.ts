@@ -34,13 +34,21 @@ export async function GET(req: NextRequest) {
   }
   if (!SB || !KEY) return NextResponse.json({ error: "not configured" }, { status: 500 });
   const id = req.nextUrl.searchParams.get("id") || "";
-  if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
+  const slug = req.nextUrl.searchParams.get("slug") || "";
+  if (!id && !slug) return NextResponse.json({ error: "id or slug required" }, { status: 400 });
+  const filter = id
+    ? `id=eq.${encodeURIComponent(id)}`
+    : `book_slug=eq.${encodeURIComponent(slug)}&options->>source=eq.owner_test&order=created_at.desc&limit=3`;
   const r = await fetch(
-    `${SB}/rest/v1/orders?id=eq.${encodeURIComponent(id)}&select=id,status,book_slug,qc_report,error,created_at`,
+    `${SB}/rest/v1/orders?${filter}&select=id,status,book_slug,qc_report,created_at`,
     { headers: { Authorization: `Bearer ${KEY}`, apikey: KEY }, cache: "no-store" }
   );
   const rows = await r.json().catch(() => []);
-  return NextResponse.json({ ok: true, order: Array.isArray(rows) ? rows[0] || null : null });
+  return NextResponse.json({
+    ok: true,
+    order: Array.isArray(rows) ? rows[0] || null : null,
+    orders: Array.isArray(rows) ? rows : [],
+  });
 }
 
 export async function POST(req: NextRequest) {
@@ -56,6 +64,23 @@ export async function POST(req: NextRequest) {
   } catch {
     return NextResponse.json({ error: "invalid json" }, { status: 400 });
   }
+  // owner actions on an existing order: cancel (reject) or reset (reprocess)
+  const action = String((body as Record<string, unknown>).action || "");
+  const targetId = String((body as Record<string, unknown>).orderId || "");
+  if (action) {
+    if (!targetId) return NextResponse.json({ error: "orderId required" }, { status: 400 });
+    const status = action === "cancel" ? "rejected" : action === "reset" ? "pending" : "";
+    if (!status) return NextResponse.json({ error: "unknown action" }, { status: 400 });
+    const guard = "&status=in.(pending,generating,qc_passed,validated,awaiting_approval,failed)";
+    const pr = await fetch(`${SB}/rest/v1/orders?id=eq.${encodeURIComponent(targetId)}${guard}`, {
+      method: "PATCH",
+      headers: { Authorization: `Bearer ${KEY}`, apikey: KEY, "Content-Type": "application/json", Prefer: "return=representation" },
+      body: JSON.stringify({ status }),
+    });
+    const rows = await pr.json().catch(() => []);
+    return NextResponse.json({ ok: true, action, changed: Array.isArray(rows) ? rows.length : 0 });
+  }
+
   const slug = String(body.book_slug || "");
   if (!ALLOWED_SLUGS.has(slug)) {
     return NextResponse.json({ error: "unknown book_slug" }, { status: 400 });

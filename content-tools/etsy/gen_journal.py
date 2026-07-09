@@ -101,8 +101,8 @@ def render_writing_page(day, e, out):
     """e: {prompts: [str, ...]} — prompts + ruled lines, fully MEASURED:
     - TOP-ANCHORED: prompts start right under the day header, so spare space
       becomes writing room instead of padding above the first prompt.
-    - Rule pitch 58px = 7.4mm at 200dpi (college-rule standard, comfortable
-      for an adult hand).
+    - Rule pitch 68px = 8.6mm at 200dpi (WIDE-rule standard, roomy for a
+      normal adult hand; the owner found 7.4mm college rule too tight).
     - Lines are solved as a page TOTAL then distributed across prompts
       (earlier prompts take the remainder), so no usable rows are lost to
       per-prompt rounding. Overflow is asserted, never eyeballed."""
@@ -114,11 +114,11 @@ def render_writing_page(day, e, out):
     TOP, BOTTOM = 258, PH - 190      # last rule clears the footer mark comfortably
     LH = int(43 * 1.32)              # prompt line height
     G_P = 34                         # prompt -> its first rule (answer starts close)
-    LINE_SP = 58                     # 7.4mm ruled pitch
+    LINE_SP = 68                     # 8.6mm ruled pitch (wide rule)
     G_AFTER = 54                     # rest between a prompt's lines and the next ask
     wraps = [_wrap(p, f_pr, PW - 400) for p in e["prompts"]]
     fixed = sum(len(w) * LH for w in wraps) + n * G_P + (n - 1) * G_AFTER
-    total_lines = max(n * 5, min(n * 10, (BOTTOM - TOP - fixed) // LINE_SP))
+    total_lines = max(n * 4, min(n * 9, (BOTTOM - TOP - fixed) // LINE_SP))
     base, extra = divmod(total_lines, n)
     per = [base + (1 if i < extra else 0) for i in range(n)]
     y = TOP
