@@ -57,12 +57,14 @@ def notes_page(out):
 
 
 def back_cover(out):
+    # Measured stack: arabic seal + blurb + rule + verified line, vertically
+    # centered between the top border and the brand footer (no eyeballing).
     im = J._base(); d = ImageDraw.Draw(im)
     f_ar = ImageFont.truetype(AMIRI, 130)
-    ar = "من جذر واحد"
-    bb = d.textbbox((0, 0), ar, font=f_ar)
-    d.text(((PW - (bb[2] - bb[0])) / 2 - bb[0], 520 - bb[1]), ar, font=f_ar, fill=GOLD)
     f = ImageFont.truetype(PLAY_IT, 54)
+    f_ve = ImageFont.truetype(PLAY, 40)
+    ar = "من جذر واحد"
+    bb = d.textbbox((0, 0), ar, font=f_ar); ar_h = bb[3] - bb[1]
     lines = [
         "You say these Arabic words every day.",
         "Rahma. Sabr. Shukr.",
@@ -70,12 +72,20 @@ def back_cover(out):
         "true meaning and the ayah it lives in,",
         "with room to write your way toward it.",
     ]
-    y = 900
+    LGAP = 96                       # blurb line pitch
+    G1, G2, G3 = 170, 96, 90        # ar->blurb, blurb->rule, rule->verified
+    ve_h = sum(f_ve.getmetrics())
+    total = ar_h + G1 + LGAP * (len(lines) - 1) + sum(f.getmetrics()) + G2 + 3 + G3 + ve_h
+    top, bot = 220, PH - 400        # footer block owns the bottom 400px
+    y = top + max(0, (bot - top - total) / 2)
+    d.text(((PW - (bb[2] - bb[0])) / 2 - bb[0], y - bb[1]), ar, font=f_ar, fill=GOLD)
+    y += ar_h + G1
     for t in lines:
-        J._center(d, t, f, INK, y); y += 96
-    d.line([(PW // 2 - 60, y + 40), (PW // 2 + 60, y + 40)], fill=GOLD, width=3)
-    J._center(d, "every root verified · every source cited",
-              ImageFont.truetype(PLAY, 40), SOFT, y + 130)
+        J._center(d, t, f, INK, y); y += LGAP
+    y += G2 - LGAP + sum(f.getmetrics())
+    d.line([(PW // 2 - 60, int(y)), (PW // 2 + 60, int(y))], fill=GOLD, width=3)
+    y += 3 + G3
+    J._center(d, "every root verified · every source cited", f_ve, SOFT, y)
     J._center(d, "K E T A B I   S T U D I O", ImageFont.truetype(PLAY, 34), MARK, PH - 320, ls=8)
     J._center(d, "ketabistudio.com", ImageFont.truetype(PLAY, 30), SOFT, PH - 250)
     im.save(out); return out

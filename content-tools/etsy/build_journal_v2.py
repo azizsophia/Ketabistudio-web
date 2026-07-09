@@ -51,12 +51,14 @@ def print_guide(out):
 
 
 def worked_day(out):
+    # Distinct from HOW TO USE (which covers pace and mechanics): this page
+    # walks day one concretely, with an example of what an honest answer is.
     return _prose_page("WHAT A DAY LOOKS LIKE", [
-        "Each day is two pages. The first tells the story of one Arabic root, the true meaning that lives inside three letters. Read it slowly. The fact is a doorway, not the destination.",
-        "The second page is yours. A few honest questions, and room to answer them.",
-        "You do not need beautiful sentences. You need true ones. A single honest line is worth more than a careful, empty page.",
-        "Some prompts ask for a memory. Some ask for a plan. One or two ask for a little courage. Answer the ones that reach you, and let the rest wait.",
-        "There is no right way to fill these pages. There is only your way.",
+        "Take day one. The story page tells you that mercy and the womb share one Arabic root, and it shows you the ayah and the hadith where that link lives.",
+        "Read it once, the way you read anything. Then read it again, slower, and let one line catch on something in your week.",
+        "Turn the page. Three questions wait, with lined space under each. You do not owe them beautiful sentences. One true line is enough. Something like: the year I lived far from everyone, and still felt looked after.",
+        "Some days you will fill every line. Some days you will write one word and close the book. Both count.",
+        "And if you miss a day, you have missed nothing. The root waits.",
     ], out, gap=56)
 
 

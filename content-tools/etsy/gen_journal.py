@@ -98,33 +98,39 @@ def render_story_page(day, e, out):
     im.save(out); return out
 
 def render_writing_page(day, e, out):
-    """e: {prompts: [str, ...]} — prompts + ruled lines. MEASURED layout: the
-    number of ruled lines per prompt is solved so the page can never overflow
-    the footer (every page verified by measurement, not eyeball)."""
+    """e: {prompts: [str, ...]} — prompts + ruled lines, fully MEASURED:
+    - TOP-ANCHORED: prompts start right under the day header, so spare space
+      becomes writing room instead of padding above the first prompt.
+    - Rule pitch 58px = 7.4mm at 200dpi (college-rule standard, comfortable
+      for an adult hand).
+    - Lines are solved as a page TOTAL then distributed across prompts
+      (earlier prompts take the remainder), so no usable rows are lost to
+      per-prompt rounding. Overflow is asserted, never eyeballed."""
     im = _base(); d = ImageDraw.Draw(im)
     f_day = ImageFont.truetype(PLAY, 30)
-    f_pr  = ImageFont.truetype(PLAY_IT, 44)
+    f_pr  = ImageFont.truetype(PLAY_IT, 43)
     _center(d, f"DAY {DAY_WORDS[day-1]}  ·  {e['translit'].upper()}", f_day, GOLD, 150, ls=6)
     n = len(e["prompts"])
-    TOP, BOTTOM = 290, PH - 200      # content must clear the footer mark at PH-150
-    # LINE_SP is the ruled-line pitch (~7.5mm at 200dpi, comfortable to write on).
-    # Solve lines_per to FILL the page rather than leave it sparse, while the
-    # measurement guarantees it can never overflow the footer.
-    LH, G_P, LINE_SP, G_AFTER = int(44 * 1.35), 40, 60, 58
+    TOP, BOTTOM = 258, PH - 190      # last rule clears the footer mark comfortably
+    LH = int(43 * 1.32)              # prompt line height
+    G_P = 34                         # prompt -> its first rule (answer starts close)
+    LINE_SP = 58                     # 7.4mm ruled pitch
+    G_AFTER = 54                     # rest between a prompt's lines and the next ask
     wraps = [_wrap(p, f_pr, PW - 400) for p in e["prompts"]]
     fixed = sum(len(w) * LH for w in wraps) + n * G_P + (n - 1) * G_AFTER
-    lines_per = max(4, min(9, (BOTTOM - TOP - fixed) // (n * LINE_SP)))
-    total = fixed + n * lines_per * LINE_SP
-    y = TOP + max(0, (BOTTOM - TOP - total) / 2)
+    total_lines = max(n * 5, min(n * 10, (BOTTOM - TOP - fixed) // LINE_SP))
+    base, extra = divmod(total_lines, n)
+    per = [base + (1 if i < extra else 0) for i in range(n)]
+    y = TOP
     for i, w in enumerate(wraps):
-        y = _block(d, w, f_pr, INK, y, lg=1.35)
+        y = _block(d, w, f_pr, INK, y, lg=1.32)
         y += G_P
-        for _ in range(lines_per):
+        for _ in range(per[i]):
             d.line([(200, int(y)), (PW - 200, int(y))], fill=RULE, width=2)
             y += LINE_SP
         if i < n - 1:
             y += G_AFTER
-    assert y <= PH - 165, f"writing page overflow day {day}: y={y}"
+    assert y - LINE_SP <= PH - 185, f"writing page overflow day {day}: y={y}"
     _center(d, "F R O M   O N E   R O O T", ImageFont.truetype(PLAY, 30), MARK, PH - 150, ls=6)
     im.save(out); return out
 
