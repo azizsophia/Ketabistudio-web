@@ -396,7 +396,7 @@ the domain is switched in Vercel.
 
 ---
 
-# Continuation guide — current state (updated 2026-06-29)
+# Continuation guide — current state (updated 2026-06-29; NEWEST session log: "FULL-STACK COMMERCE DAY (2026-07-09)" at the bottom)
 
 > Read this first if you're a new session picking up the project. It captures
 > everything beyond the original 3-book system: the full product set, the
@@ -1266,3 +1266,116 @@ the verified-language moat, heavy/again-stale accuracy burden (brand promise is
 journal first; a "bridge" product should EXTEND the language edge. Offer standing:
 run the adversarial refute-search (like the journal "first of its kind" check)
 before any build.
+
+# FULL-STACK COMMERCE DAY (2026-07-09) — journal final, physical books on Etsy, cards pivot, coil pipeline
+
+## Journal "From One Root" — FINAL edition (digital 68pp + coil print 70pp)
+- **Writing pages** (`content-tools/etsy/gen_journal.py render_writing_page`):
+  top-anchored under the day header, **8.6mm wide-rule pitch (68px @200dpi)** —
+  owner tested 7.4mm college rule and found it too tight to write on. Lines are
+  solved as a page TOTAL then distributed across prompts (no per-prompt floor
+  loss). Overflow asserted. Audit script pattern lives in the session scratchpad
+  (`audit_journal.py`): pitch uniformity, margins, rule extents, all measured.
+- **worked_day page REMOVED** (owner: repeated the how-to; same call as the
+  scholarly-insight page). Digital build (`build_journal_v2.py`) = **68 pages**.
+- **Coil print edition** (`content-tools/etsy/build_journal_print.py`) = **70
+  pages**: front matter is 5 pages (title, how-to, glossary, tracker, "This
+  journal belongs to") so every day is a facing spread (story LEFT, writing
+  RIGHT); ends sources a/b, certificate, 2 Notes pages. Content scaled 94% and
+  shifted off the binding edge so coil punches never hit the gold border.
+- **Certificate wording** (owner-approved): "Carried, one root at a time, by …"
+  / closing "May the words you have carried now carry you."
+- Etsy digital file replaced on ALL THREE listings with the wide-rule 68pp PDF;
+  descriptions corrected (68 pages, no "worked example" claim).
+
+## Etsy journal listings (all live, $12.99, video + hero on each)
+- Core `4533628130` + **Sibling A** `4535255995` (Quran study/Arabic-learning
+  keywords) + **Sibling B** `4535258927` (new Muslim / revert gift keywords).
+  Siblings are legit differentiated listings (distinct titles/tags), not dupes.
+- Listing video `build_journal_video.py` (9s page slideshow, real pages only);
+  square hero `build_journal_hero.py` (cover + fanned inside pages + accurate
+  badge). Etsy quirk: a new image uploaded with rank 1 does NOT displace the old
+  rank 1 — re-POST every listing_image_id with explicit ranks to reorder.
+
+## Physical books on Etsy — Maryam/Juha pilot (DRAFTS, automation LIVE)
+- Draft listings: **Maryam `4535335357`**, **Juha `4535351858`** — $29.99, free
+  US shipping (existing "Free" profile `243316412479`; creating profiles needs
+  `shops_w` which the Etsy token does NOT have), `readiness_state_id`
+  `1402406915841` (reused from an old draft — required for physical listings).
+  Owner set 1–2wk processing in Etsy UI. Publish = owner's call.
+- **Order watcher** `app/api/cron/etsy-orders`: reads paid+unshipped receipts,
+  maps LISTING_TO_SLUG, inserts into `orders` at **status=pending** (same entry
+  point as a paid Stripe order → worker generates → awaiting_approval → owner
+  approves). Idempotent on `options.etsy_receipt`. Etsy hides buyer email/phone:
+  uses `ETSY_NOTIFY_EMAIL` (default gmail) + `ETSY_FALLBACK_PHONE`.
+- **⚠️ HOBBY CRON GOTCHA (cost ~1h of "stuck deploys")**: Vercel Hobby crons run
+  at most ONCE PER DAY. A `*/6` schedule in vercel.json made Vercel silently
+  reject EVERY deploy (build succeeds locally, GitHub hook fires, site never
+  updates). Fix: daily cron (15:30 UTC) + the social cron calls etsy-orders at
+  the end of each of its 4 daily runs (best-effort fetch, non-fatal).
+- Etsy scopes: `listings_r/w shops_r transactions_r` — can READ orders; CANNOT
+  push tracking (`transactions_w`) or create shipping profiles (`shops_w`).
+  One re-auth adds them later.
+
+## Journal COIL edition in the fulfillment pipeline — Lulu-VALIDATED
+- Worker (`worker/worker.py`): `JOURNAL_SLUG="from-one-root-journal"`,
+  **`COIL_POD="0850X1100.FC.STD.CO.060UW444.MXX"`** (8.5x11 FC standard coil,
+  60# uncoated white — right paper for handwriting, matte cover).
+  **CONFIRMED by Lulu's own validators: interior + cover both NORMALIZED**, and
+  real cost calc: **print $10.88 + MAIL ship $5.69 = $17.32** (owner's addr).
+- Interior ships in the repo: `worker/assets/journal/Journal_interior.pdf`
+  (70pp, 8.75x11.25in bleed, 300dpi, q68 JPEG via img2pdf) + cover art PNGs.
+- **Cover is assembled AT RUN TIME** (`generate_journal`) to Lulu's
+  `/cover-dimensions/` answer — for this POD Lulu wants a ONE-PIECE
+  17.25x11.25in sheet (1242x810pt): back left half, front right half. Never
+  hardcode coil cover dims.
+- `qc.gate_spec` grew `trim_in=(w,h)` + `cover_mode="lulu"` (plausibility only;
+  Lulu's validate gate is authoritative). Defaults unchanged for all old books.
+- `generate_journal` writes **`qc_report.reference.lulu_cost` for ALL levels**
+  (MAIL/GROUND/EXPEDITED/EXPRESS) so the owner picks speed with real prices;
+  `submit_approved` honors `options.shipping_level` (whitelisted, else MAIL).
+
+## Owner test-order tooling (payment bypass)
+- `POST /api/admin/test-order` (Bearer CRON_SECRET) `{book_slug}` → inserts a
+  pipeline order at status=pending (NO Stripe; Lulu bills on approve). Shipping
+  auto-copied from the owner's most recent complete order. Slug whitelist.
+- Same route: `{action:"cancel"|"reset", orderId}` (reject / reprocess), and
+  `GET ?id=` or `?slug=` for status + qc_report readback.
+- Journal test order `29dfccd5-…0688` validated end-to-end; reset to reprocess
+  with the wide-rule interior after the Render rebuild.
+
+## Digital cards — physical RETIRED, $2 flat, audited
+- Physical greeting cards retired (owner's test card arrived scuffed; dark
+  matte + paper mailer = baked-in failure). Shop tile removed, footer repointed,
+  `/cards` route → redirect `/digital-cards`. Card Studio page deleted.
+- **$2.00 flat, voice note INCLUDED** (`VOICE_ADDON_CENTS=0`; checkout skips
+  zero line items). Signature "— Name" on cards kept deliberately (real
+  signature dash, exempt from the no-em-dash rule).
+- **Photo upload fix**: iPhone photos (large/HEIC) blew Vercel's 4.5MB body
+  limit → 413 before the route ran → generic "Network error". Builder now
+  shrinks + re-encodes to JPEG in-browser (canvas, max 1800px). NOTE: keepsake
+  builder still uploads originals — needs a direct-to-storage path before
+  keepsakes scale (print needs high-res).
+- **Colors**: every card now offers the full 14-tone `ALL_COLORS` accent palette
+  (card's own default first) + a proper "Card colour" picker; the 4 scheme
+  swatches were relabeled "Background". (Bug: nikah showed rose in gallery but
+  accent had NO picker at all.)
+- `POST /api/digital-cards/test-send` (Bearer CRON_SECRET) `{token, to}` — send
+  the real recipient email for a card WITHOUT payment (flips that order paid so
+  the viewer renders). Owner-tested to her inbox.
+
+## Shipping-time honesty (site copy)
+- `lib/books.ts PRINT_SPEC` grew `leadTime/delivery/deliveryFriendly`; book page
+  spec list + price-row note + checkout copy now state: ships in 1–3 business
+  days; US 5–10 days, intl 10–21; "about 2 weeks US". Keepsakes builder: 2–3wk
+  US / 3–5wk intl (hardcover is slower). Mirrors the Shipping policy page.
+- ALL customer-facing em dashes removed site-wide (pages, card UI, emails,
+  mailto subjects). Remaining em dashes are code comments only.
+
+## Ops notes
+- Journal print files for manual Lulu upload were also delivered to the owner
+  (interior compressed <30MB for chat; the WORKER asset is the q68 authority).
+- Etsy scam pattern logged: "is this available / do you accept payment through
+  Etsy" emails to the shop gmail minutes after publishing = bot scrape of the
+  site's mailto links. Rule: never move payment/conversation off Etsy.
+- Owner email is plaintext mailto across the site (owner chose to keep it).
