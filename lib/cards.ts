@@ -256,26 +256,36 @@ export interface ColorOption {
   name: string;
   hex: string;
 }
-export const CARD_COLORS: Record<string, ColorOption[]> = {
-  eid: [{ name: "Emerald", hex: "#1f6b5a" }, { name: "Midnight", hex: "#1f3a54" }],
-  nikah: [{ name: "Rose", hex: "#a85c63" }, { name: "Plum", hex: "#6e4257" }],
-  baby: [
-    { name: "Sky", hex: "#5a86a8" },
-    { name: "Rose", hex: "#b07084" },
-    { name: "Sage", hex: "#6f8a5c" },
-  ],
-  ramadan: [{ name: "Midnight", hex: "#1f3a54" }, { name: "Amethyst", hex: "#3c3461" }],
-  birthday: [{ name: "Terracotta", hex: "#b35c3c" }, { name: "Teal", hex: "#2f6f63" }],
-  thanks: [{ name: "Brass", hex: "#a07f4a" }, { name: "Eucalyptus", hex: "#4f6b5e" }],
-  getwell: [{ name: "Sage", hex: "#6f8a5c" }, { name: "Teal", hex: "#3f6e74" }],
-  wife: [{ name: "Rose", hex: "#a85c63" }, { name: "Plum", hex: "#6e4257" }],
-  husband: [{ name: "Teal", hex: "#1f4f54" }, { name: "Forest", hex: "#2f4a3a" }],
-  mum: [{ name: "Plum", hex: "#6e4257" }, { name: "Chestnut", hex: "#7a4a3a" }],
-  dad: [{ name: "Forest", hex: "#2f5a40" }, { name: "Slate", hex: "#2f4a5a" }],
-  friend: [{ name: "Amber", hex: "#a87a3c" }, { name: "Eucalyptus", hex: "#4f6b5e" }],
-};
+// One shared palette offered on EVERY card, so any card can be any colour.
+// All are muted, print-safe sRGB tones that hold in CMYK and keep the ivory +
+// gold type legible. Each card's own default (its `color` above, and its
+// rendered gallery preview) is one of these, and is surfaced first.
+export const ALL_COLORS: ColorOption[] = [
+  { name: "Rose", hex: "#a85c63" },
+  { name: "Blush", hex: "#b07084" },
+  { name: "Plum", hex: "#6e4257" },
+  { name: "Amethyst", hex: "#3c3461" },
+  { name: "Terracotta", hex: "#b35c3c" },
+  { name: "Chestnut", hex: "#7a4a3a" },
+  { name: "Amber", hex: "#a87a3c" },
+  { name: "Brass", hex: "#a07f4a" },
+  { name: "Emerald", hex: "#1f6b5a" },
+  { name: "Forest", hex: "#2f5a40" },
+  { name: "Sage", hex: "#6f8a5c" },
+  { name: "Teal", hex: "#1f4f54" },
+  { name: "Sky", hex: "#5a86a8" },
+  { name: "Midnight", hex: "#1f3a54" },
+];
+
+// Every card gets the full palette, with the card's own default colour first
+// (so the swatch that matches its gallery preview is pre-selected).
 export function cardColors(id: string): ColorOption[] {
-  return CARD_COLORS[id] || [{ name: "Default", hex: findCard(id).color }];
+  const def = (findCard(id).color || "").toLowerCase();
+  const match = ALL_COLORS.find((c) => c.hex.toLowerCase() === def);
+  const rest = ALL_COLORS.filter((c) => c.hex.toLowerCase() !== def);
+  return match
+    ? [match, ...rest]
+    : [{ name: "Default", hex: findCard(id).color }, ...ALL_COLORS];
 }
 
 export const PAPERS: Paper[] = [

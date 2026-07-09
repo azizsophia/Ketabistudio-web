@@ -343,7 +343,25 @@ export default function DigitalCardMaker() {
               ))}
             </div>
 
-            <span className={styles.label}>Colour</span>
+            <span className={styles.label}>Card colour</span>
+            <div className={styles.swatchRow}>
+              {cardColors(itemId).map((c) => (
+                <button
+                  key={c.hex}
+                  type="button"
+                  className={`${styles.swatch} ${
+                    accent.toLowerCase() === c.hex.toLowerCase() ? styles.swatchOn : ""
+                  }`}
+                  style={{ background: c.hex }}
+                  aria-label={c.name}
+                  aria-pressed={accent.toLowerCase() === c.hex.toLowerCase()}
+                  title={c.name}
+                  onClick={() => setAccent(c.hex)}
+                />
+              ))}
+            </div>
+
+            <span className={styles.label}>Background</span>
             <div className={styles.swatchRow}>
               {SCHEMES.map((s) => (
                 <button
