@@ -20,7 +20,7 @@ export default function Footer() {
           <Link href="/#watch">Watch</Link>
           <Link href="/books">Children's books</Link>
           <Link href="/kids">Kids Corner</Link>
-          <Link href="/cards">Cards</Link>
+          <Link href="/digital-cards">Cards</Link>
           <Link href="/app">App</Link>
           <Link href="/about">About</Link>
           <Link href="/privacy-policy">Privacy Policy</Link>
