@@ -562,8 +562,9 @@ export default function PhotobookBuilder({
         <p className={styles.stepLabel}>Step 3 of 3</p>
         <h2 className={styles.heading}>Where should we send it?</h2>
         <p className={styles.sub}>
-          A hardcover keepsake, printed to order and shipped worldwide directly
-          to you{isInternational ? ". International shipping rates apply" : ""}.
+          A hardcover keepsake, made to order and shipped worldwide directly to
+          you. Please allow about 2 to 3 weeks for delivery in the US, 3 to 5
+          weeks international{isInternational ? ". International shipping rates apply" : ""}.
         </p>
 
         <div className={styles.duaNote}>
