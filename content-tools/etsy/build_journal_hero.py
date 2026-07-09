@@ -61,15 +61,20 @@ def _center(d, t, f, fill, y, ls=0):
 
 def main():
     im = _bg()
-    # fan the two inside pages behind, cover in front
-    back_w = 560
+    # fan the two inside pages symmetrically behind, cover centered in front.
+    # Placement is computed from each layer's true width so the cluster is
+    # actually centred on the canvas (not eyeballed with fixed offsets).
+    back_w = 520
     write = _page_layer(os.path.join(SRC, "p001b_write.png"), back_w, 7)
     story = _page_layer(os.path.join(SRC, "p001a_story.png"), back_w, -7)
-    cover = _page_layer(os.path.join(SRC, "p000_title.png"), 620, -2)
-    cy = 500
-    im.alpha_composite(write, (S // 2 - back_w // 2 - 250, cy - 30))
-    im.alpha_composite(story, (S // 2 - back_w // 2 + 250, cy - 30))
-    im.alpha_composite(cover, (S // 2 - 380, cy - 70))
+    cover = _page_layer(os.path.join(SRC, "p000_title.png"), 640, -2)
+    mid = S // 2
+    fan = 300                       # symmetric horizontal spread of the back pages
+    cover_top = 348
+    back_top = cover_top + 40       # back pages sit a touch lower so cover leads
+    im.alpha_composite(write, (mid - fan - write.width // 2, back_top))
+    im.alpha_composite(story, (mid + fan - story.width // 2, back_top))
+    im.alpha_composite(cover, (mid - cover.width // 2, cover_top))
 
     d = ImageDraw.Draw(im)
     # top headline

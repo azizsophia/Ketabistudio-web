@@ -122,12 +122,12 @@ def certificate_page(out):
     d.text(((PW - (bb[2] - bb[0])) / 2 - bb[0], 360 - bb[1]), ar, font=f_ar, fill=GOLD)
     J._center(d, "T H I R T Y   R O O T S ,   C O M P L E T E", ImageFont.truetype(PLAY, 40), GOLD, 620, ls=6)
     d.line([(PW // 2 - 70, 720), (PW // 2 + 70, 720)], fill=GOLD, width=3)
-    J._center(d, "This journal was walked, one root at a time, by", ImageFont.truetype(PLAY_IT, 50), INK, 830)
+    J._center(d, "Kept, one root at a time, by", ImageFont.truetype(PLAY_IT, 50), INK, 830)
     d.line([(430, 1010), (PW - 430, 1010)], fill=RULE, width=2)   # name line
-    J._center(d, "over thirty days, through the language of the Qur'an.", ImageFont.truetype(PLAY_IT, 50), INK, 1080)
-    J._center(d, "Completed on", ImageFont.truetype(PLAY, 40), SOFT, 1280)
+    J._center(d, "over thirty days in the language of the Qur'an.", ImageFont.truetype(PLAY_IT, 50), INK, 1080)
+    J._center(d, "Finished on", ImageFont.truetype(PLAY, 40), SOFT, 1280)
     d.line([(600, 1380), (PW - 600, 1380)], fill=RULE, width=2)   # date line
-    J._center(d, "May the words you have carried now carry you.", ImageFont.truetype(PLAY_IT, 46), SOFT, 1520)
+    J._center(d, "May what you found here stay close to you.", ImageFont.truetype(PLAY_IT, 46), SOFT, 1520)
     J._center(d, "K E T A B I   S T U D I O", ImageFont.truetype(PLAY, 34), MARK, PH - 300, ls=8)
     J._center(d, "ketabistudio.com", ImageFont.truetype(PLAY, 30), SOFT, PH - 235)
     im.save(out); return out
