@@ -18,6 +18,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageEnhance, ImageFilter
 D = os.path.dirname(os.path.abspath(__file__))
 FF = os.path.join(os.path.dirname(D), "worker", "fonts")
 AMIRI = os.path.join(FF, "Amiri-Bold.ttf")
+ARUQAA = os.path.join(FF, "ArefRuqaa-Regular.ttf")  # flowing calligraphic display (OFL)
 PLAY_IT = os.path.join(FF, "PlayfairDisplay-Italic.ttf")
 SANS = os.path.join(FF, "DejaVuSans.ttf")
 W, H = 1080, 1920
@@ -123,9 +124,10 @@ def render(item, photo_dir, out):
     d0 = ImageDraw.Draw(im)
     report = {"key": item["key"], "checks": []}
 
-    # whisper type scale
-    for s in (84, 76, 68, 60):
-        f_ar = ImageFont.truetype(AMIRI, s)
+    # whisper type scale (calligraphic display face for short verses on request)
+    ar_font_path = ARUQAA if item.get("font") == "ruqaa" else AMIRI
+    for s in (96, 84, 76, 68, 60):
+        f_ar = ImageFont.truetype(ar_font_path, s)
         if all(d0.textbbox((0, 0), ln, font=f_ar)[2] - d0.textbbox((0, 0), ln, font=f_ar)[0]
                <= W - 300 for ln in item["ar"]):
             break
@@ -139,29 +141,39 @@ def render(item, photo_dir, out):
         + EN_LH * len(item["en"]) + CI_G + 20
 
     y0, lum0, var0 = find_zone(im, int(total) + 60)
-    im, lum = soften_zone(im, y0, int(total) + 60)
+    # ADAPTIVE MODE: pale luminous zones (misty sky, marble) read best with
+    # warm INK text and NO darkening (the owner's luminous references);
+    # everything else keeps cream text on a gently deepened band.
+    ink_mode = lum0 > 150
+    if ink_mode:
+        lum = lum0
+        c_ar, c_en, c_ci, c_mk = (66, 60, 50), (92, 85, 72), (140, 116, 72), (150, 132, 100)
+        report["checks"].append(("zone-luminance>=150(ink)", round(lum, 1), lum >= 150))
+    else:
+        im, lum = soften_zone(im, y0, int(total) + 60)
+        c_ar, c_en, c_ci, c_mk = CREAM, CREAM_SOFT, GOLD, (150, 136, 108)
+        report["checks"].append(("zone-luminance<=95", round(lum, 1), lum <= 95))
     d = ImageDraw.Draw(im)
-    report["checks"].append(("zone-luminance<=95", round(lum, 1), lum <= 95))
     report["checks"].append(("zone-variance<=46", round(var0, 1), var0 <= 46))
 
     y = y0 + 30
     for i, ln in enumerate(item["ar"]):
         m = ar_ms[i]
         x = (W - (m[2] - m[0])) / 2 - m[0]
-        d.text((x, y - m[1]), ln, font=f_ar, fill=CREAM)
+        d.text((x, y - m[1]), ln, font=f_ar, fill=c_ar)
         off = abs((x + m[0]) - (W - (x + m[2])))
         report["checks"].append(("ar-center", round(off, 1), off <= 3))
         y += ar_hs[i] + (AR_G if i < len(ar_hs) - 1 else 0)
     y += DIV_G
-    d.line([(W / 2 - 26, y), (W / 2 + 26, y)], fill=GOLD, width=2)
+    d.line([(W / 2 - 26, y), (W / 2 + 26, y)], fill=c_ci, width=2)
     y += 2 + EN_G
     for ln in item["en"]:
-        x, w = _ctext(d, ln, f_en, CREAM_SOFT, y)
+        x, w = _ctext(d, ln, f_en, c_en, y)
         report["checks"].append(("en-center", round(abs(x - (W - x - w)), 1), abs(x - (W - x - w)) <= 3))
         y += EN_LH
     y += CI_G
-    _ctext(d, item["cite"], f_ci, GOLD, y, ls=6)
-    _ctext(d, "K E T A B I", ImageFont.truetype(SANS, 17), (150, 136, 108), H - 78, 6)
+    _ctext(d, item["cite"], f_ci, c_ci, y, ls=6)
+    _ctext(d, "K E T A B I", ImageFont.truetype(SANS, 17), c_mk, H - 78, 6)
     report["checks"].append(("stack-in-safe-area", y0, y0 > 130 and (y + 30) < H - 120))
 
     im.save(out, quality=94)
