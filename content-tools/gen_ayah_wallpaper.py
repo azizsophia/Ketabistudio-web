@@ -10,6 +10,19 @@
 #     fade (never a radial blob) deepens the chosen zone just enough.
 # Verses verified against quran.com; translations Clear Quran verbatim.
 # QC gates: centering <=3px, safe margins, zone luminance + variance ceilings.
+#
+# PHOTO POLICY (owner-set, checked by hand for EVERY photo before it enters
+# the library — no exceptions):
+#   1. Premium aesthetic, Islamic look, modesty always.
+#   2. NO people. Only two narrow exceptions: an aesthetic prayer mat (object
+#      only), or an unrecognizable SILHOUETTE of someone in salah.
+#   3. Allowed subjects: nature, animals (where fitting), skies/sea/light,
+#      REAL mosques and Islamic architecture. No tombs or non-Islamic
+#      monuments (the Taj Mahal is a mausoleum — rejected by the owner).
+#   4. Real photography only (Pexels, free commercial license). No AI imagery.
+#   5. Never repeat a background across published posts.
+# Every accepted photo is recorded in PHOTO_MANIFEST with its Pexels id and
+# what was checked, so the library stays auditable.
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import numpy as np
@@ -25,6 +38,23 @@ W, H = 1080, 1920
 CREAM = (242, 236, 224)
 CREAM_SOFT = (222, 214, 199)
 GOLD = (198, 172, 122)
+
+# Auditable provenance for every accepted background (Pexels id -> notes).
+PHOTO_MANIFEST = {
+    "px_20125592.jpg": "pexels 20125592, dark sea waves, no people, APPROVED",
+    "px_11483167.jpg": "pexels 11483167, dark sky over sea + horizon light, no people, APPROVED",
+    "px_2233416.jpg":  "pexels 2233416, ramadan lantern night, no people, APPROVED",
+    "px_8522562.jpg":  "pexels 8522562, open mushaf on stand, dark bg, no people, APPROVED",
+    "px_13581999.jpg": "pexels 13581999, crescent moon dusk sky, no people, APPROVED",
+    "px_33410135.jpg": "pexels 33410135, minaret silhouette sunset, no people, APPROVED",
+    "px_10725743.jpg": "pexels 10725743, ottoman dome at dusk behind branches, no people, APPROVED",
+    "px_3361480.jpg":  "pexels 3361480, REJECTED: Taj Mahal (mausoleum)",
+    "px_5081483.jpg":  "pexels 5081483, REJECTED: Taj Mahal (mausoleum)",
+    "px_15403114.jpg": "pexels 15403114, mosque interior light rays, REJECTED by owner (busy)",
+    "px_18565451.jpg": "pexels 18565451, dusk mosque, replaced (weird placement)",
+    "px_16013193.jpg": "pexels 16013193, al-aqsa night, unused (busy for 9:16)",
+    "px_33105187.jpg": "pexels 33105187, REJECTED: people visible in arcade",
+}
 
 ITEMS = [
     {"key": "knowledge", "photo": "px_20125592.jpg",

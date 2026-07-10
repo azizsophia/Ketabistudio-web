@@ -1379,3 +1379,28 @@ before any build.
   Etsy" emails to the shop gmail minutes after publishing = bot scrape of the
   site's mailto links. Rule: never move payment/conversation off Etsy.
 - Owner email is plaintext mailto across the site (owner chose to keep it).
+
+# SOCIAL RESET (2026-07-10) — new signature ayah style, old automation retired
+
+- **148 queued posts cancelled** (owner call: old carousel/root strategy dead —
+  carousels reached 3-10 people; reels 109-326). Poster infra kept, queue empty.
+- **New signature: photographic ayah wallpapers** (`content-tools/
+  gen_ayah_wallpaper.py`): real Pexels photography, deep global fade + grain,
+  whisper-scale Arabic (Amiri; Aref Ruqaa for short display verses), tiny
+  italic Clear Quran translation, tracked citation, KETABI mark. Text is
+  AUTO-PLACED into the calmest darkest band (measured); adaptive ink mode for
+  pale zones. QC gates assert centering/margins/legibility per render.
+- **PHOTO POLICY (owner-set, in renderer header + PHOTO_MANIFEST)**: modesty
+  always; NO people (only exceptions: prayer-mat object, or unrecognizable
+  salah silhouette); nature/animals/skies/REAL mosques only; NO tombs or
+  monuments (Taj Mahal = mausoleum, rejected); real photography only, no AI
+  imagery; never repeat a background. Every photo logged in PHOTO_MANIFEST.
+- **Verses must be verified against quran.com before render** (Arabic letter
+  by letter + Khattab translation verbatim; excerpting cited by ayah).
+- Caption format (owner-picked): verse + translation + citation, then
+  `pc: ketabistudio.com`, then ~5 hashtags. Threads: same minus hashtags.
+- First test post (20:114 dark sea) got a like + repost within minutes.
+- Approved library so far: sea/20:114, horizon/26:62, lantern/2:186,
+  mushaf/17:82, crescent/11:88, sunset-minarets/2:186, dusk-dome/3:173.
+- Planned cadence when owner green-lights the batch: 2 reels/day IG+FB,
+  4 Threads/day; grid checkerboard maintained via alternating cover tones.
