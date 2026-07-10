@@ -69,9 +69,16 @@ export async function POST(req: NextRequest) {
   const targetId = String((body as Record<string, unknown>).orderId || "");
   if (action) {
     if (!targetId) return NextResponse.json({ error: "orderId required" }, { status: 400 });
-    const status = action === "cancel" ? "rejected" : action === "reset" ? "pending" : "";
+    const status =
+      action === "cancel" ? "rejected"
+      : action === "reset" ? "pending"
+      : action === "approve" ? "approved"   // owner go-ahead: worker submits to Lulu
+      : "";
     if (!status) return NextResponse.json({ error: "unknown action" }, { status: 400 });
-    const guard = "&status=in.(pending,generating,qc_passed,validated,awaiting_approval,failed)";
+    // approve is only valid from awaiting_approval; others from any in-flight state
+    const guard = action === "approve"
+      ? "&status=eq.awaiting_approval"
+      : "&status=in.(pending,generating,qc_passed,validated,awaiting_approval,failed)";
     const pr = await fetch(`${SB}/rest/v1/orders?id=eq.${encodeURIComponent(targetId)}${guard}`, {
       method: "PATCH",
       headers: { Authorization: `Bearer ${KEY}`, apikey: KEY, "Content-Type": "application/json", Prefer: "return=representation" },
