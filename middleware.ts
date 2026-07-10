@@ -30,6 +30,19 @@ const ALLOW = [
 ];
 
 export function middleware(req: NextRequest) {
+  /* app.ketabistudio.com — the app's own front door. Serves ONLY the app
+     page (ungated: app-store reviewers and shared links must always load),
+     while every other path on that host falls through to the normal gate.
+     Requires zero upkeep: works as soon as the subdomain exists in Vercel. */
+  const host = (req.headers.get("host") || "").toLowerCase();
+  if (host.startsWith("app.")) {
+    if (req.nextUrl.pathname === "/" || req.nextUrl.pathname === "/app") {
+      const url = req.nextUrl.clone();
+      url.pathname = "/app";
+      return NextResponse.rewrite(url);
+    }
+  }
+
   if (!COMING_SOON) return NextResponse.next();
 
   const { pathname, searchParams } = req.nextUrl;
