@@ -37,11 +37,37 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "not configured" }, { status: 500 });
   }
 
-  let body: { posts?: IncomingPost[]; replace?: boolean; clear?: boolean };
+  let body: {
+    posts?: IncomingPost[];
+    replace?: boolean;
+    clear?: boolean;
+    promote?: { image_url: string; scheduled_for?: string };
+  };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "invalid json" }, { status: 400 });
+  }
+
+  // {promote:{image_url, scheduled_for?}}: reschedule a still-queued post so it
+  // fires now (or at a given time). Matches the exact media URL — reel URLs
+  // carry a unique id, so this targets one post without a schema change. Used
+  // when the owner wants to publish something ahead of its slot.
+  if (body.promote?.image_url) {
+    const when = body.promote.scheduled_for || new Date(Date.now() - 60_000).toISOString();
+    const q = `${SB}/rest/v1/social_queue?status=eq.queued&image_url=eq.${encodeURIComponent(body.promote.image_url)}`;
+    const r = await fetch(q, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${KEY}`,
+        apikey: KEY!,
+        "Content-Type": "application/json",
+        Prefer: "return=representation",
+      },
+      body: JSON.stringify({ scheduled_for: when }),
+    });
+    const rows = await r.json().catch(() => []);
+    return NextResponse.json({ ok: true, promoted: Array.isArray(rows) ? rows.length : 0, scheduled_for: when });
   }
 
   // {clear:true}: cancel the entire not-yet-published queue (published rows
