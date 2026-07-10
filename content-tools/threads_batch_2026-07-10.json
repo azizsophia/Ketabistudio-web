@@ -1,0 +1,427 @@
+{
+ "batch": "threads week 1, photographic ayah signature",
+ "queued": "2026-07-10 (28 posts, platforms=th, social_queue)",
+ "days": "Fri 2026-07-10 .. Thu 2026-07-16, 4/day at 6:30a/12:00p/5:30p/9:00p US Central (CDT, UTC-5)",
+ "verification": "Arabic sliced from quran.com uthmani text; English excerpts containment-checked against Dr. Mustafa Khattab, The Clear Quran (resource 131); builder: build_batch.py",
+ "photo_policy": "every background hand-checked; see PHOTO_MANIFEST in gen_ayah_wallpaper.py",
+ "items": [
+  {
+   "key": "kahf_power",
+   "photo": "px_33410135.jpg",
+   "ar": [
+    "مَا شَآءَ ٱللَّهُ لَا قُوَّةَ إِلَّا بِٱللَّهِ"
+   ],
+   "en": [
+    "This is what Allah has willed!",
+    "There is no power except with Allah!"
+   ],
+   "cite": "QUR'AN 18:39",
+   "font": "ruqaa",
+   "day": 1,
+   "slot": 0
+  },
+  {
+   "key": "guide",
+   "photo": "px_11483167.jpg",
+   "ar": [
+    "إِنَّ مَعِىَ رَبِّى سَيَهْدِينِ"
+   ],
+   "en": [
+    "My Lord is certainly with me,",
+    "He will guide me."
+   ],
+   "cite": "QUR'AN 26:62",
+   "font": "amiri",
+   "day": 1,
+   "slot": 1
+  },
+  {
+   "key": "pleased",
+   "photo": "px_12122210.jpg",
+   "ar": [
+    "وَلَسَوْفَ يُعْطِيكَ رَبُّكَ فَتَرْضَىٰٓ"
+   ],
+   "en": [
+    "And surely your Lord will give so much",
+    "to you that you will be pleased."
+   ],
+   "cite": "QUR'AN 93:5",
+   "font": "amiri",
+   "day": 1,
+   "slot": 2
+  },
+  {
+   "key": "near",
+   "photo": "px_2233416.jpg",
+   "ar": [
+    "فَإِنِّى قَرِيبٌ"
+   ],
+   "en": [
+    "I am truly near."
+   ],
+   "cite": "QUR'AN 2:186",
+   "font": "amiri",
+   "day": 1,
+   "slot": 3
+  },
+  {
+   "key": "no_fear",
+   "photo": "px_17838430.jpg",
+   "ar": [
+    "لَا تَخَافَآ إِنَّنِى مَعَكُمَآ أَسْمَعُ وَأَرَىٰ"
+   ],
+   "en": [
+    "Have no fear! I am with you,",
+    "hearing and seeing."
+   ],
+   "cite": "QUR'AN 20:46",
+   "font": "amiri",
+   "day": 2,
+   "slot": 0
+  },
+  {
+   "key": "healing",
+   "photo": "px_8522562.jpg",
+   "ar": [
+    "وَنُنَزِّلُ مِنَ ٱلْقُرْءَانِ مَا هُوَ شِفَآءٌ وَرَحْمَةٌ لِّلْمُؤْمِنِينَ"
+   ],
+   "en": [
+    "We send down the Quran as a healing",
+    "and mercy for the believers."
+   ],
+   "cite": "QUR'AN 17:82",
+   "font": "amiri",
+   "day": 2,
+   "slot": 1
+  },
+  {
+   "key": "trust",
+   "photo": "px_5853010.jpg",
+   "ar": [
+    "وَمَن يَتَوَكَّلْ عَلَى ٱللَّهِ فَهُوَ حَسْبُهُۥٓ"
+   ],
+   "en": [
+    "And whoever puts their trust in Allah,",
+    "then He alone is sufficient for them."
+   ],
+   "cite": "QUR'AN 65:3",
+   "font": "amiri",
+   "day": 2,
+   "slot": 2
+  },
+  {
+   "key": "tranquil",
+   "photo": "px_36633067.jpg",
+   "ar": [
+    "يَـٰٓأَيَّتُهَا ٱلنَّفْسُ ٱلْمُطْمَئِنَّةُ",
+    "ٱرْجِعِىٓ إِلَىٰ رَبِّكِ رَاضِيَةً مَّرْضِيَّةً"
+   ],
+   "en": [
+    "O tranquil soul! Return to your Lord,",
+    "well pleased with Him",
+    "and well pleasing to Him."
+   ],
+   "cite": "QUR'AN 89:27-28",
+   "font": "amiri",
+   "day": 2,
+   "slot": 3
+  },
+  {
+   "key": "success",
+   "photo": "px_13581999.jpg",
+   "ar": [
+    "وَمَا تَوْفِيقِىٓ إِلَّا بِٱللَّهِ"
+   ],
+   "en": [
+    "My success comes only through Allah."
+   ],
+   "cite": "QUR'AN 11:88",
+   "font": "amiri",
+   "day": 3,
+   "slot": 0
+  },
+  {
+   "key": "responds",
+   "photo": "px_17572018.jpg",
+   "ar": [
+    "أَمَّن يُجِيبُ ٱلْمُضْطَرَّ إِذَا دَعَاهُ وَيَكْشِفُ ٱلسُّوٓءَ"
+   ],
+   "en": [
+    "Who responds to the distressed",
+    "when they cry to Him,",
+    "relieving their affliction?"
+   ],
+   "cite": "QUR'AN 27:62",
+   "font": "amiri",
+   "day": 3,
+   "slot": 1
+  },
+  {
+   "key": "remember",
+   "photo": "px_8522564.jpg",
+   "ar": [
+    "فَٱذْكُرُونِىٓ أَذْكُرْكُمْ"
+   ],
+   "en": [
+    "Remember Me; I will remember you."
+   ],
+   "cite": "QUR'AN 2:152",
+   "font": "ruqaa",
+   "day": 3,
+   "slot": 2
+  },
+  {
+   "key": "qadar",
+   "photo": "px_27771787.jpg",
+   "ar": [
+    "إِنَّا كُلَّ شَىْءٍ خَلَقْنَـٰهُ بِقَدَرٍ"
+   ],
+   "en": [
+    "Indeed, We have created everything,",
+    "perfectly preordained."
+   ],
+   "cite": "QUR'AN 54:49",
+   "font": "amiri",
+   "day": 3,
+   "slot": 3
+  },
+  {
+   "key": "sufficient",
+   "photo": "px_10725743.jpg",
+   "ar": [
+    "حَسْبُنَا ٱللَّهُ وَنِعْمَ ٱلْوَكِيلُ"
+   ],
+   "en": [
+    "Allah alone is sufficient as an aid for us",
+    "and He is the best Protector."
+   ],
+   "cite": "QUR'AN 3:173",
+   "font": "ruqaa",
+   "day": 4,
+   "slot": 0
+  },
+  {
+   "key": "sorrow",
+   "photo": "px_34155534.jpg",
+   "ar": [
+    "إِنَّمَآ أَشْكُوا۟ بَثِّى وَحُزْنِىٓ إِلَى ٱللَّهِ"
+   ],
+   "en": [
+    "I complain of my anguish",
+    "and sorrow only to Allah."
+   ],
+   "cite": "QUR'AN 12:86",
+   "font": "amiri",
+   "day": 4,
+   "slot": 1
+  },
+  {
+   "key": "call",
+   "photo": "px_30860588.jpg",
+   "ar": [
+    "ٱدْعُونِىٓ أَسْتَجِبْ لَكُمْ"
+   ],
+   "en": [
+    "Call upon Me,",
+    "I will respond to you."
+   ],
+   "cite": "QUR'AN 40:60",
+   "font": "ruqaa",
+   "day": 4,
+   "slot": 2
+  },
+  {
+   "key": "with_you",
+   "photo": "px_10910952.jpg",
+   "ar": [
+    "وَهُوَ مَعَكُمْ أَيْنَ مَا كُنتُمْ"
+   ],
+   "en": [
+    "And He is with you wherever you are."
+   ],
+   "cite": "QUR'AN 57:4",
+   "font": "ruqaa",
+   "day": 4,
+   "slot": 3
+  },
+  {
+   "key": "provision",
+   "photo": "px_31760137.jpg",
+   "ar": [
+    "رَبِّ إِنِّى لِمَآ أَنزَلْتَ إِلَىَّ مِنْ خَيْرٍ فَقِيرٌ"
+   ],
+   "en": [
+    "My Lord! I am truly in desperate need",
+    "of whatever provision You may have",
+    "in store for me."
+   ],
+   "cite": "QUR'AN 28:24",
+   "font": "amiri",
+   "day": 5,
+   "slot": 0
+  },
+  {
+   "key": "patience",
+   "photo": "px_38230509.jpg",
+   "ar": [
+    "وَٱصْبِرْ وَمَا صَبْرُكَ إِلَّا بِٱللَّهِ"
+   ],
+   "en": [
+    "Be patient, O Prophet, for your patience",
+    "is only with Allah's help."
+   ],
+   "cite": "QUR'AN 16:127",
+   "font": "amiri",
+   "day": 5,
+   "slot": 1
+  },
+  {
+   "key": "kafin",
+   "photo": "px_13148248.jpg",
+   "ar": [
+    "أَلَيْسَ ٱللَّهُ بِكَافٍ عَبْدَهُۥ"
+   ],
+   "en": [
+    "Is Allah not sufficient for His servant?"
+   ],
+   "cite": "QUR'AN 39:36",
+   "font": "ruqaa",
+   "day": 5,
+   "slot": 2
+  },
+  {
+   "key": "uplift",
+   "photo": "px_26347654.jpg",
+   "ar": [
+    "رَبِّ ٱشْرَحْ لِى صَدْرِى",
+    "وَيَسِّرْ لِىٓ أَمْرِى"
+   ],
+   "en": [
+    "My Lord! Uplift my heart for me,",
+    "and make my task easy."
+   ],
+   "cite": "QUR'AN 20:25-26",
+   "font": "amiri",
+   "day": 5,
+   "slot": 3
+  },
+  {
+   "key": "striving",
+   "photo": "px_28641619.jpg",
+   "ar": [
+    "وَٱلَّذِينَ جَـٰهَدُوا۟ فِينَا لَنَهْدِيَنَّهُمْ سُبُلَنَا"
+   ],
+   "en": [
+    "As for those who struggle in Our cause,",
+    "We will surely guide them along Our Way."
+   ],
+   "cite": "QUR'AN 29:69",
+   "font": "amiri",
+   "day": 6,
+   "slot": 0
+  },
+  {
+   "key": "protector",
+   "photo": "px_1631676.jpg",
+   "ar": [
+    "فَٱللَّهُ خَيْرٌ حَـٰفِظًا وَهُوَ أَرْحَمُ ٱلرَّٰحِمِينَ"
+   ],
+   "en": [
+    "Allah is the best Protector, and He is",
+    "the Most Merciful of the merciful."
+   ],
+   "cite": "QUR'AN 12:64",
+   "font": "amiri",
+   "day": 6,
+   "slot": 1
+  },
+  {
+   "key": "khayr",
+   "photo": "px_17650981.jpg",
+   "ar": [
+    "وَعَسَىٰٓ أَن تَكْرَهُوا۟ شَيْـًٔا وَهُوَ خَيْرٌ لَّكُمْ"
+   ],
+   "en": [
+    "Perhaps you dislike something",
+    "which is good for you."
+   ],
+   "cite": "QUR'AN 2:216",
+   "font": "amiri",
+   "day": 6,
+   "slot": 2
+  },
+  {
+   "key": "ease",
+   "photo": "px_9569734.jpg",
+   "ar": [
+    "فَإِنَّ مَعَ ٱلْعُسْرِ يُسْرًا"
+   ],
+   "en": [
+    "So, surely with hardship comes ease."
+   ],
+   "cite": "QUR'AN 94:5",
+   "font": "ruqaa",
+   "day": 6,
+   "slot": 3
+  },
+  {
+   "key": "hearts",
+   "photo": "px_11514335.jpg",
+   "ar": [
+    "أَلَا بِذِكْرِ ٱللَّهِ تَطْمَئِنُّ ٱلْقُلُوبُ"
+   ],
+   "en": [
+    "Surely in the remembrance of Allah",
+    "do hearts find comfort."
+   ],
+   "cite": "QUR'AN 13:28",
+   "font": "amiri",
+   "day": 7,
+   "slot": 0
+  },
+  {
+   "key": "humbly",
+   "photo": "px_37978369.jpg",
+   "ar": [
+    "وَعِبَادُ ٱلرَّحْمَـٰنِ ٱلَّذِينَ يَمْشُونَ عَلَى ٱلْأَرْضِ هَوْنًا"
+   ],
+   "en": [
+    "The true servants of the Most Compassionate",
+    "are those who walk on the earth humbly."
+   ],
+   "cite": "QUR'AN 25:63",
+   "font": "amiri",
+   "day": 7,
+   "slot": 1
+  },
+  {
+   "key": "love",
+   "photo": "px_22819805.jpg",
+   "ar": [
+    "سَيَجْعَلُ لَهُمُ ٱلرَّحْمَـٰنُ وُدًّا"
+   ],
+   "en": [
+    "The Most Compassionate will certainly",
+    "bless them with genuine love."
+   ],
+   "cite": "QUR'AN 19:96",
+   "font": "ruqaa",
+   "day": 7,
+   "slot": 2
+  },
+  {
+   "key": "kind",
+   "photo": "px_18929901.jpg",
+   "ar": [
+    "ٱللَّهُ لَطِيفٌۢ بِعِبَادِهِۦ"
+   ],
+   "en": [
+    "Allah is Ever Kind to His servants."
+   ],
+   "cite": "QUR'AN 42:19",
+   "font": "ruqaa",
+   "day": 7,
+   "slot": 3
+  }
+ ]
+}
