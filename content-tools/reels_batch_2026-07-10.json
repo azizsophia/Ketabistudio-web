@@ -1,0 +1,413 @@
+{
+ "batch": "instagram reels week 1, ayah reels (silent, no music)",
+ "queued": "2026-07-10 (21 reels, platforms=ig,fb, social_queue)",
+ "schedule": "Fri 2026-07-10 .. Thu 2026-07-16, 3/day at 10:00a/2:30p/8:00p US Central (CDT, UTC-5)",
+ "format": "hook / verse / From One Root end-card (DIGITAL DOWNLOAD ON ETSY) over person-checked Pexels 4K footage, no ocean, drop-shadowed type",
+ "verification": "Arabic sliced from quran.com uthmani; English excerpts contiguous in Clear Quran (Khattab, res 131), bracket-optional; builder /tmp/build_reels.py",
+ "footage_policy": "every clip frame-checked for people/tombs; rejected 10168152 (person releasing lantern) and 34271852 (jack-o-lantern)",
+ "items": [
+  {
+   "key": "abandon",
+   "clip": 18226789,
+   "hook": [
+    "If you feel Allah",
+    "has gone quiet"
+   ],
+   "ar": [
+    "مَا وَدَّعَكَ رَبُّكَ وَمَا قَلَىٰ"
+   ],
+   "en": [
+    "Your Lord has not abandoned you,",
+    "nor has He become hateful."
+   ],
+   "cite": "QUR'AN 93:3",
+   "font": "amiri",
+   "day": 1,
+   "slot": 0
+  },
+  {
+   "key": "guided",
+   "clip": 19824944,
+   "hook": [
+    "He has done it",
+    "for you before"
+   ],
+   "ar": [
+    "وَوَجَدَكَ ضَآلًّا فَهَدَىٰ"
+   ],
+   "en": [
+    "Did He not find you unguided",
+    "then guided you?"
+   ],
+   "cite": "QUR'AN 93:7",
+   "font": "amiri",
+   "day": 1,
+   "slot": 1
+  },
+  {
+   "key": "despair1",
+   "clip": 30560393,
+   "hook": [
+    "The most hopeful verse",
+    "in the Quran"
+   ],
+   "ar": [
+    "لَا تَقْنَطُوا۟ مِن رَّحْمَةِ ٱللَّهِ إِنَّ ٱللَّهَ يَغْفِرُ ٱلذُّنُوبَ جَمِيعًا"
+   ],
+   "en": [
+    "Do not lose hope in Allah's mercy,",
+    "for Allah certainly forgives all sins."
+   ],
+   "cite": "QUR'AN 39:53",
+   "font": "amiri",
+   "day": 1,
+   "slot": 2
+  },
+  {
+   "key": "yaqub",
+   "clip": 8062894,
+   "hook": [
+    "Yaqub kept hoping",
+    "for years"
+   ],
+   "ar": [
+    "وَلَا تَا۟يْـَٔسُوا۟ مِن رَّوْحِ ٱللَّهِ"
+   ],
+   "en": [
+    "And do not lose hope",
+    "in the mercy of Allah."
+   ],
+   "cite": "QUR'AN 12:87",
+   "font": "ruqaa",
+   "day": 2,
+   "slot": 0
+  },
+  {
+   "key": "burden",
+   "clip": 35560833,
+   "hook": [
+    "Whatever you are",
+    "carrying right now"
+   ],
+   "ar": [
+    "لَا يُكَلِّفُ ٱللَّهُ نَفْسًا إِلَّا وُسْعَهَا"
+   ],
+   "en": [
+    "Allah does not require of any soul",
+    "more than what it can afford."
+   ],
+   "cite": "QUR'AN 2:286",
+   "font": "amiri",
+   "day": 2,
+   "slot": 1
+  },
+  {
+   "key": "falter",
+   "clip": 26524715,
+   "hook": [
+    "For the days you",
+    "feel behind"
+   ],
+   "ar": [
+    "وَلَا تَهِنُوا۟ وَلَا تَحْزَنُوا۟ وَأَنتُمُ ٱلْأَعْلَوْنَ"
+   ],
+   "en": [
+    "Do not falter or grieve,",
+    "for you will have the upper hand."
+   ],
+   "cite": "QUR'AN 3:139",
+   "font": "amiri",
+   "day": 2,
+   "slot": 2
+  },
+  {
+   "key": "change",
+   "clip": 12594868,
+   "hook": [
+    "The verse about",
+    "starting over"
+   ],
+   "ar": [
+    "إِنَّ ٱللَّهَ لَا يُغَيِّرُ مَا بِقَوْمٍ حَتَّىٰ يُغَيِّرُوا۟ مَا بِأَنفُسِهِمْ"
+   ],
+   "en": [
+    "Indeed, Allah would never change",
+    "a people's state until they",
+    "change their own state."
+   ],
+   "cite": "QUR'AN 13:11",
+   "font": "amiri",
+   "day": 3,
+   "slot": 0
+  },
+  {
+   "key": "closer",
+   "clip": 30575359,
+   "hook": [
+    "How close is",
+    "Allah really?"
+   ],
+   "ar": [
+    "وَنَحْنُ أَقْرَبُ إِلَيْهِ مِنْ حَبْلِ ٱلْوَرِيدِ"
+   ],
+   "en": [
+    "And We are closer to them",
+    "than their jugular vein."
+   ],
+   "cite": "QUR'AN 50:16",
+   "font": "amiri",
+   "day": 3,
+   "slot": 1
+  },
+  {
+   "key": "comfort",
+   "clip": 37302557,
+   "hook": [
+    "When you don't",
+    "know what to do"
+   ],
+   "ar": [
+    "ٱسْتَعِينُوا۟ بِٱلصَّبْرِ وَٱلصَّلَوٰةِ إِنَّ ٱللَّهَ مَعَ ٱلصَّـٰبِرِينَ"
+   ],
+   "en": [
+    "Seek comfort in patience and prayer.",
+    "Allah is truly with those",
+    "who are patient."
+   ],
+   "cite": "QUR'AN 2:153",
+   "font": "amiri",
+   "day": 3,
+   "slot": 2
+  },
+  {
+   "key": "grateful",
+   "clip": 20690857,
+   "hook": [
+    "The formula",
+    "for more"
+   ],
+   "ar": [
+    "لَئِن شَكَرْتُمْ لَأَزِيدَنَّكُمْ"
+   ],
+   "en": [
+    "If you are grateful,",
+    "I will certainly give you more."
+   ],
+   "cite": "QUR'AN 14:7",
+   "font": "ruqaa",
+   "day": 4,
+   "slot": 0
+  },
+  {
+   "key": "keys",
+   "clip": 27638338,
+   "hook": [
+    "Whatever you're anxious",
+    "about not knowing"
+   ],
+   "ar": [
+    "وَعِندَهُۥ مَفَاتِحُ ٱلْغَيْبِ لَا يَعْلَمُهَآ إِلَّا هُوَ"
+   ],
+   "en": [
+    "With Him are the keys of the unseen,",
+    "no one knows them except Him."
+   ],
+   "cite": "QUR'AN 6:59",
+   "font": "amiri",
+   "day": 4,
+   "slot": 1
+  },
+  {
+   "key": "gentle",
+   "clip": 37239590,
+   "hook": [
+    "Why the Prophet",
+    "was gentle"
+   ],
+   "ar": [
+    "فَبِمَا رَحْمَةٍ مِّنَ ٱللَّهِ لِنتَ لَهُمْ"
+   ],
+   "en": [
+    "It is out of Allah's mercy",
+    "that you have been lenient with them."
+   ],
+   "cite": "QUR'AN 3:159",
+   "font": "amiri",
+   "day": 4,
+   "slot": 2
+  },
+  {
+   "key": "replace",
+   "clip": 36971694,
+   "hook": [
+    "For the past",
+    "you can't undo"
+   ],
+   "ar": [
+    "فَأُو۟لَـٰٓئِكَ يُبَدِّلُ ٱللَّهُ سَيِّـَٔاتِهِمْ حَسَنَـٰتٍ"
+   ],
+   "en": [
+    "The ones whose evil deeds",
+    "Allah will change into good deeds."
+   ],
+   "cite": "QUR'AN 25:70",
+   "font": "amiri",
+   "day": 5,
+   "slot": 0
+  },
+  {
+   "key": "repent",
+   "clip": 35178038,
+   "hook": [
+    "The door that",
+    "never closes"
+   ],
+   "ar": [
+    "تُوبُوٓا۟ إِلَى ٱللَّهِ تَوْبَةً نَّصُوحًا"
+   ],
+   "en": [
+    "Turn to Allah",
+    "in sincere repentance."
+   ],
+   "cite": "QUR'AN 66:8",
+   "font": "ruqaa",
+   "day": 5,
+   "slot": 1
+  },
+  {
+   "key": "tested",
+   "clip": 8062901,
+   "hook": [
+    "Why the test doesn't",
+    "mean He's angry"
+   ],
+   "ar": [
+    "أَحَسِبَ ٱلنَّاسُ أَن يُتْرَكُوٓا۟ أَن يَقُولُوٓا۟ ءَامَنَّا وَهُمْ لَا يُفْتَنُونَ"
+   ],
+   "en": [
+    "Do people think once they say,",
+    "We believe, that they will be left",
+    "without being put to the test?"
+   ],
+   "cite": "QUR'AN 29:2",
+   "font": "amiri",
+   "day": 5,
+   "slot": 2
+  },
+  {
+   "key": "ease2",
+   "clip": 38238836,
+   "hook": [
+    "Read this on",
+    "a hard night"
+   ],
+   "ar": [
+    "سَيَجْعَلُ ٱللَّهُ بَعْدَ عُسْرٍ يُسْرًا"
+   ],
+   "en": [
+    "After hardship, Allah will",
+    "bring about ease."
+   ],
+   "cite": "QUR'AN 65:7",
+   "font": "ruqaa",
+   "day": 6,
+   "slot": 0
+  },
+  {
+   "key": "help2",
+   "clip": 34573189,
+   "hook": [
+    "The two things",
+    "that always help"
+   ],
+   "ar": [
+    "وَٱسْتَعِينُوا۟ بِٱلصَّبْرِ وَٱلصَّلَوٰةِ"
+   ],
+   "en": [
+    "And seek help through",
+    "patience and prayer."
+   ],
+   "cite": "QUR'AN 2:45",
+   "font": "amiri",
+   "day": 6,
+   "slot": 1
+  },
+  {
+   "key": "calamity",
+   "clip": 28798096,
+   "hook": [
+    "When something breaks",
+    "unexpectedly"
+   ],
+   "ar": [
+    "وَمَن يُؤْمِنۢ بِٱللَّهِ يَهْدِ قَلْبَهُۥ"
+   ],
+   "en": [
+    "Whoever has faith in Allah,",
+    "He will guide their heart."
+   ],
+   "cite": "QUR'AN 64:11",
+   "font": "amiri",
+   "day": 6,
+   "slot": 2
+  },
+  {
+   "key": "victory",
+   "clip": 25988225,
+   "hook": [
+    "The only backing",
+    "you need"
+   ],
+   "ar": [
+    "إِن يَنصُرْكُمُ ٱللَّهُ فَلَا غَالِبَ لَكُمْ"
+   ],
+   "en": [
+    "If Allah helps you,",
+    "none can defeat you."
+   ],
+   "cite": "QUR'AN 3:160",
+   "font": "amiri",
+   "day": 7,
+   "slot": 0
+  },
+  {
+   "key": "stand",
+   "clip": 31739862,
+   "hook": [
+    "The promise most",
+    "people forget"
+   ],
+   "ar": [
+    "إِن تَنصُرُوا۟ ٱللَّهَ يَنصُرْكُمْ وَيُثَبِّتْ أَقْدَامَكُمْ"
+   ],
+   "en": [
+    "If you stand up for Allah,",
+    "He will help you",
+    "and make your steps firm."
+   ],
+   "cite": "QUR'AN 47:7",
+   "font": "amiri",
+   "day": 7,
+   "slot": 1
+  },
+  {
+   "key": "trust2",
+   "clip": 12491757,
+   "hook": [
+    "Where to put",
+    "the weight"
+   ],
+   "ar": [
+    "وَتَوَكَّلْ عَلَى ٱللَّهِ وَكَفَىٰ بِٱللَّهِ وَكِيلًا"
+   ],
+   "en": [
+    "And put your trust in Allah,",
+    "for Allah is sufficient as a Trustee."
+   ],
+   "cite": "QUR'AN 33:3",
+   "font": "ruqaa",
+   "day": 7,
+   "slot": 2
+  }
+ ]
+}

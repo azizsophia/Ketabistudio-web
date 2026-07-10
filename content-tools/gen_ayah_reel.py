@@ -176,13 +176,20 @@ def build(spec, out):
         "[bg][hk]overlay=0:0[a];[a][vs]overlay=0:0[b];[b][ec]overlay=0:0[v]"
     )
     cmd = [
-        ffmpeg, "-y", "-i", spec["video"],
+        ffmpeg, "-y",
+        # loop the footage so a clip shorter than `dur` never freezes on its
+        # last frame; the -t on the output trims to the target length.
+        "-stream_loop", "-1", "-i", spec["video"],
         "-loop", "1", "-t", str(dur), "-i", f"{tmp}/hook.png",
         "-loop", "1", "-t", str(dur), "-i", f"{tmp}/verse.png",
         "-loop", "1", "-t", str(dur), "-i", f"{tmp}/end.png",
-        "-filter_complex", vf, "-map", "[v]", "-map", "0:a?",
-        "-t", str(dur), "-r", "30", "-c:v", "libx264", "-crf", "21",
-        "-preset", "medium", "-c:a", "aac", "-b:a", "128k", out,
+        "-filter_complex", vf, "-map", "[v]",
+        # target ~3-3.5MB for an ~11.5s reel so the upload stays under the
+        # serverless request-body limit; IG re-encodes anyway. Silent by
+        # design (no music) — drop the source audio entirely.
+        "-t", str(dur), "-r", "30", "-c:v", "libx264",
+        "-b:v", "2300k", "-maxrate", "2600k", "-bufsize", "4600k",
+        "-preset", "medium", "-pix_fmt", "yuv420p", "-an", out,
     ]
     r = subprocess.run(cmd, capture_output=True, text=True)
     if r.returncode != 0:
