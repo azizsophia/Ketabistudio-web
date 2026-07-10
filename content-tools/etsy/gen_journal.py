@@ -113,9 +113,9 @@ def render_writing_page(day, e, out):
     n = len(e["prompts"])
     TOP, BOTTOM = 258, PH - 190      # last rule clears the footer mark comfortably
     LH = int(43 * 1.32)              # prompt line height
-    G_P = 34                         # prompt -> its first rule (answer starts close)
+    G_P = 62                         # prompt -> its first rule: 7.9mm of clear room
     LINE_SP = 68                     # 8.6mm ruled pitch (wide rule)
-    G_AFTER = 54                     # rest between a prompt's lines and the next ask
+    G_AFTER = 58                     # rest between a prompt's lines and the next ask
     wraps = [_wrap(p, f_pr, PW - 400) for p in e["prompts"]]
     fixed = sum(len(w) * LH for w in wraps) + n * G_P + (n - 1) * G_AFTER
     total_lines = max(n * 4, min(n * 9, (BOTTOM - TOP - fixed) // LINE_SP))

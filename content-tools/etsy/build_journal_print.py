@@ -30,6 +30,40 @@ OUTER_GAP = CW - TW - BIND_GAP # lands right at the bleed line
 Y_GAP = (CH - TH) // 2
 
 
+def cover_front(out):
+    """Dedicated FRONT COVER (not the interior title page): the whole title
+    stack is spread with generous rhythm and centered high in the page so there
+    is no dead band at the top, with the brand line pinned near the foot. Owner
+    flagged the reused title page as top-empty on the printed cover."""
+    im = J._base(); d = ImageDraw.Draw(im)
+    f_tag = ImageFont.truetype(PLAY, 38)
+    f_ar  = ImageFont.truetype(AMIRI, 250)
+    f_ti  = ImageFont.truetype(PLAY_IT, 150)
+    f_su  = ImageFont.truetype(PLAY_IT, 54)
+    f_ve  = ImageFont.truetype(PLAY, 40)
+    ar = "من جذر واحد"
+    bb = d.textbbox((0, 0), ar, font=f_ar); ar_h = bb[3] - bb[1]
+    # gaps: tag->ar, ar->title, title->sub, sub->rule, rule->verified.
+    # TOP-ANCHORED (not centered) with a clean ~8% cover margin so the title
+    # starts high; generous rhythm carries the stack down toward the footer.
+    G1, G2, G3, G4, G5 = 190, 230, 100, 130, 122
+    tag_h = sum(f_tag.getmetrics()); ti_h = sum(f_ti.getmetrics())
+    su_h = sum(f_su.getmetrics())
+    y = 235
+    J._center(d, "T H I R T Y   D A Y S   ·   T H I R T Y   R O O T S", f_tag, GOLD, y, ls=4)
+    y += tag_h + G1
+    d.text(((PW - (bb[2] - bb[0])) / 2 - bb[0], y - bb[1]), ar, font=f_ar, fill=GOLD)
+    y += ar_h + G2
+    J._center(d, "From One Root", f_ti, INK, y); y += ti_h + G3
+    J._center(d, "a thirty-day journey through the language of the Qur'an", f_su, SOFT, y)
+    y += su_h + G4
+    d.line([(PW // 2 - 60, int(y)), (PW // 2 + 60, int(y))], fill=GOLD, width=3); y += 3 + G5
+    J._center(d, "every root verified · every source cited", f_ve, SOFT, y)
+    J._center(d, "K E T A B I   S T U D I O", ImageFont.truetype(PLAY, 34), MARK, PH - 190, ls=8)
+    J._center(d, "ketabistudio.com", ImageFont.truetype(PLAY, 30), SOFT, PH - 125)
+    im.save(out); return out
+
+
 def belongs_page(out):
     im = J._base(); d = ImageDraw.Draw(im)
     f_ar = ImageFont.truetype(AMIRI, 120)
