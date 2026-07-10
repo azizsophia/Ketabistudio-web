@@ -126,18 +126,49 @@ def back_cover(out):
     im.save(out); return out
 
 
-def _canvas_bg():
+def _canvas_bg(w=None, h=None):
     """Full-bleed ivory matching _base's tone/noise (no border) so the pasted
-    page edge is invisible."""
-    a = np.full((CH, CW, 3), J.BG, np.float32)
-    yy, xx = np.mgrid[0:CH, 0:CW].astype(np.float32)
-    dd = ((xx - .5 * CW) / (.8 * CW)) ** 2 + ((yy - .46 * CH) / (.72 * CH)) ** 2
+    page edge is invisible. Width/height overridable for the one-piece cover."""
+    w, h = w or CW, h or CH
+    a = np.full((h, w, 3), J.BG, np.float32)
+    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+    dd = ((xx - .5 * w) / (.8 * w)) ** 2 + ((yy - .46 * h) / (.72 * h)) ** 2
     a = a * np.clip(1 - 0.06 * np.clip(dd, 0, 1), 0.94, 1)[..., None] \
-        + np.random.default_rng(3).normal(0, 2.4, (CH, CW, 1))
+        + np.random.default_rng(3).normal(0, 2.4, (h, w, 1))
     return Image.fromarray(np.clip(a, 0, 255).astype("uint8"))
 
 
 _BG = _canvas_bg()
+
+# ── one-piece coil cover sheet, to Lulu's exact template ──────────────
+# Lulu /cover-dimensions/ for 0850X1100.FC.STD.CO.060UW444.MXX @ 70pp says
+# 1242 x 810 pt = 17.25 x 11.25 in: two 8.625in panels (8.5 trim + 0.125
+# bleed on the OUTER edge only), cut at the exact centre, spine = 0 (coil).
+# Back cover is the LEFT panel, front cover the RIGHT (coil on the book's
+# left edge, Lulu's default). Coil punches bite ~0.375in at the centre cut,
+# so ink must stay >=0.5in from it (help.lulu.com 64000306954).
+SHEET_W, SHEET_H = 5175, 3375       # 17.25 x 11.25 in @ 300dpi
+CUT = SHEET_W / 2                   # 2587.5 — centre cut / binding trim edge
+BIND_M = 90                         # paper gap art<-binding edge (0.30in);
+                                    # art's own border sits 99px inside its
+                                    # edge, so first INK is 189px = 0.63in
+                                    # clear of the coil (bite = 112.5px)
+
+
+def cover_sheet(front_png, back_png, out):
+    """Compose the print cover exactly to Lulu's one-piece template: art fills
+    each panel edge-to-edge visually (continuous ivory ground, no floating
+    page-within-a-page), trimmed-page margins measured, not eyeballed."""
+    cv = _canvas_bg(SHEET_W, SHEET_H)
+    fr = Image.open(front_png).convert("RGB").resize((TW, TH), Image.LANCZOS)
+    bk = Image.open(back_png).convert("RGB").resize((TW, TH), Image.LANCZOS)
+    fr = fr.filter(ImageFilter.UnsharpMask(radius=2, percent=70, threshold=2))
+    bk = bk.filter(ImageFilter.UnsharpMask(radius=2, percent=70, threshold=2))
+    y = int(37.5 + (3300 - TH) / 2)             # equal top/bottom trim margins
+    cv.paste(bk, (int(CUT - BIND_M - TW), y))   # back: binds on its right
+    cv.paste(fr, (int(CUT + BIND_M), y))        # front: binds on its left
+    cv.save(out)
+    return out
 
 
 def compose(src_path, right_hand):
@@ -186,13 +217,17 @@ def build(srcdir, outdir):
                   author="Ketabi Studio", producer="Ketabi Studio", creator="Ketabi Studio")
     print(f"interior: {len(pages)} pages | {interior} | {os.path.getsize(interior)/1048576:.1f}MB")
 
-    front = compose(p("p000_title.png"), right_hand=True)   # front cover binds left
-    back = compose(backcv, right_hand=False)                # back cover binds right
-    cover = os.path.join(outdir, "Ketabi-From-One-Root-Journal-Coil-Cover.pdf")
-    front.save(cover, "PDF", resolution=float(DPI), save_all=True, append_images=[back],
-               title="From One Root - cover", author="Ketabi Studio",
-               producer="Ketabi Studio", creator="Ketabi Studio")
-    print(f"cover: 2 pages | {cover} | {os.path.getsize(cover)/1048576:.1f}MB")
+    # Dedicated front-cover design (NOT the interior title page — owner flagged
+    # the reused title page as top-empty on the printed cover).
+    frontcv = os.path.join(outdir, "x_front.png"); cover_front(frontcv)
+
+    sheet_png = os.path.join(outdir, "Ketabi-From-One-Root-Journal-Coil-Cover-Sheet.png")
+    cover_sheet(frontcv, backcv, sheet_png)
+    sheet_pdf = os.path.join(outdir, "Ketabi-From-One-Root-Journal-Coil-Cover.pdf")
+    Image.open(sheet_png).save(sheet_pdf, "PDF", resolution=float(DPI),
+                               title="From One Root - cover", author="Ketabi Studio",
+                               producer="Ketabi Studio", creator="Ketabi Studio")
+    print(f"cover: one-piece 17.25x11.25 | {sheet_pdf} | {os.path.getsize(sheet_pdf)/1048576:.1f}MB")
 
 
 if __name__ == "__main__":

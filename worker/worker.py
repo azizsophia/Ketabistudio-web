@@ -311,9 +311,8 @@ def generate_journal(order, workdir: Path, client):
     from PIL import Image
 
     interior_src = JOURNAL_DIR / "Journal_interior.pdf"
-    front_src = JOURNAL_DIR / "journal_cover_front.png"
-    back_src = JOURNAL_DIR / "journal_cover_back.png"
-    for f in (interior_src, front_src, back_src):
+    sheet_src = JOURNAL_DIR / "journal_cover_sheet.png"
+    for f in (interior_src, sheet_src):
         if not f.exists():
             raise RuntimeError(f"journal asset missing: {f}")
     interior = workdir / "interior.pdf"
@@ -323,37 +322,23 @@ def generate_journal(order, workdir: Path, client):
     dims = client.calculate_cover_dimensions(COIL_POD, JOURNAL_PAGES, unit="pt")
     w_pt, h_pt = float(dims["width"]), float(dims["height"])
     W, H = round(w_pt / 72 * 300), round(h_pt / 72 * 300)
-    IVORY = (242, 237, 227)
-    front = Image.open(front_src).convert("RGB")
-    back = Image.open(back_src).convert("RGB")
 
-    def sheet(art, w, h, bind):
-        """Art centered on an ivory canvas, nudged away from the coil edge."""
-        cv = Image.new("RGB", (w, h), IVORY)
-        s = min((w * 0.92) / art.width, (h * 0.94) / art.height)
-        aw, ah = int(art.width * s), int(art.height * s)
-        a = art.resize((aw, ah), Image.LANCZOS)
-        shift = max(40, int(w * 0.02))
-        x = (w - aw) // 2 + (shift if bind == "left" else -shift)
-        cv.paste(a, (x, (h - ah) // 2))
-        return cv
-
+    # The repo ships a print-ready ONE-PIECE sheet composed to Lulu's exact
+    # template (17.25x11.25: back left / front right, cut at centre, bleed on
+    # outer edges, ink >=0.5in clear of the coil bite). The worker only checks
+    # that Lulu still wants that same geometry and converts PNG -> PDF at the
+    # exact requested pixel size; it must NOT recompose, scale-to-fit, or
+    # nudge (the old float-on-ivory path is what shipped a misaligned cover).
     cover = workdir / "cover.pdf"
-    if W > int(1.5 * H):
-        # One-piece wrap: back on the left half, front on the right.
-        cv = Image.new("RGB", (W, H), IVORY)
-        half = W // 2
-        cv.paste(sheet(back, half, H, bind="right"), (0, 0))
-        cv.paste(sheet(front, W - half, H, bind="left"), (half, 0))
-        cv.save(cover, "PDF", resolution=300.0)
-        layout = "one-piece"
-    else:
-        # Separate sheets: front (binds left), back (binds right).
-        pg_front = sheet(front, W, H, bind="left")
-        pg_back = sheet(back, W, H, bind="right")
-        pg_front.save(cover, "PDF", resolution=300.0, save_all=True,
-                      append_images=[pg_back])
-        layout = "two-page"
+    art = Image.open(sheet_src).convert("RGB")
+    if abs(W / H - art.width / art.height) > 0.01:
+        raise RuntimeError(
+            f"lulu cover dims {w_pt}x{h_pt}pt do not match the shipped one-piece "
+            f"sheet aspect ({art.width}x{art.height}px); rebuild the sheet asset")
+    if (art.width, art.height) != (W, H):
+        art = art.resize((W, H), Image.LANCZOS)
+    art.save(cover, "PDF", resolution=300.0)
+    layout = "one-piece-template"
 
     report = {"journal": True, "pod": COIL_POD,
               "lulu_cover_dims_pt": [w_pt, h_pt], "cover_layout": layout}
