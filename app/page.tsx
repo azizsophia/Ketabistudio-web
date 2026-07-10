@@ -1,5 +1,5 @@
-import Gateway from "@/components/Gateway";
+import HomeLanding from "@/components/HomeLanding";
 
 export default function Home() {
-  return <Gateway />;
+  return <HomeLanding />;
 }

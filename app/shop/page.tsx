@@ -38,6 +38,14 @@ const TILES: Tile[] = [
     img: "/images/shop/keepsakes.jpg",
   },
   {
+    href: "https://ketabistudio.etsy.com",
+    tag: "The 30-day Qur'an journal",
+    title: "From One Root",
+    sub: "One Arabic root a day, rahma, sabr, shukr, traced to the ayah it lives in, with room to write. Instant download on Etsy.",
+    cta: "Start day one \u2192",
+    img: "/images/journal-from-one-root.jpg",
+  },
+  {
     href: "/digital-cards",
     tag: "Sent in a moment",
     title: "Digital Cards",
@@ -52,10 +60,10 @@ export default function ShopPage() {
     <div className={styles.shop}>
       <header className={styles.hero}>
         <p className="eyebrow">The Ketabi Shop</p>
-        <h1 className={styles.h1}>Made with intention.</h1>
+        <h1 className={styles.h1}>Made to be kept.</h1>
         <p className={`lede ${styles.lede}`}>
-          Everything we make to read, to keep, and to give. Printed to order with
-          care.
+          Everything we make to read, to keep, and to give. Printed to order
+          with care, and we ship worldwide.
         </p>
       </header>
 
