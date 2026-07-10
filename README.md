@@ -1404,3 +1404,32 @@ before any build.
   mushaf/17:82, crescent/11:88, sunset-minarets/2:186, dusk-dome/3:173.
 - Planned cadence when owner green-lights the batch: 2 reels/day IG+FB,
   4 Threads/day; grid checkerboard maintained via alternating cover tones.
+
+# AUTOPILOT WEEK (2026-07-10) — Threads + Reels fully scheduled
+
+- **Threads week 1 LIVE**: 28 posts queued (4/day, Fri Jul 10 - Thu Jul 16;
+  6:30a/12p/5:30p/9p Central), `platforms=th`. Every verse machine-verified:
+  Arabic SLICED from quran.com uthmani text (never typed), English excerpts
+  containment-checked against Clear Quran (rid 131). 28 unique hand-checked
+  photos (batch record: `content-tools/threads_batch_2026-07-10.json`).
+  Renderer grew a glyph-coverage guard (uthmani superscript letters fall back
+  Ruqaa→Amiri; tofu can never ship). Owner's cron-job.org hits
+  `/api/cron/social?key=CRON_SECRET` (works; "nothing due" verified + 6:30a
+  al-Kahf post fired on schedule).
+- **IG/FB Reels weeks 1+2 LIVE**: 42 silent reels queued (3/day at
+  10a/2:30p/8p Central; wk1 Jul 10-16, wk2 Jul 17-23), `platforms=ig,fb`.
+  `content-tools/gen_ayah_reel.py`: hook → verse → From One Root end card
+  ("DIGITAL DOWNLOAD ON ETSY · linked in profile"), drop-shadowed type +
+  scrim, cinematic grade, -stream_loop so short clips never freeze, ~3MB/-an
+  encode (silent by design: owner call, "Muslims don't want music anyways").
+  All 42 clips 4K, frame-checked for people (rejected: person releasing
+  lantern, person in boat, jack-o'-lantern, wet-floor-sign mosque). No ocean
+  clips (owner: vary the aesthetic). Batch records:
+  `content-tools/reels_batch_2026-07-10.json` / `reels_batch_2026-07-17.json`.
+- **First reel force-published** 7:19a Jul 10 via new `{promote}` action on
+  `/api/social/enqueue` (reschedules one queued post by its media URL — no
+  duplicate risk): instagram.com/reel/DanLY2GjP2R.
+- `/api/social/video` hosts reel MP4s (multipart, Bearer CRON_SECRET, public
+  card-assets URL ending .mp4 = poster's reel signal).
+- `lib/threads.ts threadsText()` no longer appends the domain footer when the
+  caption already credits ketabistudio.com (the pc: line) — no double link.
