@@ -59,8 +59,8 @@ export async function GET(req: NextRequest) {
     const recipients: Record<string, Record<string, string>> = {
       US: {
         country: "US", firstName: "Test", lastName: "Order",
-        addressLine1: "108 Patina Run", city: "Starkville",
-        state: "MS", postCode: "39759", email: "test@example.com",
+        addressLine1: "100 Main St", city: "Anytown",
+        state: "NY", postCode: "10001", email: "test@example.com",
       },
     };
     const body = {
