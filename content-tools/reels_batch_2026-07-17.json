@@ -1,0 +1,393 @@
+{
+ "batch": "instagram reels week 2, ayah reels (silent)",
+ "queued": "2026-07-10 (21 reels, platforms=ig,fb)",
+ "schedule": "Fri 2026-07-17 .. Thu 2026-07-23, 3/day at 10:00a/2:30p/8:00p US Central",
+ "verification": "Arabic sliced from quran.com uthmani; English contiguous in Clear Quran (Khattab res 131), brackets+footnote-markers optional; builder build_reels2.py",
+ "footage": "21 fresh 4K clips, none reused from week 1, all frame-checked (rejected 19459375 person-in-boat)",
+ "items": [
+  {
+   "key": "cave",
+   "clip": 15088644,
+   "hook": [
+    "The dua the youths",
+    "made in the cave"
+   ],
+   "ar": [
+    "رَبَّنَآ ءَاتِنَا مِن لَّدُنكَ رَحْمَةً وَهَيِّئْ لَنَا مِنْ أَمْرِنَا رَشَدًا"
+   ],
+   "en": [
+    "Our Lord! Grant us mercy from Yourself,",
+    "and guide us rightly through our ordeal."
+   ],
+   "cite": "QUR'AN 18:10",
+   "day": 1,
+   "slot": 0
+  },
+  {
+   "key": "ease3",
+   "clip": 17733399,
+   "hook": [
+    "For the one choosing",
+    "the harder right thing"
+   ],
+   "ar": [
+    "فَسَنُيَسِّرُهُۥ لِلْيُسْرَىٰ"
+   ],
+   "en": [
+    "We will facilitate for them",
+    "the Way of Ease."
+   ],
+   "cite": "QUR'AN 92:7",
+   "day": 1,
+   "slot": 1
+  },
+  {
+   "key": "goodness",
+   "clip": 31590048,
+   "hook": [
+    "The simplest promise",
+    "in the Quran"
+   ],
+   "ar": [
+    "هَلْ جَزَآءُ ٱلْإِحْسَـٰنِ إِلَّا ٱلْإِحْسَـٰنُ"
+   ],
+   "en": [
+    "Is there any reward for goodness",
+    "except goodness?"
+   ],
+   "cite": "QUR'AN 55:60",
+   "day": 1,
+   "slot": 2
+  },
+  {
+   "key": "uplift2",
+   "clip": 34241717,
+   "hook": [
+    "Allah asking",
+    "you a question"
+   ],
+   "ar": [
+    "أَلَمْ نَشْرَحْ لَكَ صَدْرَكَ"
+   ],
+   "en": [
+    "Have We not uplifted",
+    "your heart for you?"
+   ],
+   "cite": "QUR'AN 94:1",
+   "day": 2,
+   "slot": 0
+  },
+  {
+   "key": "angels",
+   "clip": 30054113,
+   "hook": [
+    "What the angels say",
+    "to the steadfast"
+   ],
+   "ar": [
+    "تَتَنَزَّلُ عَلَيْهِمُ ٱلْمَلَـٰٓئِكَةُ أَلَّا تَخَافُوا۟ وَلَا تَحْزَنُوا۟"
+   ],
+   "en": [
+    "The angels descend upon them:",
+    "Do not fear, nor grieve."
+   ],
+   "cite": "QUR'AN 41:30",
+   "day": 2,
+   "slot": 1
+  },
+  {
+   "key": "nofear",
+   "clip": 38295259,
+   "hook": [
+    "Who has nothing",
+    "to fear"
+   ],
+   "ar": [
+    "أَوْلِيَآءَ ٱللَّهِ لَا خَوْفٌ عَلَيْهِمْ وَلَا هُمْ يَحْزَنُونَ"
+   ],
+   "en": [
+    "No fear for the close servants of Allah,",
+    "nor will they grieve."
+   ],
+   "cite": "QUR'AN 10:62",
+   "day": 2,
+   "slot": 2
+  },
+  {
+   "key": "goodlife",
+   "clip": 18232616,
+   "hook": [
+    "The verse about",
+    "a good life"
+   ],
+   "ar": [
+    "فَلَنُحْيِيَنَّهُۥ حَيَوٰةً طَيِّبَةً"
+   ],
+   "en": [
+    "We will surely bless them",
+    "with a good life."
+   ],
+   "cite": "QUR'AN 16:97",
+   "day": 3,
+   "slot": 0
+  },
+  {
+   "key": "reward",
+   "clip": 29158888,
+   "hook": [
+    "The reward with",
+    "no limit"
+   ],
+   "ar": [
+    "إِنَّمَا يُوَفَّى ٱلصَّـٰبِرُونَ أَجْرَهُم بِغَيْرِ حِسَابٍ"
+   ],
+   "en": [
+    "Only those who endure patiently",
+    "will be given their reward",
+    "without limit."
+   ],
+   "cite": "QUR'AN 39:10",
+   "day": 3,
+   "slot": 1
+  },
+  {
+   "key": "wayout",
+   "clip": 32457244,
+   "hook": [
+    "The way out",
+    "you can't see yet"
+   ],
+   "ar": [
+    "وَمَن يَتَّقِ ٱللَّهَ يَجْعَل لَّهُۥ مَخْرَجًا"
+   ],
+   "en": [
+    "And whoever is mindful of Allah,",
+    "He will make a way out for them."
+   ],
+   "cite": "QUR'AN 65:2",
+   "day": 3,
+   "slot": 2
+  },
+  {
+   "key": "mercynear",
+   "clip": 15204407,
+   "hook": [
+    "Where mercy",
+    "is closest"
+   ],
+   "ar": [
+    "إِنَّ رَحْمَتَ ٱللَّهِ قَرِيبٌ مِّنَ ٱلْمُحْسِنِينَ"
+   ],
+   "en": [
+    "Allah's mercy is always close",
+    "to the good-doers."
+   ],
+   "cite": "QUR'AN 7:56",
+   "day": 4,
+   "slot": 0
+  },
+  {
+   "key": "peace",
+   "clip": 12631364,
+   "hook": [
+    "What you'll be told",
+    "at the end"
+   ],
+   "ar": [
+    "سَلَـٰمٌ عَلَيْكُم بِمَا صَبَرْتُمْ"
+   ],
+   "en": [
+    "Peace be upon you",
+    "for your perseverance."
+   ],
+   "cite": "QUR'AN 13:24",
+   "day": 4,
+   "slot": 1
+  },
+  {
+   "key": "steady",
+   "clip": 6797578,
+   "hook": [
+    "The dua for",
+    "a steady heart"
+   ],
+   "ar": [
+    "رَبَّنَا لَا تُزِغْ قُلُوبَنَا بَعْدَ إِذْ هَدَيْتَنَا"
+   ],
+   "en": [
+    "Our Lord! Do not let our hearts deviate",
+    "after You have guided us."
+   ],
+   "cite": "QUR'AN 3:8",
+   "day": 4,
+   "slot": 2
+  },
+  {
+   "key": "bothworlds",
+   "clip": 37935106,
+   "hook": [
+    "The most repeated",
+    "dua in the Quran"
+   ],
+   "ar": [
+    "رَبَّنَآ ءَاتِنَا فِى ٱلدُّنْيَا حَسَنَةً وَفِى ٱلْـَٔاخِرَةِ حَسَنَةً وَقِنَا عَذَابَ ٱلنَّارِ"
+   ],
+   "en": [
+    "Our Lord! Grant us the good of this world",
+    "and the Hereafter, and protect us",
+    "from the torment of the Fire."
+   ],
+   "cite": "QUR'AN 2:201",
+   "day": 5,
+   "slot": 0
+  },
+  {
+   "key": "forgive",
+   "clip": 8348125,
+   "hook": [
+    "The last verse of",
+    "Surah Al-Mu'minun"
+   ],
+   "ar": [
+    "رَّبِّ ٱغْفِرْ وَٱرْحَمْ وَأَنتَ خَيْرُ ٱلرَّٰحِمِينَ"
+   ],
+   "en": [
+    "My Lord! Forgive and have mercy,",
+    "for You are the best of those",
+    "who show mercy."
+   ],
+   "cite": "QUR'AN 23:118",
+   "day": 5,
+   "slot": 1
+  },
+  {
+   "key": "ayyub",
+   "clip": 8865368,
+   "hook": [
+    "The dua of",
+    "Prophet Ayyub"
+   ],
+   "ar": [
+    "أَنِّى مَسَّنِىَ ٱلضُّرُّ وَأَنتَ أَرْحَمُ ٱلرَّٰحِمِينَ"
+   ],
+   "en": [
+    "I have been touched with adversity,",
+    "and You are the Most Merciful",
+    "of the merciful."
+   ],
+   "cite": "QUR'AN 21:83",
+   "day": 5,
+   "slot": 2
+  },
+  {
+   "key": "wronged",
+   "clip": 34362639,
+   "hook": [
+    "The dua of",
+    "Prophet Adam"
+   ],
+   "ar": [
+    "رَبَّنَا ظَلَمْنَآ أَنفُسَنَا وَإِن لَّمْ تَغْفِرْ لَنَا وَتَرْحَمْنَا"
+   ],
+   "en": [
+    "Our Lord! We have wronged ourselves.",
+    "If You do not forgive us",
+    "and have mercy on us..."
+   ],
+   "cite": "QUR'AN 7:23",
+   "day": 6,
+   "slot": 0
+  },
+  {
+   "key": "entrust",
+   "clip": 6318875,
+   "hook": [
+    "Five words for when",
+    "you've done all you can"
+   ],
+   "ar": [
+    "وَأُفَوِّضُ أَمْرِىٓ إِلَى ٱللَّهِ"
+   ],
+   "en": [
+    "And I entrust my affairs",
+    "to Allah."
+   ],
+   "cite": "QUR'AN 40:44",
+   "day": 6,
+   "slot": 1
+  },
+  {
+   "key": "love",
+   "clip": 7681545,
+   "hook": [
+    "How to be",
+    "loved by Allah"
+   ],
+   "ar": [
+    "إِن كُنتُمْ تُحِبُّونَ ٱللَّهَ فَٱتَّبِعُونِى يُحْبِبْكُمُ ٱللَّهُ"
+   ],
+   "en": [
+    "If you love Allah, then follow me;",
+    "Allah will love you."
+   ],
+   "cite": "QUR'AN 3:31",
+   "day": 6,
+   "slot": 2
+  },
+  {
+   "key": "purpose",
+   "clip": 37097027,
+   "hook": [
+    "Why we're",
+    "really here"
+   ],
+   "ar": [
+    "خَلَقَ ٱلْمَوْتَ وَٱلْحَيَوٰةَ لِيَبْلُوَكُمْ أَيُّكُمْ أَحْسَنُ عَمَلًا"
+   ],
+   "en": [
+    "Who created death and life",
+    "in order to test which",
+    "of you is best in deeds."
+   ],
+   "cite": "QUR'AN 67:2",
+   "day": 7,
+   "slot": 0
+  },
+  {
+   "key": "prayer",
+   "clip": 30976907,
+   "hook": [
+    "What prayer",
+    "actually does"
+   ],
+   "ar": [
+    "إِنَّ ٱلصَّلَوٰةَ تَنْهَىٰ عَنِ ٱلْفَحْشَآءِ وَٱلْمُنكَرِ"
+   ],
+   "en": [
+    "Prayer should deter one",
+    "from indecency and wickedness."
+   ],
+   "cite": "QUR'AN 29:45",
+   "day": 7,
+   "slot": 1
+  },
+  {
+   "key": "purify",
+   "clip": 34123263,
+   "hook": [
+    "The definition",
+    "of success"
+   ],
+   "ar": [
+    "قَدْ أَفْلَحَ مَن تَزَكَّىٰ"
+   ],
+   "en": [
+    "Successful indeed are those",
+    "who purify themselves."
+   ],
+   "cite": "QUR'AN 87:14",
+   "day": 7,
+   "slot": 2
+  }
+ ]
+}
