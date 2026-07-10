@@ -37,12 +37,24 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "not configured" }, { status: 500 });
   }
 
-  let body: { posts?: IncomingPost[]; replace?: boolean };
+  let body: { posts?: IncomingPost[]; replace?: boolean; clear?: boolean };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "invalid json" }, { status: 400 });
   }
+
+  // {clear:true}: cancel the entire not-yet-published queue (published rows
+  // stay as history). Used when the owner retires a content strategy.
+  if (body.clear) {
+    const r = await fetch(`${SB}/rest/v1/social_queue?status=eq.queued`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${KEY}`, apikey: KEY!, Prefer: "return=representation" },
+    });
+    const rows = await r.json().catch(() => []);
+    return NextResponse.json({ ok: true, cleared: Array.isArray(rows) ? rows.length : 0 });
+  }
+
   const posts = Array.isArray(body.posts) ? body.posts : [];
   if (posts.length === 0) {
     return NextResponse.json({ error: "no posts" }, { status: 400 });
