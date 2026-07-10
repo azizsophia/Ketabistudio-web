@@ -94,13 +94,15 @@ export async function refreshedThreadsCreds(c: ThreadsCreds): Promise<ThreadsCre
 
 // Threads caps posts at 500 chars and its culture is hashtag-light, so mirror
 // the caption without the hashtag block and close with the plain domain.
+// Captions that already carry the domain (e.g. a hand-written "pc:" credit)
+// keep their own wording; the footer is only for captions that lack it.
 export function threadsText(caption: string): string {
   const noTags = caption
     .split("\n")
     .filter((line) => !/^\s*(#[\p{L}\p{N}_]+\s*)+$/u.test(line))
     .join("\n")
     .trim();
-  const footer = "\n\nketabistudio.com";
+  const footer = noTags.toLowerCase().includes("ketabistudio.com") ? "" : "\n\nketabistudio.com";
   const max = 500 - footer.length;
   const body = noTags.length <= max ? noTags : noTags.slice(0, max - 1).trimEnd() + "…";
   return body + footer;
