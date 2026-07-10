@@ -67,6 +67,33 @@ export async function POST(req: NextRequest) {
   // owner actions on an existing order: cancel (reject) or reset (reprocess)
   const action = String((body as Record<string, unknown>).action || "");
   const targetId = String((body as Record<string, unknown>).orderId || "");
+  if (action === "files") {
+    // Signed download URLs for the EXACT files the worker submitted to Lulu,
+    // so print output can be verified against the real bytes (not the
+    // portal's thumbnail card, which pads every preview).
+    if (!targetId) return NextResponse.json({ error: "orderId required" }, { status: 400 });
+    const or_ = await fetch(
+      `${SB}/rest/v1/orders?id=eq.${encodeURIComponent(targetId)}&select=interior_path,cover_path`,
+      { headers: { Authorization: `Bearer ${KEY}`, apikey: KEY } }
+    );
+    const rows_ = (await or_.json().catch(() => [])) as { interior_path?: string; cover_path?: string }[];
+    if (!rows_[0]) return NextResponse.json({ error: "order not found" }, { status: 404 });
+    const sign = async (path?: string) => {
+      if (!path) return null;
+      const s = await fetch(`${SB}/storage/v1/object/sign/orders/${path}`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${KEY}`, apikey: KEY, "Content-Type": "application/json" },
+        body: JSON.stringify({ expiresIn: 3600 }),
+      });
+      const d = (await s.json().catch(() => ({}))) as { signedURL?: string };
+      return d.signedURL ? `${SB}/storage/v1${d.signedURL}` : null;
+    };
+    return NextResponse.json({
+      ok: true,
+      interior_url: await sign(rows_[0].interior_path),
+      cover_url: await sign(rows_[0].cover_path),
+    });
+  }
   if (action) {
     if (!targetId) return NextResponse.json({ error: "orderId required" }, { status: 400 });
     const status =
