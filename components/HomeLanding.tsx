@@ -69,12 +69,7 @@ export default function HomeLanding() {
           </div>
         </Link>
 
-        <a
-          href="https://ketabistudio.etsy.com"
-          target="_blank"
-          rel="noreferrer"
-          className={`${styles.world} ${styles.wJournal}`}
-        >
+        <Link href="/journal" className={`${styles.world} ${styles.wJournal}`}>
           <Image
             src="/images/journal-from-one-root.jpg"
             alt=""
@@ -86,12 +81,12 @@ export default function HomeLanding() {
           <div className={styles.worldBody}>
             <h3>From One Root</h3>
             <p>
-              The 30-day Qur&#39;an journal. One Arabic root a day, every
-              source cited. On Etsy as an instant download.
+              The 30-day Qur&#39;an journal. One Arabic root a day, traced to
+              its source, every one cited.
             </p>
-            <span className={styles.worldCta}>Start day one →</span>
+            <span className={styles.worldCta}>Open the journal →</span>
           </div>
-        </a>
+        </Link>
 
         <Link
           href="/digital-cards"

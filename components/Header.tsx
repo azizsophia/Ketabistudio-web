@@ -12,7 +12,7 @@ import styles from "./Header.module.css";
 
 const NAV = [
   { label: "Books", href: "/books" },
-  { label: "Journal", href: "https://ketabistudio.etsy.com", ext: true },
+  { label: "Journal", href: "/journal" },
   { label: "Cards", href: "/digital-cards" },
   { label: "Keepsakes", href: "/shop/keepsakes" },
   { label: "About", href: "/about" },

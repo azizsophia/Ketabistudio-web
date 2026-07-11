@@ -1,0 +1,361 @@
+/* The journal page — "A living dictionary."
+   Ivory paper, classical serif, rust accent. Made to read like a page from
+   the book itself. Mobile-first. */
+
+.page {
+  --paper: #f4f0e6;
+  --ink: #26241f;
+  --soft: #6f6a5d;
+  --rust: #9a4a34;
+  --line: #d9d2c2;
+  background: var(--paper);
+  color: var(--ink);
+  overflow-x: hidden;
+}
+
+.page :global(.divider) span {
+  background: var(--rust);
+}
+
+/* ── hero ── */
+.hero {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: clamp(2.6rem, 8vw, 4.5rem) clamp(1.4rem, 6vw, 2rem) 0;
+  text-align: center;
+}
+
+.kick {
+  font-size: 0.72rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--rust);
+  font-weight: 600;
+  margin-bottom: 1.1rem;
+}
+
+.h1 {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-weight: 500;
+  font-size: clamp(2.7rem, 11vw, 4.6rem);
+  line-height: 1.02;
+  letter-spacing: -0.015em;
+}
+
+.lede {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.25rem, 3.6vw, 1.55rem);
+  line-height: 1.5;
+  color: #47433b;
+  max-width: 34ch;
+  margin: 1.4rem auto 0;
+}
+
+/* ── living dictionary card ── */
+.showcase {
+  max-width: 620px;
+  margin: clamp(2.4rem, 7vw, 3.6rem) auto 0;
+  padding: 0 clamp(1.4rem, 6vw, 2rem);
+}
+
+.card {
+  background: #f7f3ea;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: clamp(1.6rem, 6vw, 2.6rem) clamp(1.4rem, 5vw, 2.4rem);
+  box-shadow: 0 30px 60px -40px rgba(38, 36, 31, 0.5);
+}
+
+.cardHead {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--soft);
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 0.9rem;
+}
+
+.rootRow {
+  display: flex;
+  justify-content: center;
+  gap: clamp(1.4rem, 8vw, 3rem);
+  margin: clamp(1.8rem, 7vw, 2.8rem) 0 0;
+}
+
+.glyph {
+  font-family: var(--font-arabic), serif;
+  font-size: clamp(3.2rem, 15vw, 5rem);
+  line-height: 1;
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.glyph i {
+  font-family: var(--font-body), sans-serif;
+  font-style: normal;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  color: var(--rust);
+  margin-top: 0.7rem;
+}
+
+.meanings {
+  text-align: center;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.3rem, 4.5vw, 1.7rem);
+  margin-top: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.tree {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem;
+  margin: 1.6rem 0 0;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--line);
+  text-align: center;
+}
+
+.tree b {
+  display: block;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-weight: 600;
+  font-size: clamp(1rem, 3.6vw, 1.25rem);
+}
+
+.tree span {
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--soft);
+}
+
+.cardLine {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.15rem, 3.8vw, 1.4rem);
+  line-height: 1.45;
+  text-align: center;
+  margin: 1.6rem 0 0;
+}
+
+.cardCite {
+  margin-top: 1.1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--soft);
+  text-align: center;
+}
+
+/* ── essay ── */
+.essay {
+  max-width: 620px;
+  margin: clamp(2.6rem, 8vw, 4rem) auto 0;
+  padding: 0 clamp(1.4rem, 6vw, 2rem);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.2rem, 3.6vw, 1.42rem);
+  line-height: 1.62;
+  color: #3a362f;
+}
+
+.essay p {
+  margin-bottom: 1.2rem;
+}
+
+.essay em {
+  font-style: italic;
+  color: var(--rust);
+}
+
+.dropLead {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  line-height: 1.25;
+  color: var(--ink);
+  margin-bottom: 1.6rem !important;
+}
+
+.roots {
+  margin: 2rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.rootBlock {
+  padding: 1.5rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.rootWord {
+  display: flex;
+  align-items: baseline;
+  gap: 0.7rem;
+  margin-bottom: 0.5rem !important;
+  flex-wrap: wrap;
+}
+
+.rootAr {
+  font-family: var(--font-arabic), serif;
+  font-size: 1.8rem;
+  color: var(--ink);
+}
+
+.rootName {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 1.35rem;
+}
+
+.rootGloss {
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--rust);
+}
+
+.rootBody {
+  font-size: clamp(1.1rem, 3.4vw, 1.3rem);
+  line-height: 1.55;
+  margin-bottom: 0 !important;
+  color: #47433b;
+}
+
+/* ── product ── */
+.product {
+  max-width: 900px;
+  margin: clamp(2.6rem, 8vw, 4rem) auto 0;
+  padding: clamp(1.8rem, 6vw, 2.6rem) clamp(1.4rem, 6vw, 2rem);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(1.6rem, 5vw, 2.4rem);
+  align-items: center;
+}
+
+@media (min-width: 760px) {
+  .product {
+    grid-template-columns: 0.85fr 1fr;
+  }
+}
+
+.productArt {
+  display: flex;
+  justify-content: center;
+}
+
+.productImg {
+  width: min(300px, 80%);
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 30px 60px -34px rgba(38, 36, 31, 0.55);
+}
+
+.kickRust {
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--rust);
+  font-weight: 600;
+  margin-bottom: 0.7rem;
+}
+
+.h2 {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-weight: 500;
+  font-size: clamp(1.9rem, 6vw, 2.6rem);
+  line-height: 1.08;
+}
+
+.productLede {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.2rem, 3.6vw, 1.4rem);
+  line-height: 1.5;
+  color: #47433b;
+  margin: 0.9rem 0 1.2rem;
+}
+
+.spec {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.4rem;
+  margin-bottom: 1.6rem;
+}
+
+.spec li {
+  position: relative;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--soft);
+  padding-left: 1rem;
+}
+
+.spec li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.45em;
+  width: 5px;
+  height: 5px;
+  background: var(--rust);
+  transform: rotate(45deg);
+}
+
+.buy {
+  display: inline-block;
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 999px;
+  padding: 0.95rem 1.8rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.buy:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px rgba(38, 36, 31, 0.22);
+}
+
+.buyNote {
+  margin-top: 0.9rem;
+  font-size: 0.85rem;
+  color: var(--soft);
+}
+
+/* ── why ── */
+.why {
+  max-width: 620px;
+  margin: clamp(2.8rem, 9vw, 4.5rem) auto;
+  padding: 0 clamp(1.4rem, 6vw, 2rem) clamp(2.4rem, 7vw, 4rem);
+  text-align: center;
+}
+
+.whyLine {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.3rem, 4.2vw, 1.6rem);
+  line-height: 1.5;
+  color: var(--ink);
+  margin: 1.6rem 0;
+}
+
+.whyLink {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--rust);
+  text-decoration: none;
+}
