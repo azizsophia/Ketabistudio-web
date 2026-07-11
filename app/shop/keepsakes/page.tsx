@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { PHOTOBOOK_TEMPLATES, type PhotobookSlug } from "@/lib/photobook";
-import FlipBook from "@/components/FlipBook";
+import KeepsakePicker from "@/components/KeepsakePicker";
 import styles from "../../books/books.module.css";
 
 export const metadata: Metadata = {
@@ -33,81 +32,9 @@ export default function KeepsakesPage() {
         </div>
       </header>
 
-      <div className="wrap" style={{ padding: "4px 0 48px" }}>
-        <FlipBook
-          cover="/images/keepsake/about-mama/cover.jpg"
-          title="Everything I Love About Mama"
-          pages={[
-            { src: "/images/keepsake/about-mama/page04.jpg" },
-            { src: "/images/keepsake/about-mama/page12.jpg" },
-            { src: "/images/keepsake/about-mama/page23.jpg" },
-          ]}
-          stage="charcoal"
-          eyebrow="A hardcover keepsake"
-          caption="Your photos, words written for you, sealed with a dua"
-        />
+      <div style={{ padding: "8px 0 40px" }}>
+        <KeepsakePicker />
       </div>
-
-      {(
-        [
-          {
-            title: "For the ones who raised you",
-            slugs: ["about-mama", "about-baba", "about-grandma", "about-grandpa"],
-          },
-          {
-            title: "For the family you love",
-            slugs: ["about-spouse", "about-baby", "our-ramadan"],
-          },
-        ] as { title: string; slugs: PhotobookSlug[] }[]
-      ).map((group) => (
-        <section key={group.title} className="wrap" aria-label={group.title}>
-          <h2 className={styles.groupHeading}>{group.title}</h2>
-          <div className={styles.grid}>
-            {group.slugs.map((slug) => {
-              const t = PHOTOBOOK_TEMPLATES[slug];
-              return (
-                <Link
-                  key={slug}
-                  href={`/keepsakes/${slug}`}
-                  className={`card ${styles.bookCard}`}
-                >
-                  <span className={styles.cover}>
-                    <span
-                      className={styles.coverGlow}
-                      style={{ background: t.accent.main }}
-                      aria-hidden="true"
-                    />
-                    <Image
-                      src={`/images/keepsake/${slug}/cover.jpg`}
-                      alt={`${t.title} keepsake`}
-                      width={700}
-                      height={700}
-                      sizes="(max-width: 720px) 90vw, 340px"
-                      className={styles.coverImg}
-                    />
-                    <span className={styles.personalizeBadge}>
-                      <span className={styles.badgeDiamond} aria-hidden="true" />
-                      Your photos
-                    </span>
-                  </span>
-                  <span className={styles.body}>
-                    <span className={`${styles.tag} ${styles.tagPersonalized}`}>
-                      Keepsake
-                    </span>
-                    <span className={styles.title}>{t.title}</span>
-                    <span className={styles.value}>{t.value}</span>
-                    <span className={styles.blurb}>{t.blurb}</span>
-                    <span className={styles.cta}>
-                      Make this keepsake
-                      <span aria-hidden="true"> &rarr;</span>
-                    </span>
-                  </span>
-                </Link>
-              );
-            })}
-          </div>
-        </section>
-      ))}
 
       {/* Cross-sell: the I-Am book is also a photo keepsake (lives in Storybooks
           as its primary home; surfaced here for discovery, not duplicated). */}
