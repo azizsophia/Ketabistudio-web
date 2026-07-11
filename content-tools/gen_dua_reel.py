@@ -175,7 +175,9 @@ def compose(frames_durations, out_path, tmpdir, fps=30, xfade=0.6):
     filt = ";".join(fc)
     subprocess.run([
         FFMPEG, "-y", *inputs, "-filter_complex", filt, "-map", f"[{prev}]",
-        "-c:v", "libx264", "-b:v", "3200k", "-maxrate", "3600k", "-bufsize", "6400k",
+        # keep the whole reel comfortably under Vercel's ~4.5MB upload body limit
+        # (static frames + slow zoom compress cleanly at this bitrate)
+        "-c:v", "libx264", "-b:v", "1750k", "-maxrate", "2000k", "-bufsize", "4000k",
         "-preset", "medium", "-pix_fmt", "yuv420p", "-an", out_path
     ], check=True, capture_output=True)
     return out_path
