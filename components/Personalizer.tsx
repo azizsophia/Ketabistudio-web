@@ -31,7 +31,9 @@ export default function Personalizer({ showPeek = false }: { showPeek?: boolean 
   const [skin, setSkin] = useState<(typeof SKINS)[number]["key"]>("medium");
   const [hair, setHair] = useState<(typeof HAIRS)[number]["key"]>("black");
   const [style, setStyle] = useState<(typeof STYLES)[number]["key"]>("long-straight");
-  const shown = (name.trim() || "Amira").slice(0, MAX);
+  // Wonderbly-style: the resting cover invites the buyer ("Your name") instead
+  // of defaulting to a specific heroine, so it reads as "make it yours".
+  const shown = (name.trim() || "Your name").slice(0, MAX);
 
   return (
     <>
@@ -76,7 +78,7 @@ export default function Personalizer({ showPeek = false }: { showPeek?: boolean 
           id="kid-name"
           className={styles.input}
           type="text"
-          placeholder="Amira"
+          placeholder="Type her name"
           maxLength={MAX}
           value={name}
           onChange={(e) => setName(e.target.value)}
