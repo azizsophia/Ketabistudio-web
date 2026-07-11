@@ -206,7 +206,9 @@ async function publishReelIg(
     media_type: "REELS",
     video_url: videoUrl,
     caption,
-    share_to_feed: "true",
+    // Keep reels in the Reels tab / Explore but OFF the profile grid, so the
+    // grid stays the curated We The Urban style photo feed (owner's call).
+    share_to_feed: "false",
     access_token: token,
   };
   // A second URL on the post (space-separated in image_url) is the reel's cover
