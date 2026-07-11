@@ -1434,6 +1434,73 @@ before any build.
 - `lib/threads.ts threadsText()` no longer appends the domain footer when the
   caption already credits ketabistudio.com (the pc: line) — no double link.
 
+# INSTAGRAM DESIGN SYSTEM (2026-07-11) — "We The Urban, but ours" (IN DESIGN, not yet queued)
+
+Owner wants an Instagram text-post account in the register of We The Urban
+(Willie Greene's affirmation page: bold serif, textured backgrounds, daily
+shareable one-liners) but Islamic, with our verified-source discipline. Goal:
+own the lane no Islamic reminder page currently owns (native-internet voice +
+scholar-grade citations + Arabic calligraphy as the unfair advantage). Design
+explored in scratchpad, approved LOOK pending before building the generator.
+
+## The type system (locked after several rounds with owner)
+- **Loud bold serif fills the frame** — Liberation Serif Bold (Times family)
+  caps, auto-fit to ~880px width, tight leading (~1.04). Owner rejected
+  Playfair-in-caps as "too fashion magazine" and regular-weight as "not loud
+  like wetheurban." Bold Times caps = the WTU weight, reads as announcements.
+- **Italic serif for the soft/whisper lines** (Liberation Serif Italic).
+- **Arabic is the hero, never overlaid on English** — owner rejected the
+  Dana-Salah-style Arabic-over-English interlace ("needs work"). Aref Ruqaa
+  (calligraphic) for hero words, Amiri Bold for dhikr walls / readability.
+- **Backgrounds: woven-canvas texture + vignette** (numpy warp/weft sinusoids
+  + grain + slubs + radial vignette + soft top light), NOT flat color. This
+  was the key "more textured / 2027 best practice" fix.
+- Constants: gold diamond divider, `K E T A B I   S T U D I O` tracked mark
+  bottom-center every post, rotating linen colorways (cream/forest/terra/rose/
+  olive/plum/sand/black-green) so a colorful feed still reads unmistakably ours.
+
+## The 8 formats (Islamic versions of the WTU playbook)
+1. **Dua carousel** (silent, multi-slide) — "May Allah heal what you never talk
+   about." / *Ameen.* Caption: "send this to someone you love." Biggest
+   share-driver: sending it IS the good deed.
+2. **Series opener** — "IN CASE / NO ONE MADE DUA / FOR YOU TODAY" → swipe to
+   dua slides. Reposting = making dua for someone.
+3. **Anaphora** — "ALLAH HAS ALWAYS heard you / seen you / provided / BEEN
+   ENOUGH" (final line flips to gold italic).
+4. **Open letter** — "to the one carrying something heavy," (letters to the
+   tired, the new Muslim, the one who missed Fajr).
+5. **Seasonal blessing** — "Praying for a soft Muharram." + Jummah Mubarak,
+   white days, Ramadan. A whole Islamic-calendar layer WTU cannot touch.
+6. **Future-self** — "One day you will wish you had one more chance to be
+   patient. This is that chance."
+7. **Normalize** — "NORMALIZE saying Alhamdulillah before anyone asks how you
+   really are."
+8. **Type Ameen** — Arabic اللهم آمين hero + dua + outlined "type AMEEN below"
+   pill. The most native engagement mechanic in the niche.
+   Plus **Dhikr Wall**: a dhikr phrase (الحمد لله) tiled in Amiri down the page,
+   the English closing line ("for it all.") as the last row. Repetition = dhikr,
+   so form and meaning are one. Owner's favorite.
+
+## HARD content guardrails (unchanged from all other channels)
+- Tiled/remixed text is ALWAYS dhikr or our own words, NEVER a Quran verse.
+  Revelation appears once only, quoted verbatim + cited on the placard layout
+  (verses machine-verified against Clear Quran rid 131, same pipeline as
+  Threads/Reels). No music/lyrics/artist refs. His/Him/He capitalized. No em
+  dashes. No "universe/energy/manifest" language played straight.
+- Research sourced: We The Urban is Willie Greene's affirmation page (1B+ IG
+  impressions, book + 2026 calendar off the same posts). Islamic reminder-page
+  landscape checked: @muslim (7M, news aggregator), @islamicdailyremindersss
+  (134k), @muslimah_reminder (106k) — all pastel-graphic, none own the WTU
+  editorial format. Lane is open.
+
+## Scratchpad artifacts (design iterations, not in repo yet)
+`ig_loud.py` (final loud+textured direction), `ig_formats.py` (all 8),
+`ig_dhikr_wall.py` (dhikr walls), `ig_arabic_hero.py`, `font_compare.py`.
+NEXT once look approved: fold into a generator like `gen_ayah_reel.py`, wire to
+`/api/social/photo` + `/api/cron/social` (platforms=ig,fb), queue alongside
+reels. Threads week 2 (28 posts, We-The-Urban voice, Jul 17-23) also written +
+approved-pending, must queue before Thu Jul 16 (queue empties then).
+
 # LAUNCH REDESIGN (2026-07-11) — "Made to be kept"
 
 New brand line **Made to be kept** across the site; each product world given
