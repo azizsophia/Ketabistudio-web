@@ -139,14 +139,22 @@
 
 .world {
   display: flex;
-  gap: 1.1rem;
-  align-items: center;
+  gap: 0;
+  align-items: stretch;
   border-radius: 22px;
-  padding: 1.1rem;
+  overflow: hidden;
   color: #f1efe3;
   text-decoration: none;
   box-shadow: 0 14px 34px rgba(42, 43, 34, 0.14);
   transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.worldBody {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1.15rem 1.35rem;
+  min-width: 0;
 }
 
 .world:hover {
@@ -171,10 +179,11 @@
 }
 
 .worldImg {
-  width: clamp(84px, 24vw, 110px);
-  height: clamp(104px, 30vw, 132px);
+  width: clamp(128px, 36vw, 168px);
+  height: auto;
+  align-self: stretch;
   object-fit: cover;
-  border-radius: 14px;
+  border-radius: 0;
   flex: none;
 }
 
@@ -220,7 +229,12 @@
 
 .proof b {
   display: block;
-  font-size: 1.25rem;
+  font-family: var(--font-playfair, serif);
+  font-weight: 500;
+  font-size: clamp(1.05rem, 4.2vw, 1.35rem);
+  letter-spacing: -0.01em;
+  color: var(--sage);
+  white-space: nowrap;
 }
 
 .proof span {

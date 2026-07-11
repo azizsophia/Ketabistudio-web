@@ -59,7 +59,7 @@ export default function HomeLanding() {
             height={260}
             className={styles.worldImg}
           />
-          <div>
+          <div className={styles.worldBody}>
             <h3>Storybooks</h3>
             <p>
               Hand-illustrated Islamic stories, one of them starring your
@@ -83,7 +83,7 @@ export default function HomeLanding() {
             className={styles.worldImg}
             style={{ objectPosition: "88% center" }}
           />
-          <div>
+          <div className={styles.worldBody}>
             <h3>From One Root</h3>
             <p>
               The 30-day Qur&#39;an journal. One Arabic root a day, every
@@ -104,7 +104,7 @@ export default function HomeLanding() {
             height={260}
             className={styles.worldImg}
           />
-          <div>
+          <div className={styles.worldBody}>
             <h3>Digital cards</h3>
             <p>
               A beautiful animated card with a real voice note inside. Made
@@ -125,7 +125,7 @@ export default function HomeLanding() {
             height={260}
             className={styles.worldImg}
           />
-          <div>
+          <div className={styles.worldBody}>
             <h3>Photo keepsakes</h3>
             <p>
               Hardcover books of your own photos and lovingly written words,
@@ -146,8 +146,8 @@ export default function HomeLanding() {
           <span>print time</span>
         </div>
         <div>
-          <b>🌍</b>
-          <span>ships worldwide</span>
+          <b>Worldwide</b>
+          <span>we ship</span>
         </div>
       </section>
 
