@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import {
-  Fraunces,
   Plus_Jakarta_Sans,
   Amiri,
   Cormorant,
@@ -10,12 +9,6 @@ import {
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
-
-const fraunces = Fraunces({
-  subsets: ["latin"],
-  variable: "--font-display",
-  axes: ["opsz", "SOFT"],
-});
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -37,12 +30,13 @@ const cormorant = Cormorant({
   variable: "--font-cormorant",
 });
 
-/* Premium display face for keepsake titles/cover — matches the print pipeline
-   (Playfair Display). */
+/* The one display serif for the whole site. Powers both --font-playfair (new
+   pages) and --font-display (legacy pages, aliased in globals.css) so there is
+   a single serif voice everywhere. Also matches the keepsake print pipeline. */
 const playfair = Playfair_Display({
   subsets: ["latin"],
   style: ["normal", "italic"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-playfair",
 });
 
@@ -55,18 +49,24 @@ const baloo = Baloo_Bhaijaan_2({
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.ketabistudio.com"),
   title: {
-    default: "Ketabi Studio, stories that help little hearts grow",
+    default: "Ketabi Studio, made to be kept",
     template: "%s | Ketabi Studio",
   },
   description:
-    "Personalized Islamic storybooks, a mindful dhikr app, and a kids corner full of wonder. Made with intention by Ketabi Studio.",
+    "Personalized Islamic storybooks, a 30-day Qur'an journal, digital cards and photo keepsakes. Every one carries a name you love. We ship worldwide.",
   openGraph: {
-    title: "Ketabi Studio",
+    title: "Ketabi Studio, made to be kept",
     description:
-      "Personalized Islamic storybooks, a mindful dhikr app, and a kids corner full of wonder.",
+      "Personalized Islamic storybooks, a 30-day Qur'an journal, digital cards and photo keepsakes.",
     url: "https://www.ketabistudio.com",
     siteName: "Ketabi Studio",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Ketabi Studio, made to be kept",
+    description:
+      "Personalized Islamic storybooks, a 30-day Qur'an journal, digital cards and photo keepsakes.",
   },
 };
 
@@ -76,7 +76,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${fraunces.variable} ${jakarta.variable} ${amiri.variable} ${cormorant.variable} ${playfair.variable} ${baloo.variable}`}
+        className={`${jakarta.variable} ${amiri.variable} ${cormorant.variable} ${playfair.variable} ${baloo.variable}`}
       >
         <SiteHeader />
         <main>{children}</main>

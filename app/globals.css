@@ -22,6 +22,14 @@
   --width-max: 1120px;
 }
 
+/* One display serif site-wide: legacy pages reference --font-display, new
+   pages reference --font-playfair; both now resolve to Playfair Display.
+   Set on body (not :root) because the font className that defines
+   --font-playfair lives on <body>. */
+body {
+  --font-display: var(--font-playfair);
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
