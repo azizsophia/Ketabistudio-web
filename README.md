@@ -1434,30 +1434,78 @@ before any build.
 - `lib/threads.ts threadsText()` no longer appends the domain footer when the
   caption already credits ketabistudio.com (the pc: line) — no double link.
 
-# INSTAGRAM DESIGN SYSTEM (2026-07-11) — "We The Urban, but ours" (IN DESIGN, not yet queued)
+# INSTAGRAM "WE THE URBAN, BUT OURS" (2026-07-11) — LIVE
 
-Owner wants an Instagram text-post account in the register of We The Urban
-(Willie Greene's affirmation page: bold serif, textured backgrounds, daily
-shareable one-liners) but Islamic, with our verified-source discipline. Goal:
-own the lane no Islamic reminder page currently owns (native-internet voice +
-scholar-grade citations + Arabic calligraphy as the unfair advantage). Design
-explored in scratchpad, approved LOOK pending before building the generator.
+Instagram reminder account in the register of We The Urban (Willie Greene's
+affirmation page) but Islamic, with our verified-source discipline. Owns the
+lane no Islamic reminder page currently holds: native-internet voice + scholar-
+grade citations + Arabic calligraphy as the unfair advantage. FINAL look shipped
+and posting. First post live instagram.com/p/Dapyb3OnyTN; first dua reel live
+instagram.com/reel/Dap1upiDSU_.
 
-## The type system (locked after several rounds with owner)
-- **Loud bold serif fills the frame** — Liberation Serif Bold (Times family)
-  caps, auto-fit to ~880px width, tight leading (~1.04). Owner rejected
-  Playfair-in-caps as "too fashion magazine" and regular-weight as "not loud
-  like wetheurban." Bold Times caps = the WTU weight, reads as announcements.
-- **Italic serif for the soft/whisper lines** (Liberation Serif Italic).
-- **Arabic is the hero, never overlaid on English** — owner rejected the
-  Dana-Salah-style Arabic-over-English interlace ("needs work"). Aref Ruqaa
-  (calligraphic) for hero words, Amiri Bold for dhikr walls / readability.
-- **Backgrounds: woven-canvas texture + vignette** (numpy warp/weft sinusoids
-  + grain + slubs + radial vignette + soft top light), NOT flat color. This
-  was the key "more textured / 2027 best practice" fix.
-- Constants: gold diamond divider, `K E T A B I   S T U D I O` tracked mark
-  bottom-center every post, rotating linen colorways (cream/forest/terra/rose/
-  olive/plum/sand/black-green) so a colorful feed still reads unmistakably ours.
+## The type system (FINAL, after many rounds with owner)
+- **DM Serif Display**, title case with an *italic emphasis word* (NOT all caps
+  — owner: WTU body is title case). This is the "entirely different font" the
+  owner asked for; closest free cousin to WTU's paid Canela. (Rounds that were
+  rejected along the way: Playfair caps = "too fashion magazine", Liberation
+  Serif Bold caps = right weight but wrong case, Arabic-over-English interlace =
+  "needs work".)
+- **Backgrounds: soft watercolor washes** (numpy fractal cloud fields + blooms
+  toward light + paper grain), a DIFFERENT color every post, generated fresh so
+  none ever repeat. Palette: terra/sage/blue/plum/ochre/rose/forest/aubergine/
+  clay/moss. This replaced the woven-canvas idea — owner picked the meerrmade
+  watercolor style.
+- **Mark tucked directly UNDER the text** (not a footer) so a crop can't remove
+  it — the We The Urban anti-theft move the owner spotted.
+- Arabic is the hero where it appears (Amiri walls, Aref Ruqaa Ameen). Gold
+  diamond divider throughout.
+
+## Generators (committed)
+- `content-tools/gen_wtu_post.py` — watercolor + DM Serif post renderer.
+  Formats: reminder, verse (cited), dhikr wall, type-Ameen.
+- `content-tools/build_wtu_week.py` — builds/queues a verified week (1/day).
+  Verse posts: caption fragment AND the on-image verse text are both
+  containment-checked verbatim vs the Clear Quran store (a paraphrase in quote
+  marks with a citation = misattribution, rejected).
+- `content-tools/gen_dua_reel.py` + `build_dua_reels.py` — "Say this dua when
+  you feel ___" silent reels (1080x1920), hook→dua→endcard, ffmpeg ken-burns +
+  crossfade. Arabic word-sliced from the store (never retyped, waqf filtered);
+  English is the LAST quoted segment (3:173 quotes a warning before the dua).
+  Encoded ~1750k so each reel stays under Vercel's ~4.5MB upload body limit.
+
+## Cadence (owner's call, 2026-07-11)
+- Grid = the watercolor WTU posts, 1/day (queued Jul 11-17 to start).
+- Reels = 2/day, OFF the grid: poster now sets `share_to_feed=false` so reels
+  live in the Reels tab / Explore only, keeping the grid a clean photo feed.
+  6 dua reels queued (1 fired now, rest 2/day from Jul 24 after the ayah reels
+  end Jul 23).
+- A few WTU posts also sprinkled onto Threads (image posts) alongside the text.
+- Silent everywhere (owner: "Muslims don't want music").
+
+## The 8 formats (Islamic versions of the WTU playbook)
+1. **Dua carousel** (silent, multi-slide) — "May Allah heal what you never talk
+   about." / *Ameen.* Caption: "send this to someone you love." Biggest
+   share-driver: sending it IS the good deed.
+2. **Series opener** — "IN CASE / NO ONE MADE DUA / FOR YOU TODAY" → swipe to
+   dua slides. Reposting = making dua for someone.
+3. **Anaphora** — "Allah has always heard you / seen you / provided / *been
+   enough*" (final line flips to gold italic).
+4. **Open letter** — "to the one carrying something heavy," (letters to the
+   tired, the new Muslim, the one who missed Fajr).
+5. **Seasonal blessing** — "Praying for a soft Muharram." + Jummah Mubarak,
+   white days, Ramadan. A whole Islamic-calendar layer WTU cannot touch.
+6. **Future-self** — "One day you will wish you had one more chance to be
+   patient. This is that chance."
+7. **Normalize** — "Normalize saying Alhamdulillah before anyone asks how you
+   really are."
+8. **Type Ameen** — Arabic اللهم آمين hero + dua + outlined "type AMEEN below"
+   pill. The most native engagement mechanic in the niche.
+   Plus **Dhikr Wall**: a dhikr phrase (الحمد لله) tiled in Amiri down the page,
+   the English closing line ("for it all.") as the last row. Repetition = dhikr,
+   so form and meaning are one. Owner's favorite.
+   Plus **Dua reels**: "Say this dua when you feel {anxious / alone in it /
+   overwhelmed / like you failed / in need / your faith shake}", each a verified
+   Qur'anic dua (3:173, 21:87, 20:25-26, 7:23, 28:24, 3:8).
 
 ## The 8 formats (Islamic versions of the WTU playbook)
 1. **Dua carousel** (silent, multi-slide) — "May Allah heal what you never talk
