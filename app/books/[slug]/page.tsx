@@ -36,8 +36,31 @@ export default async function BookPage({
   const fixed = book.personalization.type === "fixed";
   const soon = !!book.comingSoon;
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: book.title,
+    description: book.blurb,
+    image: `https://www.ketabistudio.com${book.cover}`,
+    brand: { "@type": "Brand", name: "Ketabi Studio" },
+    category: "Islamic children's books",
+    offers: {
+      "@type": "Offer",
+      priceCurrency: "USD",
+      price: bookPriceDisplay(book.slug).replace(/[^0-9.]/g, ""),
+      availability: soon
+        ? "https://schema.org/PreOrder"
+        : "https://schema.org/InStock",
+      url: `https://www.ketabistudio.com/books/${book.slug}`,
+    },
+  };
+
   return (
     <div className={styles.page}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className={`wrap ${styles.top}`}>
         <div className={styles.coverCol}>
           <div className={styles.coverScene}>
