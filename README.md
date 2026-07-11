@@ -1609,3 +1609,16 @@ on `TEST_DOLLAR_PRICING` ($1) and the gate is untouched.
   Terms `/terms`, Privacy `/privacy-policy` (all public 200s).
 - **Vercel**: authorize the Vercel connector in claude.ai settings (or add
   `app.ketabistudio.com` in Domains) so the subdomain goes live.
+- **Lulu credentials on Vercel (IMPORTANT, found 2026-07-11)**: the site has NO
+  `LULU_CLIENT_KEY` / `LULU_CLIENT_SECRET` / `LULU_ENV` env vars, so
+  (a) checkout's "real-time international shipping" has been silently falling
+  back to the flat $14.99 for every intl order (fails soft by design), and
+  (b) `/api/admin/lulu-quote` (the owner pricing tool) can't quote.
+  Fix: Vercel → Project → Settings → Environment Variables → add the same
+  three vars the worker uses (`LULU_ENV=production`), then Redeploy. After
+  that, intl orders charge true Lulu freight + $1.50 handling, and the quote
+  tool can price any book to any country (POST with Bearer CRON_SECRET,
+  `{book_slug, cover_type?, shipping{street1,city,postcode,country_code}}`).
+  Verified SA data so far (via the worker, 2026-07-11): coil journal print
+  $10.88, Riyadh MAIL $17.19 / EXPRESS $55.69; storybook softcover print $9.03,
+  US MAIL $5.69. Storybook/keepsake SA shipping still needs the creds to quote.
