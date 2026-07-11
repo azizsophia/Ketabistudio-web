@@ -1433,3 +1433,64 @@ before any build.
   card-assets URL ending .mp4 = poster's reel signal).
 - `lib/threads.ts threadsText()` no longer appends the domain footer when the
   caption already credits ketabistudio.com (the pc: line) — no double link.
+
+# LAUNCH REDESIGN (2026-07-11) — "Made to be kept"
+
+New brand line **Made to be kept** across the site; each product world given
+equal weight; the live cover personalizer moved above the fold (the winning
+product). Everything below is LIVE behind the coming-soon gate; prices remain
+on `TEST_DOLLAR_PRICING` ($1) and the gate is untouched.
+
+- **Home** (`components/HomeLanding.tsx` + `.module.css`): aura-gradient
+  ground, glass panels, "Their name. Their story. Kept for life.", the real
+  `<Personalizer/>` above the fold, four product-world ribbons (Books /
+  From One Root journal → Etsy / Digital cards / Photo keepsakes), worldwide
+  shipping announce + honest delivery note, mobile-first (360/768/1280).
+- **Shop** (`app/shop/page.tsx`): hero "Made to be kept", journal tile added
+  (Etsy instant download), "we ship worldwide".
+- **Header** (`components/Header.tsx`): four-worlds nav + Shop CTA + real
+  full-screen mobile menu. NB: no backdrop-filter/transform on `<header>` — it
+  creates a containing block that collapses the fixed mobile sheet; the blur
+  lives on an inner `.barWrap`.
+- **Footer** (`components/Footer.tsx`): brand-only, three columns
+  (Shop/Studio/Help), NO location or personal details, worldwide line.
+- **Trust layer** (`components/TrustLayer.tsx`): studio promise + FAQ
+  accordion (personalization, shipping, worldwide, sourcing, damage
+  guarantee). Brand-only — no names, no place. On the home page.
+- **Product pages** (`app/books/[slug]/page.tsx`): mobile **sticky buy bar**
+  (`components/StickyBuyBar.tsx`) — price + one-tap Order/Personalize,
+  appears after the hero, mobile only; label reflects personalized vs fixed
+  (accuracy: only `her-beautiful-hijab` is personalized). Product JSON-LD
+  (schema.org Product/Offer) for Google rich results. "We ship worldwide".
+- **Keepsakes** (`app/shop/keepsakes/page.tsx` +
+  `components/KeepsakePicker.tsx`): rebuilt as a **"Who is it for?"** picker
+  (Mama/Baba/Grandma/Grandpa/Spouse/Baby/Ramadan); tap a person → only that
+  keepsake unfolds. Page height 14,572px → 5,970px (~60% shorter).
+- **Cards**: already a clean 3-step wizard (occasion / relationship groups);
+  only needed the new global chrome.
+- **Fonts**: unified to **one display serif (Playfair Display)** site-wide.
+  Dropped Fraunces; `--font-display` aliased to `--font-playfair` in
+  `globals.css` (on `body`, where the font className sets the var). Kept
+  Cormorant (keepsake print match), Amiri + Baloo (Arabic), Jakarta (body).
+- **Share/SEO**: `app/opengraph-image.png` + `twitter-image.png` (1200x630
+  branded card); `app/robots.ts` (allow public, block admin/api/c/order);
+  `app/sitemap.ts` (all public + product URLs); metadata refreshed to the
+  new brand copy; twitter summary_large_image.
+- **Subdomain**: `app.ketabistudio.com` host route in `middleware.ts` serves
+  ONLY `/app` ungated (app-store links always load); other paths on that host
+  stay gated. Needs the domain added in Vercel (owner action / connector).
+- **PII scrub**: removed a hardcoded home address from the retired
+  `app/api/cards/gelato-setup/route.ts` (generic placeholder now). Full sweep
+  of app/components/lib is clean of personal info.
+
+## Owner to-do (out of my hands)
+- **Lulu packing slip**: the journal proof already ordered shows a TOFU
+  SQUARE in the thank-you line — that's Lulu's packing-slip template, not the
+  book (book interior is glyph-clean). Fix in Lulu → Account → print/packing
+  slip settings: set a plain-Latin message (e.g. "Jazakallahu khair for your
+  order"). Recipient address on the slip is REQUIRED (carrier/customs) and is
+  the customer's, never the owner's — Lulu is white-label.
+- **TikTok**: resubmit with Website `https://www.ketabistudio.com/coming-soon`,
+  Terms `/terms`, Privacy `/privacy-policy` (all public 200s).
+- **Vercel**: authorize the Vercel connector in claude.ai settings (or add
+  `app.ketabistudio.com` in Domains) so the subdomain goes live.
