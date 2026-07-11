@@ -28,35 +28,25 @@ export default function HomeLanding() {
           <em> Kept for life.</em>
         </h1>
         <p className={styles.sub}>
-          Personalized storybooks, a 30-day Qur&#39;an journal, digital cards
-          and photo keepsakes. Every one carries a name you love.
+          Type her name and watch her book cover come to life. The real preview,
+          not a mock-up.
         </p>
-        <div className={styles.heroCtas}>
-          <Link href="/shop" className={styles.cta}>
-            Shop the collection
-          </Link>
-          <Link href="/books" className={styles.ctaGhost}>
-            Storybooks
-          </Link>
-        </div>
       </section>
 
       {hijab && (
         <section className={styles.tryIt} id="try-it">
-          <div className={styles.tryHead}>
-            <h2>Watch her cover come to life</h2>
-            <p>
-              Type a name, pick her look. This is the real book preview, not a
-              mock-up.
-            </p>
-          </div>
           <Personalizer />
-          <Link
-            href={`/books/${hijab.slug}`}
-            className={styles.tryLink}
-          >
-            Make it a real book · {bookPriceDisplay(hijab.slug)} →
-          </Link>
+          <div className={styles.tryCtas}>
+            <Link
+              href={`/books/${hijab.slug}`}
+              className={styles.tryLink}
+            >
+              Make it a real book · {bookPriceDisplay(hijab.slug)} →
+            </Link>
+            <Link href="/shop" className={styles.ctaGhost}>
+              Shop everything
+            </Link>
+          </div>
         </section>
       )}
 

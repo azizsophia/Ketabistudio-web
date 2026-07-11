@@ -7,7 +7,16 @@
   border: 1px solid var(--line);
   border-radius: var(--radius-card);
   padding: 48px;
-  margin-top: 56px;
+  margin-top: 24px;
+}
+
+/* The cover is first in the DOM so on phones it sits ON TOP of the controls
+   (where most visitors are). On wider screens, put the controls back on the
+   left and the cover on the right. */
+@media (min-width: 881px) {
+  .controls {
+    order: -1;
+  }
 }
 
 .title {

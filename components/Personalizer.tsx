@@ -36,10 +36,37 @@ export default function Personalizer({ showPeek = false }: { showPeek?: boolean 
   return (
     <>
     <div className={styles.box}>
+      <div className={styles.bookWrap}>
+        <div className={styles.book}>
+          <Image
+            src={`/images/hero-${skin}-${hair}-${style}.jpg`}
+            alt=""
+            width={1100}
+            height={1100}
+            priority
+            className={styles.art}
+          />
+          <div className={styles.overlay}>
+            <span
+              className={styles.bookName}
+              style={{
+                fontSize:
+                  shown.length > 9
+                    ? "clamp(1.3rem, 3.6vw, 2.1rem)"
+                    : "clamp(1.7rem, 4.8vw, 2.9rem)",
+              }}
+            >
+              {shown}
+            </span>
+            <span className={styles.bookSub}>and Her Beautiful Hijab</span>
+          </div>
+        </div>
+      </div>
+
       <div className={styles.controls}>
         <p className={styles.title}>Make her the star</p>
         <p className={styles.sub}>
-          Her name, her skin, her hair, watch the cover come to life.
+          Type her name and pick her look. This is the real book cover, live.
         </p>
 
         <label className={styles.label} htmlFor="kid-name">
@@ -111,33 +138,6 @@ export default function Personalizer({ showPeek = false }: { showPeek?: boolean 
               {s.label}
             </button>
           ))}
-        </div>
-      </div>
-
-      <div className={styles.bookWrap} aria-hidden="true">
-        <div className={styles.book}>
-          <Image
-            src={`/images/hero-${skin}-${hair}-${style}.jpg`}
-            alt=""
-            width={1100}
-            height={1100}
-            priority
-            className={styles.art}
-          />
-          <div className={styles.overlay}>
-            <span
-              className={styles.bookName}
-              style={{
-                fontSize:
-                  shown.length > 9
-                    ? "clamp(1.3rem, 3.6vw, 2.1rem)"
-                    : "clamp(1.7rem, 4.8vw, 2.9rem)",
-              }}
-            >
-              {shown}
-            </span>
-            <span className={styles.bookSub}>and Her Beautiful Hijab</span>
-          </div>
         </div>
       </div>
     </div>

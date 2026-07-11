@@ -102,27 +102,21 @@
   box-shadow: 0 10px 24px rgba(42, 43, 34, 0.16);
 }
 
-/* ── the live personalizer, above the fold ── */
+/* ── the live personalizer, in the top space ── */
 .tryIt {
   max-width: 1060px;
-  margin: clamp(2rem, 6vw, 3.5rem) auto 0;
+  margin: clamp(0.6rem, 2.5vw, 1.4rem) auto 0;
   padding: 0 clamp(1.2rem, 5vw, 2rem);
 }
 
-.tryHead h2 {
-  font-family: var(--font-playfair, serif);
-  font-weight: 400;
-  font-size: clamp(1.5rem, 4.5vw, 2.1rem);
-}
-
-.tryHead p {
-  color: var(--soft);
-  font-size: 0.95rem;
-  margin: 0.4rem 0 1.2rem;
+.tryCtas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-top: 1.2rem;
 }
 
 .tryLink {
-  margin-top: 1.1rem;
   background: var(--sage);
   color: #f1efe3;
 }
