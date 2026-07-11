@@ -89,3 +89,50 @@ export async function luluShippingCents(
     return null;
   }
 }
+
+/** Full print + shipping cost calculation for one book spec to one address at
+ *  one shipping level (owner pricing tool). Returns Lulu's USD figures as
+ *  strings, or null on failure. */
+export async function luluCostCalc(
+  addr: LuluAddress,
+  opts: { pageCount: number; pod: string; quantity?: number; level: string }
+): Promise<{ print: string; shipping: string; total: string } | null> {
+  const token = await getToken();
+  if (!token) return null;
+  try {
+    const r = await fetch(`${BASE}/print-job-cost-calculations/`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        line_items: [
+          {
+            page_count: opts.pageCount,
+            pod_package_id: opts.pod,
+            quantity: opts.quantity ?? 1,
+          },
+        ],
+        shipping_address: {
+          name: addr.name || "Customer",
+          street1: addr.street1,
+          ...(addr.street2 ? { street2: addr.street2 } : {}),
+          city: addr.city,
+          ...(addr.state_code ? { state_code: addr.state_code } : {}),
+          postcode: addr.postcode,
+          country_code: addr.country_code,
+          ...(addr.phone_number ? { phone_number: addr.phone_number } : {}),
+        },
+        shipping_option: opts.level,
+      }),
+      cache: "no-store",
+    });
+    if (!r.ok) return null;
+    const j = await r.json();
+    return {
+      print: String(j?.line_item_costs?.[0]?.total_cost_incl_tax ?? ""),
+      shipping: String(j?.shipping_cost?.total_cost_incl_tax ?? ""),
+      total: String(j?.total_cost_incl_tax ?? ""),
+    };
+  } catch {
+    return null;
+  }
+}
