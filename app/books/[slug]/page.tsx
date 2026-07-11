@@ -7,6 +7,7 @@ import { bookPriceDisplay } from "@/lib/pricing";
 import OrderSection from "@/components/OrderSection";
 import DuasPreviewPlayground from "@/components/DuasPreviewPlayground";
 import FlipBook from "@/components/FlipBook";
+import StickyBuyBar from "@/components/StickyBuyBar";
 import styles from "./book.module.css";
 
 export function generateStaticParams() {
@@ -66,7 +67,7 @@ export default async function BookPage({
           <ul className={styles.specs}>
             <li>{PRINT_SPEC.pages} pages · {PRINT_SPEC.trim}</li>
             <li>{PRINT_SPEC.paper} · {PRINT_SPEC.cover}</li>
-            <li>{PRINT_SPEC.shipsFrom} · {PRINT_SPEC.leadTime}</li>
+            <li>{PRINT_SPEC.leadTime} · we ship worldwide</li>
             <li>{PRINT_SPEC.delivery}</li>
             <li>
               {personalized
@@ -147,6 +148,13 @@ export default async function BookPage({
           ← Back to the library
         </Link>
       </div>
+
+      <StickyBuyBar
+        label={book.title}
+        price={bookPriceDisplay(book.slug)}
+        personalized={personalized}
+        soon={soon}
+      />
     </div>
   );
 }

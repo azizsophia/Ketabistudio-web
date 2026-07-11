@@ -1,0 +1,64 @@
+.bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem clamp(1rem, 5vw, 1.4rem);
+  padding-bottom: calc(0.7rem + env(safe-area-inset-bottom));
+  background: color-mix(in srgb, var(--cream, #f6f4ef) 92%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid var(--line, #e4ded2);
+  transform: translateY(110%);
+  transition: transform 0.28s ease;
+}
+
+.show {
+  transform: translateY(0);
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.name {
+  font-size: 0.78rem;
+  color: var(--muted, #6f6a5f);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 44vw;
+}
+
+.price {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--ink, #282622);
+}
+
+.cta {
+  flex: none;
+  border-radius: 999px;
+  background: var(--ink, #282622);
+  color: var(--cream, #f6f4ef);
+  padding: 0.8rem 1.5rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+/* Desktop has the inline CTA already; hide the sticky bar there. */
+@media (min-width: 780px) {
+  .bar {
+    display: none;
+  }
+}
