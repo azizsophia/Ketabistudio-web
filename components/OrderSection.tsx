@@ -425,7 +425,10 @@ export default function OrderSection({ slug, personalized }: Props) {
           <p className={styles.sub}>
             We ship worldwide. Your book is made to order and printed in the USA,
             then shipped directly to you. Please allow about 2 weeks for delivery
-            in the US, 2 to 4 weeks international{isInternational ? ". International shipping rates apply" : ""}.
+            in the US, 2 to 4 weeks international
+            {isInternational
+              ? ". International shipping is based on the carrier's real cost, typically $15 to $20, shown before you pay"
+              : ""}.
           </p>
 
           <div className={styles.formGrid}>
@@ -538,7 +541,7 @@ export default function OrderSection({ slug, personalized }: Props) {
             </div>
             <div className={styles.priceRow}>
               <span>Shipping</span>
-              <span>{isInternational ? "Calculated at checkout" : "Free (US)"}</span>
+              <span>{isInternational ? "Carrier cost, typically $15 to $20" : "Free (US)"}</span>
             </div>
             <div className={`${styles.priceRow} ${styles.priceTotal}`}>
               <span>Total</span>

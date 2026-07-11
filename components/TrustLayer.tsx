@@ -17,7 +17,7 @@ const FAQ = [
   },
   {
     q: "Do you ship worldwide?",
-    a: "Yes. Physical books ship almost anywhere in the world. Digital cards and the journal are instant downloads, so they reach you anywhere with no shipping at all.",
+    a: "Yes. Physical books ship almost anywhere in the world. US shipping is free. International shipping is based on the carrier's real cost for your address, typically $15 to $20, and you see it clearly before you pay. Digital cards and the journal are instant downloads, so they reach you anywhere with no shipping at all.",
   },
   {
     q: "Is everything authentic and sourced?",
