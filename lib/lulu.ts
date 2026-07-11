@@ -96,9 +96,13 @@ export async function luluShippingCents(
 export async function luluCostCalc(
   addr: LuluAddress,
   opts: { pageCount: number; pod: string; quantity?: number; level: string }
-): Promise<{ print: string; shipping: string; total: string } | null> {
+): Promise<
+  | { print: string; shipping: string; total: string }
+  | { error: string }
+  | null
+> {
   const token = await getToken();
-  if (!token) return null;
+  if (!token) return { error: `no lulu token (env=${ENV}, key=${KEY ? "set" : "MISSING"})` };
   try {
     const r = await fetch(`${BASE}/print-job-cost-calculations/`, {
       method: "POST",
@@ -125,14 +129,17 @@ export async function luluCostCalc(
       }),
       cache: "no-store",
     });
-    if (!r.ok) return null;
+    if (!r.ok) {
+      const text = await r.text().catch(() => "");
+      return { error: `lulu ${r.status} (env=${ENV}): ${text.slice(0, 300)}` };
+    }
     const j = await r.json();
     return {
       print: String(j?.line_item_costs?.[0]?.total_cost_incl_tax ?? ""),
       shipping: String(j?.shipping_cost?.total_cost_incl_tax ?? ""),
       total: String(j?.total_cost_incl_tax ?? ""),
     };
-  } catch {
-    return null;
+  } catch (e) {
+    return { error: `exception: ${e instanceof Error ? e.message : "unknown"}` };
   }
 }
