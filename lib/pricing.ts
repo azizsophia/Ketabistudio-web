@@ -145,6 +145,11 @@ export const POD_PACKAGE = "0850X0850.FC.PRE.PB.080CW444.MXX";
    hardcover orders; must be confirmed by Lulu on the first real order. */
 export const HARDCOVER_POD = "0850X0850.FC.PRE.CW.080CW444.MXX";
 
+/* From One Root coil journal — 8.5x11, 70pp, coil-bound. Keep in sync with the
+   worker's COIL_POD. Verified against a live Riyadh cost calc 2026-07-11:
+   print $10.88, MAIL shipping $17.19 to SA (vs ~$6 US MAIL). */
+export const COIL_POD = "0850X1100.FC.STD.CO.060UW444.MXX";
+
 /* Photo-book keepsake templates (orders with book_slug = template slug). They
    are 8.5x8.5 HARDCOVER-ONLY keepsakes, 24pp casewrap (every interior page is a
    customer photo). Kept here (not imported) to avoid a server/client import
@@ -173,6 +178,9 @@ export const BOOK_SHIP_SPEC: Record<string, { pageCount: number; pod: string }> 
   "about-spouse": { pageCount: 24, pod: HARDCOVER_POD },
   "about-baby": { pageCount: 24, pod: HARDCOVER_POD },
   "our-ramadan": { pageCount: 24, pod: HARDCOVER_POD },
+  // Coil journal — 70pp 8.5x11 coil POD, so intl quotes price the real book
+  // (the 32pp storybook default would badly under-quote it).
+  "from-one-root-journal": { pageCount: 70, pod: COIL_POD },
 };
 export const DEFAULT_SHIP_SPEC = { pageCount: 32, pod: POD_PACKAGE };
 
