@@ -1622,3 +1622,37 @@ on `TEST_DOLLAR_PRICING` ($1) and the gate is untouched.
   US baseline (juha): print $9.83 + MAIL $6.19 = $16.83 delivered.
   Etsy intl shipping profile: $18.99 "everywhere else" mirrors true cost
   across the whole catalog.
+
+# PRICING CARD (2026-07-11) — the standing reference, all numbers VERIFIED
+
+Every cost below is a real Lulu cost calc from 2026-07-11 (US = worst case,
+includes NY sales tax; MAIL level). Profit = price − landed cost − Stripe
+(~2.9% + $0.30). International customers pay real carrier freight + $1.50
+handling rounded up to the next $0.50 (live at checkout since today) — Riyadh
+charges $19.00 on every product (Lulu SA MAIL is $17.19 flat catalog-wide;
+EXPRESS $55.69, not offered).
+
+| Product                        | Price  | US cost → profit    | SA cost → profit    |
+|--------------------------------|--------|---------------------|---------------------|
+| Storybooks (Juha/Maryam), SC   | $24.99 | $16.83 → **$7.14**  | $26.97 → **$15.45** |
+| Personalized book, softcover   | $34.99 | $16.83 → **$16.85** | $26.97 → **$25.15** |
+| Personalized book, hardcover   | $49.99 | $26.43 → **$21.81** | $35.79 → **$30.90** |
+| Keepsake photobook (24pp HC)   | $49.99 | $24.58 → **$23.66** | $34.08 → **$32.60** |
+| Journal coil 70pp (when live)  | $34.99 | $18.85 → **$14.83** | $28.82 → **$23.30** |
+| Journal digital (Etsy)         | $12.99 | ~$11 after Etsy fees| same, worldwide     |
+| Digital cards                  |  $2.00 | ~$1.64 after Stripe | same, worldwide     |
+
+Rules of thumb decided with the owner:
+- Every product must be profitable in EVERY market. Confirmed above; the
+  real-time intl freight charge guarantees far destinations never lose money.
+- The $24.99 storybooks are the entry anchor (thinnest margin by design);
+  nothing may sit thinner. Their job is making $34.99 personalized feel like
+  "only $10 more for her name".
+- Physical journal lists at $34.99 / digital stays $12.99 (tier gap tells the
+  buyer the physical is the special one).
+- Anti-sticker-shock: order form + FAQ state intl shipping is "based on the
+  carrier's real cost, typically $15 to $20, shown before you pay". Never
+  claim "no markup" (the $1.50 handling exists).
+- Quote any book to any country: POST /api/admin/lulu-quote (Bearer
+  CRON_SECRET) {book_slug, cover_type?, shipping{street1,city,postcode,
+  country_code}}.
