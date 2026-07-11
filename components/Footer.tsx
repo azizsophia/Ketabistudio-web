@@ -2,50 +2,57 @@ import Link from "next/link";
 import Image from "next/image";
 import styles from "./Footer.module.css";
 
+/* Brand-only footer — no location or personal details, ever. */
+
 export default function Footer() {
+  const year = 2026; // static: Date.now() is unavailable in this runtime
   return (
     <footer className={styles.footer}>
-      <div className={`wrap ${styles.inner}`}>
+      <div className={styles.inner}>
         <Image
           src="/images/icon-cream.png"
           alt="Ketabi Studio"
-          width={56}
-          height={56}
+          width={52}
+          height={52}
           className={styles.brandMark}
         />
-        <p className={`arabic ${styles.bismillah}`}>
-          الْحَمْدُ لِلّٰهِ
-        </p>
-        <nav className={styles.links} aria-label="Footer">
-          <Link href="/#watch">Watch</Link>
-          <Link href="/books">Children's books</Link>
-          <Link href="/kids">Kids Corner</Link>
-          <Link href="/digital-cards">Cards</Link>
-          <Link href="/app">App</Link>
-          <Link href="/about">About</Link>
-          <Link href="/privacy-policy">Privacy Policy</Link>
-          <Link href="/terms">Terms</Link>
-          <Link href="/refund-policy">Shipping &amp; Returns</Link>
-        </nav>
+        <p className={`arabic ${styles.bismillah}`}>الْحَمْدُ لِلّٰهِ</p>
+
+        <div className={styles.cols}>
+          <div>
+            <h4>Shop</h4>
+            <Link href="/books">Storybooks</Link>
+            <a href="https://ketabistudio.etsy.com" target="_blank" rel="noreferrer">
+              The journal
+            </a>
+            <Link href="/digital-cards">Digital cards</Link>
+            <Link href="/shop/keepsakes">Photo keepsakes</Link>
+          </div>
+          <div>
+            <h4>Studio</h4>
+            <Link href="/about">About</Link>
+            <Link href="/app">Our app</Link>
+            <a href="mailto:ketabistudio@gmail.com">Contact</a>
+          </div>
+          <div>
+            <h4>Help</h4>
+            <Link href="/refund-policy">Shipping &amp; returns</Link>
+            <Link href="/privacy-policy">Privacy</Link>
+            <Link href="/terms">Terms</Link>
+          </div>
+        </div>
+
         <div className={styles.social}>
-          <a
-            href="https://www.tiktok.com/@ketabi.studio"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <a href="https://www.tiktok.com/@ketabi.studio" target="_blank" rel="noreferrer">
             TikTok
           </a>
-          <a
-            href="https://www.youtube.com/@KetabiStudio"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <a href="https://www.youtube.com/@KetabiStudio" target="_blank" rel="noreferrer">
             YouTube
           </a>
-          <a href="mailto:ketabistudio@gmail.com">Contact</a>
         </div>
+
         <p className={styles.legal}>
-          © {new Date().getFullYear()} Ketabi Studio. Made with intention.
+          © {year} Ketabi Studio · Made to be kept · We ship worldwide
         </p>
       </div>
     </footer>

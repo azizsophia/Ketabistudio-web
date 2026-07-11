@@ -1,66 +1,58 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import styles from "./Header.module.css";
 
-const APP_LINKS = [
-  { label: "Explore the app", href: "/app" },
-  { label: "App Store", href: "https://apps.apple.com/us/app/ketabi/id6768112231", ext: true },
-  { label: "Google Play", href: "https://play.google.com/store/apps/details?id=com.ketabi.myapp", ext: true },
-  { label: "Request a feature", href: "mailto:ketabistudio@gmail.com?subject=Feature request, Ketabi app", ext: true },
-  { label: "Get support", href: "mailto:ketabistudio@gmail.com?subject=Ketabi app support", ext: true },
+/* Unified commerce header for the "Made to be kept" launch. One clean nav
+   across the four product worlds, a real full-screen mobile menu, and a
+   single Shop call-to-action (no cart badge — each product checks out
+   directly, so a bag count would be dishonest). */
+
+const NAV = [
+  { label: "Books", href: "/books" },
+  { label: "Journal", href: "https://ketabistudio.etsy.com", ext: true },
+  { label: "Cards", href: "/digital-cards" },
+  { label: "Keepsakes", href: "/shop/keepsakes" },
+  { label: "About", href: "/about" },
 ];
 
 export default function Header() {
   const [open, setOpen] = useState(false);
-  const [appOpen, setAppOpen] = useState(false);
+
+  // Lock body scroll while the mobile menu is open.
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
 
   return (
     <header className={styles.header}>
-      <div className={`wrap ${styles.inner}`}>
+      <div className={styles.barWrap}>
+      <div className={styles.inner}>
         <Link href="/" className={styles.brand} onClick={() => setOpen(false)}>
-          <Image src="/icon.png" alt="" width={38} height={38} className={styles.kaf} />
-          <span className={styles.name}>Ketabi Studio</span>
+          <Image src="/icon.png" alt="" width={34} height={34} className={styles.kaf} />
+          <span className={styles.name}>Ketabi&nbsp;Studio</span>
         </Link>
 
         <nav className={styles.nav} aria-label="Main">
-          <Link href="/#watch">Watch</Link>
-          <Link href="/shop">Shop</Link>
-          <Link href="/kids">Kids Corner</Link>
-          <div
-            className={styles.dropWrap}
-            onMouseEnter={() => setAppOpen(true)}
-            onMouseLeave={() => setAppOpen(false)}
-          >
-            <button
-              className={styles.dropBtn}
-              aria-expanded={appOpen}
-              onClick={() => setAppOpen((v) => !v)}
-            >
-              App <span className={styles.chev} aria-hidden="true">▾</span>
-            </button>
-            {appOpen && (
-              <div className={styles.dropdown}>
-                {APP_LINKS.map((l) =>
-                  l.ext ? (
-                    <a key={l.label} href={l.href} target={l.href.startsWith("mailto") ? undefined : "_blank"} rel="noopener noreferrer">
-                      {l.label}
-                    </a>
-                  ) : (
-                    <Link key={l.label} href={l.href} onClick={() => setAppOpen(false)}>
-                      {l.label}
-                    </Link>
-                  )
-                )}
-              </div>
-            )}
-          </div>
-          <Link href="/about">About</Link>
+          {NAV.map((l) =>
+            l.ext ? (
+              <a key={l.label} href={l.href} target="_blank" rel="noreferrer">
+                {l.label}
+              </a>
+            ) : (
+              <Link key={l.label} href={l.href}>
+                {l.label}
+              </Link>
+            )
+          )}
         </nav>
 
-        <Link href="/shop" className={`btn btn-primary ${styles.cta}`}>
+        <Link href="/shop" className={styles.shopBtn}>
           Shop
         </Link>
 
@@ -75,18 +67,36 @@ export default function Header() {
           <span className={`${styles.bar} ${open ? styles.barBot : ""}`} />
         </button>
       </div>
+      </div>
 
       {open && (
-        <nav className={styles.sheet} aria-label="Mobile">
-          <Link href="/#watch" onClick={() => setOpen(false)}>Watch</Link>
-          <Link href="/shop" onClick={() => setOpen(false)}>Shop</Link>
-          <Link href="/kids" onClick={() => setOpen(false)}>Kids Corner</Link>
-          <Link href="/app" onClick={() => setOpen(false)}>App</Link>
-          <Link href="/about" onClick={() => setOpen(false)}>About</Link>
-          <Link href="/shop" className="btn btn-primary" onClick={() => setOpen(false)}>
-            Shop
-          </Link>
-        </nav>
+        <div className={styles.sheet}>
+          <nav aria-label="Mobile">
+            <Link href="/shop" onClick={() => setOpen(false)}>
+              Shop everything
+            </Link>
+            {NAV.map((l) =>
+              l.ext ? (
+                <a
+                  key={l.label}
+                  href={l.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={() => setOpen(false)}
+                >
+                  {l.label}
+                </a>
+              ) : (
+                <Link key={l.label} href={l.href} onClick={() => setOpen(false)}>
+                  {l.label}
+                </Link>
+              )
+            )}
+          </nav>
+          <p className={styles.sheetNote}>
+            Made to be kept · we ship worldwide
+          </p>
+        </div>
       )}
     </header>
   );

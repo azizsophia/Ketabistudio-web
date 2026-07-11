@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import Personalizer from "./Personalizer";
+import TrustLayer from "./TrustLayer";
 import styles from "./HomeLanding.module.css";
 import { BOOKS } from "@/lib/books";
 import { bookPriceDisplay } from "@/lib/pricing";
@@ -159,6 +160,8 @@ export default function HomeLanding() {
           <span>ships worldwide</span>
         </div>
       </section>
+
+      <TrustLayer />
 
       <p className={styles.shipNote}>
         Printed to order in 1&#8211;3 business days. US delivery 5&#8211;10
