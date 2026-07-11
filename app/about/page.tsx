@@ -5,7 +5,7 @@ import styles from "./about.module.css";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "Ketabi Studio, an independent Islamic studio making beautiful, intentional learning for the whole family, from a child's first dua to your own daily dhikr.",
+    "Ketabi Studio is a small independent studio making keepsakes for Muslim families: personalized storybooks, a 30-day Qur'an journal, digital cards and hardcover photo books. Made to be kept.",
 };
 
 const pillars = [
@@ -34,14 +34,15 @@ export default function About() {
           </p>
           <p className="eyebrow">About</p>
           <h1 className={styles.h1}>
-            Spiritual growth,
+            Made to be
             <br />
-            made beautiful<span className={styles.gold}>.</span>
+            kept<span className={styles.gold}>.</span>
           </h1>
           <p className={`lede ${styles.lede}`}>
-            Ketabi means &ldquo;my book.&rdquo; We make beautiful, intentional
-            Islamic learning for the whole family, designed to be woven into
-            daily life, from a child&apos;s first dua to your own daily dhikr.
+            Ketabi means &ldquo;my book.&rdquo; We are a small studio making
+            keepsakes for Muslim families: personalized storybooks, a 30-day
+            Qur&apos;an journal, digital cards, and hardcover photo books. Each
+            one is made by hand, checked with care, and meant to be kept.
           </p>
           <span className={`divider ${styles.heroDivider}`} aria-hidden="true">
             <span />
@@ -53,21 +54,23 @@ export default function About() {
       <section className={styles.story}>
         <div className={`wrap ${styles.storyInner}`}>
           <p className={styles.lead}>
-            We believe spiritual growth should be beautiful, seamless, and
-            deeply woven into daily life.
+            We make a small number of things, and we make them well.
           </p>
           <p className={styles.para}>
-            In a world full of distractions, our faith often takes a backseat.
-            We started Ketabi to change that, to make remembering Allah feel as
-            warm and beautiful as the deen itself.
+            Ketabi started with a simple wish: for Islamic gifts and learning to
+            feel as warm and beautiful as the deen itself. So much out there
+            feels mass-produced, or careless with the sacred. We wanted the
+            opposite, so we make things slowly and hold every one to the same
+            standard.
           </p>
           <p className={styles.para}>
-            It began as short films about the Quran&apos;s wonders, our history,
-            and the signs of our time. From there it grew into hand-illustrated
-            storybooks where a child becomes the star of their own dua, and then
-            into a calm app for the grown-ups: daily adhkar, a Quran journal,
-            and a Garden in Jannah that grows with your dhikr. One studio,
-            three ways to grow closer to Allah, all held to the same standard.
+            Today that means hand-illustrated storybooks where your child
+            becomes the star of the story, From One Root, a 30-day journal that
+            opens the Qur&apos;an one Arabic word at a time with every source
+            cited, digital cards that carry your own voice, and hardcover photo
+            books for the people you love most. A free app for daily dhikr is on
+            the way, and we share short reflections on our YouTube. Different
+            things for different moments, all held to one standard.
           </p>
         </div>
       </section>
@@ -96,10 +99,10 @@ export default function About() {
         <div className={`wrap ${styles.threadsInner}`}>
           <span className="divider" aria-hidden="true"><span /></span>
           <p className={styles.threadsLine}>
-            The <span className={styles.accent}>films</span> spark wonder, the{" "}
-            <span className={styles.accent}>books</span> make it personal, and
-            the <span className={styles.accent}>app</span> turns it into a daily
-            habit. Different ages, one family, one intention.
+            The <span className={styles.accent}>books</span> make it personal,
+            the <span className={styles.accent}>journal</span> makes it daily,
+            and every <span className={styles.accent}>keepsake</span> makes it
+            last. Different ages, one family, one intention.
           </p>
         </div>
       </section>
@@ -109,15 +112,15 @@ export default function About() {
         <div className={styles.ctaInner}>
           <h2 className={styles.ctaTitle}>Come and see what we make</h2>
           <p className={styles.ctaBody}>
-            Start with a storybook for the little ones, or a calm space for your
-            own dhikr. Both made with the same care.
+            Start with a storybook for the little ones, or the journal for your
+            own heart. Everything is made with the same care.
           </p>
           <div className={styles.ctaRow}>
             <Link href="/books" className="btn btn-gold">
               Explore the books
             </Link>
-            <Link href="/app" className={`btn ${styles.ctaPlay}`}>
-              Discover the app
+            <Link href="/shop" className={`btn ${styles.ctaPlay}`}>
+              Shop everything
             </Link>
           </div>
           <p className={styles.contact}>
