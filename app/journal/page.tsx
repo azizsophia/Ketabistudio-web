@@ -112,8 +112,8 @@ export default function JournalPage() {
       {/* ── the essay (explain it, Substack-deep) ── */}
       <section className={styles.essay}>
         <p className={styles.dropLead}>
-          Most Islamic quote accounts hand you a feeling. We wanted to hand you a
-          reference.
+          It began with a simple question: what is a word in the Qur&apos;an
+          actually made of?
         </p>
         <p>
           Arabic is built on roots. Almost every word grows from three letters,
@@ -147,8 +147,8 @@ export default function JournalPage() {
         <p>
           None of this is invented. Every meaning is traced to the classical
           dictionaries of Arabic and the verse where the word lives, and the
-          source is printed right there on the page. This is the part no pretty
-          graphic gives you: the receipts.
+          source is printed right there on the page, so you never have to take
+          our word for it.
         </p>
       </section>
 
@@ -191,8 +191,8 @@ export default function JournalPage() {
           <span />
         </span>
         <p className={styles.whyLine}>
-          Not another quote on a pretty background. A reference you will keep,
-          sourced like scholarship, made to be read slowly and returned to.
+          A reference you will keep, sourced like scholarship, made to be read
+          slowly and returned to.
         </p>
         <Link href="/shop" className={styles.whyLink}>
           See everything we make →

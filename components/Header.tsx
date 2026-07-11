@@ -10,7 +10,7 @@ import styles from "./Header.module.css";
    single Shop call-to-action (no cart badge — each product checks out
    directly, so a bag count would be dishonest). */
 
-const NAV = [
+const NAV: { label: string; href: string; ext?: boolean }[] = [
   { label: "Books", href: "/books" },
   { label: "Journal", href: "/journal" },
   { label: "Cards", href: "/digital-cards" },
