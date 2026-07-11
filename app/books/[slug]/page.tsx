@@ -127,11 +127,11 @@ export default async function BookPage({
             title={book.title}
             pages={book.previews}
             stage="forest"
-            eyebrow={personalized ? "Personalized" : undefined}
+            eyebrow={personalized ? "Personalized" : "Real inside pages"}
             caption={
               personalized
-                ? "Your child’s name will be here, and on every page"
-                : undefined
+                ? "Real pages from the book. Your child’s name and look go on every one."
+                : "Real pages from the book you’ll receive, not a mock-up."
             }
           />
         </div>

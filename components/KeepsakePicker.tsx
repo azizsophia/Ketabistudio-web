@@ -58,13 +58,16 @@ export default function KeepsakePicker() {
           cover={`/images/keepsake/${active}/cover.jpg`}
           title={t.title}
           pages={[
-            { src: `/images/keepsake/${active}/page04.jpg` },
-            { src: `/images/keepsake/${active}/page12.jpg` },
+            { src: `/images/keepsake/${active}/page02.jpg` },
+            { src: `/images/keepsake/${active}/page06.jpg` },
+            { src: `/images/keepsake/${active}/page10.jpg` },
+            { src: `/images/keepsake/${active}/page14.jpg` },
+            { src: `/images/keepsake/${active}/page18.jpg` },
             { src: `/images/keepsake/${active}/page23.jpg` },
           ]}
           stage="charcoal"
-          eyebrow="A hardcover keepsake"
-          caption="Your photos, words written for you, sealed with a dua"
+          eyebrow="Real pages from the book"
+          caption="This is the layout you'll get. Your photos go in, your words too, sealed with a dua"
         />
 
         <div className={styles.detail}>
