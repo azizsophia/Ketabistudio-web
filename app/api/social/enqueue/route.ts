@@ -42,11 +42,62 @@ export async function POST(req: NextRequest) {
     replace?: boolean;
     clear?: boolean;
     promote?: { image_url: string; scheduled_for?: string };
+    list?: { platforms?: string; from?: string; to?: string };
+    remove?: { ids: string[] };
   };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "invalid json" }, { status: 400 });
+  }
+
+  // {list:{platforms?, from?, to?}}: inspect still-queued posts (id, time,
+  // caption head) so the owner tooling can target precise slots.
+  if (body.list) {
+    const q = new URLSearchParams({
+      select: "id,scheduled_for,platforms,image_url,caption",
+      status: "eq.queued",
+      order: "scheduled_for.asc",
+      limit: "200",
+    });
+    if (body.list.platforms) q.set("platforms", `eq.${body.list.platforms}`);
+    if (body.list.from) q.append("scheduled_for", `gte.${body.list.from}`);
+    if (body.list.to) q.append("scheduled_for", `lt.${body.list.to}`);
+    const r = await fetch(`${SB}/rest/v1/social_queue?${q}`, {
+      headers: { Authorization: `Bearer ${KEY}`, apikey: KEY! },
+    });
+    const rows = (await r.json().catch(() => [])) as Array<{
+      id: string; scheduled_for: string; platforms: string;
+      image_url: string; caption: string;
+    }>;
+    return NextResponse.json({
+      ok: true,
+      rows: Array.isArray(rows)
+        ? rows.map((x) => ({
+            id: x.id,
+            scheduled_for: x.scheduled_for,
+            platforms: x.platforms,
+            has_image: !!x.image_url,
+            caption: (x.caption || "").slice(0, 60),
+          }))
+        : [],
+    });
+  }
+
+  // {remove:{ids:[...]}}: delete specific still-queued posts by id (published
+  // rows are never touched). Used to swap slots without nuking the queue.
+  if (body.remove?.ids?.length) {
+    const ids = body.remove.ids.filter((s) => /^[0-9a-f-]{36}$/i.test(String(s)));
+    if (!ids.length) return NextResponse.json({ error: "no valid ids" }, { status: 400 });
+    const r = await fetch(
+      `${SB}/rest/v1/social_queue?status=eq.queued&id=in.(${ids.join(",")})`,
+      {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${KEY}`, apikey: KEY!, Prefer: "return=representation" },
+      }
+    );
+    const rows = await r.json().catch(() => []);
+    return NextResponse.json({ ok: true, removed: Array.isArray(rows) ? rows.length : 0 });
   }
 
   // {promote:{image_url, scheduled_for?}}: reschedule a still-queued post so it
