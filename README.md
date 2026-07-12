@@ -396,7 +396,7 @@ the domain is switched in Vercel.
 
 ---
 
-# Continuation guide — current state (updated 2026-06-29)
+# Continuation guide — current state (updated 2026-06-29; NEWEST session log: "FULL-STACK COMMERCE DAY (2026-07-09)" at the bottom)
 
 > Read this first if you're a new session picking up the project. It captures
 > everything beyond the original 3-book system: the full product set, the
@@ -963,6 +963,12 @@ render Week 1 (qalb + nūr) as motion, QC per QC-CHECKLIST.md, show owner, sched
   `.github/workflows/social-poster.yml` (free Vercel cron is unreliable).
 - `POST /api/social/video` — uploads an mp4 to Supabase card-assets, returns URL.
 - `GET /api/social/ig/stats` — real reach/saves/shares/views per post.
+- `POST /api/social/threads/delete` `{post_id}` — deletes a Threads post. NOTE:
+  the current Threads token lacks the **`threads_delete`** scope, so this returns
+  "Application does not have permission" (code 10). To enable auto-delete, owner
+  must re-generate the Threads token WITH threads_delete added (User Token
+  Generator / OAuth scope). Until then, delete stray Threads posts by hand.
+  Threads carousels now post fully (publishThreads builds child containers).
 - Comment reply systems LIVE both platforms: `/api/social/threads/replies` and
   `/api/social/ig/comments` (GET open comments, POST approved replies — "read, I
   draft, you approve, I post"). Threads creds in private storage bucket.
@@ -989,3 +995,664 @@ until verified; flagship pieces shown first.
   /cards/print, /c, /admin, /pinterest/callback`. `/terms` un-gated for the
   TikTok/Meta apps' required Terms URL. TikTok verification `.txt` is served
   because dotted paths skip the gate.
+
+# Etsy digital products (2026-07-06)
+
+> Goal: sell UNIQUE, non-saturated personalized Islamic digital downloads. Etsy
+> API key (`5ls9u9croiqu7q6klowiru15`) **APPROVED 2026-07-06** (status flipped to
+> "Personal Access", 5 QPS / 5K QPD). API integration is BUILT (see below); needs
+> a prod deploy + 3 activation steps to go live.
+
+## Etsy API — BUILT (`lib/etsy.ts` + `app/api/etsy/*`), needs activation
+OAuth2 + PKCE, mirrors the Threads pattern: keystring/secret/tokens live in the
+private `social-config/etsy.json` bucket (NEVER git). Access token auto-refreshes
+(1h life, 90-day refresh). Routes: `POST /api/etsy/config` (store keystring+secret,
+Bearer CRON_SECRET), `GET /api/etsy/authorize?key=CRON_SECRET` (owner opens →
+Etsy consent), `GET /api/etsy/callback` (token swap, the URL to register),
+`GET /api/etsy/status` (Bearer, health check → shop name). `lib/etsy.ts` helpers:
+`createDraftListing`, `uploadListingImage`, `uploadListingFile`, `publishListing`,
+`getShopId`, `etsyFetch`. **Digital listing = `type:"download"`, taxonomy_id
+68887887 (Digital Prints — verify).**
+ACTIVATION (in order): (1) merge to main / deploy to prod (callback is hardcoded
+to www.ketabistudio.com). (2) Owner registers `https://www.ketabistudio.com/api/etsy/callback`
+as an app callback URL in Etsy app settings. (3) Claude POSTs /api/etsy/config
+with keystring+secret (curl, Bearer CRON_SECRET=`ketabi-cron-2027`). (4) Owner
+opens /api/etsy/authorize?key=ketabi-cron-2027 and approves. (5) Claude verifies
+via /api/etsy/status. Then listing creation is fully automatable.
+
+### STATUS: LIVE + working (2026-07-06)
+Connected to shop **KetabiStudio (shop_id 48938263)**, token auto-refreshing.
+Full CRUD confirmed end-to-end. TWO GOTCHAS learned the hard way:
+- **`x-api-key` MUST be `keystring:shared_secret`** (colon-separated), NOT the
+  keystring alone — else every authed call fails with "Shared secret is required
+  in x-api-key header" and getShopId silently returns null.
+- **Legacy personalization fields are DEPRECATED** on the listing PATCH
+  (`is_personalizable`, `personalization_is_required`, `personalization_char_count_max`).
+  Setting "required" now needs Etsy's dedicated personalization endpoints
+  (developers.etsy.com/documentation/tutorials/personalization-mig) — not yet
+  built. Owner can toggle "Required" by hand in the listing editor.
+`POST /api/etsy/listing` (Bearer): CREATE mode (pass `listing`) or EDIT mode
+(pass `listing_id` + `update_fields`/`images`/`file`). Assets inline base64
+(keep payload <4.5MB — JPEG ~1600px, NOT PNG which blew to 38MB). Creates DRAFTS
+by default; only publishes if `publish:true`. **Listings (check before creating — DON'T duplicate):**
+- 4533437576 — name print (LIVE, 5 imgs, $13). Title now front-loads "Quran Name Meaning" (39-competitor gap).
+- 4533400292 — dua deck (LIVE).
+- 4533510568 — Qur'an teacher gift keepsake (DRAFT, $13, hadith Bukhari 5027).
+- 4533497225 — Hajj Mabrūr keepsake (DRAFT, $13, hadith Bukhari 1773/Muslim 1349).
+- 4533503399 — Muslim baby birth keepsake (DRAFT, $13, Qur'an 37:100 Ibrahim's du'a).
+- 4533517158 — Family blessed-home print (DRAFT, $13, Qur'an 23:29 Nuh's du'a).
+- 4533517194 — Islamic nursery child-protection print (DRAFT, $13, Sahih Muslim 2708).
+- 4533521396 — Dua for Parents print (DRAFT, $13, Qur'an 17:24).
+- 4533507807 — Muslim wedding "mawaddah wa rahmah" print (DRAFT, $13, Qur'an 30:21, mushaf spelling).
+- 4533521470 — Get Well / Shifa print (DRAFT, $13, Sahih al-Bukhari 5656).
+All 5 keepsake drafts: 3 imgs (framed mockup + ivory + dark) + how-it-works file,
+personalization NOT yet enabled (Etsy deprecation → owner toggles by hand).
+Content ALL verified by adversarial pass (hadith + ayat verbatim, translit fixed).
+Keepsakes rendered by `content-tools/etsy/gen_keepsake.py` (verified hadith,
+ivory+dark, personalized dedication line). Renders via `render_keepsake(entry,out,theme,sc)`.
+**Personalization can't be set via API** (Etsy deprecated the legacy fields on
+BOTH create and update) — owner toggles "Personalization: On + Required" by hand
+in the editor for the 3 personalized listings. Title rule learned: "&" allowed
+only ONCE per title. Etsy market-competition counts (supply, not demand): "quran
+name meaning" 39, "hajj mabrur gift" 7, "quran teacher gift" 333 — all low.
+
+## PRINT-FILE RULE (non-negotiable)
+No "claude", "AI", "Anthropic", or any tool name in filenames OR PDF/PNG
+metadata — owner's rule ("so people can't see"). All generators set PDF
+title/author/producer/creator = "Ketabi Studio". Verify each deliverable:
+`grep -ai "claude\|anthropic\|openai"` + check `fitz` metadata + confirm no
+AI provenance in extractable text (compressed-stream byte-hits on "AI" are
+fine; readable text must be clean).
+
+## Product 1 — "A Name Written Into the Qur'an" (personalized name print) — BUILT
+The wide-open, first-mover product. Wins NOT on meaning (parents often know it)
+but on the **verified Qur'anic connection** (the cited ayah the name's root sits
+in) + new-baby/Aqiqah gifting. Files in `content-tools/etsy/`:
+- **`gen_name_print.py`** — premium ivory 4:5 renderer. Gold Amiri name sized to
+  true glyph bbox (harakat never clip), measured vertically-centered stack,
+  auto-wraps so nothing overflows the border. Root letters render in **Amiri**
+  (Latin fonts show them as tofu boxes — the bug that was fixed). `render_name(entry,out,sc)`.
+- **`name_data.py`** — verified name library (`NAMES` dict, `LAUNCH_SET`). Every
+  entry source-checked vs quran.com by an adversarial verify pass (it caught
+  Yusuf's citation — 12:3 doesn't hold the name — now reframed). **THREE honest
+  tiers, NEVER blurred:**
+  - `tier "in"` — name literally in the Qur'an (Maryam, Yusuf, prophets, Zayd) →
+    tag "A Name Allah Placed in the Qur'an".
+  - `tier "root"` — name's root appears in a cited ayah (Noor, Aisha, Huda…) →
+    tag "A Name Written Into the Qur'an", "from the root ___". NEVER say the name
+    itself is in the Qur'an.
+  - `tier "meaning"` — Arabic name whose root is NOT in the Qur'an (e.g. Aws) →
+    tag "The Meaning of a Name": root + meaning + verified heritage note, **no
+    ayah, no Qur'anic claim ever**. This is how any Arabic name is accepted.
+  Accuracy guardrail: never conflate "root appears in the Qur'an" with "name
+  appears in the Qur'an." 24 names live; **grow the library on demand** (owner's
+  call) — each new name source-checked before it ships.
+- **`gen_name_deliverables.py`** — `make_howitworks_pdf()` (the small branded PDF
+  Etsy auto-delivers on purchase; real custom file sent per order), `make_frame_mockup()`
+  (matted frame on soft wall = listing hero), `make_print_files()` (per-order
+  print-ready PDF at 5x7/8x10/A4 300dpi + framing PNG). Needs
+  `from PIL import JpegImagePlugin; Image.init()` (JPEG codec).
+- **`listing-guide-name-print.md`** — full Etsy copy (title/tags/description) +
+  the 3-tier delivery model. **Pricing = an Etsy Variation "Print style":**
+  "With verified ayah $14" / "Name & meaning $9". Personalization ON, made-to-
+  order, 1-business-day processing. Buyer types any name → we render + send in 24h.
+
+## Product research (2026-07-06, IN FLIGHT)
+Owner (rightly) pushed back that nikah prints, khatm certificates, shahada
+keepsakes, name-tracing sheets are **all already saturated** on Etsy — my first
+pitches were intuition, not data. Running a **deep-research** workflow on real
+Etsy saturation + genuinely underserved premium gaps + whether the name-ayah
+concept is already common. NEXT: read that report, then pitch only concepts the
+data supports (differentiation = own the premium/verified-depth top of a crowded
+category, not chase "empty" niches that don't exist at Etsy's scale).
+
+# Gumroad (2026-07-06) — second sales channel
+Connected via a **personal access token** (owner generated it; used directly against
+`api.gumroad.com/v2` — NO server code, nothing to deploy). Token is NOT in git;
+if it leaks, regenerate in Gumroad app settings. Account: ketabistudio.gumroad.com.
+- **Product create/edit/delete WORKS via API** (`POST/PUT/DELETE /v2/products`).
+- **File upload flow** (the API tells you if you guess wrong): `POST /v2/files/presign`
+  {filename, file_size, content_type} → PUT each part to the returned S3 `presigned_url`
+  (capture ETag) → `POST /v2/files/complete` {upload_id, key, parts:[{part_number,etag}]}
+  → attach with `PUT /v2/products/:id` `files[][url]=<complete's file_url>`.
+- **Cover image CANNOT be set via v2 API** (preview_url/cover_url/asset_previews all
+  silently ignored) — owner drags the cover in via the Gumroad UI.
+- **Custom fields (personalization) CAN be set via API** — dedicated resource, NOT a
+  product param: `POST /v2/products/:id/custom_fields` {name, required} ·
+  `GET` same path · `DELETE /v2/products/:id/custom_fields/:NAME` (by field NAME,
+  url-encoded, not id). `custom_receipt` IS a plain product param on PUT.
+- **Personalized flow on Gumroad:** required custom field collects the name at
+  checkout → value appears on the sale (`GET /v2/sales`) → render + email the
+  real file within 24h; the instant download is the how-it-works welcome note.
+- **Fit note:** Gumroad = instant download, so ONLY fixed products (dua deck), NOT the
+  made-to-order personalized prints.
+- **Products created (all UNPUBLISHED, pending owner cover-upload + publish):**
+  - Dua deck — id `kyS7fZV9SquPoD7HiZnekg==`, `/l/pjekt`, $14, 3 files.
+  - Names Written Into the Qur'an (24-name collection PDF+zip) — `MLWYiEIeUP8gKUm5kxmeEw==`, `/l/iimpcu`, $14.
+  - Ayat for the Lock Screen (8 verified du'a/ayah wallpapers) — `lpkBCxnNjTKdBVfvqSrfew==`, `/l/odbbf`, $6.
+  - Personalized name print — `QR2k-3a5T4dMqJEQSRqcMw==`, `/l/hztxdz`, $14,
+    REQUIRED name custom field set via API, made-to-order receipt set, how-it-works
+    PDF attached. Owner: cover + publish only.
+  All fixed (non-personalized); wallpapers/names repurpose the verified renderers.
+  Light editorial covers rendered v3 (contained cards, unified soft shadow, bottom
+  breathing room — owner uploads each in the Gumroad UI). custom_receipt set on ALL products via API.
+
+## Etsy Deck 1 — "For the Hard Moments" dua deck (PUBLISHED, likely saturated)
+`content-tools/etsy/deck_data.py` (`DECK1` = 14 verified duas) +
+`content-tools/gen_dua_card.py` (ivory+dark renderer, auto-fit long duas) +
+`listing-guide-dua-deck.md`. Owner published it but flagged adhkar/dua decks as
+saturated — deprioritized in favor of personalized. Deck 2 (adhkar) parked; see
+`ACCURACY_FLAGS` in deck_data.py (drop the da'if 7x-reward claim if ever built).
+
+# LAUNCH STATE (2026-07-07) — everything is LIVE
+
+## The storefront (10 products, 2 platforms)
+**Etsy (KetabiStudio, shop_id 48938263):** name print 4533437576 · dua deck
+4533400292 · **From One Root journal 4533628130 ($19, 16.9MB PDF attached via
+direct API, byte-verified)** · plus the 8 keepsake listings (teacher/hajj/birth/
+home/protect/parents/wedding/getwell — see IDs above; palette designs, $13).
+**Gumroad (5, all published, ROOTS20 = 20% off code live on all):** dua deck
+/l/pjekt · names collection /l/iimpcu · lock-screen wallpapers /l/odbbf ·
+personalized name print /l/hztxdz (REQUIRED name field) · journal /l/bzwxm $19.
+
+## The journal (flagship, both platforms)
+`content-tools/etsy/{journal_data.py, gen_journal.py, build_journal.py}` →
+64-page US-Letter PDF. 30 verified roots (two adversarial passes; hubb/"seed"
+REJECTED as fake etymology; day-9 "three times", day-15 "restrain" fixes).
+Writing pages use measured auto-fit + render-time asserts + pixel guard-band
+scan (ALL 30 overflowed before — never eyeball layout, MEASURE). Title page has
+© notice. "Lexicon" wording varied per page (owner: sounds biblical).
+Never claim bare "first of its kind": Quran Trace's "Quran Roots" journal is
+adjacent (root-based vocab journal). Safe framing: "I have never seen anything
+like it" / "the first 30-day one-root-a-day devotional with verified etymology".
+
+## Launch marketing shipped (2026-07-07)
+- Threads text post (owner-posted) + launch REEL on IG/FB/Threads.
+  IG: instagram.com/reel/DaeKGVZjBv7 (sabr hook → journal reveal; bg = Pexels
+  14503515 rain-window, now USED/retired; hires at scratchpad/premium/hires_sabr.jpg).
+- Reel CTA = "comment ROOT for the link" → reply via the comment system; canned
+  reply text in session notes. TikTok bulletin copy delivered to owner.
+- Reel renderer lesson: MEASURE every caption line (PlayfairIt 74px, max 960px
+  wide) before render; three lines clipped at first pass.
+
+## HARD-WON GOTCHAS (do not relearn)
+- **Gumroad wipes a product's FILES whenever the owner edits it in the UI**
+  (cover drag, etc.). After ANY UI edit: re-check files on all products and
+  re-attach via presign flow. Happened 5+ times.
+- Gumroad v2 API: CAN set bio (PUT /v2/user {bio}), custom_receipt, offer codes
+  (POST /products/:id/offer_codes {name,amount_off,offer_type:percent}), custom
+  fields (dedicated endpoint; DELETE by NAME). CANNOT set covers or publish.
+- Poster platform aliases: social_queue.platforms must be `ig,fb` (aliases
+  instagram/facebook now normalized in cron/social — they used to silently
+  match NOTHING and the post shipped Threads-only, which is how the launch reel
+  initially missed IG/FB).
+- Out-of-band publishing: `GET /api/social/token` + `GET /api/etsy/token`
+  (Bearer CRON_SECRET) return live creds so big uploads / long video processing
+  run from tooling, not serverless. IG reel flow: POST /{ig}/media
+  media_type=REELS → poll status_code=FINISHED → /media_publish.
+
+## SALES PLAYBOOK (current levers)
+Owner-side: Etsy sale 15-20% 2wks + Etsy Ads $2-3/day (journal+name print) +
+share to personal groups (early velocity → Etsy algo) + reply to ROOT comments
+fast. Claude-side: comment-reply drafts, more reels from journal roots (every
+root = an ad), Substack essay per week ends with journal CTA, watch
+/api/etsy/orders (needs one re-auth for transactions_r — STILL PENDING) and
+Gumroad /v2/sales for personalized orders to render+deliver.
+
+---
+
+# LIVING DICTIONARY REBRAND + SOCIAL ENGINE (2026-07-07, evening)
+
+Owner felt the beige/gold/Playfair look (and the dark filmic social posts) read
+as "AI / same as everyone" (esp. vs niyatapp.com, an adjacent Islamic app). New
+content identity = **"A Living Dictionary"**: ink on warm paper, editorial serif
+(Cormorant italic for the shareable line, Lora for defs), oxblood/terracotta
+accent, NO photo-quote formula. The SITE palette (forest/cream/gold in
+`app/globals.css`) is KEPT per owner ("I kind of like what I have"); only a
+luxury-font swap is pending + shown-first.
+
+## Renderers (content-tools/)
+- `gen_dictionary_card.py` — the daily Threads card. 1080x1350, root letters
+  (RTL, verified from `journal_data`), per-letter translit (ayn/hamza = clear
+  apostrophe, option B), numbered real definitions + heartfelt line (both
+  HAND-WRITTEN in the `CONTENT` dict — do NOT auto-extract from story, that
+  shipped nonsense once), footer tagline "the language of the Qur'an, one root at
+  a time" + source citation. `build_all()` renders all 30.
+- `gen_dict_carousel.py` — IG/FB 4-slide carousel (hook / meaning / line / CTA),
+  same identity. CTA slide can pitch the journal.
+- `gen_dict_reel.py` — LIGHT reel (kinetic typography on paper), replaces the old
+  DARK `gen_root_reel.py` (that dark style is retired — off-brand now). Scenes:
+  root -> meaning -> line -> journal CTA. ~11s, cross-faded, subtle zoom.
+- `gen_varied_mockup.py` — Etsy listing heroes with a bold readable headline +
+  benefits callout (thumbnail-legible). LIVE on all 9 listings.
+- Reel COVERS: `gen_reel_cover.py` (30, gold Amiri, unique bg each).
+
+## What is LIVE / SCHEDULED
+- **Etsy:** 11 titles rewritten (front-loaded buyer phrases, Aug-2025 SEO) +
+  9 captioned varied mockups pushed live as rank-1 heroes.
+- **Threads schedule:** 30 dictionary cards, 1/day at **22:00 UTC (5pm CDT)**,
+  Jul 7 (fitra) -> Aug 5. Order front-loads wide-resonating roots; **rahma +
+  qalb LAST** (owner felt overdone). platforms=`th` only.
+- **IG/FB:** moving to 2/day — carousel 13:00 UTC (8am CDT) + reel 19:00 UTC
+  (2pm CDT). First carousel (sabr) went out 07-07. Reels render in batches
+  (video ~2min each). Old dark qalb reel to be PULLED.
+- **Substack:** 30 paste-ready Notes (`substack_notes_month.md`).
+
+## Poster changes (app/api/cron/social) — all merged (PR #90/#91/#92)
+- Threads gated on `platforms.includes("th")` so ig,fb stays OFF Threads.
+- IG reel `cover_url` = 2nd (image) URL space-separated in `image_url`.
+- 4 cron windows (10/13/19/22 UTC) in vercel.json + GH action.
+- `/api/social/photo` gated image host (also reuse live `/api/cards/photo`).
+- HEIC decode in worker (pillow-heif); storybook price-display fix.
+
+## Journal promotion (in progress)
+Carousel/reel CTA slides pitch the journal ("one of thirty roots, full journal on
+Etsy"); ~1-in-5 sell ratio; weekly journal spotlight planned.
+
+## PENDING when owner usage resets (owner asked, deferred honestly)
+1. Journal LANDING PAGE on own site + **Stripe checkout** (Substack voice, link
+   Substack). 2. Journal section on `/coming-soon`, pretty. 3. **SEO** (titles,
+   meta, OG, keywords). 4. **Luxury font** on live site (show-first). 5. Root-TREE
+   branches back on cards (needs the derived-word verification agent — it hit the
+   session limit; do NOT ship unverified Arabic). 6. Batch remaining reels +
+   carousels for the 2/day IG.
+
+## HONEST verdict logged — "Muslim intentional travel guide/journal" idea
+Owner asked (07-07). NOT blue-ocean: Muslim city guides (HalalTrip etc.) +
+travel journals (one of Etsy's most saturated categories) both exist; "aesthetic
+Muslim travel journal" lane has players. Bigger issues for Ketabi: departs from
+the verified-language moat, heavy/again-stale accuracy burden (brand promise is
+"every source cited"), and splits focus mid-launch. Advice: not next; sell the
+journal first; a "bridge" product should EXTEND the language edge. Offer standing:
+run the adversarial refute-search (like the journal "first of its kind" check)
+before any build.
+
+# FULL-STACK COMMERCE DAY (2026-07-09) — journal final, physical books on Etsy, cards pivot, coil pipeline
+
+## Journal "From One Root" — FINAL edition (digital 68pp + coil print 70pp)
+- **Writing pages** (`content-tools/etsy/gen_journal.py render_writing_page`):
+  top-anchored under the day header, **8.6mm wide-rule pitch (68px @200dpi)** —
+  owner tested 7.4mm college rule and found it too tight to write on. Lines are
+  solved as a page TOTAL then distributed across prompts (no per-prompt floor
+  loss). Overflow asserted. Audit script pattern lives in the session scratchpad
+  (`audit_journal.py`): pitch uniformity, margins, rule extents, all measured.
+- **worked_day page REMOVED** (owner: repeated the how-to; same call as the
+  scholarly-insight page). Digital build (`build_journal_v2.py`) = **68 pages**.
+- **Coil print edition** (`content-tools/etsy/build_journal_print.py`) = **70
+  pages**: front matter is 5 pages (title, how-to, glossary, tracker, "This
+  journal belongs to") so every day is a facing spread (story LEFT, writing
+  RIGHT); ends sources a/b, certificate, 2 Notes pages. Content scaled 94% and
+  shifted off the binding edge so coil punches never hit the gold border.
+- **Certificate wording** (owner-approved): "Carried, one root at a time, by …"
+  / closing "May the words you have carried now carry you."
+- Etsy digital file replaced on ALL THREE listings with the wide-rule 68pp PDF;
+  descriptions corrected (68 pages, no "worked example" claim).
+
+## Etsy journal listings (all live, $12.99, video + hero on each)
+- Core `4533628130` + **Sibling A** `4535255995` (Quran study/Arabic-learning
+  keywords) + **Sibling B** `4535258927` (new Muslim / revert gift keywords).
+  Siblings are legit differentiated listings (distinct titles/tags), not dupes.
+- Listing video `build_journal_video.py` (9s page slideshow, real pages only);
+  square hero `build_journal_hero.py` (cover + fanned inside pages + accurate
+  badge). Etsy quirk: a new image uploaded with rank 1 does NOT displace the old
+  rank 1 — re-POST every listing_image_id with explicit ranks to reorder.
+
+## Physical books on Etsy — Maryam/Juha pilot (DRAFTS, automation LIVE)
+- Draft listings: **Maryam `4535335357`**, **Juha `4535351858`** — $29.99, free
+  US shipping (existing "Free" profile `243316412479`; creating profiles needs
+  `shops_w` which the Etsy token does NOT have), `readiness_state_id`
+  `1402406915841` (reused from an old draft — required for physical listings).
+  Owner set 1–2wk processing in Etsy UI. Publish = owner's call.
+- **Order watcher** `app/api/cron/etsy-orders`: reads paid+unshipped receipts,
+  maps LISTING_TO_SLUG, inserts into `orders` at **status=pending** (same entry
+  point as a paid Stripe order → worker generates → awaiting_approval → owner
+  approves). Idempotent on `options.etsy_receipt`. Etsy hides buyer email/phone:
+  uses `ETSY_NOTIFY_EMAIL` (default gmail) + `ETSY_FALLBACK_PHONE`.
+- **⚠️ HOBBY CRON GOTCHA (cost ~1h of "stuck deploys")**: Vercel Hobby crons run
+  at most ONCE PER DAY. A `*/6` schedule in vercel.json made Vercel silently
+  reject EVERY deploy (build succeeds locally, GitHub hook fires, site never
+  updates). Fix: daily cron (15:30 UTC) + the social cron calls etsy-orders at
+  the end of each of its 4 daily runs (best-effort fetch, non-fatal).
+- Etsy scopes: `listings_r/w shops_r transactions_r` — can READ orders; CANNOT
+  push tracking (`transactions_w`) or create shipping profiles (`shops_w`).
+  One re-auth adds them later.
+
+## Journal COIL edition in the fulfillment pipeline — Lulu-VALIDATED
+- Worker (`worker/worker.py`): `JOURNAL_SLUG="from-one-root-journal"`,
+  **`COIL_POD="0850X1100.FC.STD.CO.060UW444.MXX"`** (8.5x11 FC standard coil,
+  60# uncoated white — right paper for handwriting, matte cover).
+  **CONFIRMED by Lulu's own validators: interior + cover both NORMALIZED**, and
+  real cost calc: **print $10.88 + MAIL ship $5.69 = $17.32** (owner's addr).
+- Interior ships in the repo: `worker/assets/journal/Journal_interior.pdf`
+  (70pp, 8.75x11.25in bleed, 300dpi, q68 JPEG via img2pdf) + cover art PNGs.
+- **Cover is assembled AT RUN TIME** (`generate_journal`) to Lulu's
+  `/cover-dimensions/` answer — for this POD Lulu wants a ONE-PIECE
+  17.25x11.25in sheet (1242x810pt): back left half, front right half. Never
+  hardcode coil cover dims.
+- `qc.gate_spec` grew `trim_in=(w,h)` + `cover_mode="lulu"` (plausibility only;
+  Lulu's validate gate is authoritative). Defaults unchanged for all old books.
+- `generate_journal` writes **`qc_report.reference.lulu_cost` for ALL levels**
+  (MAIL/GROUND/EXPEDITED/EXPRESS) so the owner picks speed with real prices;
+  `submit_approved` honors `options.shipping_level` (whitelisted, else MAIL).
+
+## Owner test-order tooling (payment bypass)
+- `POST /api/admin/test-order` (Bearer CRON_SECRET) `{book_slug}` → inserts a
+  pipeline order at status=pending (NO Stripe; Lulu bills on approve). Shipping
+  auto-copied from the owner's most recent complete order. Slug whitelist.
+- Same route: `{action:"cancel"|"reset", orderId}` (reject / reprocess), and
+  `GET ?id=` or `?slug=` for status + qc_report readback.
+- Journal test order `29dfccd5-…0688` validated end-to-end; reset to reprocess
+  with the wide-rule interior after the Render rebuild.
+
+## Digital cards — physical RETIRED, $2 flat, audited
+- Physical greeting cards retired (owner's test card arrived scuffed; dark
+  matte + paper mailer = baked-in failure). Shop tile removed, footer repointed,
+  `/cards` route → redirect `/digital-cards`. Card Studio page deleted.
+- **$2.00 flat, voice note INCLUDED** (`VOICE_ADDON_CENTS=0`; checkout skips
+  zero line items). Signature "— Name" on cards kept deliberately (real
+  signature dash, exempt from the no-em-dash rule).
+- **Photo upload fix**: iPhone photos (large/HEIC) blew Vercel's 4.5MB body
+  limit → 413 before the route ran → generic "Network error". Builder now
+  shrinks + re-encodes to JPEG in-browser (canvas, max 1800px). NOTE: keepsake
+  builder still uploads originals — needs a direct-to-storage path before
+  keepsakes scale (print needs high-res).
+- **Colors**: every card now offers the full 14-tone `ALL_COLORS` accent palette
+  (card's own default first) + a proper "Card colour" picker; the 4 scheme
+  swatches were relabeled "Background". (Bug: nikah showed rose in gallery but
+  accent had NO picker at all.)
+- `POST /api/digital-cards/test-send` (Bearer CRON_SECRET) `{token, to}` — send
+  the real recipient email for a card WITHOUT payment (flips that order paid so
+  the viewer renders). Owner-tested to her inbox.
+
+## Shipping-time honesty (site copy)
+- `lib/books.ts PRINT_SPEC` grew `leadTime/delivery/deliveryFriendly`; book page
+  spec list + price-row note + checkout copy now state: ships in 1–3 business
+  days; US 5–10 days, intl 10–21; "about 2 weeks US". Keepsakes builder: 2–3wk
+  US / 3–5wk intl (hardcover is slower). Mirrors the Shipping policy page.
+- ALL customer-facing em dashes removed site-wide (pages, card UI, emails,
+  mailto subjects). Remaining em dashes are code comments only.
+
+## Ops notes
+- Journal print files for manual Lulu upload were also delivered to the owner
+  (interior compressed <30MB for chat; the WORKER asset is the q68 authority).
+- Etsy scam pattern logged: "is this available / do you accept payment through
+  Etsy" emails to the shop gmail minutes after publishing = bot scrape of the
+  site's mailto links. Rule: never move payment/conversation off Etsy.
+- Owner email is plaintext mailto across the site (owner chose to keep it).
+
+# SOCIAL RESET (2026-07-10) — new signature ayah style, old automation retired
+
+- **148 queued posts cancelled** (owner call: old carousel/root strategy dead —
+  carousels reached 3-10 people; reels 109-326). Poster infra kept, queue empty.
+- **New signature: photographic ayah wallpapers** (`content-tools/
+  gen_ayah_wallpaper.py`): real Pexels photography, deep global fade + grain,
+  whisper-scale Arabic (Amiri; Aref Ruqaa for short display verses), tiny
+  italic Clear Quran translation, tracked citation, KETABI mark. Text is
+  AUTO-PLACED into the calmest darkest band (measured); adaptive ink mode for
+  pale zones. QC gates assert centering/margins/legibility per render.
+- **PHOTO POLICY (owner-set, in renderer header + PHOTO_MANIFEST)**: modesty
+  always; NO people (only exceptions: prayer-mat object, or unrecognizable
+  salah silhouette); nature/animals/skies/REAL mosques only; NO tombs or
+  monuments (Taj Mahal = mausoleum, rejected); real photography only, no AI
+  imagery; never repeat a background. Every photo logged in PHOTO_MANIFEST.
+- **Verses must be verified against quran.com before render** (Arabic letter
+  by letter + Khattab translation verbatim; excerpting cited by ayah).
+- Caption format (owner-picked): verse + translation + citation, then
+  `pc: ketabistudio.com`, then ~5 hashtags. Threads: same minus hashtags.
+- First test post (20:114 dark sea) got a like + repost within minutes.
+- Approved library so far: sea/20:114, horizon/26:62, lantern/2:186,
+  mushaf/17:82, crescent/11:88, sunset-minarets/2:186, dusk-dome/3:173.
+- Planned cadence when owner green-lights the batch: 2 reels/day IG+FB,
+  4 Threads/day; grid checkerboard maintained via alternating cover tones.
+
+# AUTOPILOT WEEK (2026-07-10) — Threads + Reels fully scheduled
+
+- **Threads week 1 LIVE**: 28 posts queued (4/day, Fri Jul 10 - Thu Jul 16;
+  6:30a/12p/5:30p/9p Central), `platforms=th`. Every verse machine-verified:
+  Arabic SLICED from quran.com uthmani text (never typed), English excerpts
+  containment-checked against Clear Quran (rid 131). 28 unique hand-checked
+  photos (batch record: `content-tools/threads_batch_2026-07-10.json`).
+  Renderer grew a glyph-coverage guard (uthmani superscript letters fall back
+  Ruqaa→Amiri; tofu can never ship). Owner's cron-job.org hits
+  `/api/cron/social?key=CRON_SECRET` (works; "nothing due" verified + 6:30a
+  al-Kahf post fired on schedule).
+- **IG/FB Reels weeks 1+2 LIVE**: 42 silent reels queued (3/day at
+  10a/2:30p/8p Central; wk1 Jul 10-16, wk2 Jul 17-23), `platforms=ig,fb`.
+  `content-tools/gen_ayah_reel.py`: hook → verse → From One Root end card
+  ("DIGITAL DOWNLOAD ON ETSY · linked in profile"), drop-shadowed type +
+  scrim, cinematic grade, -stream_loop so short clips never freeze, ~3MB/-an
+  encode (silent by design: owner call, "Muslims don't want music anyways").
+  All 42 clips 4K, frame-checked for people (rejected: person releasing
+  lantern, person in boat, jack-o'-lantern, wet-floor-sign mosque). No ocean
+  clips (owner: vary the aesthetic). Batch records:
+  `content-tools/reels_batch_2026-07-10.json` / `reels_batch_2026-07-17.json`.
+- **First reel force-published** 7:19a Jul 10 via new `{promote}` action on
+  `/api/social/enqueue` (reschedules one queued post by its media URL — no
+  duplicate risk): instagram.com/reel/DanLY2GjP2R.
+- `/api/social/video` hosts reel MP4s (multipart, Bearer CRON_SECRET, public
+  card-assets URL ending .mp4 = poster's reel signal).
+- `lib/threads.ts threadsText()` no longer appends the domain footer when the
+  caption already credits ketabistudio.com (the pc: line) — no double link.
+
+# INSTAGRAM "WE THE URBAN, BUT OURS" (2026-07-11) — LIVE
+
+Instagram reminder account in the register of We The Urban (Willie Greene's
+affirmation page) but Islamic, with our verified-source discipline. Owns the
+lane no Islamic reminder page currently holds: native-internet voice + scholar-
+grade citations + Arabic calligraphy as the unfair advantage. FINAL look shipped
+and posting. First post live instagram.com/p/Dapyb3OnyTN; first dua reel live
+instagram.com/reel/Dap1upiDSU_.
+
+## The type system (FINAL, after many rounds with owner)
+- **DM Serif Display**, title case with an *italic emphasis word* (NOT all caps
+  — owner: WTU body is title case). This is the "entirely different font" the
+  owner asked for; closest free cousin to WTU's paid Canela. (Rounds that were
+  rejected along the way: Playfair caps = "too fashion magazine", Liberation
+  Serif Bold caps = right weight but wrong case, Arabic-over-English interlace =
+  "needs work".)
+- **Backgrounds: soft watercolor washes** (numpy fractal cloud fields + blooms
+  toward light + paper grain), a DIFFERENT color every post, generated fresh so
+  none ever repeat. Palette: terra/sage/blue/plum/ochre/rose/forest/aubergine/
+  clay/moss. This replaced the woven-canvas idea — owner picked the meerrmade
+  watercolor style.
+- **Mark tucked directly UNDER the text** (not a footer) so a crop can't remove
+  it — the We The Urban anti-theft move the owner spotted.
+- Arabic is the hero where it appears (Amiri walls, Aref Ruqaa Ameen). Gold
+  diamond divider throughout.
+
+## Generators (committed)
+- `content-tools/gen_wtu_post.py` — watercolor + DM Serif post renderer.
+  Formats: reminder, verse (cited), dhikr wall, type-Ameen.
+- `content-tools/build_wtu_week.py` — builds/queues a verified week (1/day).
+  Verse posts: caption fragment AND the on-image verse text are both
+  containment-checked verbatim vs the Clear Quran store (a paraphrase in quote
+  marks with a citation = misattribution, rejected).
+- `content-tools/gen_dua_reel.py` + `build_dua_reels.py` — "Say this dua when
+  you feel ___" silent reels (1080x1920), hook→dua→endcard, ffmpeg ken-burns +
+  crossfade. Arabic word-sliced from the store (never retyped, waqf filtered);
+  English is the LAST quoted segment (3:173 quotes a warning before the dua).
+  Encoded ~1750k so each reel stays under Vercel's ~4.5MB upload body limit.
+
+## Cadence (owner's call, 2026-07-11)
+- Grid = the watercolor WTU posts, 1/day (queued Jul 11-17 to start).
+- Reels = 2/day, OFF the grid: poster now sets `share_to_feed=false` so reels
+  live in the Reels tab / Explore only, keeping the grid a clean photo feed.
+  6 dua reels queued (1 fired now, rest 2/day from Jul 24 after the ayah reels
+  end Jul 23).
+- A few WTU posts also sprinkled onto Threads (image posts) alongside the text.
+- Silent everywhere (owner: "Muslims don't want music").
+
+## The 8 formats (Islamic versions of the WTU playbook)
+1. **Dua carousel** (silent, multi-slide) — "May Allah heal what you never talk
+   about." / *Ameen.* Caption: "send this to someone you love." Biggest
+   share-driver: sending it IS the good deed.
+2. **Series opener** — "IN CASE / NO ONE MADE DUA / FOR YOU TODAY" → swipe to
+   dua slides. Reposting = making dua for someone.
+3. **Anaphora** — "Allah has always heard you / seen you / provided / *been
+   enough*" (final line flips to gold italic).
+4. **Open letter** — "to the one carrying something heavy," (letters to the
+   tired, the new Muslim, the one who missed Fajr).
+5. **Seasonal blessing** — "Praying for a soft Muharram." + Jummah Mubarak,
+   white days, Ramadan. A whole Islamic-calendar layer WTU cannot touch.
+6. **Future-self** — "One day you will wish you had one more chance to be
+   patient. This is that chance."
+7. **Normalize** — "Normalize saying Alhamdulillah before anyone asks how you
+   really are."
+8. **Type Ameen** — Arabic اللهم آمين hero + dua + outlined "type AMEEN below"
+   pill. The most native engagement mechanic in the niche.
+   Plus **Dhikr Wall**: a dhikr phrase (الحمد لله) tiled in Amiri down the page,
+   the English closing line ("for it all.") as the last row. Repetition = dhikr,
+   so form and meaning are one. Owner's favorite.
+   Plus **Dua reels**: "Say this dua when you feel {anxious / alone in it /
+   overwhelmed / like you failed / in need / your faith shake}", each a verified
+   Qur'anic dua (3:173, 21:87, 20:25-26, 7:23, 28:24, 3:8).
+
+## The 8 formats (Islamic versions of the WTU playbook)
+1. **Dua carousel** (silent, multi-slide) — "May Allah heal what you never talk
+   about." / *Ameen.* Caption: "send this to someone you love." Biggest
+   share-driver: sending it IS the good deed.
+2. **Series opener** — "IN CASE / NO ONE MADE DUA / FOR YOU TODAY" → swipe to
+   dua slides. Reposting = making dua for someone.
+3. **Anaphora** — "ALLAH HAS ALWAYS heard you / seen you / provided / BEEN
+   ENOUGH" (final line flips to gold italic).
+4. **Open letter** — "to the one carrying something heavy," (letters to the
+   tired, the new Muslim, the one who missed Fajr).
+5. **Seasonal blessing** — "Praying for a soft Muharram." + Jummah Mubarak,
+   white days, Ramadan. A whole Islamic-calendar layer WTU cannot touch.
+6. **Future-self** — "One day you will wish you had one more chance to be
+   patient. This is that chance."
+7. **Normalize** — "NORMALIZE saying Alhamdulillah before anyone asks how you
+   really are."
+8. **Type Ameen** — Arabic اللهم آمين hero + dua + outlined "type AMEEN below"
+   pill. The most native engagement mechanic in the niche.
+   Plus **Dhikr Wall**: a dhikr phrase (الحمد لله) tiled in Amiri down the page,
+   the English closing line ("for it all.") as the last row. Repetition = dhikr,
+   so form and meaning are one. Owner's favorite.
+
+## HARD content guardrails (unchanged from all other channels)
+- Tiled/remixed text is ALWAYS dhikr or our own words, NEVER a Quran verse.
+  Revelation appears once only, quoted verbatim + cited on the placard layout
+  (verses machine-verified against Clear Quran rid 131, same pipeline as
+  Threads/Reels). No music/lyrics/artist refs. His/Him/He capitalized. No em
+  dashes. No "universe/energy/manifest" language played straight.
+- Research sourced: We The Urban is Willie Greene's affirmation page (1B+ IG
+  impressions, book + 2026 calendar off the same posts). Islamic reminder-page
+  landscape checked: @muslim (7M, news aggregator), @islamicdailyremindersss
+  (134k), @muslimah_reminder (106k) — all pastel-graphic, none own the WTU
+  editorial format. Lane is open.
+
+## Scratchpad artifacts (design iterations, not in repo yet)
+`ig_loud.py` (final loud+textured direction), `ig_formats.py` (all 8),
+`ig_dhikr_wall.py` (dhikr walls), `ig_arabic_hero.py`, `font_compare.py`.
+NEXT once look approved: fold into a generator like `gen_ayah_reel.py`, wire to
+`/api/social/photo` + `/api/cron/social` (platforms=ig,fb), queue alongside
+reels. Threads week 2 (28 posts, We-The-Urban voice, Jul 17-23) also written +
+approved-pending, must queue before Thu Jul 16 (queue empties then).
+
+# LAUNCH REDESIGN (2026-07-11) — "Made to be kept"
+
+New brand line **Made to be kept** across the site; each product world given
+equal weight; the live cover personalizer moved above the fold (the winning
+product). Everything below is LIVE behind the coming-soon gate; prices remain
+on `TEST_DOLLAR_PRICING` ($1) and the gate is untouched.
+
+- **Home** (`components/HomeLanding.tsx` + `.module.css`): aura-gradient
+  ground, glass panels, "Their name. Their story. Kept for life.", the real
+  `<Personalizer/>` above the fold, four product-world ribbons (Books /
+  From One Root journal → Etsy / Digital cards / Photo keepsakes), worldwide
+  shipping announce + honest delivery note, mobile-first (360/768/1280).
+- **Shop** (`app/shop/page.tsx`): hero "Made to be kept", journal tile added
+  (Etsy instant download), "we ship worldwide".
+- **Header** (`components/Header.tsx`): four-worlds nav + Shop CTA + real
+  full-screen mobile menu. NB: no backdrop-filter/transform on `<header>` — it
+  creates a containing block that collapses the fixed mobile sheet; the blur
+  lives on an inner `.barWrap`.
+- **Footer** (`components/Footer.tsx`): brand-only, three columns
+  (Shop/Studio/Help), NO location or personal details, worldwide line.
+- **Trust layer** (`components/TrustLayer.tsx`): studio promise + FAQ
+  accordion (personalization, shipping, worldwide, sourcing, damage
+  guarantee). Brand-only — no names, no place. On the home page.
+- **Product pages** (`app/books/[slug]/page.tsx`): mobile **sticky buy bar**
+  (`components/StickyBuyBar.tsx`) — price + one-tap Order/Personalize,
+  appears after the hero, mobile only; label reflects personalized vs fixed
+  (accuracy: only `her-beautiful-hijab` is personalized). Product JSON-LD
+  (schema.org Product/Offer) for Google rich results. "We ship worldwide".
+- **Keepsakes** (`app/shop/keepsakes/page.tsx` +
+  `components/KeepsakePicker.tsx`): rebuilt as a **"Who is it for?"** picker
+  (Mama/Baba/Grandma/Grandpa/Spouse/Baby/Ramadan); tap a person → only that
+  keepsake unfolds. Page height 14,572px → 5,970px (~60% shorter).
+- **Cards**: already a clean 3-step wizard (occasion / relationship groups);
+  only needed the new global chrome.
+- **Fonts**: unified to **one display serif (Playfair Display)** site-wide.
+  Dropped Fraunces; `--font-display` aliased to `--font-playfair` in
+  `globals.css` (on `body`, where the font className sets the var). Kept
+  Cormorant (keepsake print match), Amiri + Baloo (Arabic), Jakarta (body).
+- **Share/SEO**: `app/opengraph-image.png` + `twitter-image.png` (1200x630
+  branded card); `app/robots.ts` (allow public, block admin/api/c/order);
+  `app/sitemap.ts` (all public + product URLs); metadata refreshed to the
+  new brand copy; twitter summary_large_image.
+- **Subdomain**: `app.ketabistudio.com` host route in `middleware.ts` serves
+  ONLY `/app` ungated (app-store links always load); other paths on that host
+  stay gated. Needs the domain added in Vercel (owner action / connector).
+- **PII scrub**: removed a hardcoded home address from the retired
+  `app/api/cards/gelato-setup/route.ts` (generic placeholder now). Full sweep
+  of app/components/lib is clean of personal info.
+
+## Owner to-do (out of my hands)
+- **Lulu packing slip**: the journal proof already ordered shows a TOFU
+  SQUARE in the thank-you line — that's Lulu's packing-slip template, not the
+  book (book interior is glyph-clean). Fix in Lulu → Account → print/packing
+  slip settings: set a plain-Latin message (e.g. "Jazakallahu khair for your
+  order"). Recipient address on the slip is REQUIRED (carrier/customs) and is
+  the customer's, never the owner's — Lulu is white-label.
+- **TikTok**: resubmit with Website `https://www.ketabistudio.com/coming-soon`,
+  Terms `/terms`, Privacy `/privacy-policy` (all public 200s).
+- **Vercel**: authorize the Vercel connector in claude.ai settings (or add
+  `app.ketabistudio.com` in Domains) so the subdomain goes live.
+- ~~Lulu credentials on Vercel~~ **RESOLVED same day (2026-07-11)**: `LULU_*`
+  env vars are now set on Vercel, so (a) checkout charges REAL international
+  freight (+$1.50 handling, next-$0.50 round-up) instead of the silent $14.99
+  flat fallback it had been using, and (b) the owner pricing tool works:
+  POST `/api/admin/lulu-quote` (Bearer CRON_SECRET) with
+  `{book_slug, cover_type?, shipping{street1,city,postcode,country_code}}`.
+  Verified Riyadh (SA) landed costs — MAIL shipping is $17.19 FLAT for every
+  product (same weight band), EXPRESS $55.69: storybook softcover print $9.03
+  (landed $26.97); personalized hardcover print $17.85 ($35.79); keepsake
+  photobook print $16.14 ($34.08); coil journal print $10.88 ($28.82).
+  US baseline (juha): print $9.83 + MAIL $6.19 = $16.83 delivered.
+  Etsy intl shipping profile: $18.99 "everywhere else" mirrors true cost
+  across the whole catalog.
+
+# PRICING CARD (2026-07-11) — the standing reference, all numbers VERIFIED
+
+Every cost below is a real Lulu cost calc from 2026-07-11 (US = worst case,
+includes NY sales tax; MAIL level). Profit = price − landed cost − Stripe
+(~2.9% + $0.30). International customers pay real carrier freight + $1.50
+handling rounded up to the next $0.50 (live at checkout since today) — Riyadh
+charges $19.00 on every product (Lulu SA MAIL is $17.19 flat catalog-wide;
+EXPRESS $55.69, not offered).
+
+| Product                        | Price  | US cost → profit    | SA cost → profit    |
+|--------------------------------|--------|---------------------|---------------------|
+| Storybooks (Juha/Maryam), SC   | $24.99 | $16.83 → **$7.14**  | $26.97 → **$15.45** |
+| Personalized book, softcover   | $34.99 | $16.83 → **$16.85** | $26.97 → **$25.15** |
+| Personalized book, hardcover   | $49.99 | $26.43 → **$21.81** | $35.79 → **$30.90** |
+| Keepsake photobook (24pp HC)   | $49.99 | $24.58 → **$23.66** | $34.08 → **$32.60** |
+| Journal coil 70pp (when live)  | $34.99 | $18.85 → **$14.83** | $28.82 → **$23.30** |
+| Journal digital (Etsy)         | $12.99 | ~$11 after Etsy fees| same, worldwide     |
+| Digital cards                  |  $2.00 | ~$1.64 after Stripe | same, worldwide     |
+
+Rules of thumb decided with the owner:
+- Every product must be profitable in EVERY market. Confirmed above; the
+  real-time intl freight charge guarantees far destinations never lose money.
+- The $24.99 storybooks are the entry anchor (thinnest margin by design);
+  nothing may sit thinner. Their job is making $34.99 personalized feel like
+  "only $10 more for her name".
+- Physical journal lists at $34.99 / digital stays $12.99 (tier gap tells the
+  buyer the physical is the special one).
+- Anti-sticker-shock: order form + FAQ state intl shipping is "based on the
+  carrier's real cost, typically $15 to $20, shown before you pay". Never
+  claim "no markup" (the $1.50 handling exists).
+- Quote any book to any country: POST /api/admin/lulu-quote (Bearer
+  CRON_SECRET) {book_slug, cover_type?, shipping{street1,city,postcode,
+  country_code}}.
