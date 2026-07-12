@@ -424,6 +424,14 @@ def process(order):
         cover.write_bytes(storage_download("book-assets", cpath))
         interior, cover = str(interior), str(cover)
         ref_report = {"fixed_book": True}
+        if slug == "juha-and-the-enormous-pumpkin":
+            # The master's dedication page carries a baked-in sample name, so
+            # this stamp is mandatory: an order with no gift name still gets
+            # the page rewritten to the generic "you". Any failure here must
+            # fail the order — never ship the sample name.
+            from pipeline.fixed_dedication import stamp_dedication
+            ref_report.update(
+                stamp_dedication(interior, order.get("child_name")))
     elif slug == JOURNAL_SLUG:
         # Coil-bound journal — repo interior + cover sized to Lulu's answer.
         interior, cover, ref_report = generate_journal(order, workdir, client)

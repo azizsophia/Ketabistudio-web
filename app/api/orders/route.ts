@@ -101,6 +101,19 @@ export async function POST(req: NextRequest) {
       if (!VALID_STYLE.includes(hairStyle))
         return NextResponse.json({ error: "invalid hair style" }, { status: 400 });
     }
+  } else if (slug === "juha-and-the-enormous-pumpkin") {
+    /* Fixed book with a gift dedication: an optional name printed on the
+       "Made especially for ___" page. Blank means the generic "you" copy. */
+    const gift = String(body.child_name || "").trim();
+    if (gift) {
+      if (gift.length > 14 || !/^[\p{L}][\p{L} '\-]*$/u.test(gift)) {
+        return NextResponse.json(
+          { error: "Gift name: letters only, up to 14 characters" },
+          { status: 400 }
+        );
+      }
+      childName = gift;
+    }
   }
 
   /* validate email */

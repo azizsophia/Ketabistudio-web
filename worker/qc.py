@@ -253,8 +253,13 @@ def build_digest(interior_pdf: str, cover_pdf: str, order: dict) -> bytes:
     # front panel = right half of the wrap
     front = cov.crop((cov.width // 2, 0, cov.width, cov.height))
 
-    # Three representative interior pages (story pages 7, 11, 20 -> +3 for matter)
-    pages = [_raster(interior_pdf, p + 3, px=520) for p in (7, 11, 20)]
+    # Three representative interior pages (story pages 7, 11, 20 -> +3 for matter).
+    # Juha carries a per-order stamped dedication on PDF page 3, so that page
+    # takes the first slot — the owner must see the printed gift name.
+    if order.get("book_slug") == "juha-and-the-enormous-pumpkin":
+        pages = [_raster(interior_pdf, p, px=520) for p in (3, 11, 20)]
+    else:
+        pages = [_raster(interior_pdf, p + 3, px=520) for p in (7, 11, 20)]
 
     W = 1160
     pad = 24

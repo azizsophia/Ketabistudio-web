@@ -1656,3 +1656,37 @@ Rules of thumb decided with the owner:
 - Quote any book to any country: POST /api/admin/lulu-quote (Bearer
   CRON_SECRET) {book_slug, cover_type?, shipping{street1,city,postcode,
   country_code}}.
+
+## 2026-07-12 — Juha "Made especially for Amira" defect FIXED (gift dedication now real)
+
+**Defect (owner's test print caught it):** the fixed Juha master
+(`book-assets/juha/Juha_interior.pdf`) had a sample name baked into the
+flattened art of PDF page 3 — "Made especially for **Amira** with love" — and
+the worker ships fixed-book masters byte-for-byte, so EVERY customer's copy
+would have printed Amira. Compounding it, the product page advertised
+"Make it a gift: Dedication (gift name)" while the order form never collected
+a name for fixed books. Maryam's master was checked and is clean (generic
+dedication, no name).
+
+**Fix (option 2 — real per-order gift dedication, owner-approved):**
+- `worker/pipeline/fixed_dedication.py` — rewrites the name band on page 3 of
+  the Juha interior per order: erases the old name (background is a pure
+  vertical gradient; each row refills from its left-margin colour — invisible
+  patch) and stamps the order's gift name in **Baloo 2 ExtraBold** (pixel-match
+  for the original lettering; `worker/fonts/Baloo2.ttf`, OFL), gold sampled
+  from the original glyphs, same baseline/height, auto-shrink for long names
+  (fits up to 14 chars). No name → generic "you". A layout sanity check
+  refuses to stamp if the master is ever re-exported with different geometry,
+  and the stamp is MANDATORY in the fixed path — a failure fails the order;
+  the sample name can never ship again. Needs `pymupdf` (added to worker
+  requirements — worker redeploy required to take effect).
+- Order form (`OrderSection.tsx`) — Juha's shipping step now has a
+  "Gift dedication (optional)" field with a live preview line; API
+  (`/api/orders`) accepts it for Juha only (letters, ≤14 chars).
+- Approval digest (`worker/qc.py`) — for Juha orders the digest's first
+  interior slot is now PDF page 3, so the owner sees the printed gift name
+  before approving.
+- Verified on the real master: stamped PDFs re-render at 32pp/print size, and
+  short / long / no-name proofs are pixel-clean.
+- Investigation tool that found it: `/api/admin/pdf?asset=<path>` (Bearer
+  CRON_SECRET) now signs `book-assets` masters for owner QC.

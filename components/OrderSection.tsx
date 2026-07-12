@@ -84,9 +84,12 @@ type Step = "customize" | "shipping" | "done";
 
 export default function OrderSection({ slug, personalized }: Props) {
   const isDuas = slug === "my-beautiful-duas";
+  /* Fixed books with a printed gift dedication ("Made especially for ___"). */
+  const hasGiftDedication = !personalized && slug === "juha-and-the-enormous-pumpkin";
 
   /* personalization */
   const [name, setName] = useState("");
+  const [giftName, setGiftName] = useState("");
   const [skin, setSkin] = useState<string>("medium");
   const [hair, setHair] = useState<string>("black");
   const [hairStyle, setHairStyle] = useState<string>("long-curly");
@@ -166,7 +169,11 @@ export default function OrderSection({ slug, personalized }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           book_slug: slug,
-          child_name: personalized ? name.trim() : null,
+          child_name: personalized
+            ? name.trim()
+            : hasGiftDedication && giftName.trim()
+              ? giftName.trim()
+              : null,
           skin: personalized && !isDuas ? skin : null,
           hair: personalized && !isDuas ? hair : null,
           hair_style: personalized && !isDuas ? hairStyle : null,
@@ -432,6 +439,24 @@ export default function OrderSection({ slug, personalized }: Props) {
           </p>
 
           <div className={styles.formGrid}>
+            {hasGiftDedication && (
+              <div className={styles.fieldFull}>
+                <label className={styles.label} htmlFor="gift-name">
+                  Gift dedication (optional)
+                </label>
+                <input id="gift-name" className={styles.input} type="text"
+                  maxLength={MAX_NAME}
+                  placeholder="Child's name"
+                  value={giftName}
+                  onChange={(e) =>
+                    setGiftName(e.target.value.replace(/[^\p{L} '\-]/gu, ""))
+                  } />
+                <p className={styles.sub} style={{ marginTop: 6, marginBottom: 0 }}>
+                  The dedication page will read &ldquo;Made especially for{" "}
+                  <strong>{giftName.trim() || "you"}</strong>, with love.&rdquo;
+                </p>
+              </div>
+            )}
             <div className={styles.fieldFull}>
               <label className={styles.label} htmlFor="email">Email</label>
               <input id="email" className={styles.input} type="email"
