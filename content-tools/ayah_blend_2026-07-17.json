@@ -1,0 +1,102 @@
+{
+ "batch": "threads blend, fresh cinematic ayah cards (week of Jul 17-23)",
+ "built": "2026-07-12",
+ "photo_policy": "every photo eyeball-approved: no faces, silhouettes only, no women's hair, no junk; all 13 never used before; face-detector pre-pass (21 auto-rejected) + manual review",
+ "verse_policy": "13 verses never used on week-1 cards; Arabic word-sliced from verified store (waqf filtered); EN containment-checked (brackets-optional) vs Clear Quran rid 131",
+ "verses": [
+  "3:139",
+  "41:30",
+  "64:11",
+  "7:56",
+  "12:87",
+  "39:10",
+  "16:97",
+  "33:3",
+  "2:153",
+  "65:7",
+  "21:87",
+  "8:46",
+  "14:7"
+ ],
+ "photos": [
+  {
+   "id": 10665348,
+   "pexels_url": "https://images.pexels.com/photos/10665348/pexels-photo-10665348.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+   "query": "person silhouette sunrise fog",
+   "photographer": "Enes Ersahin"
+  },
+  {
+   "id": 10635162,
+   "pexels_url": "https://images.pexels.com/photos/10635162/pexels-photo-10635162.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+   "query": "misty forest sunbeams",
+   "photographer": "Fieke van Slooten"
+  },
+  {
+   "id": 11989045,
+   "pexels_url": "https://images.pexels.com/photos/11989045/pexels-photo-11989045.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+   "query": "dramatic storm clouds sea",
+   "photographer": "Connor Scott McManus"
+  },
+  {
+   "id": 14945912,
+   "pexels_url": "https://images.pexels.com/photos/14945912/pexels-photo-14945912.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+   "query": "canyon light beam",
+   "photographer": "Johan Van Geijl"
+  },
+  {
+   "id": 33702618,
+   "pexels_url": "https://images.pexels.com/photos/33702618/pexels-photo-33702618.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+   "query": "person silhouette sunrise fog",
+   "photographer": "Dr Photographer"
+  },
+  {
+   "id": 11042657,
+   "pexels_url": "https://images.pexels.com/photos/11042657/pexels-photo-11042657.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+   "query": "silhouette walking desert dunes distance",
+   "photographer": "Elias Strale"
+  },
+  {
+   "id": 10867803,
+   "pexels_url": "https://images.pexels.com/photos/10867803/pexels-photo-10867803.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+   "query": "misty forest sunbeams",
+   "photographer": "chickenbunny"
+  },
+  {
+   "id": 12183790,
+   "pexels_url": "https://images.pexels.com/photos/12183790/pexels-photo-12183790.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+   "query": "dramatic storm clouds sea",
+   "photographer": "Connor Scott McManus"
+  },
+  {
+   "id": 20594245,
+   "pexels_url": "https://images.pexels.com/photos/20594245/pexels-photo-20594245.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+   "query": "man praying mosque light rays",
+   "photographer": "Beyzaa Yurtkuran"
+  },
+  {
+   "id": 10558729,
+   "pexels_url": "https://images.pexels.com/photos/10558729/pexels-photo-10558729.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+   "query": "dramatic storm clouds sea",
+   "photographer": "cottonbro studio"
+  },
+  {
+   "id": 10731789,
+   "pexels_url": "https://images.pexels.com/photos/10731789/pexels-photo-10731789.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+   "query": "dramatic storm clouds sea",
+   "photographer": "urtimud.89"
+  },
+  {
+   "id": 12008337,
+   "pexels_url": "https://images.pexels.com/photos/12008337/pexels-photo-12008337.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+   "query": "lighthouse storm waves",
+   "photographer": "Nesrin Öztürk"
+  },
+  {
+   "id": 18955881,
+   "pexels_url": "https://images.pexels.com/photos/18955881/pexels-photo-18955881.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+   "query": "person silhouette sunrise fog",
+   "photographer": "LensWitzRaj ㅤ"
+  }
+ ],
+ "notes": "39:10 photo (11042657) graded brightness 0.7 / contrast 1.08 to pass zone-luminance QC"
+}
