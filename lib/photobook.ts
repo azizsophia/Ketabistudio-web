@@ -222,7 +222,7 @@ const ABOUT_GRANDPA: PhotobookTemplate = {
     "whose stories, patience and faith are a light passed down through our family.",
   defaultCaptions: [
     "Allah blessed our family with you.",
-    "Your dua cover us all, like shade on a hot day.",
+    "Your dua protect all of us.",
     "You tell the stories no one else remembers.",
     "I love sitting beside you after salah.",
     "You taught our family to be strong and kind.",

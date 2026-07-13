@@ -138,7 +138,7 @@ CAPTIONS = {
     ],
     "about-grandpa": [
         "Allah blessed our family with you.",
-        "Your dua cover us all, like shade on a hot day.",
+        "Your dua protect all of us.",
         "You tell the stories no one else remembers.",
         "I love sitting beside you after salah.",
         "You taught our family to be strong and kind.",
