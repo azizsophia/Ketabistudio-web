@@ -72,7 +72,7 @@ def _photo(seed):
 CAPTIONS = {
     "about-mama": [
         "Mama, Allah blessed me with you.",
-        "You are the first dua Allah answered for me.",
+        "No one takes care of me the way you do.",
         "You teach me to love Allah.",
         "I love praying right beside you.",
         "Thank you for every duʿā you make for me.",
@@ -94,7 +94,7 @@ CAPTIONS = {
     ],
     "about-baba": [
         "Baba, Allah blessed me with you.",
-        "You are an answer to a dua I never had to make.",
+        "Allah picked you to be my Baba, and I'm so glad He did.",
         "You teach me to love Allah.",
         "I love standing beside you in salah.",
         "Thank you for every duʿā you make for me.",
@@ -116,7 +116,7 @@ CAPTIONS = {
     ],
     "about-grandma": [
         "Allah blessed our family with you.",
-        "Your dua have wrapped around me my whole life.",
+        "You have made dua for me my whole life.",
         "You tell the best stories about our family.",
         "Your hands have made a thousand meals with love.",
         "I love the way you speak about our deen.",
@@ -124,7 +124,7 @@ CAPTIONS = {
         "Your home smells like every happy memory.",
         "You slip me treats and a little extra love.",
         "You make every visit feel like Eid.",
-        "You taught my parent everything good in them.",
+        "Everything good in our family started with you.",
         "Your patience is softer than anyone I know.",
         "You remember every name in every dua.",
         "I love praying beside you.",
@@ -138,10 +138,10 @@ CAPTIONS = {
     ],
     "about-grandpa": [
         "Allah blessed our family with you.",
-        "Your dua are a shade over all of us.",
+        "Your dua cover us all, like shade on a hot day.",
         "You tell the stories no one else remembers.",
         "I love sitting beside you after salah.",
-        "You taught my parent to be strong and kind.",
+        "You taught our family to be strong and kind.",
         "Your hands have worked hard for all of us.",
         "You answer my questions with patience.",
         "You make me feel brave.",
@@ -176,7 +176,7 @@ CAPTIONS = {
         "You are my home in this dunya.",
         "I love growing closer to Allah alongside you.",
         "Loving you is part of how I worship Allah.",
-        "I pray our love is a sadaqah that lasts.",
+        "I thank Allah for you, every single day.",
         "I pray Allah keeps us together in Jannah.",
         "I love you more, every single year.",
     ],

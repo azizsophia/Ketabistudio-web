@@ -58,7 +58,11 @@ export async function POST(req: NextRequest) {
   }
   if (!SB || !KEY) return NextResponse.json({ error: "not configured" }, { status: 500 });
 
-  let body: { book_slug?: string; shipping?: Record<string, string> };
+  let body: {
+    book_slug?: string;
+    shipping?: Record<string, string>;
+    child_name?: string;
+  };
   try {
     body = await req.json();
   } catch {
@@ -142,9 +146,12 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Optional gift name (Juha dedication test); mirrors the public API's rule.
+  const giftName = String(body.child_name || "").trim().slice(0, 14) || null;
+
   const row = {
     book_slug: slug,
-    child_name: null, skin: null, hair: null, hair_style: null,
+    child_name: giftName, skin: null, hair: null, hair_style: null,
     options: { source: "owner_test" },
     cover_type: "softcover",
     customer_email: OWNER_EMAIL,
