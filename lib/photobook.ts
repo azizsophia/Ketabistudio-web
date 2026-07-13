@@ -141,7 +141,7 @@ const ABOUT_BABA: PhotobookTemplate = {
   authorPlaceholder: "e.g. Yusuf",
   coverPhoto: true,
   dedication:
-    "whose strength and gentle faith first showed me how to walk through this life leaning on Allah.",
+    "who showed me that real strength is a heart that trusts Allah.",
   defaultCaptions: [
     "Baba, Allah blessed me with you.",
     "Allah picked you to be my Baba, and I'm so glad He did.",

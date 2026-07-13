@@ -137,8 +137,8 @@ def _set_cover_title(template, chosen):
 DEDICATIONS = {
     "about-mama": ("who taught my heart to say bismillah, and showed me the "
                    "mercy of Allah long before I had the words for it."),
-    "about-baba": ("whose strength and gentle faith first showed me how to "
-                   "walk through this life leaning on Allah."),
+    "about-baba": ("who showed me that real strength is a heart "
+                   "that trusts Allah."),
     "about-grandma": ("whose dua have followed me all my life, and whose love "
                       "is a barakah I will never outgrow."),
     "about-grandpa": ("whose stories, patience and faith are a light passed "
