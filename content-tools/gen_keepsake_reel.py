@@ -139,6 +139,64 @@ def frame(photo, scrim, eyebrow, lines, emphasis=None, cta=None):
     return im
 
 
+def _warm_bg():
+    """Soft cream brand background with a faint gold bloom (no photo) so the
+    product reads crisp and premium."""
+    yy, xx = np.mgrid[0:H, 0:W].astype(float)
+    cx, cy = W / 2, H * 0.44
+    d = np.sqrt(((xx - cx) / (W * 0.9)) ** 2 + ((yy - cy) / (H * 0.7)) ** 2)
+    base = np.array([243, 236, 224], float)
+    warm = np.array([250, 243, 226], float)
+    t = np.clip(1 - d, 0, 1)[:, :, None]
+    a = base[None, None, :] * (1 - t) + warm[None, None, :] * t
+    a += (np.random.default_rng(5).random((H, W)) - 0.5)[:, :, None] * 5
+    return Image.fromarray(np.clip(a, 0, 255).astype("uint8"), "RGB").filter(ImageFilter.GaussianBlur(1.2))
+
+
+def _card(src, size, angle):
+    """A product page as a physical card: rounded-ish white border + drop shadow,
+    rotated. Returns an RGBA sprite."""
+    im = src.convert("RGB").resize((size, size), Image.LANCZOS)
+    pad = 10
+    card = Image.new("RGB", (size + pad * 2, size + pad * 2), (252, 249, 243))
+    card.paste(im, (pad, pad))
+    card = card.convert("RGBA")
+    # shadow
+    sh = Image.new("RGBA", card.size, (0, 0, 0, 0))
+    ImageDraw.Draw(sh).rectangle([0, 0, card.size[0], card.size[1]], fill=(30, 22, 14, 150))
+    sh = sh.rotate(angle, expand=True, resample=Image.BICUBIC).filter(ImageFilter.GaussianBlur(22))
+    card = card.rotate(angle, expand=True, resample=Image.BICUBIC)
+    return card, sh
+
+
+def product_frame(cover_img, inside_img, dua_img, eyebrow, footnote):
+    """Product reveal: the real keepsake shown as a physical object — cover hero
+    with an inside page and the dua page fanned behind it."""
+    bg = _warm_bg()
+    cy = int(H * 0.46)
+    # back-left: dua page; back-right: an inside photo page; front: cover
+    for src, size, ang, dx, dy in [
+        (dua_img, 470, 11, -235, -8),
+        (inside_img, 470, -12, 235, 20),
+        (cover_img, 620, -3, 0, 0),
+    ]:
+        card, sh = _card(src, size, ang)
+        px = W // 2 + dx - card.size[0] // 2
+        py = cy + dy - card.size[1] // 2
+        bg.paste(sh, (px + 10, py + 22), sh)
+        bg.paste(card, (px, py), card)
+    d = ImageDraw.Draw(bg)
+    ink = (58, 48, 36)
+    if eyebrow:
+        _spaced(d, int(H * 0.14), eyebrow, F(DEJA, 27), (176, 138, 60), tr=8)
+    _diamond(d, W // 2, int(H * 0.79), color=GOLD)
+    if footnote:
+        _spaced(d, int(H * 0.79) + 34, footnote, F(DEJA, 27), ink, tr=3)
+    _spaced(d, H - 150, "K E T A B I   S T U D I O",
+            F(DEJA, 22), (150, 132, 104), tr=5)
+    return bg
+
+
 def compose(frames_durations, out_path, tmpdir, fps=30, xfade=0.6):
     clips = []
     for i, (img, dur) in enumerate(frames_durations):
