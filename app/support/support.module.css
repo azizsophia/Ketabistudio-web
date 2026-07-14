@@ -4,7 +4,7 @@
 .hero {
   position: relative;
   overflow: hidden;
-  padding: clamp(72px, 12vw, 132px) 0 clamp(48px, 8vw, 88px);
+  padding: clamp(72px, 12vw, 132px) 0 clamp(36px, 6vw, 60px);
   background:
     radial-gradient(120% 120% at 50% 0%, rgba(143, 166, 142, 0.16), transparent 60%),
     var(--cream);
