@@ -41,14 +41,15 @@
 .heroDivider { margin-top: clamp(30px, 5vw, 44px); }
 
 /* ── narrative ──────────────────────────────────────── */
-.story { padding: clamp(48px, 8vw, 88px) 0 clamp(24px, 4vw, 40px); }
+.story { padding: clamp(32px, 5vw, 56px) 0 clamp(24px, 4vw, 40px); }
 
 .storyInner {
-  max-width: 720px;
+  max-width: 680px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 22px;
+  text-align: center;
 }
 
 .lead {
