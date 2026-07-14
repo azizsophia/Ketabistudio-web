@@ -23,6 +23,7 @@ const ALLOW = [
   "/coming-soon",
   "/privacy-policy",
   "/terms", // required as a public URL by the TikTok / Meta developer apps
+  "/support", // tips page — linked from the free apps, public pre-launch
   "/cards/print",
   "/c",
   "/admin",

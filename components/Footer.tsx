@@ -32,6 +32,7 @@ export default function Footer() {
             <h4>Studio</h4>
             <Link href="/about">About</Link>
             <Link href="/app">Our app</Link>
+            <Link href="/support">Support us</Link>
             <a href="mailto:ketabistudio@gmail.com">Contact</a>
           </div>
           <div>
