@@ -22,10 +22,18 @@ export default function WaitlistForm() {
     setState("loading");
     setMsg("");
     try {
+      // Attribution: a link can carry ?r=<tag> (e.g. ketabistudio.com/?r=ig-reel)
+      // so signups from a specific post/channel are traceable. Falls back to
+      // "coming-soon" for direct visits. Sanitised to a short slug.
+      let source = "coming-soon";
+      if (typeof window !== "undefined") {
+        const r = new URLSearchParams(window.location.search).get("r");
+        if (r) source = r.toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 40) || "coming-soon";
+      }
       const r = await fetch("/api/waitlist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: value, source: "coming-soon" }),
+        body: JSON.stringify({ email: value, source }),
       });
       const j = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(j.error || "Something went wrong.");

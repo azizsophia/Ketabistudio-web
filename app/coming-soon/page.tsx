@@ -97,13 +97,14 @@ export default function ComingSoon() {
 
           {/* ─── the founding offer + capture, above the fold ─── */}
           <div className={styles.offer}>
-            <span className={styles.offerBadge}>Founding list</span>
+            <span className={styles.offerBadge}>Founding list · first 50</span>
             <p className={styles.offerHead}>
-              Be first in, and get <span className={styles.gold}>20% off</span> your first order
+              The first 50 get <span className={styles.gold}>20% off</span> their first keepsake
             </p>
             <p className={styles.offerSub}>
               Join now for early access before we open to everyone, plus your
-              founding-member discount when the shop launches, inshaAllah.
+              founding-member discount when the shop launches, inshaAllah. Once
+              the first fifty spots are gone, they&apos;re gone.
             </p>
             <WaitlistForm />
             <p className={styles.waitFine}>One email when we open. No spam, ever.</p>
