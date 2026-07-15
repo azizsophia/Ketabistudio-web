@@ -197,6 +197,49 @@ def product_frame(cover_img, inside_img, dua_img, eyebrow, footnote):
     return bg
 
 
+def page_frame(page_img, eyebrow=None, footnote=None, size=968):
+    """Show a real book page as a physical page on the warm brand background —
+    the product-demo shot. The page already carries its photo + caption, so the
+    page does the talking."""
+    bg = _warm_bg()
+    card, sh = _card(page_img, size, 0)
+    px = W // 2 - card.size[0] // 2
+    py = int(H * 0.47) - card.size[1] // 2
+    bg.paste(sh, (px + 6, py + 20), sh)
+    bg.paste(card, (px, py), card)
+    d = ImageDraw.Draw(bg)
+    if eyebrow:
+        _spaced(d, int(H * 0.12), eyebrow, F(DEJA, 26), (176, 138, 60), tr=8)
+    if footnote:
+        _spaced(d, int(H * 0.865), footnote, F(DEJA, 27), (92, 78, 58), tr=3)
+    _spaced(d, H - 150, "K E T A B I   S T U D I O", F(DEJA, 22), (150, 132, 104), tr=5)
+    return bg
+
+
+def cta_frame(eyebrow, big_lines, perk_lines, cta):
+    """Founding-offer CTA on the warm brand background."""
+    bg = _warm_bg()
+    d = ImageDraw.Draw(bg)
+    y = int(H * 0.30)
+    if eyebrow:
+        _spaced(d, y, eyebrow, F(DEJA, 27), (176, 138, 60), tr=8); y += 92
+    big, itf = F(DM, 90), F(DM_IT, 90)
+    for t, k in big_lines:
+        (_line(d, y, t, itf, (150, 110, 40)) if k == "it" else _line(d, y, t, big, (52, 42, 30)))
+        y += 116
+    _diamond(d, W // 2, y + 12); y += 70
+    for t in perk_lines:
+        _line(d, y, t, F(DEJA, 40), (72, 60, 44)); y += 62
+    y += 30
+    # pill button
+    bw, bh = 720, 108
+    bx, by = (W - bw) // 2, y
+    d.rounded_rectangle([bx, by, bx + bw, by + bh], radius=bh // 2, fill=(33, 62, 55))
+    _spaced(d, by + 34, cta, F(DEJA, 34), CREAM, tr=3)
+    _spaced(d, H - 150, "K E T A B I   S T U D I O", F(DEJA, 22), (150, 132, 104), tr=5)
+    return bg
+
+
 def compose(frames_durations, out_path, tmpdir, fps=30, xfade=0.6):
     clips = []
     for i, (img, dur) in enumerate(frames_durations):
