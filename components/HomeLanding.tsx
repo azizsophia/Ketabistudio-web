@@ -53,7 +53,7 @@ export default function HomeLanding() {
       <section className={styles.worlds} aria-label="Our collections">
         <Link href="/books" className={`${styles.world} ${styles.wBooks}`}>
           <Image
-            src="/images/shop/storybooks.jpg"
+            src="/images/worlds/storybooks.jpg"
             alt=""
             width={220}
             height={260}
@@ -71,12 +71,11 @@ export default function HomeLanding() {
 
         <Link href="/journal" className={`${styles.world} ${styles.wJournal}`}>
           <Image
-            src="/images/journal-from-one-root.jpg"
+            src="/images/worlds/journal.jpg"
             alt=""
             width={220}
             height={260}
             className={styles.worldImg}
-            style={{ objectPosition: "88% center" }}
           />
           <div className={styles.worldBody}>
             <h3>From One Root</h3>
@@ -93,7 +92,7 @@ export default function HomeLanding() {
           className={`${styles.world} ${styles.wCards}`}
         >
           <Image
-            src="/images/shop/digital-cards.jpg"
+            src="/images/worlds/cards.jpg"
             alt=""
             width={220}
             height={260}
@@ -114,7 +113,7 @@ export default function HomeLanding() {
           className={`${styles.world} ${styles.wKeeps}`}
         >
           <Image
-            src="/images/shop/keepsakes.jpg"
+            src="/images/worlds/keepsakes.jpg"
             alt=""
             width={220}
             height={260}
