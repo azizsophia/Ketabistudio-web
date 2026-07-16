@@ -2,10 +2,11 @@
    All amounts in USD cents. Pay-at-checkout model.
    Book price + flat shipping by zone. Reviewed 2026-06-11. */
 
-/* ⚠️ TEMPORARY TEST PRICING — set false before public launch to restore
-   the real $34.99 book price. While true, books cost $1 so the owner can
-   place real test orders cheaply. */
-export const TEST_DOLLAR_PRICING = true;
+/* Test pricing is now ENV-DRIVEN (audit 2026-07-16): real prices are the
+   default; set NEXT_PUBLIC_TEST_PRICING=1 (Vercel env or .env.local) to make
+   every book $1 for owner checkout tests. No code edit, no accidental launch
+   with test prices. NEXT_PUBLIC_ so client components inline it at build. */
+export const TEST_DOLLAR_PRICING = process.env.NEXT_PUBLIC_TEST_PRICING === "1";
 
 export const BOOK_PRICE_CENTS = TEST_DOLLAR_PRICING ? 100 : 3499; // $1 test / $34.99 live (softcover, free US shipping baked in)
 

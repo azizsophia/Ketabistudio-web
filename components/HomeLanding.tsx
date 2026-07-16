@@ -41,7 +41,7 @@ export default function HomeLanding() {
               href={`/books/${hijab.slug}`}
               className={styles.tryLink}
             >
-              Make it a real book · {bookPriceDisplay(hijab.slug)} →
+              Make it a real book · from {bookPriceDisplay(hijab.slug)} →
             </Link>
             <Link href="/shop" className={styles.ctaGhost}>
               Shop everything
@@ -137,8 +137,8 @@ export default function HomeLanding() {
           <span>sources cited</span>
         </div>
         <div>
-          <b>1&#8211;3d</b>
-          <span>print time</span>
+          <b>1&#8211;3 days</b>
+          <span>printed to order</span>
         </div>
         <div>
           <b>Worldwide</b>

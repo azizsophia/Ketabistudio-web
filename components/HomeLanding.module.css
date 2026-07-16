@@ -252,3 +252,9 @@
   margin: 1.6rem auto clamp(2.4rem, 7vw, 4rem);
   padding: 0 1.2rem;
 }
+
+/* Tile titles must stay cream on the coloured tiles — the global h3 rule
+   paints them forest green, which vanishes on the journal tile (audit fix). */
+.world h3 {
+  color: inherit;
+}

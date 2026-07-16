@@ -6,6 +6,7 @@ import type { PhotobookTemplate } from "@/lib/photobook";
 import { CAPTION_MAX } from "@/lib/photobook";
 import { HARDCOVER_PRICE_DISPLAY } from "@/lib/pricing";
 import KeepsakeLivePreview from "./KeepsakeLivePreview";
+import FlipBook from "./FlipBook";
 import PhotoCropper from "./PhotoCropper";
 import { type Crop } from "@/lib/photoCrop";
 
@@ -359,11 +360,34 @@ export default function PhotobookBuilder({
     />
   );
 
+  /* Step 1 shows the FINISHED sample book (real rendered pages), not an empty
+     live preview — the customer should see what they're making before being
+     asked to type and upload anything (audit 2026-07-16). The live preview
+     takes over from step 2, once their own content exists. */
+  const sampleBook = (
+    <FlipBook
+      cover={`/images/keepsake/${template.slug}/cover.jpg`}
+      title={template.title}
+      pages={[
+        { src: `/images/keepsake/${template.slug}/page02.jpg` },
+        { src: `/images/keepsake/${template.slug}/page04.jpg` },
+        { src: `/images/keepsake/${template.slug}/page06.jpg` },
+        { src: `/images/keepsake/${template.slug}/page10.jpg` },
+        { src: `/images/keepsake/${template.slug}/page23.jpg` },
+      ]}
+      stage="forest"
+      eyebrow="Real pages from the book"
+      caption="Your photos and your words go in this exact layout, sealed with a dua."
+    />
+  );
+
   const shell = (content: ReactNode) => (
     <div className={styles.shell}>
       <aside className={styles.previewPane}>
-        <p className={styles.previewLabel}>Live preview</p>
-        {preview}
+        <p className={styles.previewLabel}>
+          {step === "names" ? "The book you're making" : "Live preview"}
+        </p>
+        {step === "names" ? sampleBook : preview}
       </aside>
       <div className={styles.formPane}>{content}</div>
       {reuseFor !== null && (

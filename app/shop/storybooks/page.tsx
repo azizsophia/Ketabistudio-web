@@ -33,8 +33,9 @@ export default function StorybooksPage() {
       </header>
 
       <section className={`wrap ${styles.grid}`} aria-label="All storybooks">
-        {/* Flagship personalized title — rendered "I am ___" cover so the
-            personalization reads at a glance (no fixed cover photo). */}
+        {/* Flagship personalized title — a REAL rendered sample cover (child's
+            photo + name in the true print layout) instead of the empty CSS
+            mock, so the card sells at a glance (audit 2026-07-16). */}
         <Link href="/books/i-am" className={`card ${styles.bookCard}`}>
           <span className={styles.cover}>
             <span
@@ -42,29 +43,20 @@ export default function StorybooksPage() {
               style={{ background: "#2f5d57" }}
               aria-hidden="true"
             />
-            <span className={styles.iamCover}>
-              <span className={styles.iamPhotoHint}>Your photo</span>
-              <span className={styles.iamScrim} aria-hidden="true" />
-              <span className={styles.iamKeyline} aria-hidden="true" />
-              <span className={styles.iamPlate}>
-                <span className={styles.iamStar} aria-hidden="true">✦</span>
-                <span className={styles.iamIam}>I am</span>
-                <span className={styles.iamName}>Your child</span>
-                <span className={styles.iamRule} aria-hidden="true" />
-                <span className={styles.iamNameAr} dir="rtl" lang="ar">
-                  اسم طفلك
-                </span>
-              </span>
-            </span>
+            <Image
+              src="/images/iam/cover-sample.jpg"
+              alt="I Am book sample cover, your child's photo and name"
+              width={700}
+              height={700}
+              sizes="(max-width: 720px) 90vw, 340px"
+              className={styles.coverImg}
+            />
             <span className={styles.personalizeBadge}>
               <span className={styles.badgeDiamond} aria-hidden="true" />
               Personalize
             </span>
           </span>
           <span className={styles.body}>
-            <span className={`${styles.tag} ${styles.tagPersonalized}`}>
-              Personalized
-            </span>
             <span className={styles.title}>I Am [Your Child]</span>
             <span className={styles.value}>
               Twelve beautiful traits, in English and Arabic
@@ -119,13 +111,12 @@ export default function StorybooksPage() {
                 </span>
 
                 <span className={styles.body}>
-                  <span
-                    className={`${styles.tag} ${
-                      personalized ? styles.tagPersonalized : ""
-                    }`}
-                  >
-                    {b.tag}
-                  </span>
+                  {/* personalized books already carry the on-cover Personalize
+                      badge — repeating it as a body tag read as a duplicate
+                      (audit 2026-07-16), so the tag shows only for the rest */}
+                  {!personalized && (
+                    <span className={styles.tag}>{b.tag}</span>
+                  )}
                   <span className={styles.title}>{b.title}</span>
                   <span className={styles.value}>{b.value}</span>
                   <span className={styles.blurb}>{b.blurb}</span>

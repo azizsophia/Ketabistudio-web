@@ -139,3 +139,17 @@
   letter-spacing: 0.05em;
   color: var(--muted, #6f6a5f);
 }
+
+/* accent-circle chips (audit 2026-07-16): centred gold mark on the keepsake's
+   own accent gradient — readable at any size, unlike cover thumbnails */
+.thumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.thumbMark {
+  color: rgba(248, 243, 233, 0.92);
+  font-size: 1.15rem;
+  line-height: 1;
+}

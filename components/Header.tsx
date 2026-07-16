@@ -11,7 +11,7 @@ import styles from "./Header.module.css";
    directly, so a bag count would be dishonest). */
 
 const NAV: { label: string; href: string; ext?: boolean }[] = [
-  { label: "Books", href: "/books" },
+  { label: "Books", href: "/shop/storybooks" },
   { label: "Journal", href: "/journal" },
   { label: "Cards", href: "/digital-cards" },
   { label: "Keepsakes", href: "/shop/keepsakes" },

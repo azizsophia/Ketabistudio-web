@@ -15,6 +15,7 @@ type and cover are exactly what customers receive.
 
 Run from the repo root:  python3 worker/render_keepsake_preview.py
 """
+import os
 import random
 import shutil
 import sys
@@ -66,6 +67,87 @@ def _photo(seed):
     vig = vig.filter(ImageFilter.GaussianBlur(260))
     dark = Image.new("RGB", (SRC_PX, SRC_PX), (40, 34, 30))
     return Image.composite(img, Image.blend(img, dark, 0.45), vig)
+
+
+# ── Real sample photos (audit 2026-07-16) ────────────────────────────
+# The gradient _photo() stand-ins made every preview look blurry/broken, so
+# each template now uses REAL licensed Pexels photos (curated: women in hijab
+# only; warm object shots — hands, tea, letters, baby feet — where no person
+# is needed). Set KEEPSAKE_PHOTO_DIR to the pool; files are m_<id>.jpg /
+# k_<id>.jpg. Missing dir or file falls back to the old stand-in so CI never
+# breaks.
+PHOTO_DIR = os.environ.get(
+    "KEEPSAKE_PHOTO_DIR",
+    "/tmp/claude-0/-home-user-Ketabistudio-web/cd7de56a-bf46-5546-8ecd-6e0295c3376d/scratchpad/_kspool",
+)
+
+# 21 entries per template: [cover, p1..p20]. Prefixes: m_=Muslim-family pool,
+# k_=face-free objects pool.
+REAL_PHOTOS = {
+    "about-mama": [
+        "m_16011524", "m_34251173", "m_27589458", "m_30647742", "m_6392810",
+        "m_32483776", "m_29264210", "m_38495231", "m_17067956", "m_38473425",
+        "m_18093186", "m_28808690", "m_36363429", "m_32535731", "m_18785860",
+        "k_20228242", "k_15527661", "m_20511043", "m_20510966", "m_7249715",
+        "m_36313329",
+    ],
+    "about-baba": [
+        "m_9127593", "m_9127661", "m_9127757", "m_9127722", "m_9127577",
+        "m_9127779", "m_9127756", "m_9127602", "m_9127161", "m_38487730",
+        "m_38487738", "m_23021521", "k_7475804", "k_28725302", "k_36653640",
+        "k_32779931", "m_9127571", "m_9127762", "m_9127155", "k_8114119",
+        "k_8203550",
+    ],
+    "about-grandma": [
+        "m_6482352", "m_5223975", "m_11444635", "k_5407277", "m_38473425",
+        "k_20228242", "k_27403663", "k_13258831", "k_6634321", "k_281962",
+        "k_30633929", "k_6918490", "k_16923833", "k_15527661", "k_17435323",
+        "k_19040559", "k_31645187", "m_17067956", "m_28808690", "k_10445466",
+        "k_29651943",
+    ],
+    "about-grandpa": [
+        "m_9127577", "m_9127593", "k_281962", "k_30633929", "k_27682044",
+        "k_3826650", "k_6918490", "k_19040559", "k_31645187", "k_10445466",
+        "k_20228242", "k_13258831", "k_29651943", "k_6634321", "m_9127661",
+        "m_9127722", "k_8203550", "k_37459168", "k_36653640", "k_28725302",
+        "k_32779931",
+    ],
+    "about-spouse": [
+        "k_28293167", "k_8260576", "k_37459168", "k_32695709", "k_14960151",
+        "k_27572807", "k_19709850", "k_37023121", "k_29471808", "k_36327014",
+        "k_30427076", "k_16923833", "k_15527661", "k_27743120", "k_17435323",
+        "k_20228242", "k_13258831", "k_29651943", "k_6634321", "k_27403663",
+        "k_2815693",
+    ],
+    "about-baby": [
+        "k_326545", "k_19426923", "k_4964227", "k_32195922", "k_32112848",
+        "k_31987551", "m_35053570", "m_27589458", "m_6392810", "m_28808690",
+        "m_23021521", "m_20511043", "m_20511042", "m_20511041", "m_38495231",
+        "k_28725302", "k_7475804", "k_36653640", "m_36363429", "m_32535731",
+        "m_30647742",
+    ],
+    "our-ramadan": [
+        "m_9127571", "m_9127762", "m_9127155", "m_36363451", "m_36363431",
+        "m_36363437", "m_9127756", "k_2300710", "k_37023121", "k_29471808",
+        "k_36327014", "k_30427076", "m_9127602", "m_9127577", "m_34175145",
+        "m_36068787", "m_29264210", "m_18925178", "m_9127161", "m_38487730",
+        "m_9127722",
+    ],
+}
+
+
+def _real_photo(name, seed):
+    """Load a curated real photo; fall back to the old stand-in gradient."""
+    for cand in (f"{PHOTO_DIR}/{name}.jpg",):
+        if name and not name.endswith("_SKIP") and Path(cand).exists():
+            im = Image.open(cand).convert("RGB")
+            w, h = im.size
+            s = min(w, h)
+            im = im.crop(((w - s) // 2, (h - s) // 2, (w - s) // 2 + s, (h - s) // 2 + s))
+            if s > SRC_PX:
+                im = im.resize((SRC_PX, SRC_PX), Image.LANCZOS)
+            return im
+    return _photo(seed)
 
 
 # Captions mirror lib/photobook.ts (kept in sync by hand).
@@ -248,13 +330,14 @@ def render(slug):
         shutil.rmtree(work)
     src.mkdir(parents=True)
 
+    names = REAL_PHOTOS.get(slug, [None] * 21)
     urls = []
     for n in range(1, 21):
         p = src / f"p{n:02d}.jpg"
-        _photo(base + n).save(p, "JPEG", quality=90)
+        _real_photo(names[n], base + n).save(p, "JPEG", quality=90)
         urls.append(p.as_uri())
     cover = src / "cover.jpg"
-    _photo(base + 99).save(cover, "JPEG", quality=90)
+    _real_photo(names[0], base + 99).save(cover, "JPEG", quality=90)
 
     photo_data = {
         "recipient_name": recipient,

@@ -42,7 +42,7 @@ export default function KeepsakesPage() {
         <Link href="/books/i-am" className={styles.cross}>
           <span className={styles.crossImg}>
             <Image
-              src="/images/iam/cover.jpg"
+              src="/images/iam/cover-sample.jpg"
               alt="I Am, a personalized photo keepsake for your child"
               width={520}
               height={520}

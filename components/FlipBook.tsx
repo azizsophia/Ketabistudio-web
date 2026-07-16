@@ -21,7 +21,10 @@ import styles from "./FlipBook.module.css";
 type Page = { src: string; caption?: string };
 
 type Props = {
-  cover: string;
+  /* Optional since the audit (2026-07-16): product pages already show the
+     cover in their hero, so "a peek inside" should open on an INSIDE page —
+     omit `cover` and the flip book shows pages only. */
+  cover?: string;
   title: string;
   pages: Page[];
   stage?: "forest" | "charcoal";
@@ -39,7 +42,9 @@ export default function FlipBook({
   caption,
   autoMs = 6000,
 }: Props) {
-  const slides = [cover, ...pages.map((p) => p.src)];
+  const slides = cover
+    ? [cover, ...pages.map((p) => p.src)]
+    : pages.map((p) => p.src);
   const n = slides.length;
 
   // a/b are the two layers; `top` is whichever is currently face-up. The lower
@@ -104,7 +109,7 @@ export default function FlipBook({
       >
         <Image
           src={slides[idx]}
-          alt={isTop ? (idx === 0 ? `${title} cover` : `${title} inside`) : ""}
+          alt={isTop ? (cover && idx === 0 ? `${title} cover` : `${title} inside`) : ""}
           width={900}
           height={900}
           className={styles.art}

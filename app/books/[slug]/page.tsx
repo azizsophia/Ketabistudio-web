@@ -122,8 +122,9 @@ export default async function BookPage({
       {!soon && book.previews.length > 0 && (
         <div className={`wrap ${styles.previewBlock}`}>
           <p className="eyebrow">A peek inside</p>
+          {/* no cover slide — the hero above already shows it; open on a real
+              inside page (audit 2026-07-16) */}
           <FlipBook
-            cover={book.cover}
             title={book.title}
             pages={book.previews}
             stage="forest"

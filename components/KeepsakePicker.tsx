@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import FlipBook from "./FlipBook";
 import { PHOTOBOOK_TEMPLATES, type PhotobookSlug } from "@/lib/photobook";
@@ -39,14 +38,17 @@ export default function KeepsakePicker() {
             className={`${styles.person} ${active === p.slug ? styles.on : ""}`}
             onClick={() => setActive(p.slug)}
           >
-            <span className={styles.thumb}>
-              <Image
-                src={`/images/keepsake/${p.slug}/cover.jpg`}
-                alt=""
-                width={140}
-                height={140}
-                className={styles.thumbImg}
-              />
+            {/* tiny cover thumbnails read as identical dark smudges (audit
+                2026-07-16) — each person now gets their keepsake's accent
+                colour, clean at any size */}
+            <span
+              className={styles.thumb}
+              style={{
+                background: `linear-gradient(135deg, ${PHOTOBOOK_TEMPLATES[p.slug].accent.main}, ${PHOTOBOOK_TEMPLATES[p.slug].accent.deep})`,
+              }}
+              aria-hidden="true"
+            >
+              <span className={styles.thumbMark}>✦</span>
             </span>
             <span className={styles.who}>{p.who}</span>
           </button>

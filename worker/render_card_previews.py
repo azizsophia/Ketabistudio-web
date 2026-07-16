@@ -16,7 +16,7 @@ import card_pipeline as cp  # noqa: E402
 
 CATALOG = json.loads(
     (ROOT / "worker" / "pipeline" / "cards_catalog.json").read_text("utf-8"))
-WEB_W = 760
+WEB_W = 1100  # retina-sharp at the ~240px display size (audit 2026-07-16)
 
 
 def main():
@@ -30,7 +30,7 @@ def main():
         front = spread.crop(cp.OUTER_FRONT)
         h = int(front.height * (WEB_W / front.width))
         front.resize((WEB_W, h), Image.LANCZOS).save(
-            out / f"{cid}.jpg", "JPEG", quality=86, optimize=True)
+            out / f"{cid}.jpg", "JPEG", quality=90, optimize=True)
         shutil.rmtree(work, ignore_errors=True)
         print("wrote", cid)
 
