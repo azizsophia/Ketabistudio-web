@@ -109,17 +109,26 @@ def _mark(d):
     _spaced(d, H - 150, "K E T A B I   S T U D I O", F(DEJA, 22), SOFT, tr=5)
 
 
+SAFE_W = 850  # phones taller than 9:16 crop the SIDES of a reel — keep text inside
+
+
 def frame(photo, scrim, eyebrow, lines, emphasis=None, cta=None):
     """lines: list of (text, kind) where kind in {'big','it','sub'}.
-       emphasis: a word rendered in gold italic inline is done by passing an
-       ('it') line; here we keep it simple line-based for reliability."""
+       The big/italic block auto-shrinks so the longest line fits SAFE_W —
+       edge-to-edge text gets clipped by the reel player on tall phones."""
     im = _scrim(_grade(cover(photo)), scrim)
     d = ImageDraw.Draw(im)
-    big, itf, sub = F(DM, 92), F(DM_IT, 92), F(DEJA, 34)
+    size = 92
+    while size > 40:
+        f_test = F(DM, size)
+        if max((d.textlength(t, font=f_test) for t, k in lines if k in ("big", "it")), default=0) <= SAFE_W:
+            break
+        size -= 4
+    big, itf, sub = F(DM, size), F(DM_IT, size), F(DEJA, 34)
     # measure block height to vertically place it in the lower-middle
     heights = []
     for t, k in lines:
-        heights.append(120 if k in ("big", "it") else 54)
+        heights.append(size + 28 if k in ("big", "it") else 54)
     block_h = sum(heights)
     y = int(H * 0.60) - block_h // 2
     if eyebrow:
