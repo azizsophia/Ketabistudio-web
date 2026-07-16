@@ -87,6 +87,7 @@ export async function POST(req: NextRequest) {
   try {
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
+      allow_promotion_codes: true,
       customer_email: order.customer_email,
       line_items: lineItems,
       metadata: { digitalCardOrderId: order.id },

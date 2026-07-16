@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { VISIBLE_BOOKS } from "@/lib/books";
 import { PHOTOBOOK_SLUGS } from "@/lib/photobook";
+import { GIFT_GUIDES } from "@/lib/giftGuides";
 
 /* Canonical public URLs. While the coming-soon gate is up these redirect,
    which crawlers handle fine; at launch they resolve directly. Keeps launch
@@ -35,6 +36,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }));
 
+  const giftPages = GIFT_GUIDES.map((g) => ({
+    url: `${BASE}/gifts/${g.slug}`,
+    lastModified: now,
+    changeFrequency: "weekly" as const,
+    priority: 0.8,
+  }));
+
   const keepsakePages = PHOTOBOOK_SLUGS.map((slug) => ({
     url: `${BASE}/keepsakes/${slug}`,
     lastModified: now,
@@ -42,5 +50,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
-  return [...staticPages, ...bookPages, ...keepsakePages];
+  return [...staticPages, ...bookPages, ...keepsakePages, ...giftPages];
 }

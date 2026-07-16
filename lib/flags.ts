@@ -8,6 +8,6 @@
    unlocks the full site (so you can browse + place test orders). The key
    can be overridden by a PREVIEW_KEY env var if present, else this default
    is used. */
-export const COMING_SOON = true;
+export const COMING_SOON = false; // LAUNCHED 2026-07-16 (owner's call) — store is public
 
 export const PREVIEW_KEY = "ketabi-preview-2026";

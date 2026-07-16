@@ -132,6 +132,9 @@ export async function POST(req: NextRequest) {
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       customer_email: order.customer_email,
+      // Founding-member and future promo codes (created in the Stripe
+      // dashboard, e.g. FOUNDING20) can be entered on the payment page.
+      allow_promotion_codes: true,
       line_items: [
         {
           quantity: 1,

@@ -36,6 +36,13 @@ export default function Footer() {
             <a href="mailto:ketabistudio@gmail.com">Contact</a>
           </div>
           <div>
+            <h4>Gifts</h4>
+            <Link href="/gifts/eid-gifts">Eid gifts</Link>
+            <Link href="/gifts/gifts-for-muslim-mom">For Mama</Link>
+            <Link href="/gifts/gifts-for-baba">For Baba</Link>
+            <Link href="/gifts/new-baby-gifts">New baby</Link>
+          </div>
+          <div>
             <h4>Help</h4>
             <Link href="/refund-policy">Shipping &amp; returns</Link>
             <Link href="/privacy-policy">Privacy</Link>
