@@ -92,7 +92,7 @@ export default function HomeLanding() {
           className={`${styles.world} ${styles.wCards}`}
         >
           <Image
-            src="/images/worlds/cards.jpg"
+            src="/images/worlds/cards-v2.jpg"
             alt=""
             width={220}
             height={260}

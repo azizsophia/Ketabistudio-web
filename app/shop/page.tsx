@@ -51,7 +51,7 @@ const TILES: Tile[] = [
     title: "Digital Cards",
     sub: "A beautiful animated card delivered by a private link. Share it by text, WhatsApp or email, anywhere in the world. Sealed with a dua, opened like real mail.",
     cta: "Send a digital card →",
-    img: "/images/shop/digital-cards.jpg",
+    img: "/images/shop/digital-cards-v2.jpg",
   },
 ];
 
