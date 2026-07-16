@@ -7,6 +7,13 @@ import {
   publishThreadsTextChain,
   type ThreadsCreds,
 } from "@/lib/threads";
+import {
+  createPin,
+  loadPinterestCreds,
+  pinTextFromCaption,
+  refreshedPinterestCreds,
+  type PinterestCreds,
+} from "@/lib/pinterest";
 
 // Auto-poster. A daily Vercel cron hits this. It pulls EVERY already-reviewed
 // post that is due today from social_queue, runs the QC gate once more, then
@@ -306,10 +313,11 @@ async function publishFbVideo(
 
 // Publish one post to whichever platforms it targets. Throws on failure of a
 // core platform (IG/FB); the Threads mirror is best-effort and never blocks.
-async function publishOne(cfg: Config, token: string, post: Post, th: ThreadsCreds | null) {
+async function publishOne(cfg: Config, token: string, post: Post, th: ThreadsCreds | null,
+                          pin: PinterestCreds | null) {
   // Normalize aliases so "instagram"/"facebook" behave like "ig"/"fb" — the
   // long names used to silently match nothing and the post shipped to Threads only.
-  const ALIAS: Record<string, string> = { instagram: "ig", facebook: "fb", threads: "th" };
+  const ALIAS: Record<string, string> = { instagram: "ig", facebook: "fb", threads: "th", pinterest: "pin" };
   const platforms = String(post.platforms || "ig,fb")
     .split(",")
     .map((s) => s.trim().toLowerCase())
@@ -320,6 +328,8 @@ async function publishOne(cfg: Config, token: string, post: Post, th: ThreadsCre
     fb_post_id?: string;
     th_post_id?: string;
     th_error?: string;
+    pin_id?: string;
+    pin_error?: string;
   } = {};
   const urls = mediaUrls(post.image_url);
 
@@ -365,6 +375,24 @@ async function publishOne(cfg: Config, token: string, post: Post, th: ThreadsCre
       out.th_error = (e instanceof Error ? e.message : "unknown").slice(0, 200);
     }
   }
+
+  // Pinterest: image pins only (video pins need a different upload flow), and
+  // only when the post explicitly targets "pin". Best-effort like Threads.
+  // NOTE: on a Trial-tier Pinterest app these pins are visible only to the
+  // connected account; Standard access makes the same pipeline public.
+  if (pin && pin.board_id && platforms.includes("pin")) {
+    try {
+      if (urls.length > 0 && !isReel(post.image_url)) {
+        const { title, description } = pinTextFromCaption(post.caption);
+        out.pin_id = await createPin(
+          pin, pin.board_id, urls[0], title, description,
+          "https://www.ketabistudio.com/?r=pinterest"
+        );
+      }
+    } catch (e) {
+      out.pin_error = (e instanceof Error ? e.message : "unknown").slice(0, 200);
+    }
+  }
   return out;
 }
 
@@ -405,6 +433,8 @@ export async function GET(req: NextRequest) {
   // at /api/social/threads/connect, after which every post mirrors there.
   let th = await loadThreadsCreds();
   if (th) th = await refreshedThreadsCreds(th);
+  let pin = await loadPinterestCreds();
+  if (pin) pin = await refreshedPinterestCreds(pin);
   const results: Array<Record<string, unknown>> = [];
 
   for (const post of dueRows) {
@@ -431,7 +461,7 @@ export async function GET(req: NextRequest) {
     }
 
     try {
-      const out = await publishOne(cfg, token, post, th);
+      const out = await publishOne(cfg, token, post, th, pin);
       await patchPost(post.id, {
         status: "published",
         qc: verdict,
