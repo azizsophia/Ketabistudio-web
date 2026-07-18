@@ -44,6 +44,7 @@ export async function POST(req: NextRequest) {
     promote?: { image_url: string; scheduled_for?: string };
     list?: { platforms?: string; from?: string; to?: string };
     remove?: { ids: string[] };
+    setplatforms?: { ids: string[]; to: string };
   };
   try {
     body = await req.json();
@@ -98,6 +99,29 @@ export async function POST(req: NextRequest) {
     );
     const rows = await r.json().catch(() => []);
     return NextResponse.json({ ok: true, removed: Array.isArray(rows) ? rows.length : 0 });
+  }
+
+  // {setplatforms:{ids, to}}: change the target platforms of queued posts by id
+  // (e.g. move ayah cards to Threads-only so they leave the Instagram grid).
+  // Published rows are never touched.
+  if (body.setplatforms?.ids?.length && body.setplatforms.to) {
+    const ids = body.setplatforms.ids.filter((s) => /^[0-9a-f-]{36}$/i.test(String(s)));
+    const to = String(body.setplatforms.to)
+      .split(",").map((s) => s.trim()).filter(Boolean).join(",");
+    if (!ids.length || !to) return NextResponse.json({ error: "ids + to required" }, { status: 400 });
+    const r = await fetch(
+      `${SB}/rest/v1/social_queue?status=eq.queued&id=in.(${ids.join(",")})`,
+      {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${KEY}`, apikey: KEY!,
+          "Content-Type": "application/json", Prefer: "return=representation",
+        },
+        body: JSON.stringify({ platforms: to }),
+      }
+    );
+    const rows = await r.json().catch(() => []);
+    return NextResponse.json({ ok: true, updated: Array.isArray(rows) ? rows.length : 0 });
   }
 
   // {promote:{image_url, scheduled_for?}}: reschedule a still-queued post so it
