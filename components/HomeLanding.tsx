@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import Personalizer from "./Personalizer";
+import KeepsakeSlideshow from "./KeepsakeSlideshow";
 import TrustLayer from "./TrustLayer";
 import styles from "./HomeLanding.module.css";
 import { BOOKS } from "@/lib/books";
@@ -41,15 +42,7 @@ export default function HomeLanding() {
             </Link>
           </div>
         </div>
-        <div className={styles.keepHeroImg}>
-          <Image
-            src="/images/home/keepsake-hero.jpg"
-            alt="A hardcover 'Everything I Love About Mama' photo keepsake"
-            width={1100}
-            height={1100}
-            priority
-          />
-        </div>
+        <KeepsakeSlideshow />
       </section>
 
       {hijab && (
