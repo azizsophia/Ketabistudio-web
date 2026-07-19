@@ -15,6 +15,10 @@ const VALID_SLUGS = [
   "my-beautiful-duas",
   "juha-and-the-enormous-pumpkin",
   "maryam-is-kind-to-her-parents",
+  // Printed coil journal (owner, 2026-07-19: sold on-site alongside the PDF).
+  // Non-personalized; the worker fulfills it via JOURNAL_SLUG / COIL_POD —
+  // the same pipeline that printed the owner's proof copy.
+  "from-one-root-journal",
 ];
 const PERSONALIZED_SLUGS = ["her-beautiful-hijab", "my-beautiful-duas"];
 const DUAS_SLUGS = ["my-beautiful-duas"];

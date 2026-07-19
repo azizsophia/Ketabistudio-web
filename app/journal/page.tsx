@@ -3,7 +3,8 @@ import Link from "next/link";
 import Image from "next/image";
 import styles from "./journal.module.css";
 import JournalBuy from "@/components/JournalBuy";
-import { JOURNAL_PRICE_DISPLAY } from "@/lib/pricing";
+import { JOURNAL_PRICE_DISPLAY, JOURNAL_PRINT_PRICE_DISPLAY } from "@/lib/pricing";
+import OrderSection from "@/components/OrderSection";
 
 export const metadata: Metadata = {
   title: "From One Root, the 30-day Qur'an journal",
@@ -177,12 +178,27 @@ export default function JournalPage() {
             <li>Instant digital download</li>
           </ul>
           <JournalBuy className={styles.buy}>
-            {`Get the journal · ${JOURNAL_PRICE_DISPLAY} →`}
+            {`Get the PDF · ${JOURNAL_PRICE_DISPLAY} →`}
           </JournalBuy>
           <p className={styles.buyNote}>
             Instant download after checkout. Print it, or keep it on your phone.
           </p>
+          <a href="#print" className={styles.printLink}>
+            {`Prefer it printed? Coil-bound, ${JOURNAL_PRINT_PRICE_DISPLAY} · free US shipping →`}
+          </a>
         </div>
+      </section>
+
+      {/* ── printed edition ── */}
+      <section className={styles.printSection} id="print">
+        <p className={styles.kickRust}>The printed edition</p>
+        <h2 className={styles.h2}>Coil-bound, lies flat while you write.</h2>
+        <p className={styles.productLede}>
+          The same sixty-eight pages, printed to order and coil-bound so it
+          opens flat for thirty days of writing. {JOURNAL_PRINT_PRICE_DISPLAY},
+          free US shipping, and we ship worldwide.
+        </p>
+        <OrderSection slug="from-one-root-journal" personalized={false} />
       </section>
 
       {/* ── why it is different ── */}

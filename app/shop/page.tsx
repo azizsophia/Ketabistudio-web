@@ -46,9 +46,9 @@ const TILES: Tile[] = [
     href: "/journal",
     tag: "The 30-day Qur'an journal",
     title: "From One Root",
-    sub: "One Arabic root a day, rahma, sabr, shukr, traced to the ayah it lives in, with room to write. Instant digital download.",
+    sub: "One Arabic root a day, rahma, sabr, shukr, traced to the ayah it lives in, with room to write. As an instant PDF or a coil-bound printed copy.",
     cta: "Start day one \u2192",
-    price: "$19.00 · instant download",
+    price: "PDF $19.00 · printed $34.99",
     img: "/images/journal-from-one-root.jpg",
   },
   {

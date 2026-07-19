@@ -333,6 +333,34 @@
   cursor: wait;
 }
 
+.printLink {
+  display: block;
+  margin-top: 0.9rem;
+  color: var(--rust, #a05a44);
+  font-weight: 600;
+  font-size: 0.92rem;
+  text-decoration: none;
+}
+
+.printLink:hover {
+  text-decoration: underline;
+}
+
+.printSection {
+  max-width: 900px;
+  margin: clamp(2.5rem, 7vw, 4.5rem) auto 0;
+  padding: 0 clamp(1.2rem, 5vw, 2rem);
+  scroll-margin-top: 90px;
+}
+
+.printSection .h2 {
+  margin-bottom: 0.7rem;
+}
+
+.printSection .productLede {
+  margin-bottom: 1.6rem;
+}
+
 .buy:hover {
   transform: translateY(-2px);
   box-shadow: 0 12px 26px rgba(38, 36, 31, 0.22);

@@ -37,7 +37,13 @@ export const JOURNAL_PRICE_DISPLAY = TEST_DOLLAR_PRICING ? "$1.00" : "$19.00";
 const SOFTCOVER_PRICE_OVERRIDES: Record<string, number> = {
   "juha-and-the-enormous-pumpkin": STORYBOOK_PRICE_CENTS,
   "maryam-is-kind-to-her-parents": STORYBOOK_PRICE_CENTS,
+  // Printed coil journal — deliberate: the standard $34.99 physical-book tier
+  // (free US shipping baked in; ~$10.88 print + ~$6 US mail cost). One line to
+  // change if the owner wants a different print price.
+  "from-one-root-journal": BOOK_PRICE_CENTS,
 };
+
+export const JOURNAL_PRINT_PRICE_DISPLAY = TEST_DOLLAR_PRICING ? "$1.00" : "$34.99";
 
 /** Book price in cents for a cover type, optionally for a specific slug.
  *  Hardcover uses the personalized hardcover price; otherwise a slug may carry
