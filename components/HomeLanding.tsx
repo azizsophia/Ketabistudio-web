@@ -19,7 +19,7 @@ export default function HomeLanding() {
   return (
     <main className={styles.page}>
       <div className={styles.announce}>
-        Free US shipping on storybooks · we ship worldwide
+        Free US shipping on books & keepsakes · we ship worldwide
       </div>
 
       <section className={styles.keepHero}>

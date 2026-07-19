@@ -84,7 +84,7 @@ export default function KeepsakePicker() {
           <Link href={`/keepsakes/${active}`} className={styles.cta}>
             Make this keepsake →
           </Link>
-          <p className={styles.ship}>Made to order · we ship worldwide</p>
+          <p className={styles.ship}>Free US shipping · we ship worldwide</p>
         </div>
       </div>
     </div>

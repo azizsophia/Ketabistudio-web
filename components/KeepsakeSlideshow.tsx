@@ -10,8 +10,8 @@ import styles from "./KeepsakeSlideshow.module.css";
 const SLIDES = [
   { src: "/images/home/hero-mama.jpg", alt: "Everything I Love About Mama keepsake" },
   { src: "/images/home/hero-baba.jpg", alt: "Everything I Love About Baba keepsake" },
-  { src: "/images/home/hero-grandma.jpg", alt: "Everything I Love About Teta keepsake" },
-  { src: "/images/home/hero-grandpa.jpg", alt: "Everything I Love About Jiddo keepsake" },
+  { src: "/images/home/hero-grandma.jpg", alt: "Everything I Love About Grandma keepsake" },
+  { src: "/images/home/hero-grandpa.jpg", alt: "Everything I Love About Grandpa keepsake" },
   { src: "/images/home/hero-baby.jpg", alt: "Welcome Little One baby keepsake" },
 ];
 
