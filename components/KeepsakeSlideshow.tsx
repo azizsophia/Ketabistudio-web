@@ -19,7 +19,9 @@ export default function KeepsakeSlideshow() {
   const [i, setI] = useState(0);
 
   useEffect(() => {
-    const t = setInterval(() => setI((p) => (p + 1) % SLIDES.length), 3200);
+    // 5s per slide gives ~4s of full-opacity dwell after the 0.9s crossfade —
+    // enough to read each cover title and take in the photo without rushing.
+    const t = setInterval(() => setI((p) => (p + 1) % SLIDES.length), 5000);
     return () => clearInterval(t);
   }, []);
 
