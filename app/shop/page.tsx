@@ -15,34 +15,40 @@ type Tile = {
   title: string;
   sub: string;
   cta: string;
+  price?: string;
   img?: string;
   color?: string;
   soon?: boolean;
 };
 
+/* Tile order = marketing priority (owner, 2026-07-19): keepsakes lead,
+   storybooks second, journal second-to-last, cards last. */
 const TILES: Tile[] = [
-  {
-    href: "/shop/storybooks",
-    tag: "For little hearts",
-    title: "Storybooks",
-    sub: "Hand-illustrated Islamic stories: folktales, values, and books your child can star in.",
-    cta: "Browse storybooks →",
-    img: "/images/shop/storybooks.jpg",
-  },
   {
     href: "/shop/keepsakes",
     tag: "Your photos, heartfelt words",
     title: "Keepsakes",
     sub: "Hardcover photo books you fill with your own photos. Every caption comes lovingly written, yours to keep or make your own, for Mama, Baba, grandparents, your spouse, a new baby, and Ramadan.",
     cta: "Browse keepsakes →",
+    price: "From $49.99 · free US shipping",
     img: "/images/shop/keepsakes.jpg",
   },
   {
-    href: "https://ketabistudio.etsy.com",
+    href: "/shop/storybooks",
+    tag: "For little hearts",
+    title: "Storybooks",
+    sub: "Hand-illustrated Islamic stories: folktales, values, and books your child can star in.",
+    cta: "Browse storybooks →",
+    price: "From $24.99 · free US shipping",
+    img: "/images/shop/storybooks.jpg",
+  },
+  {
+    href: "/journal",
     tag: "The 30-day Qur'an journal",
     title: "From One Root",
     sub: "One Arabic root a day, rahma, sabr, shukr, traced to the ayah it lives in, with room to write. Instant download on Etsy.",
     cta: "Start day one \u2192",
+    price: "Instant digital download",
     img: "/images/journal-from-one-root.jpg",
   },
   {
@@ -51,6 +57,7 @@ const TILES: Tile[] = [
     title: "Digital Cards",
     sub: "A beautiful animated card delivered by a private link. Share it by text, WhatsApp or email, anywhere in the world. Sealed with a dua, opened like real mail.",
     cta: "Send a digital card →",
+    price: "$2.00 · delivered in minutes",
     img: "/images/shop/digital-cards-v2.jpg",
   },
 ];
@@ -92,6 +99,7 @@ export default function ShopPage() {
               <span className={styles.tag}>{t.tag}</span>
               <span className={styles.title}>{t.title}</span>
               <span className={styles.sub}>{t.sub}</span>
+              {t.price && <span className={styles.price}>{t.price}</span>}
               <span className={styles.cta}>{t.cta}</span>
             </span>
           </Link>

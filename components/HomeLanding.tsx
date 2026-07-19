@@ -65,7 +65,30 @@ export default function HomeLanding() {
         </section>
       )}
 
+      {/* World order = marketing priority (owner, 2026-07-19): keepsakes
+          lead, storybooks second, journal second-to-last, cards last. */}
       <section className={styles.worlds} aria-label="Our collections">
+        <Link
+          href="/shop/keepsakes"
+          className={`${styles.world} ${styles.wKeeps}`}
+        >
+          <Image
+            src="/images/worlds/keepsakes-v2.jpg"
+            alt=""
+            width={220}
+            height={260}
+            className={styles.worldImg}
+          />
+          <div className={styles.worldBody}>
+            <h3>Photo keepsakes</h3>
+            <p>
+              Hardcover books of your own photos and lovingly written words,
+              for the people you love most.
+            </p>
+            <span className={styles.worldCta}>Choose your person →</span>
+          </div>
+        </Link>
+
         <Link href="/books" className={`${styles.world} ${styles.wBooks}`}>
           <Image
             src="/images/worlds/storybooks.jpg"
@@ -120,27 +143,6 @@ export default function HomeLanding() {
               and sent in minutes, anywhere on earth.
             </p>
             <span className={styles.worldCta}>Send one tonight →</span>
-          </div>
-        </Link>
-
-        <Link
-          href="/shop/keepsakes"
-          className={`${styles.world} ${styles.wKeeps}`}
-        >
-          <Image
-            src="/images/worlds/keepsakes.jpg"
-            alt=""
-            width={220}
-            height={260}
-            className={styles.worldImg}
-          />
-          <div className={styles.worldBody}>
-            <h3>Photo keepsakes</h3>
-            <p>
-              Hardcover books of your own photos and lovingly written words,
-              for the people you love most.
-            </p>
-            <span className={styles.worldCta}>Choose your person →</span>
           </div>
         </Link>
       </section>

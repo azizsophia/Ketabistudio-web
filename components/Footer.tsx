@@ -21,12 +21,10 @@ export default function Footer() {
         <div className={styles.cols}>
           <div>
             <h4>Shop</h4>
-            <Link href="/books">Storybooks</Link>
-            <a href="https://ketabistudio.etsy.com" target="_blank" rel="noreferrer">
-              The journal
-            </a>
-            <Link href="/digital-cards">Digital cards</Link>
             <Link href="/shop/keepsakes">Photo keepsakes</Link>
+            <Link href="/books">Storybooks</Link>
+            <Link href="/journal">The journal</Link>
+            <Link href="/digital-cards">Digital cards</Link>
           </div>
           <div>
             <h4>Studio</h4>

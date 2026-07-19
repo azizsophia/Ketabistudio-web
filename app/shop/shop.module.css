@@ -113,6 +113,14 @@
   margin: 0 0 14px;
   font-size: 0.96rem;
 }
+
+.price {
+  display: block;
+  font-family: var(--font-playfair, serif);
+  font-size: 1.05rem;
+  color: #2e2b25;
+  margin: 0 0 14px;
+}
 .cta {
   display: block;
   font-weight: 600;

@@ -10,11 +10,13 @@ import styles from "./Header.module.css";
    single Shop call-to-action (no cart badge — each product checks out
    directly, so a bag count would be dishonest). */
 
+/* Nav order = marketing priority (owner, 2026-07-19): keepsakes lead,
+   then books, journal second-to-last of the products, cards last. */
 const NAV: { label: string; href: string; ext?: boolean }[] = [
+  { label: "Keepsakes", href: "/shop/keepsakes" },
   { label: "Books", href: "/shop/storybooks" },
   { label: "Journal", href: "/journal" },
   { label: "Cards", href: "/digital-cards" },
-  { label: "Keepsakes", href: "/shop/keepsakes" },
   { label: "About", href: "/about" },
 ];
 
