@@ -21,7 +21,19 @@ const VALID_COUNTRIES = new Set([
   "AE","GB",
 ]);
 
+/* Physical greeting cards are RETIRED (owner call, 2026-07-18: print quality
+   did not meet the bar). The storefront already redirects to digital cards;
+   this guard closes the API path so no stale tab or old link can still place
+   a physical order. Digital cards (/api/digital-cards) are unaffected. */
+const PHYSICAL_CARDS_RETIRED = true;
+
 export async function POST(req: NextRequest) {
+  if (PHYSICAL_CARDS_RETIRED) {
+    return NextResponse.json(
+      { error: "Printed cards have been retired. Our digital cards live at /digital-cards." },
+      { status: 410 }
+    );
+  }
   if (!SB || !KEY) {
     return NextResponse.json({ error: "not configured" }, { status: 500 });
   }

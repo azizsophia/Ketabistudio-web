@@ -7,7 +7,7 @@ import WaitlistForm from "./WaitlistForm";
 export const metadata: Metadata = {
   title: "Ketabi Studio, Islamic keepsakes, books & cards, coming soon",
   description:
-    "From One Root, a 30-day Qur'an journal (one Arabic root a day, every source cited) is available now on Etsy. Plus personalized Islamic storybooks, hardcover photo keepsakes, and greeting cards coming soon. Join the founding list for early access. The Ketabi app is available today.",
+    "From One Root, a 30-day Qur'an journal (one Arabic root a day, every source cited) is available now on Etsy. Plus personalized Islamic storybooks, hardcover photo keepsakes, and digital cards with voice notes. Join the founding list for early access. The Ketabi app is available today.",
 };
 
 const APP_STORE = "https://apps.apple.com/us/app/ketabi/id6768112231";
@@ -73,7 +73,7 @@ export default function ComingSoon() {
           </h1>
 
           <p className={styles.lede}>
-            Personalized storybooks · hardcover photo keepsakes · greeting cards, 
+            Personalized storybooks · hardcover photo keepsakes · digital cards, 
             each one sealed with a dua. Opening soon, inshaAllah.
           </p>
 

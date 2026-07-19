@@ -12,7 +12,18 @@ const SB = process.env.SUPABASE_URL?.replace(/\s/g, "").replace(/\/$/, "");
 const KEY = process.env.SUPABASE_SERVICE_KEY?.replace(/\s/g, "");
 const STRIPE_KEY = process.env.STRIPE_SECRET_KEY?.replace(/\s/g, "");
 
+/* Physical greeting cards are RETIRED (owner call, 2026-07-18: print quality
+   did not meet the bar). Guard mirrors /api/cards/order so no payment session
+   can be created for a product we no longer fulfill. */
+const PHYSICAL_CARDS_RETIRED = true;
+
 export async function POST(req: NextRequest) {
+  if (PHYSICAL_CARDS_RETIRED) {
+    return NextResponse.json(
+      { error: "Printed cards have been retired. Our digital cards live at /digital-cards." },
+      { status: 410 }
+    );
+  }
   if (!SB || !KEY || !STRIPE_KEY) {
     return NextResponse.json({ error: "not configured" }, { status: 500 });
   }
