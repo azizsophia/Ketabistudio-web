@@ -96,8 +96,27 @@
 .sub {
   color: #5a5750;
   max-width: 60ch;
-  margin: 0 0 28px;
+  margin: 0 0 18px;
   line-height: 1.6;
+}
+
+.stepPrice {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin: 0 0 28px;
+  font-family: var(--font-playfair, serif);
+  font-size: 1.6rem;
+  color: var(--ink, #282622);
+}
+
+.stepPrice span {
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #6f6a5f;
 }
 .label {
   display: block;

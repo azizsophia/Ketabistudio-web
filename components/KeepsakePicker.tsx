@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import FlipBook from "./FlipBook";
 import { PHOTOBOOK_TEMPLATES, type PhotobookSlug } from "@/lib/photobook";
+import { HARDCOVER_PRICE_DISPLAY } from "@/lib/pricing";
 import styles from "./KeepsakePicker.module.css";
 
 /* "Choose your person" picker. Instead of stacking all seven keepsakes down a
@@ -76,12 +77,14 @@ export default function KeepsakePicker() {
           <h2 className={styles.title}>{t.title}</h2>
           <p className={styles.value}>{t.value}</p>
           <p className={styles.blurb}>{t.blurb}</p>
+          <p className={styles.price}>
+            {HARDCOVER_PRICE_DISPLAY}
+            <span className={styles.priceNote}>hardcover, made to order</span>
+          </p>
           <Link href={`/keepsakes/${active}`} className={styles.cta}>
             Make this keepsake →
           </Link>
-          <p className={styles.ship}>
-            Hardcover, made to order · we ship worldwide
-          </p>
+          <p className={styles.ship}>Made to order · we ship worldwide</p>
         </div>
       </div>
     </div>

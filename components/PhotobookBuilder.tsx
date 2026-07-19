@@ -404,6 +404,10 @@ export default function PhotobookBuilder({
           <p className={styles.stepLabel}>Step 1 of 3</p>
           <h1 className={styles.heading}>{template.title}</h1>
           <p className={styles.sub}>{template.blurb}</p>
+          <p className={styles.stepPrice}>
+            {HARDCOVER_PRICE_DISPLAY}
+            <span>hardcover, made to order</span>
+          </p>
 
           {template.titleOptions && template.titleOptions.length > 1 && (
             <>
