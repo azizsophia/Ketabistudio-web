@@ -2,14 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import styles from "./journal.module.css";
+import JournalBuy from "@/components/JournalBuy";
+import { JOURNAL_PRICE_DISPLAY } from "@/lib/pricing";
 
 export const metadata: Metadata = {
   title: "From One Root, the 30-day Qur'an journal",
   description:
     "A living dictionary of the Qur'an. Thirty days, one Arabic root a day, traced to its source and cited like scholarship, with room to write. Made to be kept.",
 };
-
-const ETSY = "https://ketabistudio.etsy.com";
 
 /* A single "living dictionary" entry, built in HTML so it stays crisp and
    responsive. Arabic renders right-to-left; the letter labels sit under each
@@ -176,11 +176,11 @@ export default function JournalPage() {
             <li>A page to reflect on each</li>
             <li>Instant digital download</li>
           </ul>
-          <a href={ETSY} target="_blank" rel="noreferrer" className={styles.buy}>
-            Get it on Etsy →
-          </a>
+          <JournalBuy className={styles.buy}>
+            {`Get the journal · ${JOURNAL_PRICE_DISPLAY} →`}
+          </JournalBuy>
           <p className={styles.buyNote}>
-            Instant download. Print it, or keep it on your phone.
+            Instant download after checkout. Print it, or keep it on your phone.
           </p>
         </div>
       </section>

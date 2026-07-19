@@ -28,6 +28,12 @@ export type CoverType = "softcover" | "hardcover";
 export const STORYBOOK_PRICE_CENTS = TEST_DOLLAR_PRICING ? 100 : 2499; // $1 test / $24.99
 export const STORYBOOK_PRICE_DISPLAY = TEST_DOLLAR_PRICING ? "$1.00" : "$24.99";
 
+/* From One Root journal — digital PDF, sold on-site (owner call 2026-07-19:
+   no Etsy reroute). $19 matches the Etsy listing price. Pure digital: no
+   shipping, delivered as a download link on the success page + by email. */
+export const JOURNAL_PRICE_CENTS = TEST_DOLLAR_PRICING ? 100 : 1900;
+export const JOURNAL_PRICE_DISPLAY = TEST_DOLLAR_PRICING ? "$1.00" : "$19.00";
+
 const SOFTCOVER_PRICE_OVERRIDES: Record<string, number> = {
   "juha-and-the-enormous-pumpkin": STORYBOOK_PRICE_CENTS,
   "maryam-is-kind-to-her-parents": STORYBOOK_PRICE_CENTS,

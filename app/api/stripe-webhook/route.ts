@@ -152,6 +152,51 @@ function senderFrom(sender: string): string {
   return `${name} <${addr}>`;
 }
 
+/* Journal (digital PDF, kind=journal): email the buyer their download link.
+   The link is keyed on their own paid session id, so it works forever and
+   needs no DB row. Best-effort — the success page already delivers the file,
+   this is the come-back-later copy. */
+async function deliverJournal(session: Stripe.Checkout.Session) {
+  if (session.metadata?.kind !== "journal") return;
+  if (session.payment_status !== "paid") return;
+  const email = session.customer_details?.email;
+  if (!RESEND_API_KEY || !email) return;
+  const FOREST = "#2E4A3A", CREAM = "#F6F4EF";
+  const link = `https://www.ketabistudio.com/api/journal/download?sid=${encodeURIComponent(session.id)}`;
+  const html = `
+  <div style="background:${CREAM};padding:32px 16px;font-family:Georgia,serif;color:#2a2b22">
+    <div style="max-width:520px;margin:0 auto;background:#fff;border-radius:12px;padding:36px 30px;text-align:center">
+      <p style="letter-spacing:.18em;font-size:12px;color:${FOREST};text-transform:uppercase;margin:0 0 14px">Ketabi Studio</p>
+      <h1 style="font-weight:400;font-size:26px;margin:0 0 14px">Your journal is ready.</h1>
+      <p style="line-height:1.6;color:#6a6a5d;margin:0 0 24px">
+        From One Root, the 30-day Qur&#39;an journal, all sixty-eight pages.
+        Download it below, print it, or keep it on your phone. This link is
+        yours and does not expire.
+      </p>
+      <a href="${link}" style="display:inline-block;background:${FOREST};color:#fff;text-decoration:none;border-radius:999px;padding:14px 26px;font-size:14px;letter-spacing:.06em">Download your journal (PDF)</a>
+      <p style="margin:26px 0 0;font-style:italic;color:#857f70;font-size:14px">May it bring you closer to every word you already say in prayer.</p>
+    </div>
+  </div>`;
+  try {
+    await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${RESEND_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: EMAIL_FROM,
+        to: [email],
+        subject: "Your From One Root journal 🌿",
+        html,
+      }),
+    });
+    console.log(`[journal] download link emailed for ${session.id}`);
+  } catch (e) {
+    console.error("journal delivery email error:", e);
+  }
+}
+
 /* Branded email that delivers the card link to the recipient. Mirrors the
    worker's Resend shell (forest / cream / gold). No-op if Resend is unset. */
 async function sendDigitalCardEmail(o: DigitalCardOrder): Promise<boolean> {
@@ -379,6 +424,7 @@ export async function POST(req: NextRequest) {
     const session = event.data.object as Stripe.Checkout.Session;
 
     await releaseDigitalCard(session);
+    await deliverJournal(session);
 
     const cardOrderId = session.metadata?.cardOrderId;
     if (cardOrderId && session.payment_status === "paid") {
