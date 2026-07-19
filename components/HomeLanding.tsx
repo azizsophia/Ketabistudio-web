@@ -4,7 +4,7 @@ import Personalizer from "./Personalizer";
 import TrustLayer from "./TrustLayer";
 import styles from "./HomeLanding.module.css";
 import { BOOKS } from "@/lib/books";
-import { bookPriceDisplay } from "@/lib/pricing";
+import { bookPriceDisplay, HARDCOVER_PRICE_DISPLAY } from "@/lib/pricing";
 
 /* Launch home: "Made to be kept." One brand line that is true of every
    product world, each world given equal weight, and the live personalizer
@@ -21,30 +21,52 @@ export default function HomeLanding() {
         Free US shipping on storybooks · we ship worldwide
       </div>
 
-      <section className={styles.hero}>
-        <p className={styles.kick}>As-salamu alaykum</p>
-        <h1 className={styles.h1}>
-          Their name. Their story.
-          <em> Kept for life.</em>
-        </h1>
-        <p className={styles.sub}>
-          Type her name and watch her book cover come to life. The real preview,
-          not a mock-up.
-        </p>
-      </section>
-
-      {hijab && (
-        <section className={styles.tryIt} id="try-it">
-          <Personalizer />
-          <div className={styles.tryCtas}>
-            <Link
-              href={`/books/${hijab.slug}`}
-              className={styles.tryLink}
-            >
-              Make it a real book · from {bookPriceDisplay(hijab.slug)} →
+      <section className={styles.keepHero}>
+        <div className={styles.keepHeroText}>
+          <p className={styles.kick}>As-salamu alaykum</p>
+          <h1 className={styles.h1}>
+            Their words. Your photos.
+            <em> Kept forever.</em>
+          </h1>
+          <p className={styles.sub}>
+            Turn the little things your family says, and the photos already on
+            your phone, into a hardcover keepsake they will hold onto for life.
+          </p>
+          <div className={styles.heroCtas}>
+            <Link href="/shop/keepsakes" className={styles.cta}>
+              Make a keepsake · from {HARDCOVER_PRICE_DISPLAY} →
             </Link>
             <Link href="/shop" className={styles.ctaGhost}>
               Shop everything
+            </Link>
+          </div>
+        </div>
+        <div className={styles.keepHeroImg}>
+          <Image
+            src="/images/home/keepsake-hero.jpg"
+            alt="A hardcover 'Everything I Love About Mama' photo keepsake"
+            width={1100}
+            height={1100}
+            priority
+          />
+        </div>
+      </section>
+
+      {hijab && (
+        <section className={styles.storyIntro} id="try-it">
+          <p className={styles.eyebrow}>Or, a story with their name in it</p>
+          <h2 className={styles.h2}>
+            Their name. Their story.
+            <em> Kept for life.</em>
+          </h2>
+          <p className={styles.sub}>
+            Type her name and watch her book cover come to life. The real
+            preview, not a mock-up.
+          </p>
+          <Personalizer />
+          <div className={styles.tryCtas}>
+            <Link href={`/books/${hijab.slug}`} className={styles.tryLink}>
+              Make it a real book · from {bookPriceDisplay(hijab.slug)} →
             </Link>
           </div>
         </section>
