@@ -68,6 +68,9 @@ export const metadata: Metadata = {
     description:
       "Personalized Islamic storybooks, a 30-day Qur'an journal, digital cards and photo keepsakes.",
   },
+  // Google Search Console ownership. Set GOOGLE_SITE_VERIFICATION to the token
+  // from Search Console's "HTML tag" method; when unset, no tag is emitted.
+  verification: { google: process.env.GOOGLE_SITE_VERIFICATION },
 };
 
 export default function RootLayout({
