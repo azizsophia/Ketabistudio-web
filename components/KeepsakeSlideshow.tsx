@@ -8,11 +8,11 @@ import styles from "./KeepsakeSlideshow.module.css";
    range at a glance (it's for every person, not just Mama). Tap a dot to jump. */
 
 const SLIDES = [
-  { src: "/images/home/hero-mama.jpg", alt: "Everything I Love About Mama keepsake" },
-  { src: "/images/home/hero-baba.jpg", alt: "Everything I Love About Baba keepsake" },
-  { src: "/images/home/hero-grandma.jpg", alt: "Everything I Love About Grandma keepsake" },
-  { src: "/images/home/hero-grandpa.jpg", alt: "Everything I Love About Grandpa keepsake" },
-  { src: "/images/home/hero-baby.jpg", alt: "Welcome Little One baby keepsake" },
+  { src: "/images/home/hero-mama-v2.jpg", alt: "Everything I Love About Mama keepsake" },
+  { src: "/images/home/hero-baba-v2.jpg", alt: "Everything I Love About Baba keepsake" },
+  { src: "/images/home/hero-grandma-v2.jpg", alt: "Everything I Love About Grandma keepsake" },
+  { src: "/images/home/hero-grandpa-v2.jpg", alt: "Everything I Love About Grandpa keepsake" },
+  { src: "/images/home/hero-baby-v2.jpg", alt: "Welcome Little One baby keepsake" },
 ];
 
 export default function KeepsakeSlideshow() {
