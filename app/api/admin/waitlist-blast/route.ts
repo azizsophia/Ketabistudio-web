@@ -25,11 +25,19 @@ const HTML = `
     <p style="letter-spacing:.18em;font-size:12px;color:#2E4A3A;text-transform:uppercase;margin:0 0 16px">Ketabi Studio</p>
     <h1 style="font-weight:400;font-size:27px;margin:0 0 6px">As-salamu alaykum.</h1>
     <h2 style="font-weight:400;font-style:italic;font-size:20px;color:#47624c;margin:0 0 20px">The doors are open.</h2>
-    <p style="line-height:1.7;color:#5d564d;margin:0 0 18px">
+    <p style="line-height:1.7;color:#5d564d;margin:0 0 20px">
       You joined our waitlist before there was anything to see, and that meant
       the world. Today the store is live: keepsakes and books made to hold the
       names and words of the people you love.
     </p>
+    <a href="https://www.ketabistudio.com/shop/keepsakes?r=waitlist" style="text-decoration:none">
+      <img src="https://www.ketabistudio.com/images/home/hero-mama-v2.jpg" width="460" alt="Everything I Love About Mama, a hardcover photo keepsake" style="width:100%;max-width:460px;border-radius:12px;display:block;margin:0 auto 10px"/>
+    </a>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 22px"><tr>
+      <td width="33%" style="padding:4px"><a href="https://www.ketabistudio.com/keepsakes/about-baba?r=waitlist"><img src="https://www.ketabistudio.com/images/home/hero-baba-v2.jpg" width="150" alt="Everything I Love About Baba keepsake" style="width:100%;border-radius:10px;display:block"/></a></td>
+      <td width="33%" style="padding:4px"><a href="https://www.ketabistudio.com/keepsakes/about-grandma?r=waitlist"><img src="https://www.ketabistudio.com/images/home/hero-grandma-v2.jpg" width="150" alt="Everything I Love About Teta keepsake" style="width:100%;border-radius:10px;display:block"/></a></td>
+      <td width="33%" style="padding:4px"><a href="https://www.ketabistudio.com/keepsakes/about-baby?r=waitlist"><img src="https://www.ketabistudio.com/images/home/hero-baby-v2.jpg" width="150" alt="Welcome Little One baby keepsake" style="width:100%;border-radius:10px;display:block"/></a></td>
+    </tr></table>
     <div style="text-align:left;background:#F6F4EF;border-radius:10px;padding:20px 22px;margin:0 0 22px;line-height:1.8;color:#4c463d;font-size:15px">
       <b style="color:#2E4A3A">Photo keepsakes</b> · Everything I Love About Mama, Baba, grandparents, a new baby. Your photos, heartfelt words, sealed with a dua.<br/>
       <b style="color:#2E4A3A">Storybooks</b> · hand-illustrated Islamic stories, one starring your child by name.<br/>
