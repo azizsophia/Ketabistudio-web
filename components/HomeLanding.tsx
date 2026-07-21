@@ -73,7 +73,7 @@ export default function HomeLanding() {
           className={`${styles.world} ${styles.wKeeps}`}
         >
           <Image
-            src="/images/worlds/keepsakes-v2.jpg"
+            src="/images/worlds/keepsakes-v3.jpg"
             alt=""
             width={220}
             height={260}
