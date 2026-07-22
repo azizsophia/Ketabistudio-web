@@ -9,6 +9,7 @@ import {
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
+import MetaPixel from "@/components/MetaPixel";
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -85,6 +86,7 @@ export default function RootLayout({
         <main>{children}</main>
         <SiteFooter />
         <Analytics />
+        <MetaPixel />
       </body>
     </html>
   );

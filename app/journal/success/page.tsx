@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Stripe from "stripe";
+import PixelEvent from "@/components/PixelEvent";
 import styles from "./success.module.css";
 
 /* Post-payment landing for the journal. Verifies the buyer's session
@@ -48,6 +49,12 @@ export default async function JournalSuccess({
 
   return (
     <main className={styles.wrap}>
+      <PixelEvent
+        event="Purchase"
+        value={(session.amount_total ?? 1900) / 100}
+        currency={(session.currency ?? "usd").toUpperCase()}
+        id={sid}
+      />
       <p className={styles.kick}>Jazakum Allahu khayran</p>
       <h1 className={styles.h1}>Your journal is ready.</h1>
       <p className={styles.p}>

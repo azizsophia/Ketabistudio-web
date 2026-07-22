@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { headers } from "next/headers";
 import CopyField from "@/components/cards/CopyField";
+import PixelEvent from "@/components/PixelEvent";
 import styles from "./success.module.css";
 
 export const metadata: Metadata = {
@@ -43,6 +44,7 @@ export default async function DigitalCardSuccess({
 
   return (
     <div className={styles.wrap}>
+      <PixelEvent event="Purchase" id={id} />
       <div className={styles.card}>
         <div className={styles.check}>✓</div>
         <h1 className={styles.title}>Your card is ready</h1>

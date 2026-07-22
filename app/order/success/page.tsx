@@ -1,4 +1,5 @@
 import Link from "next/link";
+import PixelEvent from "@/components/PixelEvent";
 
 export const dynamic = "force-dynamic";
 
@@ -12,6 +13,7 @@ export default async function SuccessPage({
 
   return (
     <main className="wrap" style={{ textAlign: "center", padding: "80px 24px", maxWidth: 600, margin: "0 auto" }}>
+      <PixelEvent event="Purchase" id={id} />
       <div
         style={{
           width: 72,
