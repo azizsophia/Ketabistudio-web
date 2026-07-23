@@ -68,43 +68,6 @@ export function isFreeShippingCountry(countryCode: string): boolean {
   return countryCode.toUpperCase() === "US";
 }
 
-/* Greeting cards: ONE flat card price AND ONE flat shipping price worldwide
-   (so the storefront never shows two different prices — avoids confusion).
-   International still earns the fatter margin automatically, because Prodigi
-   (~$7 delivered) is far cheaper to fulfil than US Cloudprinter (~$11.62) —
-   the margin difference comes from print cost, not from a higher shipping
-   charge, so intl shipping doesn't need to be steep.
-
-   Worked economics (live printer quotes, June 2026; Stripe ~2.9% + $0.30):
-     • US   : $12.99 card + $4.99 ship = $17.98; cost ~$11.62; fee ~$0.82
-              → profit ≈ $5.5
-     • Intl : $12.99 card + $4.99 ship = $17.98; cost ~$7 typical (worst
-              ~$13.71 Malaysia); fee ~$0.82
-              → profit ≈ $10.2 typical / ≈ $3.4 worst case
-   Intl nets ~2x the US at the SAME shipping price — no need to charge more. */
-export const CARD_PRICE_CENTS = TEST_DOLLAR_PRICING ? 100 : 1299; // $1 test / $12.99 card (same worldwide)
-export const CARD_PRICE_DISPLAY = TEST_DOLLAR_PRICING ? "$1.00" : "$12.99";
-
-/* Flat card shipping, same worldwide. In test mode shipping is $0 so a test
-   order totals exactly $1 (the card price). Restore with TEST_DOLLAR_PRICING. */
-export const CARD_SHIP_US_CENTS = TEST_DOLLAR_PRICING ? 0 : 499; // $4.99 domestic
-export const CARD_SHIP_INTL_CENTS = TEST_DOLLAR_PRICING ? 0 : 499; // $4.99 international (same)
-export const CARD_SHIP_US_DISPLAY = "$4.99";
-export const CARD_SHIP_INTL_DISPLAY = "$4.99";
-
-/** Card shipping charge in cents for a destination country. */
-export function cardShippingCents(countryCode: string): number {
-  return countryCode.toUpperCase() === "US"
-    ? CARD_SHIP_US_CENTS
-    : CARD_SHIP_INTL_CENTS;
-}
-
-export function cardShippingLabel(countryCode: string): string {
-  return countryCode.toUpperCase() === "US"
-    ? "Shipping (US)"
-    : "Shipping (International)";
-}
-
 /* ── Digital greeting cards ──
    A hosted, animated card delivered by a shareable link (and optionally
    emailed to the recipient). Nothing is printed or posted, so there is no

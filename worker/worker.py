@@ -23,7 +23,6 @@ sys.path.insert(0, str(Path(__file__).parent / "pipeline"))
 
 import qc  # noqa: E402
 import emailer  # noqa: E402
-import cards_worker  # noqa: E402
 
 SB = "".join(os.environ["SUPABASE_URL"].split()).rstrip("/")
 KEY = "".join(os.environ["SUPABASE_SERVICE_KEY"].split())
@@ -623,17 +622,6 @@ def main():
                   f"(to {cfg['admin']})")
     except Exception as e:  # noqa: BLE001
         print(f"[email] startup check error: {e}")
-    # One-time Prodigi connectivity check on boot (a quote — no order placed).
-    try:
-        from pipeline import prodigi_client
-        pc = prodigi_client.check_connection()
-        if pc.get("ok"):
-            print(f"[prodigi] OK — key accepted (env={pc.get('env')})")
-        else:
-            print(f"[prodigi] NOT connected — {pc.get('reason')} "
-                  f"(env={pc.get('env')})")
-    except Exception as e:  # noqa: BLE001
-        print(f"[prodigi] startup check error: {e}")
     while True:
         try:
             for order in db("GET", "orders?status=eq.pending&order=created_at"):
