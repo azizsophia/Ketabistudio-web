@@ -677,17 +677,11 @@ def main():
                     poll_shipping(order)
                 except Exception:
                     traceback.print_exc()
-            # ── greeting-card fulfillment (Prodigi) ──
-            # Runs AFTER all book processing; each call is isolated so a card
-            # error never breaks book fulfillment.
-            try:
-                cards_worker.tick_cards()
-            except Exception:
-                traceback.print_exc()
-            try:
-                cards_worker.poll_card_shipping()
-            except Exception:
-                traceback.print_exc()
+            # ── greeting-card fulfillment: RETIRED ──
+            # Physical greeting cards are discontinued (owner, 2026-07).
+            # Checkout is 410-gated and this fulfillment path is disabled so no
+            # pending/leftover card order can ever be printed or billed again.
+            # tick_cards() is also a hard no-op as a second line of defence.
         except Exception:
             traceback.print_exc()
         time.sleep(poll)

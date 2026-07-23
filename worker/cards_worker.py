@@ -488,10 +488,11 @@ def process_card(order):
 
 
 def tick_cards():
-    """Process every paid (pending) card order."""
-    rows = db("GET", "card_orders?status=eq.pending&order=created_at") or []
-    for order in rows:
-        process_card(order)
+    """RETIRED: physical greeting cards are discontinued (owner, 2026-07).
+    Hard no-op so no pending/leftover card order is ever rendered, submitted to
+    a printer (Cloudprinter/Prodigi/Gelato), or billed. Kept as a stub so any
+    lingering caller stays safe; the main worker no longer calls it at all."""
+    return
 
 
 def poll_card_shipping():
